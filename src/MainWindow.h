@@ -4,6 +4,10 @@
 #include <QMainWindow>
 #include <QSettings>
 
+class ClassDockCollection;
+class CommandWindow;
+class LogWindow;
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -22,5 +26,10 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    QMenu *m_menuView;                                  // Pointer to the "View" menu pull-down
+    QMenu *m_menuWindow;                                // Pointer to the "Window" menu pull-down
+    LogWindow *m_logWindow;                             // Log window class and form
+    CommandWindow *m_cmdWindow;                         // Command window class and form
+    ClassDockCollection *m_docks;                 // Manages user graph windows
 };
 #endif // MAINWINDOW_H

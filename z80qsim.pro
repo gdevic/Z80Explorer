@@ -1,6 +1,4 @@
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui widgets xml
 
 CONFIG += c++11
 
@@ -16,13 +14,30 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    src/main.cpp \
-    src/MainWindow.cpp
+    src/ClassApplog.cpp \
+    src/ClassBaseGraph.cpp \
+    src/ClassDockCollection.cpp \
+    src/CommandWindow.cpp \
+    src/FormGraphWindow.cpp \
+    src/LogWindow.cpp \
+    src/MainWindow.cpp \
+    src/main.cpp
 
 HEADERS += \
+    src/ClassApplog.h \
+    src/ClassBaseGraph.h \
+    src/ClassDockCollection.h \
+    src/ClassException.h \
+    src/ClassSingleton.h \
+    src/CommandWindow.h \
+    src/FormGraphWindow.h \
+    src/LogWindow.h \
     src/MainWindow.h
 
 FORMS += \
+    src/CommandWindow.ui \
+    src/FormGraphWindow.ui \
+    src/LogWindow.ui \
     src/MainWindow.ui
 
 # Default rules for deployment.
