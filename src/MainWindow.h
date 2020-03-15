@@ -15,6 +15,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void onExit(); // Exit the application
+
 private:
     Ui::MainWindow *ui;
 };

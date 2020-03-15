@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
 }
 
 MainWindow::~MainWindow()
@@ -13,3 +15,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// Menu action to exit the application
+void MainWindow::onExit()
+{
+    close();
+}
