@@ -1,10 +1,13 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "ClassChip.h"
 #include "ClassDockCollection.h"
 #include "CommandWindow.h"
 #include "LogWindow.h"
 
 #include <QDebug>
+#include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -12,9 +15,13 @@ MainWindow::MainWindow(QWidget *parent) :
     m_menuView(0),
     m_logWindow(0),
     m_cmdWindow(0),
-    m_docks(0)
+    m_docks(0),
+    m_chip(0)
 {
     ui->setupUi(this);
+
+    // Create the main chip class
+    m_chip = new ClassChip();
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");
@@ -48,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_logWindow->show();
     m_cmdWindow->show();
 
+    // Connect the rest of the menu actions...
+    connect(ui->actionOpenChipDir, SIGNAL(triggered()), this, SLOT(onOpenChipDir()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
 }
 
@@ -58,6 +67,7 @@ MainWindow::~MainWindow()
 {
     delete m_cmdWindow;
     delete m_logWindow;
+    delete m_chip;
     delete ui;
 }
 
@@ -77,4 +87,21 @@ bool MainWindow::init()
 void MainWindow::onExit()
 {
     close();
+}
+
+/*
+ * Handle menu item to open directory with chip resources
+ */
+void MainWindow::onOpenChipDir()
+{
+    // XXX
+    m_chip->loadChipResources("F:/z80qsim/external");
+    return;
+    // Prompts the user to select the chip resource folder
+    QString fileName = QFileDialog::getOpenFileName(this, "Select chip resource folder", "", "Images (*.png)");
+    if (!fileName.isEmpty())
+    {
+        if (!m_chip->loadChipResources(fileName))
+            QMessageBox::critical(this, "Error", "Selected directory does not contain expected chip resources");
+    }
 }

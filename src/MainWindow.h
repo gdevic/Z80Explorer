@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QSettings>
 
+class ClassChip;
 class ClassDockCollection;
 class CommandWindow;
 class LogWindow;
@@ -22,6 +23,7 @@ public:
     bool init();                                        // Initialization outside the constructor
 
 public slots:
+    void onOpenChipDir(); // Open directory with chip resources
     void onExit(); // Exit the application
 
 private:
@@ -30,6 +32,7 @@ private:
     QMenu *m_menuWindow;                                // Pointer to the "Window" menu pull-down
     LogWindow *m_logWindow;                             // Log window class and form
     CommandWindow *m_cmdWindow;                         // Command window class and form
-    ClassDockCollection *m_docks;                 // Manages user graph windows
+    ClassDockCollection *m_docks;                       // Manages user graph windows
+    ClassChip *m_chip;                                  // Holds chip information
 };
 #endif // MAINWINDOW_H

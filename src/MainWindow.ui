@@ -27,6 +27,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpenChipDir"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -44,6 +46,17 @@
    </property>
    <property name="statusTip">
     <string>Exit the application</string>
+   </property>
+  </action>
+  <action name="actionOpenChipDir">
+   <property name="text">
+    <string>Open chip dir...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open directory with chip resources</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>
