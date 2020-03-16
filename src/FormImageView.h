@@ -1,19 +1,11 @@
-/*
- * Copyright (c) 2012 NVIDIA Corporation.  All rights reserved.
- *
- * NVIDIA Corporation and its licensors retain all intellectual property
- * and proprietary rights in and to this software, related documentation
- * and any modifications thereto.  Any use, reproduction, disclosure or
- * distribution of this software and related documentation without an express
- * license agreement from NVIDIA Corporation is strictly prohibited.
- */
-
 #ifndef FORMIMAGEVIEW_H
 #define FORMIMAGEVIEW_H
 
 #include <QWidget>
 #include <QResizeEvent>
 #include <QGridLayout>
+
+class ClassChip;
 
 namespace Ui {
     class FormImageView;
@@ -28,7 +20,7 @@ class FormImageView : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormImageView(QWidget *parent);
+    explicit FormImageView(QWidget *parent, ClassChip *chip);
     ~FormImageView();
 
     int m_viewId;                       // ID of this particular pane (0 or 1)
@@ -80,11 +72,13 @@ public slots:
 
 private:
     Ui::FormImageView *ui;
+    ClassChip *m_chip;
 
     QImage  m_image;                    // Current image
     QSize   m_panelSize;                // View panel size, drawable area
     QPointF m_tex;                      // Texture coordinate to map to view center (normalized)
     qreal   m_scale;                    // Scaling value
+    ZoomType m_view_mode;
 
     QPoint  m_mousePos;                 // Current mouse position
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
@@ -102,9 +96,11 @@ private:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *);
+    void leaveEvent(QEvent* event);
+    void keyPressEvent(QKeyEvent *e);
+
     void calcTransform();
     void clampImageCoords(QPointF &);
-    void leaveEvent(QEvent* event);
     void createLayout();
 
 private slots:

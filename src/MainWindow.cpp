@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_chip = new ClassChip();
 
     // Create a central widget to show chip image
-    m_iview = new FormImageView(this);
+    m_iview = new FormImageView(this, m_chip);
     setCentralWidget(m_iview);
 
     // Find various menu handles since we will be managing its objects dynamically

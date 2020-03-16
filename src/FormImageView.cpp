@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2012 NVIDIA Corporation.  All rights reserved.
- *
- * NVIDIA Corporation and its licensors retain all intellectual property
- * and proprietary rights in and to this software, related documentation
- * and any modifications thereto.  Any use, reproduction, disclosure or
- * distribution of this software and related documentation without an express
- * license agreement from NVIDIA Corporation is strictly prohibited.
- */
-
 #include <QPainter>
 #include <QRgb>
 #include <QSpacerItem>
@@ -16,13 +6,16 @@
 #include "FormImageView.h"
 #include "ui_FormImageView.h"
 
+#include "ClassChip.h"
+
 //============================================================================
 // Class constructor and destructor
 //============================================================================
 
-FormImageView::FormImageView(QWidget *parent) :
+FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     QWidget(parent),
     ui(new Ui::FormImageView),
+    m_chip(chip),
     m_mousePressed(false),
     m_gridLayout(0)
 {
@@ -66,7 +59,8 @@ void FormImageView::setViewMode(ZoomType mode)
     qreal sx = (qreal) width()/m_image.width();
     qreal sy = (qreal) height()/m_image.height();
 
-    switch(mode)
+    m_view_mode = mode;
+    switch(m_view_mode)
     {
     case Fit:                       // Fit
         m_tex = QPointF(0.5, 0.5);   // Map texture center to view center
@@ -261,6 +255,8 @@ void FormImageView::mousePressEvent(QMouseEvent *event)
     m_pinMousePos = event->pos();
     m_mousePressed = true;
 
+    setFocusPolicy(Qt::ClickFocus);
+
     emit gotFocus(m_viewId);
 }
 
@@ -279,10 +275,36 @@ void FormImageView::wheelEvent(QWheelEvent *event)
     emit setZoom(m_scale);
 }
 
-void FormImageView::leaveEvent(QEvent* event)
+void FormImageView::leaveEvent(QEvent *)
 {
     emit clearPointerData();
 }
+
+void FormImageView::keyPressEvent(QKeyEvent *event)
+{
+    //enum ChipLayer { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias };
+    switch (event->key())
+    {
+        case '1': setImage(m_chip->getImage(ClassChip::Burried)); break;
+        case '2': setImage(m_chip->getImage(ClassChip::Diffusion)); break;
+        case '3': setImage(m_chip->getImage(ClassChip::Ions)); break;
+        case '4': setImage(m_chip->getImage(ClassChip::Metal)); break;
+        case '5': setImage(m_chip->getImage(ClassChip::Pads)); break;
+        case '6': setImage(m_chip->getImage(ClassChip::Poly)); break;
+        case '7': setImage(m_chip->getImage(ClassChip::Vias)); break;
+        case Qt::Key_F:
+        {
+            switch(m_view_mode)
+            {
+                case Fit: setViewMode(Fill); break;
+                case Fill: setViewMode(Identity); break;
+                case Identity: setViewMode(Fit); break;
+                case Value: setViewMode(Fit); break;
+            }
+        }; break;
+    }
+}
+
 
 // HUD support
 void FormImageView::createLayout()

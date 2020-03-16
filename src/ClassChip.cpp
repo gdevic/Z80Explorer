@@ -44,12 +44,12 @@ bool ClassChip::loadChipResources(QString dir)
     }
     qDebug() << "Completed resource loading";
 
-    qDebug() << "Converting to 8bpp format...";
+    qDebug() << "Converting to grayscale format...";
     for (int i = 0; i < 7; i++)
     {
         qDebug() << "Processing " << files[i];
         e.processEvents(QEventLoop::AllEvents);
-        m_img[i] = m_img[i].convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
+        m_imgbw[i] = m_img[i].convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
     }
     qDebug() << "Done processing images";
 

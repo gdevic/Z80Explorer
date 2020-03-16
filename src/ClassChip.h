@@ -16,9 +16,12 @@ public:
     ~ClassChip();
     bool loadChipResources(QString dir); // Attempts to load all expected chip resources
 
+    enum ChipLayer { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias };
+    QImage &getImage(ChipLayer l) { return m_img[l]; }
+
 private:
-    enum { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias } ChipLayer;
-    QImage m_img[7];
+    QImage m_img[7];    // Chip layer pixmaps
+    QImage m_imgbw[7];  // Grayscale (B/W) versions of the images
 };
 
 #endif // CLASSCHIP_H
