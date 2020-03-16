@@ -62,6 +62,7 @@ signals:
     void contextMenuRequestedAt(FormImageView* widget, const QPoint& where);
 
 public slots:
+    void onRefresh();                   // Called when class chip changes image
     void setImage(const QImage &);      // Makes a copy of the image and sets it as current
     void setViewMode(ZoomType);         // Set the view mode
     void setZoom(double);               // Set the zoom value

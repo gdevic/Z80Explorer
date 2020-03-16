@@ -25,6 +25,7 @@ public:
 
 public slots:
     void onOpenChipDir(); // Open directory with chip resources
+    void loadChipResources();
     void onExit(); // Exit the application
 
 private:

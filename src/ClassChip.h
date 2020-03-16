@@ -19,6 +19,9 @@ public:
     enum ChipLayer { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias };
     QImage &getImage(ChipLayer l) { return m_img[l]; }
 
+signals:
+    void refresh();                     // Image has changed
+
 private:
     QImage m_img[7];    // Chip layer pixmaps
     QImage m_imgbw[7];  // Grayscale (B/W) versions of the images

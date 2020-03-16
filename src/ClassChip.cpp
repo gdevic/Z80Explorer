@@ -53,5 +53,7 @@ bool ClassChip::loadChipResources(QString dir)
     }
     qDebug() << "Done processing images";
 
+    emit refresh();
+
     return true;
 }

@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -63,6 +64,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // Connect the rest of the menu actions...
     connect(ui->actionOpenChipDir, SIGNAL(triggered()), this, SLOT(onOpenChipDir()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
+
+    // As soon as the GUI becomes idle, load chip resources
+    QTimer::singleShot(0, this, SLOT(loadChipResources()));
 }
 
 /**
@@ -99,16 +103,28 @@ void MainWindow::onExit()
  */
 void MainWindow::onOpenChipDir()
 {
-    // XXX
-    m_chip->loadChipResources("F:/z80qsim/external");
-    QImage m("F:/z80qsim/external/Z80_polysilicon.png");
-    m_iview->setImage(m);
-    return;
     // Prompts the user to select the chip resource folder
     QString fileName = QFileDialog::getOpenFileName(this, "Select chip resource folder", "", "Images (*.png)");
     if (!fileName.isEmpty())
     {
-        if (!m_chip->loadChipResources(fileName))
-            QMessageBox::critical(this, "Error", "Selected directory does not contain expected chip resources");
+        QString path = QFileInfo(fileName).path();
+        if (m_chip->loadChipResources(path))
+        {
+            QSettings settings;
+            settings.setValue("ChipResources", path);
+        }
+        else
+            QMessageBox::critical(this, "Error", "Selected folder does not contain expected chip resources");
     }
+}
+
+/*
+ * Load chip resources on startup
+ */
+void MainWindow::loadChipResources()
+{
+    QSettings settings;
+    QString path = settings.value("ChipResources", QDir::currentPath()).toString();
+    if (!m_chip->loadChipResources(path))
+        onOpenChipDir(); // Make the user select the chip resource folder
 }

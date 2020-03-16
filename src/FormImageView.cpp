@@ -28,6 +28,8 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     // when the user drags it with a mouse)
     connect(this, SIGNAL(imageMoved(QPointF)), this, SLOT(moveBy(QPointF)));
 
+    connect(m_chip, SIGNAL(refresh()), this, SLOT(onRefresh()));
+
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
 }
 
@@ -90,7 +92,7 @@ void FormImageView::setViewMode(ZoomType mode)
 
 void FormImageView::setZoom(double value)
 {
-    // Check that the zoom value is valid
+    // Make sure that the zoom value is valid
     m_scale = qBound(0.1, value, 10.0);
     setViewMode(Value);
 }
@@ -119,6 +121,12 @@ void FormImageView::imageCenterV()
 {
     m_tex.setY(0.5);
     update();
+}
+
+// Called when class chip changes image
+void FormImageView::onRefresh()
+{
+    setImage(m_chip->getImage(ClassChip::Metal));
 }
 
 //============================================================================
