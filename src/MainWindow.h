@@ -8,6 +8,7 @@ class ClassChip;
 class ClassDockCollection;
 class CommandWindow;
 class LogWindow;
+class FormImageView;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -34,5 +35,6 @@ private:
     CommandWindow *m_cmdWindow;                         // Command window class and form
     ClassDockCollection *m_docks;                       // Manages user graph windows
     ClassChip *m_chip;                                  // Holds chip information
+    FormImageView *m_iview;                             // Central image view
 };
 #endif // MAINWINDOW_H

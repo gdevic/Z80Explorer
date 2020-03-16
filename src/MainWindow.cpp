@@ -4,6 +4,7 @@
 #include "ClassDockCollection.h"
 #include "CommandWindow.h"
 #include "LogWindow.h"
+#include "FormImageView.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -22,6 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Create the main chip class
     m_chip = new ClassChip();
+
+    // Create a central widget to show chip image
+    m_iview = new FormImageView(this);
+    setCentralWidget(m_iview);
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");
@@ -96,6 +101,8 @@ void MainWindow::onOpenChipDir()
 {
     // XXX
     m_chip->loadChipResources("F:/z80qsim/external");
+    QImage m("F:/z80qsim/external/Z80_polysilicon.png");
+    m_iview->setImage(m);
     return;
     // Prompts the user to select the chip resource folder
     QString fileName = QFileDialog::getOpenFileName(this, "Select chip resource folder", "", "Images (*.png)");

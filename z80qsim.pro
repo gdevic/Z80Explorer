@@ -20,6 +20,7 @@ SOURCES += \
     src/ClassDockCollection.cpp \
     src/CommandWindow.cpp \
     src/FormGraphWindow.cpp \
+    src/FormImageView.cpp \
     src/LogWindow.cpp \
     src/MainWindow.cpp \
     src/main.cpp
@@ -33,12 +34,14 @@ HEADERS += \
     src/ClassSingleton.h \
     src/CommandWindow.h \
     src/FormGraphWindow.h \
+    src/FormImageView.h \
     src/LogWindow.h \
     src/MainWindow.h
 
 FORMS += \
     src/CommandWindow.ui \
     src/FormGraphWindow.ui \
+    src/FormImageView.ui \
     src/LogWindow.ui \
     src/MainWindow.ui
 
