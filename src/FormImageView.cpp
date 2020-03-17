@@ -2,6 +2,7 @@
 #include "ui_FormImageView.h"
 #include "ClassChip.h"
 
+#include <QDebug>
 #include <QGridLayout>
 #include <QPainter>
 #include <QResizeEvent>
@@ -21,9 +22,10 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     m_gridLayout(0)
 {
     ui->setupUi(this);
-    setViewMode(Fit);
+    setZoomMode(Fit);
     setMouseTracking(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setFocusPolicy(Qt::ClickFocus);
 
     // Connect the view's internal intent to move its image (for example,
     // when the user drags it with a mouse)
@@ -49,6 +51,7 @@ FormImageView::~FormImageView()
 void FormImageView::setImage(const QImage &img)
 {
     m_image = img;
+    setZoom(0.1);
     // When the image changes, refresh the transform.
     // This helps the Navigator get initial sizing correct.
     calcTransform();
@@ -60,7 +63,7 @@ const QImage& FormImageView::getImage()
     return m_image;
 }
 
-void FormImageView::setViewMode(ZoomType mode)
+void FormImageView::setZoomMode(ZoomType mode)
 {
     qreal sx = (qreal) width()/m_image.width();
     qreal sy = (qreal) height()/m_image.height();
@@ -98,7 +101,7 @@ void FormImageView::setZoom(double value)
 {
     // Make sure that the zoom value is in the sane range
     m_scale = qBound(0.1, value, 10.0);
-    setViewMode(Value);
+    setZoomMode(Value);
 }
 
 void FormImageView::moveBy(QPointF delta)
@@ -267,8 +270,6 @@ void FormImageView::mousePressEvent(QMouseEvent *event)
     m_pinMousePos = event->pos();
     m_mousePressed = true;
 
-    setFocusPolicy(Qt::ClickFocus);
-
     emit gotFocus(m_viewId);
 }
 
@@ -295,25 +296,18 @@ void FormImageView::leaveEvent(QEvent *)
 void FormImageView::keyPressEvent(QKeyEvent *event)
 {
     //enum ChipLayer { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias };
-    switch (event->key())
+    uint set = !!(event->modifiers() & Qt::AltModifier);
+    if (event->key() >= '1' && event->key() <= '7')
+        setImage((m_chip->getImage(set, event->key())));
+    if (event->key() == Qt::Key_F)
     {
-        case '1': setImage(m_chip->getImage(ClassChip::Burried)); break;
-        case '2': setImage(m_chip->getImage(ClassChip::Diffusion)); break;
-        case '3': setImage(m_chip->getImage(ClassChip::Ions)); break;
-        case '4': setImage(m_chip->getImage(ClassChip::Metal)); break;
-        case '5': setImage(m_chip->getImage(ClassChip::Pads)); break;
-        case '6': setImage(m_chip->getImage(ClassChip::Poly)); break;
-        case '7': setImage(m_chip->getImage(ClassChip::Vias)); break;
-        case Qt::Key_F:
+        switch(m_view_mode)
         {
-            switch(m_view_mode)
-            {
-                case Fit: setViewMode(Fill); break;
-                case Fill: setViewMode(Identity); break;
-                case Identity: setViewMode(Fit); break;
-                case Value: setViewMode(Fit); break;
-            }
-        }; break;
+            case Fit: setZoomMode(Fill); break;
+            case Fill: setZoomMode(Identity); break;
+            case Identity: setZoomMode(Fit); break;
+            case Value: setZoomMode(Fit); break;
+        }
     }
 }
 

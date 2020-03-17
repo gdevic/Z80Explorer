@@ -70,8 +70,6 @@ MainWindow::MainWindow(QWidget *parent) :
  */
 MainWindow::~MainWindow()
 {
-    delete m_cmdWindow;
-    delete m_logWindow;
     delete m_chip;
     delete ui;
 }
@@ -127,4 +125,5 @@ void MainWindow::onNewImageView()
 
     addDockWidget(Qt::BottomDockWidgetArea, dock);
     dock->setFloating(true);
+    dock->resize(300, 300);
 }

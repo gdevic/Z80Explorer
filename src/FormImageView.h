@@ -26,7 +26,8 @@ public:
     const QImage& getImage();           // Returns the current QImage; is never NULL
     void getJoinedSizeHint(QSizeF &);
     QRectF getImageView();              // Return the normalized viewport in the image space
-    enum ZoomType { Fit, Fill, Identity, Value };   // List of possible zoom modes
+    enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes
+    Q_ENUM(ZoomType);                   // Register enum names inside a QMetaObject
 
     // HUD widget support:
     // Position specification for fadeable overlay widgets
@@ -56,7 +57,7 @@ signals:
 public slots:
     void onRefresh();                   // Called when class chip changes image
     void setImage(const QImage &);      // Makes a copy of the image and sets it as current
-    void setViewMode(ZoomType);         // Set the view mode
+    void setZoomMode(ZoomType);         // Set the view mode
     void setZoom(double);               // Set the zoom value
     void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
     void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate

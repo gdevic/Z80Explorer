@@ -7,8 +7,8 @@
 #include <QSettings>
 
 // Global objects
-MainWindow *mainWindow = 0; // Window: main window class
-CAppLogHandler *applog = 0; // Application logging subsystem
+MainWindow *mainWindow = nullptr; // Window: main window class
+CAppLogHandler *applog = nullptr; // Application logging subsystem
 
 /*
  * Handler for both Qt messages and application messages.
