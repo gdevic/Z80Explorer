@@ -3,13 +3,14 @@
 #include "ClassChip.h"
 #include "ClassDockCollection.h"
 #include "CommandWindow.h"
-#include "LogWindow.h"
 #include "FormImageView.h"
+#include "LogWindow.h"
 
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -69,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer::singleShot(0, this, SLOT(loadChipResources()));
 }
 
-/**
+/*
  * Main window destructor. Do all clean-ups here.
  */
 MainWindow::~MainWindow()
@@ -80,7 +81,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-/**
+/*
  * This initialization is done after the window construction. The main benefit is
  * that it can fail (return false) and thus shut down the application.
  */

@@ -1,18 +1,15 @@
 #ifndef FORMGRAPHWINDOW_H
 #define FORMGRAPHWINDOW_H
 
-#include <QDataStream>
 #include <QDockWidget>
 #include <QXmlStreamWriter>
 #include <QtXml/QDomDocument>
 
 class ClassBaseGraph;
 
-namespace Ui {
-    class FormGraphWindow;
-}
+namespace Ui { class FormGraphWindow; }
 
-/**
+/*
  * This docking window is a container in which we stack various graph and value widgets,
  * optionally with a timeline or a rangeslider widget at the bottom.
  */

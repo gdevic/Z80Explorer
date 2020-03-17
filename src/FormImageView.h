@@ -2,19 +2,17 @@
 #define FORMIMAGEVIEW_H
 
 #include <QWidget>
-#include <QResizeEvent>
-#include <QGridLayout>
 
 class ClassChip;
+class QGridLayout;
+class QResizeEvent;
 
-namespace Ui {
-    class FormImageView;
-}
+namespace Ui { class FormImageView; }
 
-//
-// This class implements a single pane within a dual pane FormCompositeView
-// and should be used only by that class.
-//
+/*
+ * This class implement an image viewer tied to the set of images stored in
+ * ClassChip. It allows the user to move and zoom into images.
+ */
 class FormImageView : public QWidget
 {
     Q_OBJECT
@@ -42,23 +40,17 @@ signals:
     void imageMoved(QPointF);           // Image is moved by this control to new coordinates
     void imageZoomed(int);              // Image is zoomed by specified number of steps (+/-)
 
-    /**
-     * Send the XY coordinates of the pointer (in image coordinates)
-     * and the color of the pixel under the pointer.
-     */
+    // Send the XY coordinates of the pointer (in image coordinates)
+    // and the color of the pixel under the pointer
     void pointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b);
 
-    /**
-     * Indicate that the pointer is not currently over the image.
-     */
+    // Indicate that the pointer is not currently over the image
     void clearPointerData();
 
-    /**
-     * contextMenuRequestedAt() is sent when the user presses
-     * the right mouse button over the widget. The signal includes
-     * a reference to this widget, and the global position of the
-     * click.
-     */
+    // contextMenuRequestedAt() is sent when the user presses
+    // the right mouse button over the widget. The signal includes
+    // a reference to this widget, and the global position of the
+    // click.
     void contextMenuRequestedAt(FormImageView* widget, const QPoint& where);
 
 public slots:
@@ -79,7 +71,7 @@ private:
     QSize   m_panelSize;                // View panel size, drawable area
     QPointF m_tex;                      // Texture coordinate to map to view center (normalized)
     qreal   m_scale;                    // Scaling value
-    ZoomType m_view_mode;
+    ZoomType m_view_mode;               // Current zoom mode
 
     QPoint  m_mousePos;                 // Current mouse position
     QPoint  m_pinMousePos;              // Mouse position at the time of button press

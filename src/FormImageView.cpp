@@ -1,12 +1,13 @@
+#include "FormImageView.h"
+#include "ui_FormImageView.h"
+#include "ClassChip.h"
+
+#include <QGridLayout>
 #include <QPainter>
+#include <QResizeEvent>
 #include <QRgb>
 #include <QSpacerItem>
 #include <QtGlobal>
-
-#include "FormImageView.h"
-#include "ui_FormImageView.h"
-
-#include "ClassChip.h"
 
 //============================================================================
 // Class constructor and destructor
@@ -64,25 +65,25 @@ void FormImageView::setViewMode(ZoomType mode)
     m_view_mode = mode;
     switch(m_view_mode)
     {
-    case Fit:                       // Fit
-        m_tex = QPointF(0.5, 0.5);   // Map texture center to view center
+    case Fit:
+        m_tex = QPointF(0.5, 0.5); // Map texture center to view center
         m_scale = sx > sy ? sy : sx;
         if(sx>1.0 && sy>1.0)
             m_scale = 1.0;
         break;
 
-    case Fill:                      // Fill
-        m_tex = QPointF(0.5, 0.5);   // Map texture center to view center
+    case Fill:
+        m_tex = QPointF(0.5, 0.5); // Map texture center to view center
         m_scale = sx > sy ? sx : sy;
         if(sx>1.0 && sy>1.0)
             m_scale = 1.0;
         break;
 
-    case Identity:                  // 1:1 Zoom ratio
+    case Identity: // 1:1 Zoom ratio
         m_scale = 1.0;
         break;
 
-    default:                        // Any other value is a free zoom ratio
+    default: // Any other value is a real number zoom ratio
         break;
     }
 
@@ -92,7 +93,7 @@ void FormImageView::setViewMode(ZoomType mode)
 
 void FormImageView::setZoom(double value)
 {
-    // Make sure that the zoom value is valid
+    // Make sure that the zoom value is in the sane range
     m_scale = qBound(0.1, value, 10.0);
     setViewMode(Value);
 }
@@ -312,7 +313,6 @@ void FormImageView::keyPressEvent(QKeyEvent *event)
         }; break;
     }
 }
-
 
 // HUD support
 void FormImageView::createLayout()

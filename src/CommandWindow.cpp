@@ -1,8 +1,9 @@
 #include "CommandWindow.h"
 #include "ui_CommandWindow.h"
+
 #include <QtGui>
 
-/**
+/*
  * CommandWindow constructor.
  */
 CommandWindow::CommandWindow(QWidget *parent) :
@@ -25,7 +26,7 @@ CommandWindow::CommandWindow(QWidget *parent) :
     m_edit->installEventFilter(this);
 }
 
-/**
+/*
  * CommandWindow destructor.
  */
 CommandWindow::~CommandWindow()

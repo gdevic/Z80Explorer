@@ -1,6 +1,6 @@
 #include "ClassBaseGraph.h"
 
-/**
+/*
  * Dynamically add a list of data sources to the view
  */
 void ClassBaseGraph::addDs(QStringList dsList)
@@ -9,7 +9,7 @@ void ClassBaseGraph::addDs(QStringList dsList)
         addDs(name);
 }
 
-/**
+/*
  * Dynamically remove a list of data sources from the view
  */
 void ClassBaseGraph::removeDs(QStringList dsList)

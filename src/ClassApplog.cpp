@@ -1,7 +1,8 @@
 #include "ClassApplog.h"
-#include <QDir>
+
 #include <QDateTime>
 #include <QDebug>
+#include <QDir>
 
 using namespace std;
 
@@ -53,37 +54,23 @@ QString CAppLogHandler::GetCurrentAppDirectory()
     return CurDir.absolutePath();
 }
 
-/*!
+/*
  * Set new log options
- *
- * @param logoption new log options
- *
- * @return None
  */
 void CAppLogHandler::SetLogOptions(int logoption)
 {
     m_log_options = logoption;
     if (CheckBit(m_log_options, LogOptions_File))
-    {
         InitLogFile();
-    }
     else
     {
-        //close log file
         if (flog.is_open())
-        {
             flog.close();
-        }
     }
 }
 
-/*!
+/*
  * Set new log file information
- *
- * @param filepath log file path.  Can be NULL and value will not be set
- * @param filename log file name.  Can be NULL and value will not be set
- * @param logfilesize maximum log file size. default is DEFAULT_APP_LOG_FILE_SIZE
- * @return None
  */
 void CAppLogHandler::SetNewLogFile(char* filepath, char* filename, int maxlogfilesize)
 {
@@ -99,33 +86,29 @@ void CAppLogHandler::SetNewLogFile(char* filepath, char* filename, int maxlogfil
     InitLogFile();
 }
 
-/*!
+/*
  * Initializing the log file.
  *   1. Close previously opened the file
  *   2. If the file size is greater than max size, rename the old one and create new one.
  *   3. Open file as output and append mode and add header to indicate the log name.
- *
- * @return None
  */
 void CAppLogHandler::InitLogFile()
 {
     if (flog.is_open())
-    {
         flog.close();
-    }
+
     QString file = m_log_file_path + "/" + m_log_file_name;
     file = QDir::toNativeSeparators(file);
 
     if (CheckBit(m_log_options, LogOptions_Append))
     {
-        //Check file exist, if so, check for size
+        // Check file exist, if so, check for size
         QFile logFile(file);
         if (logFile.exists())
         {
             qint64 size = logFile.size();
-            if (size/1024 > m_max_log_file_size)    //File size greater than max
+            if (size/1024 > m_max_log_file_size)
             {
-                //Rename file
                 QString newfilename = file + "." + GetCurrentTimeFileString() + ".txt";
                 newfilename = QDir::toNativeSeparators(newfilename);
                 logFile.rename(newfilename);
@@ -133,17 +116,13 @@ void CAppLogHandler::InitLogFile()
         }
         logFile.close();
 
-         //Open file
         flog.open(file.toStdString().c_str(),  ios::out | ios::app);
     }
     else
         flog.open(file.toStdString().c_str());
 
     if (flog.is_open())
-    {
-        //Add block header
         flog << "-------- " << m_log_name.toStdString() << " --------\n\n";
-    }
 }
 
 QString CAppLogHandler::GetCurrentTimeString()
@@ -158,12 +137,8 @@ QString CAppLogHandler::GetCurrentTimeFileString()
     return dateTime.toString("yyyy-MM-dd hh-mm-ss");
 }
 
-/*!
+/*
  * Write to log
- *
- * @param message message to log
- * @param verbose indicate I (info), W (warning), or E (error)
- * @return None
  */
 void CAppLogHandler::Write(char* message, int verbose)
 {
@@ -174,12 +149,8 @@ void CAppLogHandler::Write(char* message, int verbose)
     }
 }
 
-/*!
+/*
  * Write line of log
- *
- * @param message message to log
- * @param verbose indicate I (info), W (warning), or E (error)
- * @return None
  */
 void CAppLogHandler::WriteLine(const QString message, int verbose)
 {
@@ -210,11 +181,8 @@ void CAppLogHandler::WriteLine(char* message, int verbose)
     WriteLine(QString(message), verbose);
 }
 
-/*!
+/*
  * Operator << overload to change the message type
- *
- * @param t message type
- * @return this
  */
 CAppLogHandler& CAppLogHandler::operator<<(LogVerbose t)
 {
@@ -222,11 +190,8 @@ CAppLogHandler& CAppLogHandler::operator<<(LogVerbose t)
     return *this;
 }
 
-/*!
+/*
  * Operator << overload to output const chars
- *
- * @param t message to output
- * @return this
  */
 CAppLogHandler& CAppLogHandler::operator<<(const char* t)
 {
@@ -234,18 +199,15 @@ CAppLogHandler& CAppLogHandler::operator<<(const char* t)
     ts << t;
     if (t[strlen(t)-1] == '\n')
     {
-        m_message.remove(m_message.length()-1, 1);  //remove last char because writeline will write it.
+        m_message.remove(m_message.length()-1, 1);  // remove last char because writeline will write it
         WriteLine((char*) m_message.toStdString().c_str(), m_cur_stream_output_verbose);
         m_message.clear();
     }
     return *this;
 }
 
-/*!
+/*
  * Operator << overload to output QString
- *
- * @param t message to output
- * @return this
  */
 CAppLogHandler& CAppLogHandler::operator<<(const QString & t)
 {
@@ -253,24 +215,21 @@ CAppLogHandler& CAppLogHandler::operator<<(const QString & t)
     ts << t;
     if (t[t.length()-1] == '\n')
     {
-        m_message.remove(m_message.length()-1, 1);  //remove last char because writeline will write it.
+        m_message.remove(m_message.length()-1, 1);  // remove last char because writeline will write it
         WriteLine((char*) m_message.toStdString().c_str(), m_cur_stream_output_verbose);
         m_message.clear();
     }
     return *this;
 }
 
-/*!
+/*
  * Operator << overload to output std::endl
- *
- * @param t std::endl to output
- * @return this
  */
 CAppLogHandler& CAppLogHandler::operator<<(std::ostream&(*t)(std::ostream&) )
 {
     typedef std::ostream& (*os_t)(std::ostream&);
 
-    if(t == static_cast<os_t>(std::endl))
+    if (t == static_cast<os_t>(std::endl))
     {
         WriteLine((char*) m_message.toStdString().c_str(), m_cur_stream_output_verbose);
         m_message.clear();

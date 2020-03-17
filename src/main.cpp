@@ -1,9 +1,10 @@
+#include "MainWindow.h"
 #include "ClassApplog.h"
 #include "ClassSingleton.h"
-#include "MainWindow.h"
 
 #include <QApplication>
 #include <QMessageBox>
+#include <QSettings>
 
 // Global objects
 MainWindow *mainWindow = 0; // Window: main window class

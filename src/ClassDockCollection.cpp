@@ -2,26 +2,27 @@
 #include "ClassException.h"
 #include "FormGraphWindow.h"
 #include "MainWindow.h"
-#include <QtGui>
-#include <QDebug>
 
-#include <QDesktopWidget>
 #include <QApplication>
+#include <QDebug>
+#include <QDesktopWidget>
 #include <QMenuBar>
+#include <QtGui>
 
-/**
+/*
  * This class contains code to manage a collection of user dockable windows,
  * in particular a set of graphing windows which need to be saved and restored
  * across workspace sessions.
  */
-ClassDockCollection::ClassDockCollection(MainWindow *main) : QObject(0),
+ClassDockCollection::ClassDockCollection(MainWindow *main) :
+    QObject(0),
     m_main(main),
     m_windowId(0),
     m_inMove(false)
 {
 }
 
-/**
+/*
  * Class destructor
  */
 ClassDockCollection::~ClassDockCollection()
@@ -29,7 +30,7 @@ ClassDockCollection::~ClassDockCollection()
     closeAllDocks();
 }
 
-/**
+/*
  * Close a docking window specified by its name.
  * This method removes a dock from the lists and actually deletes it.
  */
@@ -52,7 +53,7 @@ void ClassDockCollection::closeDock(QString name)
     emit rebuildView();
 }
 
-/**
+/*
  * Removes all user graphing docking windows
  */
 void ClassDockCollection::closeAllDocks()
@@ -65,7 +66,7 @@ void ClassDockCollection::closeAllDocks()
     emit rebuildView();
 }
 
-/**
+/*
  * Tile all floating windows in two directions while avoiding a given rectangle area
  */
 void ClassDockCollection::tile(QRect &avoid)
@@ -81,7 +82,7 @@ void ClassDockCollection::tile(QRect &avoid)
     m_inMove = true;        // This function share this semaphore to prevent move recursion
     foreach(FormGraphWindow *dock, m_docks)
     {
-        if (!dock->isFloating())    // Ignore docks that are not already floating
+        if (!dock->isFloating()) // Ignore docks that are not already floating
             continue;
 
         // Store the graph window size by reading it from the first graph dock window
@@ -125,7 +126,7 @@ void ClassDockCollection::tile(QRect &avoid)
     m_inMove = false;
 }
 
-/**
+/*
  * Dock window is being moved - move along all dock windows
  * The check for Ctrl key is done in the caller, so this function
  * simply moves all dock windows per event parameters
@@ -136,7 +137,7 @@ void ClassDockCollection::onMove(QMoveEvent *event)
     m_inMove = true;
     foreach(FormGraphWindow *dock, m_docks)
     {
-        if (!dock->isFloating())    // Ignore docks that are not already floating
+        if (!dock->isFloating()) // Ignore docks that are not already floating
             continue;
         QRect inner = dock->geometry();
         if (inner.x()!=event->pos().x() || inner.y()!=event->pos().y())
@@ -147,7 +148,7 @@ void ClassDockCollection::onMove(QMoveEvent *event)
     m_inMove = false;
 }
 
-/**
+/*
  * A widget signals that a data source has been added
  */
 void ClassDockCollection::dataSourceAdded(QString dsName)
@@ -156,7 +157,7 @@ void ClassDockCollection::dataSourceAdded(QString dsName)
     emit rebuildView();
 }
 
-/**
+/*
  * A widget signals that a data source has been removed
  */
 void ClassDockCollection::dataSourceRemoved(QString dsName)
@@ -165,7 +166,7 @@ void ClassDockCollection::dataSourceRemoved(QString dsName)
     emit rebuildView();
 }
 
-/**
+/*
  * A widget signals that a set of data sources has been changed
  */
 void ClassDockCollection::dataSourcesChanged()
@@ -174,7 +175,7 @@ void ClassDockCollection::dataSourcesChanged()
     emit rebuildView();
 }
 
-/**
+/*
  * A widget signals that a data cursor is being set
  * Set data cursor to a specific database index
  * If the index is a negative number, remove or hide the data cursor
@@ -185,7 +186,7 @@ void ClassDockCollection::cursorChanged(int index)
         dock->setDataCursorAt(index);
 }
 
-/**
+/*
  * Called when the collection idle/running state changes
  */
 void ClassDockCollection::stateChanged(bool running)
@@ -195,7 +196,7 @@ void ClassDockCollection::stateChanged(bool running)
         dock->stateChanged(running);
 }
 
-/**
+/*
  * Return a list of all docking window titles
  */
 QStringList ClassDockCollection::getTitles() const
@@ -207,13 +208,14 @@ QStringList ClassDockCollection::getTitles() const
     return titles;
 }
 
-/**
+/*
  * Rename a specific dock window totle. This function will search for a named
  * dock window oldTitle and rename it to newTitle.
  */
 void ClassDockCollection::renameTitle(QString oldTitle, QString newTitle)
 {
     QList<FormGraphWindow *> graphWidgets = getGraphDocks();
+
     // Loop over all graph windows and find the one with the matching name (oldTitle)
     // and rename it to newTitle parameter
     foreach(FormGraphWindow *graph, graphWidgets)
@@ -231,7 +233,7 @@ void ClassDockCollection::renameTitle(QString oldTitle, QString newTitle)
     emit rebuildView();
 }
 
-/**
+/*
  * Return a list of user graphing windows by traversing all docking windows
  * of the main class and extracting only those that have a specific signature
  * which is the object name has to contain a colon :
@@ -248,7 +250,7 @@ QList<FormGraphWindow *> ClassDockCollection::getGraphDocks() const
     return docks;
 }
 
-/**
+/*
  * This internal method creates a docking window container of the class FormGraphWindow
  * and sets it default properties.
  */
@@ -276,7 +278,7 @@ FormGraphWindow *ClassDockCollection::createGraphContainer(const QString title)
     return graph;
 }
 
-/**
+/*
  * Create a new docking window and populate it with one or more graph views.
  * The calling widget's "whatsThis" property should contain the name of a view to be created.
  * A drop signal source should ensure that the given list of data sources is valid and not empty.
@@ -314,7 +316,7 @@ void ClassDockCollection::createDock(QStringList ds)
     emit rebuildView();
 }
 
-/**
+/*
  * Load graphing windows from the given file. This is a top-level file-load function.
  * Creates windows accordingly and returns a list of docking windows. This list should
  * be used by the caller to add dock windows to the main window class.
@@ -374,7 +376,7 @@ QList<FormGraphWindow *> ClassDockCollection::load(QString fileName)
     return m_docks;
 }
 
-/**
+/*
  * Save graphing windows to the given file. This is a top-level file save function.
  * Save collection of graphing windows to a file with the given file name.
  */

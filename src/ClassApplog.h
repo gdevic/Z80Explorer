@@ -1,14 +1,14 @@
 #ifndef CLASS_APPLOG_H
 #define CLASS_APPLOG_H
 
-#include <iostream>
-#include <fstream>
 #include <QMutex>
-#include <QString>
 #include <QObject>
+#include <QString>
+#include <fstream>
+#include <iostream>
 #include <qtextstream.h>
 
-#define DEFAULT_APP_LOG_FILE_SIZE       1000   // in KBbytes
+#define DEFAULT_APP_LOG_FILE_SIZE       1000 // in KBbytes
 #define DEFAULT_APP_LOG_FILE_NAME       "applog.txt"
 
 #define CheckBit(x,y)   (x & y) == y
@@ -25,10 +25,10 @@ enum LogOptions
 
 enum LogVerbose
 {
-    LogVerbose_Info = 'I',          //Information
-    LogVerbose_Warning = 'W',       //Warning message
-    LogVerbose_Error = 'E',         //Error message
-    LogVerbose_Command = 'C'        //Command
+    LogVerbose_Info = 'I',              // Information
+    LogVerbose_Warning = 'W',           // Warning message
+    LogVerbose_Error = 'E',             // Error message
+    LogVerbose_Command = 'C'            // Command
 };
 
 class CAppLogHandler : public QObject
@@ -49,7 +49,7 @@ public:
     void SetLogName(char* logname) { m_log_name = logname;}
 
     template <typename T>
-    CAppLogHandler& operator<<(const T& t) { QTextStream ts(&m_message); ts << t ; return *this; }  // default operator << function
+    CAppLogHandler& operator<<(const T& t) { QTextStream ts(&m_message); ts << t ; return *this; } // default operator << function
 
     CAppLogHandler& operator<<(LogVerbose t);
     CAppLogHandler& operator<<(const char* t);
@@ -65,7 +65,7 @@ protected:
     QString m_log_file_path;
     QString m_log_file_name;
     QString m_message;
-    int m_cur_stream_output_verbose;    //verbose indicates message type when using "applog << message";
+    int m_cur_stream_output_verbose; // verbose indicates message type when using "applog << message";
 
     int m_log_options;
     int m_max_log_file_size;

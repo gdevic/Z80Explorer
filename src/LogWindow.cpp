@@ -2,12 +2,12 @@
 #include "ui_LogWindow.h"
 #include "ClassApplog.h"
 #include "ClassSingleton.h"
+
+#include <QInputDialog>
+#include <QMenu>
 #include <QtGui>
 
-#include <QMenu>
-#include <QInputDialog>
-
-/**
+/*
  * LogWindow constructor.
  */
 LogWindow::LogWindow(QWidget *parent) :
@@ -38,7 +38,7 @@ LogWindow::~LogWindow()
     delete ui;
 }
 
-/**
+/*
  * Slot functions that receives log messages and display them in the log window
  */
 void LogWindow::processNewMessage(QString message, bool newLine)
@@ -46,7 +46,7 @@ void LogWindow::processNewMessage(QString message, bool newLine)
     ui->textEdit->appendPlainText(message);
 }
 
-/**
+/*
  * Another version of appending to a log
  */
 void LogWindow::log(const QString &message)
@@ -54,7 +54,7 @@ void LogWindow::log(const QString &message)
     ui->textEdit->appendPlainText(message);
 }
 
-/**
+/*
  * Menu is blocked to only support copy and select-all
  */
 void LogWindow::showContextMenu(const QPoint &pt)
@@ -80,7 +80,7 @@ void LogWindow::showContextMenu(const QPoint &pt)
     delete menu;
 }
 
-/**
+/*
  * Menu handler to set the max number of lines to keep
  */
 void LogWindow::onMaxLines()
@@ -98,7 +98,7 @@ void LogWindow::onMaxLines()
     }
 }
 
-/**
+/*
  * Changes the log level
  */
 void LogWindow::onLogLevel()
@@ -111,4 +111,3 @@ void LogWindow::onLogLevel()
         settings.setValue("AppLogLevel", logLevel);
     }
 }
-

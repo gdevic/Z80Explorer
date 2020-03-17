@@ -1,10 +1,10 @@
 #ifndef CLASS_EXCEPTION_H
 #define CLASS_EXCEPTION_H
 
-#include <iostream>
 #include <QString>
+#include <iostream>
 
-/**
+/*
  * Define core-level exception structure.
  * Classes that are underneath the controller class might opt to throw
  * exceptions by some methods if convenient. Use this structure since it

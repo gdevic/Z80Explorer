@@ -1,8 +1,9 @@
 #include "ClassChip.h"
-#include <QImage>
+
 #include <QDebug>
 #include <QDir>
 #include <QEventLoop>
+#include <QImage>
 
 ClassChip::ClassChip()
 {
@@ -12,7 +13,7 @@ ClassChip::~ClassChip()
 {
 }
 
-/**
+/*
  * Attempts to load all expected chip resources
  */
 bool ClassChip::loadChipResources(QString dir)

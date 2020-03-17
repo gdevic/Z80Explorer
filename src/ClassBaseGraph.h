@@ -1,10 +1,9 @@
 #ifndef CLASSBASEGRAPH_H
 #define CLASSBASEGRAPH_H
 
-#include <QObject>
 #include <QStringList>
 
-/**
+/*
  * This class defines interface to various graphing (view) widget classes.
  */
 class ClassBaseGraph
@@ -36,9 +35,6 @@ public:
 
     // If a view supports data cursor, this function should set it
     virtual void setDataCursorAt(int)   { return; };
-
-    // Signal to a graph window that a running state has changed (IDLE/RUN)
-    virtual void stateChanged(bool running) {};
 
 protected:
     QStringList m_dsList;                       // List of all data sources within this view

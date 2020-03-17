@@ -1,10 +1,9 @@
 #ifndef CLASSCHIP_H
 #define CLASSCHIP_H
 
-#include <QObject>
 #include <QImage>
 
-/**
+/*
  * ClassChip contains functions to hold the chip data
  */
 class ClassChip: public QObject
@@ -23,8 +22,8 @@ signals:
     void refresh();                     // Image has changed
 
 private:
-    QImage m_img[7];    // Chip layer pixmaps
-    QImage m_imgbw[7];  // Grayscale (B/W) versions of the images
+    QImage m_img[7];                    // Chip layer pixmaps
+    QImage m_imgbw[7];                  // Grayscale (B/W) versions of the images
 };
 
 #endif // CLASSCHIP_H
