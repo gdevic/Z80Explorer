@@ -59,7 +59,7 @@
    <property name="text">
     <string>Open chip dir...</string>
    </property>
-   <property name="toolTip">
+   <property name="statusTip">
     <string>Open directory with chip resources</string>
    </property>
    <property name="shortcut">
@@ -75,7 +75,7 @@
    <property name="text">
     <string>New Image View</string>
    </property>
-   <property name="toolTip">
+   <property name="statusTip">
     <string>Create a new image view window</string>
    </property>
    <property name="whatsThis">
