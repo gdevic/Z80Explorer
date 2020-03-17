@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class ClassChip;
+class FormImageOverlay;
 class QGridLayout;
 class QResizeEvent;
 
@@ -28,13 +29,6 @@ public:
     QRectF getImageView();              // Return the normalized viewport in the image space
     enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes
     Q_ENUM(ZoomType);                   // Register enum names inside a QMetaObject
-
-    // HUD widget support:
-    // Position specification for fadeable overlay widgets
-    enum HudWidgetPos {TopLeft, TopCenter, TopRight,
-                       MidLeft, Center, MidRight,
-                       BottomLeft, BottomCenter, BottomRight};
-    void setHudWidget(HudWidgetPos pos, QWidget *w);
 
 signals:
     void gotFocus(int);                 // Sends the ID of this pane (0 or 1) when focus changes
@@ -82,7 +76,7 @@ private:
     QTransform m_invtx;                 // Transformation matrix from screen to normalized image space
     QRect      m_viewPort;              // Bounding rectangle of the current screen view
     QRectF     m_imageView;             // Helper variable for getImageView()
-    QGridLayout* m_gridLayout;          // If HUD widgets are used, this is the layout for them
+    FormImageOverlay *m_ov;             // Image overlay class
 
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);

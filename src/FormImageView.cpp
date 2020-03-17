@@ -1,6 +1,7 @@
 #include "FormImageView.h"
 #include "ui_FormImageView.h"
 #include "ClassChip.h"
+#include "FormImageOverlay.h"
 
 #include <QDebug>
 #include <QGridLayout>
@@ -18,14 +19,14 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     QWidget(parent),
     ui(new Ui::FormImageView),
     m_chip(chip),
-    m_mousePressed(false),
-    m_gridLayout(0)
+    m_mousePressed(false)
 {
     ui->setupUi(this);
     setZoomMode(Fit);
     setMouseTracking(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
     setFocusPolicy(Qt::ClickFocus);
+    setCursor(QCursor(Qt::CrossCursor));
 
     // Connect the view's internal intent to move its image (for example,
     // when the user drags it with a mouse)
@@ -37,6 +38,13 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
 
     // Initial set image
     setImage(m_chip->getImage(ClassChip::Metal));
+
+    // Create and set the image overlay widget
+    m_ov = new FormImageOverlay(this);
+    m_ov->setParent(this);
+    m_ov->move(10, 10);
+    m_ov->show();
+    connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
 }
 
 FormImageView::~FormImageView()
@@ -266,7 +274,6 @@ void FormImageView::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::RightButton)
         return; // handled via customContextMenuRequested() signal
 
-    setCursor(QCursor(Qt::ClosedHandCursor));
     m_pinMousePos = event->pos();
     m_mousePressed = true;
 
@@ -275,7 +282,6 @@ void FormImageView::mousePressEvent(QMouseEvent *event)
 
 void FormImageView::mouseReleaseEvent (QMouseEvent *)
 {
-    setCursor(QCursor(Qt::OpenHandCursor));
     m_mousePressed = false;
 }
 
@@ -309,74 +315,6 @@ void FormImageView::keyPressEvent(QKeyEvent *event)
             case Value: setZoomMode(Fit); break;
         }
     }
-}
-
-// HUD support
-void FormImageView::createLayout()
-{
-    if (m_gridLayout)
-        return;
-
-    QGridLayout* gl = m_gridLayout = new QGridLayout(this);
-    // This grid is 5x5. The odd columns and rows will
-    // always contain a spacer item while the even items can
-    // contain UI widgets. Setting the stretch values like this
-    // allows the UI widgets to assume a natural size, while the
-    // slack is taken up by the spacers in between them.
-    for (int r=0; r<5; r++)
-    {
-        gl->setRowStretch(r, r%2 ? 1 : 0);  // odd stretch = 1, even stretch = 0
-        gl->setColumnStretch(r, r%2 ? 1 : 0);
-
-        for (int c=0; c<5; c++)
-        {
-            gl->addItem(new QSpacerItem(1,1), r, c);
-        }
-    }
-}
-
-void FormImageView::setHudWidget(HudWidgetPos pos, QWidget *w)
-{
-    if (!w)
-        return;
-
-    createLayout();
-
-    w->setParent(this);
-    w->show();
-
-    int r = 0, c = 0;
-    switch (pos)
-    {
-        case TopLeft:
-            r = 0; c = 0;
-            break;
-        case TopCenter:
-            r = 0; c = 2;
-            break;
-        case TopRight:
-            r = 0; c = 4;
-            break;
-        case MidLeft:
-            r = 2; c = 0;
-            break;
-        case Center:
-            r = 2; c = 2;
-            break;
-        case MidRight:
-            r = 2; c = 4;
-            break;
-        case BottomLeft:
-            r = 4; c = 0;
-            break;
-        case BottomCenter:
-            r = 4; c = 2;
-            break;
-        case BottomRight:
-            r = 4; c = 4;
-            break;
-    }
-    m_gridLayout->addWidget(w, r, c);
 }
 
 void FormImageView::contextMenuRequested(const QPoint& localWhere)

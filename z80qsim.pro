@@ -17,6 +17,7 @@ SOURCES += \
     src/ClassApplog.cpp \
     src/ClassChip.cpp \
     src/CommandWindow.cpp \
+    src/FormImageOverlay.cpp \
     src/FormImageView.cpp \
     src/LogWindow.cpp \
     src/MainWindow.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     src/ClassException.h \
     src/ClassSingleton.h \
     src/CommandWindow.h \
+    src/FormImageOverlay.h \
     src/FormImageView.h \
     src/LogWindow.h \
     src/MainWindow.h
@@ -35,6 +37,7 @@ HEADERS += \
 FORMS += \
     src/CommandWindow.ui \
     src/FormGraphWindow.ui \
+    src/FormImageOverlay.ui \
     src/FormImageView.ui \
     src/LogWindow.ui \
     src/MainWindow.ui
