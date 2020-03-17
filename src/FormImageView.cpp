@@ -45,6 +45,7 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     m_ov->move(10, 10);
     m_ov->show();
     connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
+    connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
 }
 
 FormImageView::~FormImageView()

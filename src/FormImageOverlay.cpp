@@ -21,3 +21,8 @@ void FormImageOverlay::onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t
     QString s = QString("x=%1 y=%2 (%3,%4,%5)").arg(x).arg(y).arg(r).arg(g).arg(b);
     ui->label1->setText(s);
 }
+
+void FormImageOverlay::onClearPointerData()
+{
+    ui->label1->setText("-");
+}
