@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Connect the rest of the menu actions...
     connect(ui->actionOpenChipDir, SIGNAL(triggered()), this, SLOT(onOpenChipDir()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
+    connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
 
     // As soon as the GUI becomes idle, load chip resources
     QTimer::singleShot(0, this, SLOT(loadChipResources()));
@@ -79,16 +80,6 @@ MainWindow::~MainWindow()
     delete m_logWindow;
     delete m_chip;
     delete ui;
-}
-
-/*
- * This initialization is done after the window construction. The main benefit is
- * that it can fail (return false) and thus shut down the application.
- */
-bool MainWindow::init()
-{
-    qDebug() << "Main init";
-    return true;
 }
 
 /*
@@ -128,4 +119,12 @@ void MainWindow::loadChipResources()
     QString path = settings.value("ChipResources", QDir::currentPath()).toString();
     if (!m_chip->loadChipResources(path))
         onOpenChipDir(); // Make the user select the chip resource folder
+}
+
+/*
+ * Handle menu item to create a new image view
+ */
+void MainWindow::onNewImageView()
+{
+
 }

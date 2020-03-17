@@ -21,11 +21,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    bool init();                        // Initialization outside the constructor
 
 public slots:
-    void onOpenChipDir();               // Open directory with chip resources
     void loadChipResources();
+
+private slots:
+    void onOpenChipDir();               // Open directory with chip resources
+    void onNewImageView();
     void onExit();                      // Exit the application
 
 private:
