@@ -4,7 +4,6 @@
 #include <QMainWindow>
 
 class ClassChip;
-class ClassDockCollection;
 class CommandWindow;
 class FormImageView;
 class LogWindow;
@@ -36,7 +35,6 @@ private:
     QMenu *m_menuWindow;                // Pointer to the "Window" menu pull-down
     LogWindow *m_logWindow;             // Log window class and form
     CommandWindow *m_cmdWindow;         // Command window class and form
-    ClassDockCollection *m_docks;       // Manages user graph windows
     ClassChip *m_chip;                  // Holds chip information
     FormImageView *m_iview;             // Central image view
 };

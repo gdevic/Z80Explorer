@@ -15,11 +15,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     src/ClassApplog.cpp \
-    src/ClassBaseGraph.cpp \
     src/ClassChip.cpp \
-    src/ClassDockCollection.cpp \
     src/CommandWindow.cpp \
-    src/FormGraphWindow.cpp \
     src/FormImageView.cpp \
     src/LogWindow.cpp \
     src/MainWindow.cpp \
@@ -27,13 +24,10 @@ SOURCES += \
 
 HEADERS += \
     src/ClassApplog.h \
-    src/ClassBaseGraph.h \
     src/ClassChip.h \
-    src/ClassDockCollection.h \
     src/ClassException.h \
     src/ClassSingleton.h \
     src/CommandWindow.h \
-    src/FormGraphWindow.h \
     src/FormImageView.h \
     src/LogWindow.h \
     src/MainWindow.h

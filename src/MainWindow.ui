@@ -78,6 +78,9 @@
    <property name="toolTip">
     <string>Create a new image view window</string>
    </property>
+   <property name="whatsThis">
+    <string>Image</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>

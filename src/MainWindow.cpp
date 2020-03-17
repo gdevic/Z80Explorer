@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "ClassChip.h"
-#include "ClassDockCollection.h"
 #include "CommandWindow.h"
 #include "FormImageView.h"
 #include "LogWindow.h"
@@ -18,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_menuView(0),
     m_logWindow(0),
     m_cmdWindow(0),
-    m_docks(0),
     m_chip(0)
 {
     ui->setupUi(this);
@@ -34,9 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_menuView = menuBar()->findChild<QMenu *>("menuView");
     m_menuWindow = menuBar()->findChild<QMenu *>("menuWindow");
     menuBar()->setNativeMenuBar(false);
-
-    // Create the dock window collection class that keeps docking windows in check
-    m_docks = new ClassDockCollection(this);
 
     // Enable all bells and whistles of the Qt docking engine!
     setDockOptions(AllowNestedDocks | AnimatedDocks | AllowTabbedDocks);
