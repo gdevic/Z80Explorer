@@ -24,9 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create the main chip class
     m_chip = new ClassChip();
 
-    // Create a central widget to show chip image
-    m_iview = new FormImageView(this, m_chip);
-    setCentralWidget(m_iview);
+    // Create a central widget to show a chip image
+    setCentralWidget(new FormImageView(this, m_chip));
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");
@@ -121,5 +120,11 @@ void MainWindow::loadChipResources()
  */
 void MainWindow::onNewImageView()
 {
+    QDockWidget *dock = new QDockWidget("Image View", this);
+    FormImageView *w = new FormImageView(dock, m_chip);
+    w->show();
+    dock->setWidget(w);
 
+    addDockWidget(Qt::BottomDockWidgetArea, dock);
+    dock->setFloating(true);
 }

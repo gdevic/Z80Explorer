@@ -36,7 +36,6 @@ private:
     LogWindow *m_logWindow;             // Log window class and form
     CommandWindow *m_cmdWindow;         // Command window class and form
     ClassChip *m_chip;                  // Holds chip information
-    FormImageView *m_iview;             // Central image view
 };
 
 #endif // MAINWINDOW_H

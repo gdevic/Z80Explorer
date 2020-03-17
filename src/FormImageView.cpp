@@ -32,6 +32,9 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     connect(m_chip, SIGNAL(refresh()), this, SLOT(onRefresh()));
 
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
+
+    // Initial set image
+    setImage(m_chip->getImage(ClassChip::Metal));
 }
 
 FormImageView::~FormImageView()
