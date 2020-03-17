@@ -158,19 +158,6 @@ void FormImageView::clampImageCoords(QPointF &tex)
     if(tex.y()>1.0) tex.setY(1.0);
 }
 
-void FormImageView::getJoinedSizeHint(QSizeF &size)
-{
-    double sx = (double) m_panelSize.width() / 4;
-    double ix = m_image.width() * m_scale / 2;
-    double fx = sx/ix;
-    size.setWidth(fx);
-
-    double sy = (double) m_panelSize.height() / 4;
-    double iy = m_image.height() * m_scale / 2;
-    double fy = sy/iy;
-    size.setHeight(fy);
-}
-
 // Return the coordinates within the image that the view is clipped at, given
 // its position and zoom ratio. This rectangle corresponds to what the user sees.
 QRectF FormImageView::getImageView()
@@ -276,8 +263,6 @@ void FormImageView::mousePressEvent(QMouseEvent *event)
 
     m_pinMousePos = event->pos();
     m_mousePressed = true;
-
-    emit gotFocus(m_viewId);
 }
 
 void FormImageView::mouseReleaseEvent (QMouseEvent *)

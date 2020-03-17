@@ -22,16 +22,12 @@ public:
     explicit FormImageView(QWidget *parent, ClassChip *chip);
     ~FormImageView();
 
-    int m_viewId;                       // ID of this particular pane (0 or 1)
-
     const QImage& getImage();           // Returns the current QImage; is never NULL
-    void getJoinedSizeHint(QSizeF &);
     QRectF getImageView();              // Return the normalized viewport in the image space
     enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes
     Q_ENUM(ZoomType);                   // Register enum names inside a QMetaObject
 
 signals:
-    void gotFocus(int);                 // Sends the ID of this pane (0 or 1) when focus changes
     void imageMoved(QPointF);           // Image is moved by this control to new coordinates
     void imageZoomed(int);              // Image is zoomed by specified number of steps (+/-)
 
