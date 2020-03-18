@@ -16,9 +16,16 @@ public:
     explicit FormImageOverlay(QWidget *parent = nullptr);
     ~FormImageOverlay();
 
+signals:
+    void actionBuild();
+
 public slots:
     void onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b);
     void onClearPointerData();
+    void setText(int index, QString text);
+
+private slots:
+    void on_btBuild_clicked();
 
 private:
     Ui::FormImageOverlay *ui;

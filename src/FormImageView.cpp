@@ -37,7 +37,7 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
 
     // Initial set image
-    setImage(m_chip->getImage(ClassChip::Metal));
+    setImage(m_chip->getImage(0));
 
     // Create and set the image overlay widget
     m_ov = new FormImageOverlay(this);
@@ -46,6 +46,8 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     m_ov->show();
     connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
+
+    connect(m_ov, SIGNAL(actionBuild()), m_chip, SLOT(onBuild()));
 }
 
 FormImageView::~FormImageView()
@@ -142,7 +144,8 @@ void FormImageView::imageCenterV()
 // Called when class chip changes image
 void FormImageView::onRefresh()
 {
-    setImage(m_chip->getImage(ClassChip::Metal));
+    m_image = m_chip->getLastImage();
+    update();
 }
 
 //============================================================================
@@ -247,6 +250,17 @@ void FormImageView::mouseMoveEvent(QMouseEvent *event)
         {
             QRgb imageColor = m_image.pixel(imageCoords);
             emit pointerData(imageCoords.x(), imageCoords.y(), qRed(imageColor), qGreen(imageColor), qBlue(imageColor));
+
+            QList<int> nodes = m_chip->getNodesAt(imageCoords.x(), imageCoords.y());
+            QString s;
+            for(int &i : nodes)
+            {
+                s.append(QString::number(i));
+                s.append(',');
+            }
+            m_ov->setText(1, s);
+            QList<QString> names = m_chip->getNodenamesFromNodes(nodes);
+            m_ov->setText(2, names.join(','));
         }
         else
         {
@@ -288,9 +302,13 @@ void FormImageView::leaveEvent(QEvent *)
 void FormImageView::keyPressEvent(QKeyEvent *event)
 {
     //enum ChipLayer { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias };
-    uint set = !!(event->modifiers() & Qt::AltModifier);
-    if (event->key() >= '1' && event->key() <= '7')
-        setImage((m_chip->getImage(set, event->key())));
+    bool alt = event->modifiers() & Qt::AltModifier;
+    if (event->key() >= '1' && event->key() <= '9')
+    {
+        uint i = event->key() - '0' + (alt ? 8 : 0); // assuming 8 basic Z80 chip resource images
+        m_image = m_chip->getImage(i);
+        update();
+    }
     if (event->key() == Qt::Key_F)
     {
         switch(m_view_mode)

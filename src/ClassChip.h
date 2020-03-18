@@ -2,6 +2,17 @@
 #define CLASSCHIP_H
 
 #include <QImage>
+#include <QHash>
+
+struct segdef
+{
+    uint nodenum;
+    bool pullup;
+    uint layer;
+    QVector<QPoint> points;
+    QPolygon poly;
+    QPainterPath path;
+};
 
 /*
  * ClassChip contains functions to hold the chip data
@@ -17,15 +28,30 @@ public:
 
     enum ChipLayer { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias };
     Q_ENUM(ChipLayer)
-    QImage &getImage(ChipLayer l) { return m_img[l]; }
-    QImage &getImage(uint set, uint i) { return set ? m_imgbw[i % 7] : m_img[i % 7]; }
+    QImage &getImage(uint i);           // Returns the reference to the image by the image index
+    QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
+    QList<int> getNodesAt(int x, int y);
+    QList<QString> getNodenamesFromNodes(QList<int> nodes);
 
 signals:
-    void refresh();                     // Image has changed
+    void refresh();                     // One of the images has changed
+
+public slots:
+    void onBuild();
 
 private:
-    QImage m_img[7];                    // Chip layer pixmaps
-    QImage m_imgbw[7];                  // Grayscale (B/W) versions of the images
+    QVector<QImage> m_img;              // Chip layer images
+    uint m_last_image;                  // Index of the last image requested by getImage() call
+    QString m_dir;                      // Directory containing chip resources (set by loadChipResources)
+
+    QVector<QPolygon> m_poly;
+    QVector<segdef> segdefs;
+    QHash<int, QString> m_nodenames;    // Hash of node numbers to their names (vcc, vss,...)
+
+private:
+    bool loadImages(QString dir);       // Loads chip images
+    bool convertToGrayscale();          // Converts loaded images to grayscale format
+    bool loadNodenames(QString dir);    // Loads nodenames.js
 };
 
 #endif // CLASSCHIP_H
