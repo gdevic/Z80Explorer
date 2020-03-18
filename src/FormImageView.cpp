@@ -253,11 +253,12 @@ void FormImageView::mouseMoveEvent(QMouseEvent *event)
 
             QList<int> nodes = m_chip->getNodesAt(imageCoords.x(), imageCoords.y());
             QString s;
-            for(int &i : nodes)
-            {
-                s.append(QString::number(i));
-                s.append(',');
-            }
+            for (int &i : nodes)
+                s.append(QString::number(i)).append(',');
+            QList<QString> trans = m_chip->getTransistorsAt(imageCoords.x(), imageCoords.y());
+            for (QString name : trans)
+                s.append(name).append(',');
+
             m_ov->setText(1, s);
             QList<QString> names = m_chip->getNodenamesFromNodes(nodes);
             m_ov->setText(2, names.join(','));

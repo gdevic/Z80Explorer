@@ -14,6 +14,17 @@ struct segdef
     QPainterPath path;
 };
 
+struct transdef
+{
+    QString name;
+    uint gatenode;
+    uint sourcenode;
+    uint drainnode;
+    QRect box;
+    uint area;
+    bool is_weak;
+};
+
 /*
  * ClassChip contains functions to hold the chip data
  */
@@ -31,6 +42,7 @@ public:
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
     QList<int> getNodesAt(int x, int y);
+    QList<QString> getTransistorsAt(int x, int y);
     QList<QString> getNodenamesFromNodes(QList<int> nodes);
 
 signals:
@@ -47,11 +59,13 @@ private:
     QVector<QPolygon> m_poly;
     QVector<segdef> m_segdefs;          // Array of visual segment definitions
     QHash<int, QString> m_nodenames;    // Hash of node numbers to their names (vcc, vss,...)
+    QVector<transdef> m_transdefs;      // Array of visual transistor definitions
 
 private:
     bool loadImages(QString dir);       // Loads chip images
     bool convertToGrayscale();          // Converts loaded images to grayscale format
     bool loadNodenames(QString dir);    // Loads nodenames.js
+    bool loadTransdefs(QString dir);    // Loads transdefs.js
 };
 
 #endif // CLASSCHIP_H

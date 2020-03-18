@@ -142,12 +142,64 @@ bool ClassChip::loadNodenames(QString dir)
 }
 
 /*
+ * Loads transdefs.js
+ */
+bool ClassChip::loadTransdefs(QString dir)
+{
+    QString transdefs_file = dir + "/transdefs.js";
+    qInfo() << "Loading " << transdefs_file;
+    QFile file(transdefs_file);
+    if (file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QTextStream in(&file);
+        QString line;
+        QStringList list;
+        m_transdefs.clear();
+        uint y = m_img[0].height();
+        while(!in.atEnd())
+        {
+            line = in.readLine();
+            if (line.startsWith('['))
+            {
+                line.replace('[', ' ').replace(']', ' '); // Make it a simple list of numbers
+                line.chop(2);
+                list = line.split(',', QString::SkipEmptyParts);
+                if (list.length()==14 && list[0].length() > 2)
+                {
+                    transdef t;
+                    t.name = list[0].mid(2, list[0].length()-3);
+                    t.gatenode = list[1].toUInt();
+                    t.sourcenode = list[2].toUInt();
+                    t.drainnode = list[3].toUInt();
+                    // The order of values in the data file is: rl, rr, tl, tb
+                    t.box = QRect(QPoint(list[4].toInt(), y - list[6].toInt()), QPoint(list[5].toInt(), y - list[7].toInt()));
+                    t.area = list[12].toUInt();
+                    t.is_weak = list[13] == "true";
+
+                    m_transdefs.append(t);
+                }
+                else
+                    qWarning() << "Invalid line " << list;
+            }
+            else
+                qDebug() << "Skipping " << line;
+        }
+        file.close();
+        qInfo() << "Loaded " << m_transdefs.count() << " transistor definitions";
+        return true;
+    }
+    else
+        qWarning() << "Error opening transdefs.js";
+    return false;
+}
+
+/*
  * Attempts to load all chip resource that we expect to have
  */
 bool ClassChip::loadChipResources(QString dir)
 {
     qInfo() << "Loading chip resources from " << dir;
-    if (loadImages(dir) && convertToGrayscale() && loadNodenames(dir))
+    if (loadImages(dir) && convertToGrayscale() && loadNodenames(dir) && loadTransdefs(dir))
     {
         m_dir = dir;
         emit refresh(); // XXX do we still need this?
@@ -193,7 +245,6 @@ void ClassChip::onBuild()
             list = line.split(',');
             if (list.length() > 4)
             {
-                //qDebug() << list;
                 QPainter painter(&img);
 
                 segdef s;
@@ -256,6 +307,15 @@ void ClassChip::onBuild()
         }
     }
     file.close();
+
+    // Draw transistor outlines
+    QPainter painter(&img);
+    painter.setBrush(QColor(255,255,255));
+    painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setOpacity(0.5);
+    for (auto s : m_transdefs)
+        painter.drawRect(s.box);
+
     emit refresh();
 }
 
@@ -271,6 +331,19 @@ QList<int> ClassChip::getNodesAt(int x, int y)
             //list.append(i);
         }
         i++;
+    }
+    return list;
+}
+
+QList<QString> ClassChip::getTransistorsAt(int x, int y)
+{
+    QList<QString> list;
+    for(auto s : m_transdefs)
+    {
+        if (s.box.contains(QPoint(x, y)))
+        {
+            list.append(s.name);
+        }
     }
     return list;
 }
