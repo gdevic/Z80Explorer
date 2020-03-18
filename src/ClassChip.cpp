@@ -240,8 +240,9 @@ void ClassChip::onBuild()
                     painter.setBrush(QColor(255,255,255)), c = QColor(255,255,255);
                 else
                     painter.setBrush(QColor(4 << s.layer,255,0)), c = QColor(255,255,50);
-                painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+                painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));               
 #endif
+                painter.setOpacity(0.5);
                 painter.drawPath(s.path);
 
                 m_segdefs.append(s);
