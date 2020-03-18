@@ -175,6 +175,7 @@ void ClassChip::onBuild()
     QString line;
     QStringList list;
     QVector<QPoint> path;
+    m_segdefs.clear();
     int count = 0;
     while(!in.atEnd())
 //    while(!in.atEnd() && count<1732)
@@ -243,7 +244,7 @@ void ClassChip::onBuild()
 #endif
                 painter.drawPath(s.path);
 
-                segdefs.append(s);
+                m_segdefs.append(s);
             }
             count++;
             if (!(count % 100))
@@ -261,7 +262,7 @@ QList<int> ClassChip::getNodesAt(int x, int y)
 {
     QList<int> list;
     int i = 0; // tmp to help out finding erroneous lines of data
-    for(auto s : segdefs)
+    for(auto s : m_segdefs)
     {
         if (s.path.contains(QPointF(x, y)))
         {
@@ -278,7 +279,7 @@ QList<QString> ClassChip::getNodenamesFromNodes(QList<int> nodes)
     QList<QString> list;
     for(auto i : nodes)
     {
-        if (m_nodenames.contains(i))
+        if (m_nodenames.contains(i) && !list.contains(m_nodenames[i])) // Do not create duplicates
             list.append(m_nodenames[i]);
     }
     return list;

@@ -45,7 +45,7 @@ private:
     QString m_dir;                      // Directory containing chip resources (set by loadChipResources)
 
     QVector<QPolygon> m_poly;
-    QVector<segdef> segdefs;
+    QVector<segdef> m_segdefs;          // Array of visual segment definitions
     QHash<int, QString> m_nodenames;    // Hash of node numbers to their names (vcc, vss,...)
 
 private:
