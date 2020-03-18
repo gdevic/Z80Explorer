@@ -16,6 +16,7 @@ static const QStringList res_images =
     { "Z80_polysilicon.png" },
     { "Z80_vias.png" },
     { "z80_metal_VCC_GND.png" },
+    { "z80_vias_VCC_GND.png" },
 };
 
 ClassChip::ClassChip() :

@@ -305,7 +305,7 @@ void FormImageView::keyPressEvent(QKeyEvent *event)
     bool alt = event->modifiers() & Qt::AltModifier;
     if (event->key() >= '1' && event->key() <= '9')
     {
-        uint i = event->key() - '0' + (alt ? 8 : 0); // assuming 8 basic Z80 chip resource images
+        uint i = event->key() - '0' + (alt ? 9 : 0); // assuming 9 basic Z80 chip resource images
         m_image = m_chip->getImage(i);
         update();
     }
