@@ -155,7 +155,7 @@ bool ClassChip::loadTransdefs(QString dir)
         QString line;
         QStringList list;
         m_transdefs.clear();
-        uint y = m_img[0].height();
+        uint y = m_img[0].height() - 1;
         while(!in.atEnd())
         {
             line = in.readLine();
@@ -294,6 +294,7 @@ void ClassChip::onBuild()
                 painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));               
 #endif
                 painter.setOpacity(0.5);
+                painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
                 painter.drawPath(s.path);
 
                 m_segdefs.append(s);
@@ -313,6 +314,7 @@ void ClassChip::onBuild()
     painter.setBrush(QColor(255,255,255));
     painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
     painter.setOpacity(0.5);
+    painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
     for (auto s : m_transdefs)
         painter.drawRect(s.box);
 

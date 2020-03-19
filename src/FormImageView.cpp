@@ -155,11 +155,8 @@ void FormImageView::onRefresh()
 // Clamp the image coordinates into the range [0,1]
 void FormImageView::clampImageCoords(QPointF &tex)
 {
-    if(tex.x()<0.0) tex.setX(0.0);
-    if(tex.x()>1.0) tex.setX(1.0);
-
-    if(tex.y()<0.0) tex.setY(0.0);
-    if(tex.y()>1.0) tex.setY(1.0);
+    tex.setX(qBound(0.0, tex.x(), 1.0));
+    tex.setY(qBound(0.0, tex.y(), 1.0));
 }
 
 // Return the coordinates within the image that the view is clipped at, given
@@ -199,6 +196,7 @@ void FormImageView::paintEvent(QPaintEvent *)
     QRect size(0, 0, m_image.width(), m_image.height());
 
     painter.setTransform(m_tx);
+    painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
     painter.drawImage(size, m_image, size);
 }
 
