@@ -35,10 +35,8 @@ class ClassChip: public QObject
 public:
     ClassChip();
     ~ClassChip();
-    bool loadChipResources(QString dir); // Attempts to load all expected chip resources
 
-    enum ChipLayer { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias };
-    Q_ENUM(ChipLayer)
+    bool loadChipResources(QString dir); // Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
     QList<int> getNodesAt(int x, int y);
