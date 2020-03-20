@@ -13,8 +13,10 @@ class FormImageOverlay : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormImageOverlay(QWidget *parent, QStringList layers);
+    explicit FormImageOverlay(QWidget *parent);
     ~FormImageOverlay();
+
+    void setLayerNames(QStringList layers);
 
 signals:
     void actionBuild();

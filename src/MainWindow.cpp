@@ -121,12 +121,14 @@ void MainWindow::onNewImageView()
 {
     QDockWidget *dock = new QDockWidget("Image View", this);
     FormImageView *w = new FormImageView(dock, m_chip);
-    w->show();
     dock->setWidget(w);
 
     addDockWidget(Qt::BottomDockWidgetArea, dock);
     dock->setFloating(true);
     dock->resize(300, 300);
+
+    w->onRefresh();
+    w->show();
 }
 
 /*

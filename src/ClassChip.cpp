@@ -7,17 +7,17 @@
 #include <QPainter>
 
 // List of z80 chip resource images / layers. "Z80_" and ".png" are appended only when loading the files.
-static const QStringList layers =
+static const QStringList files =
 {
-    { "diffusion" },    // 0
-    { "polysilicon" },  // 1
-    { "metal" },        // 2
-    { "buried" },       // 3
-    { "vias" },         // 4
-    { "ions" },         // 5
-    { "pads" },         // 6
-    { "metal_VCC_GND" },// 7
-    { "vias_VCC_GND" }, // 8
+    { "diffusion" },
+    { "polysilicon" },
+    { "metal" },
+    { "buried" },
+    { "vias" },
+    { "ions" },
+    { "pads" },
+    { "metal_VCC_GND" },
+    { "vias_VCC_GND" },
 };
 
 ClassChip::ClassChip() :
@@ -48,13 +48,14 @@ QImage &ClassChip::getLastImage()
 }
 
 /*
- * Returns a list of layer / image names
+ * Returns a list of layer / image names, text stored with each image
  */
 const QStringList ClassChip::getLayerNames()
 {
-    QStringList l = layers;
-    l.append("transistors"); // XXX hack
-    return l;
+    QStringList names;
+    for (auto name : m_img)
+        names.append(name.text("name"));
+    return names;
 }
 
 /*
@@ -65,7 +66,7 @@ bool ClassChip::loadImages(QString dir)
     QEventLoop e; // Don't freeze the GUI
     QImage img;
     m_img.clear();
-    for (auto image : layers)
+    for (auto image : files)
     {
         QString png_file = dir + "/Z80_" + image + ".png";
         qInfo() << "Loading " + png_file;

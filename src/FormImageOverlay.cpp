@@ -3,19 +3,27 @@
 
 #include <QLabel>
 
-FormImageOverlay::FormImageOverlay(QWidget *parent, QStringList layers) :
+FormImageOverlay::FormImageOverlay(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormImageOverlay)
 {
     ui->setupUi(this);
-    const QString c = "123456789abcde";
-    for (int i=0; i < layers.count(); i++)
-        ui->verticalLayout->addWidget(new QLabel(QString(c[i % c.length()]) + " ... " + layers[i]));
 }
 
 FormImageOverlay::~FormImageOverlay()
 {
     delete ui;
+}
+
+void FormImageOverlay::setLayerNames(QStringList layers)
+{
+    const QString c = "123456789abcdefghijklmnopq";
+    for (int i=0; i < layers.count(); i++)
+    {
+        QLabel *p = new QLabel(this);
+        p->setText(QString(c[i % c.length()]) + " ... " + layers[i]);
+        ui->verticalLayout->addWidget(p);
+    }
 }
 
 /*

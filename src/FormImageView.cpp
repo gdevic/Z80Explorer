@@ -37,7 +37,7 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
 
     // Create and set the image overlay widget
-    m_ov = new FormImageOverlay(this, m_chip->getLayerNames());
+    m_ov = new FormImageOverlay(this);
     m_ov->setParent(this);
     m_ov->move(10, 10);
     m_ov->show();
@@ -144,7 +144,10 @@ void FormImageView::onRefresh()
     m_ov->setText(3, m_image.text("name"));
     update();
     if (is_init)
+    {
+        m_ov->setLayerNames(m_chip->getLayerNames());
         setZoomMode(Fit);
+    }
 }
 
 // Clamp the image coordinates into the range [0,1]
