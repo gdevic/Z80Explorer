@@ -66,6 +66,7 @@ void FormImageView::setImage(const QImage &img)
     // This helps the Navigator get initial sizing correct.
     calcTransform();
     update();
+    setFocus();
 }
 
 const QImage& FormImageView::getImage()
