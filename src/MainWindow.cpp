@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Connect the rest of the menu actions...
     connect(ui->actionOpenChipDir, SIGNAL(triggered()), this, SLOT(onOpenChipDir()));
+    connect(ui->actionReload, SIGNAL(triggered()), this, SLOT(onReload()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
 
@@ -126,4 +127,12 @@ void MainWindow::onNewImageView()
     addDockWidget(Qt::BottomDockWidgetArea, dock);
     dock->setFloating(true);
     dock->resize(300, 300);
+}
+
+/*
+ * Handle menu item to reload chip data and reset all images
+ */
+void MainWindow::onReload()
+{
+    loadChipResources();
 }

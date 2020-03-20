@@ -26,7 +26,8 @@ public slots:
 
 private slots:
     void onOpenChipDir();               // Open directory with chip resources
-    void onNewImageView();
+    void onReload();                    // Reload all chip data and reset the images
+    void onNewImageView();              // Open a new view to the chip data
     void onExit();                      // Exit the application
 
 private:
