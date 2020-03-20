@@ -84,6 +84,9 @@
    </item>
    <item>
     <widget class="QPushButton" name="btBuild">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="text">
       <string>Traces</string>
      </property>
