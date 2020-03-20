@@ -365,9 +365,9 @@ QList<int> ClassChip::getNodesAt(int x, int y)
     return list;
 }
 
-QList<QString> ClassChip::getTransistorsAt(int x, int y)
+const QStringList ClassChip::getTransistorsAt(int x, int y)
 {
-    QList<QString> list;
+    QStringList list;
     for(auto s : m_transdefs)
     {
         if (s.box.contains(QPoint(x, y)))
@@ -378,7 +378,7 @@ QList<QString> ClassChip::getTransistorsAt(int x, int y)
     return list;
 }
 
-QList<QString> ClassChip::getNodenamesFromNodes(QList<int> nodes)
+const QStringList ClassChip::getNodenamesFromNodes(QList<int> nodes)
 {
     QList<QString> list;
     for(auto i : nodes)

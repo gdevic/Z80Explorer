@@ -142,6 +142,7 @@ QString CAppLogHandler::GetCurrentTimeFileString()
  */
 void CAppLogHandler::Write(char* message, int verbose)
 {
+    Q_UNUSED(verbose)
     QString logmessage = message;
     if (CheckBit(m_log_options, LogOptions_Signal))
     {

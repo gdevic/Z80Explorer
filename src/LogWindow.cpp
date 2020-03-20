@@ -43,6 +43,7 @@ LogWindow::~LogWindow()
  */
 void LogWindow::processNewMessage(QString message, bool newLine)
 {
+    Q_UNUSED(newLine)
     ui->textEdit->appendPlainText(message);
 }
 
