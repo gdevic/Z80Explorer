@@ -239,8 +239,8 @@ bool ClassChip::loadChipResources(QString dir)
     if (loadImages(dir) && loadNodenames(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         m_dir = dir;
-        emit refresh(); // XXX do we still need this?
         qInfo() << "Completed loading chip resources";
+        emit refresh();
         return true;
     }
     else

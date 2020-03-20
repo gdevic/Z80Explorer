@@ -19,6 +19,8 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     QWidget(parent),
     ui(new Ui::FormImageView),
     m_chip(chip),
+    m_image(QImage()),
+    m_view_mode(Fill),
     m_mousePressed(false)
 {
     ui->setupUi(this);
@@ -43,9 +45,6 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
     connect(m_ov, SIGNAL(actionBuild()), m_chip, SLOT(onBuild()));
-
-    // Initial set image
-    setImage(m_chip->getImage(0));
 }
 
 FormImageView::~FormImageView()
@@ -61,12 +60,7 @@ void FormImageView::setImage(const QImage &img)
 {
     m_image = img;
     m_ov->setText(3, m_image.text("name"));
-    setZoom(0.1);
-    // When the image changes, refresh the transform.
-    // This helps the Navigator get initial sizing correct.
-    calcTransform();
     update();
-    setFocus();
 }
 
 const QImage& FormImageView::getImage()
@@ -106,6 +100,7 @@ void FormImageView::setZoomMode(ZoomType mode)
 
     calcTransform();
     update();
+    setFocus();
 }
 
 void FormImageView::setZoom(double value)
@@ -144,14 +139,13 @@ void FormImageView::imageCenterV()
 // Called when class chip changes image
 void FormImageView::onRefresh()
 {
+    bool is_init = m_image.isNull(); // The very first image after init
     m_image = m_chip->getLastImage();
     m_ov->setText(3, m_image.text("name"));
     update();
+    if (is_init)
+        setZoomMode(Fit);
 }
-
-//============================================================================
-// Callbacks
-//============================================================================
 
 // Clamp the image coordinates into the range [0,1]
 void FormImageView::clampImageCoords(QPointF &tex)
