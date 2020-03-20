@@ -25,6 +25,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
     <number>0</number>
@@ -45,39 +48,44 @@
     <layout class="QVBoxLayout" name="verticalLayout"/>
    </item>
    <item>
-    <widget class="QLabel" name="label1">
-     <property name="autoFillBackground">
-      <bool>true</bool>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label1">
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label4">
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="label2">
-     <property name="autoFillBackground">
-      <bool>true</bool>
-     </property>
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="label3">
-     <property name="autoFillBackground">
-      <bool>true</bool>
-     </property>
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="btBuild">
      <property name="text">
-      <string>Build</string>
+      <string>Traces</string>
      </property>
     </widget>
    </item>

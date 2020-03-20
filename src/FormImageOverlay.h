@@ -13,7 +13,7 @@ class FormImageOverlay : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormImageOverlay(QWidget *parent = nullptr);
+    explicit FormImageOverlay(QWidget *parent, QStringList layers);
     ~FormImageOverlay();
 
 signals:

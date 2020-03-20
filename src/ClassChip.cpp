@@ -6,17 +6,18 @@
 #include <QImage>
 #include <QPainter>
 
-static const QStringList res_images =
+// List of z80 chip resource images / layers. "Z80_" and ".png" are appended only when loading the files.
+static const QStringList layers =
 {
-    { "Z80_buried.png" },
-    { "Z80_diffusion.png" },
-    { "Z80_ions.png" },
-    { "Z80_metal.png" },
-    { "Z80_pads.png" },
-    { "Z80_polysilicon.png" },
-    { "Z80_vias.png" },
-    { "z80_metal_VCC_GND.png" },
-    { "z80_vias_VCC_GND.png" },
+    { "diffusion" },    // 0
+    { "polysilicon" },  // 1
+    { "metal" },        // 2
+    { "buried" },       // 3
+    { "vias" },         // 4
+    { "ions" },         // 5
+    { "pads" },         // 6
+    { "metal_VCC_GND" },// 7
+    { "vias_VCC_GND" }, // 8
 };
 
 ClassChip::ClassChip() :
@@ -30,13 +31,12 @@ ClassChip::~ClassChip()
 
 QImage &ClassChip::getImage(uint i)
 {
-    static QImage img_empty;
     if (i < uint(m_img.count()))
     {
         m_last_image = i;
         return m_img[i];
     }
-    return img_empty;
+    return getLastImage();
 }
 
 QImage &ClassChip::getLastImage()
@@ -48,6 +48,16 @@ QImage &ClassChip::getLastImage()
 }
 
 /*
+ * Returns a list of layer / image names
+ */
+const QStringList ClassChip::getLayerNames()
+{
+    QStringList l = layers;
+    l.append("transistors"); // XXX hack
+    return l;
+}
+
+/*
  * Load chip images
  */
 bool ClassChip::loadImages(QString dir)
@@ -55,9 +65,9 @@ bool ClassChip::loadImages(QString dir)
     QEventLoop e; // Don't freeze the GUI
     QImage img;
     m_img.clear();
-    for (auto image : res_images)
+    for (auto image : layers)
     {
-        QString png_file = dir + "/" + image;
+        QString png_file = dir + "/Z80_" + image + ".png";
         qInfo() << "Loading " + png_file;
         e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
         if (img.load(png_file))
@@ -67,6 +77,7 @@ bool ClassChip::loadImages(QString dir)
             int d = img.depth();
             QImage::Format f = img.format();
             qInfo() << "Image w=" << w << " h=" << h << " depth=" << d << "format=" << f;
+            img.setText("name", image); // Set the key with the layer/image name
             m_img.append(img);
         }
         else
@@ -194,12 +205,38 @@ bool ClassChip::loadTransdefs(QString dir)
 }
 
 /*
+ * Inserts an image of the transistors layer
+ */
+bool ClassChip::addTransistorsLayer()
+{
+    QImage m_trans(m_img[0].width(), m_img[0].height(), QImage::Format_ARGB32);
+    drawTransistors(m_trans);
+    m_trans.setText("name", "transistors");
+    m_img.append(m_trans);
+    return true;
+}
+
+/*
+ * Draws transistors on the given image surface
+ */
+void ClassChip::drawTransistors(QImage &img)
+{
+    QPainter painter(&img);
+    painter.setBrush(QColor(255,255,255));
+    painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setOpacity(0.5);
+    painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
+    for (auto s : m_transdefs)
+        painter.drawRect(s.box);
+}
+
+/*
  * Attempts to load all chip resource that we expect to have
  */
 bool ClassChip::loadChipResources(QString dir)
 {
     qInfo() << "Loading chip resources from " << dir;
-    if (loadImages(dir) && convertToGrayscale() && loadNodenames(dir) && loadTransdefs(dir))
+    if (loadImages(dir) && loadNodenames(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         m_dir = dir;
         emit refresh(); // XXX do we still need this?
@@ -308,16 +345,7 @@ void ClassChip::onBuild()
         }
     }
     file.close();
-
-    // Draw transistor outlines
-    QPainter painter(&img);
-    painter.setBrush(QColor(255,255,255));
-    painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-    painter.setOpacity(0.5);
-    painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
-    for (auto s : m_transdefs)
-        painter.drawRect(s.box);
-
+    drawTransistors(img);
     emit refresh();
 }
 

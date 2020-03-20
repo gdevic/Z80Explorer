@@ -31,23 +31,21 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     // Connect the view's internal intent to move its image (for example,
     // when the user drags it with a mouse)
     connect(this, SIGNAL(imageMoved(QPointF)), this, SLOT(moveBy(QPointF)));
-
     connect(m_chip, SIGNAL(refresh()), this, SLOT(onRefresh()));
-
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
 
-    // Initial set image
-    setImage(m_chip->getImage(0));
-
     // Create and set the image overlay widget
-    m_ov = new FormImageOverlay(this);
+    m_ov = new FormImageOverlay(this, m_chip->getLayerNames());
     m_ov->setParent(this);
     m_ov->move(10, 10);
     m_ov->show();
+
     connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
-
     connect(m_ov, SIGNAL(actionBuild()), m_chip, SLOT(onBuild()));
+
+    // Initial set image
+    setImage(m_chip->getImage(0));
 }
 
 FormImageView::~FormImageView()
@@ -62,6 +60,7 @@ FormImageView::~FormImageView()
 void FormImageView::setImage(const QImage &img)
 {
     m_image = img;
+    m_ov->setText(3, m_image.text("name"));
     setZoom(0.1);
     // When the image changes, refresh the transform.
     // This helps the Navigator get initial sizing correct.
@@ -145,6 +144,7 @@ void FormImageView::imageCenterV()
 void FormImageView::onRefresh()
 {
     m_image = m_chip->getLastImage();
+    m_ov->setText(3, m_image.text("name"));
     update();
 }
 
@@ -300,15 +300,13 @@ void FormImageView::leaveEvent(QEvent *)
 
 void FormImageView::keyPressEvent(QKeyEvent *event)
 {
-    //enum ChipLayer { Burried, Diffusion, Ions, Metal, Pads, Poly, Vias };
     bool alt = event->modifiers() & Qt::AltModifier;
-    if (event->key() >= '1' && event->key() <= '9')
-    {
-        uint i = event->key() - '0' + (alt ? 9 : 0); // assuming 9 basic Z80 chip resource images
-        m_image = m_chip->getImage(i);
-        update();
-    }
-    if (event->key() == Qt::Key_F)
+    int i = -1;
+    if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_9)
+        i = event->key() - Qt::Key_1;
+    else if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_Z)
+        i = event->key() - Qt::Key_A + 9;
+    else if (event->key() == Qt::Key_F1)
     {
         switch(m_view_mode)
         {
@@ -317,6 +315,22 @@ void FormImageView::keyPressEvent(QKeyEvent *event)
             case Identity: setZoomMode(Fit); break;
             case Value: setZoomMode(Fit); break;
         }
+    }
+    if (i >= 0)
+    {
+        if (alt) // Compositing multiple images view
+        {
+            QPainter painter(&m_image);
+            painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
+            painter.drawImage(0,0, m_chip->getImage(i));
+            painter.end();
+        }
+        else // Simple image view
+        {
+            m_image = m_chip->getImage(i); // Creates a shallow image copy
+            m_ov->setText(3, m_image.text("name"));
+        }
+        update();
     }
 }
 

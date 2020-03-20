@@ -44,6 +44,7 @@ public:
     QList<int> getNodesAt(int x, int y);
     QList<QString> getTransistorsAt(int x, int y);
     QList<QString> getNodenamesFromNodes(QList<int> nodes);
+    const QStringList getLayerNames();  // Returns a list of layer / image names
 
 signals:
     void refresh();                     // One of the images has changed
@@ -63,9 +64,11 @@ private:
 
 private:
     bool loadImages(QString dir);       // Loads chip images
-    bool convertToGrayscale();          // Converts loaded images to grayscale format
     bool loadNodenames(QString dir);    // Loads nodenames.js
     bool loadTransdefs(QString dir);    // Loads transdefs.js
+    bool addTransistorsLayer();         // Inserts an image of the transistors layer
+    bool convertToGrayscale();          // Converts loaded images to grayscale format
+    void drawTransistors(QImage &img);  // Draws transistors on the given image surface
 };
 
 #endif // CLASSCHIP_H
