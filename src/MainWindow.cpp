@@ -13,11 +13,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_menuView(0),
-    m_logWindow(0),
-    m_cmdWindow(0),
-    m_chip(0)
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
