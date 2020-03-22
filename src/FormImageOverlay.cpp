@@ -31,8 +31,11 @@ void FormImageOverlay::setLayerNames(QStringList layers)
  */
 void FormImageOverlay::onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
-    QString s = QString("x=%1 y=%2 (%3,%4,%5)").arg(x).arg(5000-1-y).arg(r).arg(g).arg(b);
-    setText(1,s);
+    QString rgb = QString("RGB(%1,%2,%3)").arg(r).arg(g).arg(b);
+    setText(1,rgb);
+
+    QString coords = QString("%1,%2").arg(x).arg(y);
+    ui->btCoords->setText(coords);
 }
 
 void FormImageOverlay::onClearPointerData()
@@ -43,6 +46,11 @@ void FormImageOverlay::onClearPointerData()
 void FormImageOverlay::on_btBuild_clicked()
 {
     emit actionBuild();
+}
+
+void FormImageOverlay::on_btCoords_clicked()
+{
+    emit actionCoords();
 }
 
 void FormImageOverlay::setText(int index, QString text)

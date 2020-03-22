@@ -5,7 +5,9 @@
 
 #include <QDebug>
 #include <QGridLayout>
+#include <QInputDialog>
 #include <QPainter>
+#include <QRegularExpression>
 #include <QResizeEvent>
 #include <QRgb>
 #include <QSpacerItem>
@@ -45,6 +47,7 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
     connect(m_ov, SIGNAL(actionBuild()), m_chip, SLOT(onBuild()));
+    connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
 }
 
 FormImageView::~FormImageView()
@@ -134,6 +137,26 @@ void FormImageView::imageCenterV()
 {
     m_tex.setY(0.5);
     update();
+}
+
+/*
+ * Open coordinate dialog and center image on user input coordinates
+ */
+void FormImageView::onCoords()
+{
+    bool ok;
+    QString coords = QInputDialog::getText(this, "Center Image", "Enter the coordinates x,y", QLineEdit::Normal, "", &ok);
+    if (ok && !coords.isEmpty())
+    {
+        QRegularExpression re("^(\\d+),(\\d+)$");
+        QRegularExpressionMatch match = re.match(coords);
+        if (match.hasMatch())
+        {
+            int x = match.captured(1).toInt();
+            int y = match.captured(2).toInt();
+            moveTo(QPointF(qreal(x) / m_image.width(), qreal(y) / m_image.height()));
+        }
+    }
 }
 
 // Called when class chip changes image
@@ -254,8 +277,8 @@ void FormImageView::mouseMoveEvent(QMouseEvent *event)
             QStringList trans = m_chip->getTransistorsAt(imageCoords.x(), imageCoords.y());
             for (QString name : trans)
                 s.append(name).append(',');
-
             m_ov->setText(1, s);
+
             QStringList names = m_chip->getNodenamesFromNodes(nodes);
             m_ov->setText(2, names.join(','));
         }

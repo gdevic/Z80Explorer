@@ -20,6 +20,7 @@ public:
 
 signals:
     void actionBuild();
+    void actionCoords();
 
 public slots:
     void onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b);
@@ -28,6 +29,7 @@ public slots:
 
 private slots:
     void on_btBuild_clicked();
+    void on_btCoords_clicked();
 
 private:
     Ui::FormImageOverlay *ui;

@@ -53,6 +53,7 @@ public slots:
     void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
     void imageCenterH();                // Centers the image horizontally
     void imageCenterV();                // Centers the image vertically
+    void onCoords();                    // Open coordinate dialog and center image on user input coordinates
 
 private:
     Ui::FormImageView *ui;
