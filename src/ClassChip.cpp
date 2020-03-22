@@ -233,6 +233,23 @@ void ClassChip::drawTransistors(QImage &img)
         painter.drawRect(s.box);
 }
 
+// Set any bits, but these provide a compelling layer image when viewed:
+#define DIFF_SHIFT       6
+#define POLY_SHIFT       5
+#define METAL_SHIFT      4
+#define BURIED_SHIFT     3
+#define VIA_DIFF_SHIFT   2
+#define VIA_POLY_SHIFT   1
+#define TRANSISTOR_SHIFT 7
+
+#define DIFF       (1 << DIFF_SHIFT)
+#define POLY       (1 << POLY_SHIFT)
+#define METAL      (1 << METAL_SHIFT)
+#define BURIED     (1 << BURIED_SHIFT)
+#define VIA_DIFF   (1 << VIA_DIFF_SHIFT)
+#define VIA_POLY   (1 << VIA_POLY_SHIFT)
+#define TRANSISTOR (1 << TRANSISTOR_SHIFT)
+
 /*
  * Attempts to load all chip resource that we expect to have
  */
@@ -241,8 +258,11 @@ bool ClassChip::loadChipResources(QString dir)
     qInfo() << "Loading chip resources from " << dir;
     if (loadImages(dir) && loadNodenames(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
-        // XXX
         buildLayerMap();
+
+        // XXX not coded, just experimental
+        bool ok;
+        QVector<xy> trans_outlines = getOutline(getImageByName("bw.layermap", ok), TRANSISTOR);
 
         m_dir = dir;
         qInfo() << "Completed loading chip resources";
@@ -407,23 +427,6 @@ QImage &ClassChip::getImageByName(QString name, bool &ok)
     return img_empty;
 }
 
-// Set any bits, but these provide a compelling layer image when viewed:
-#define DIFF_SHIFT       6
-#define POLY_SHIFT       5
-#define METAL_SHIFT      4
-#define BURIED_SHIFT     3
-#define VIA_DIFF_SHIFT   2
-#define VIA_POLY_SHIFT   1
-#define TRANSISTOR_SHIFT 7
-
-#define DIFF       (1 << DIFF_SHIFT)
-#define POLY       (1 << POLY_SHIFT)
-#define METAL      (1 << METAL_SHIFT)
-#define BURIED     (1 << BURIED_SHIFT)
-#define VIA_DIFF   (1 << VIA_DIFF_SHIFT)
-#define VIA_POLY   (1 << VIA_POLY_SHIFT)
-#define TRANSISTOR (1 << TRANSISTOR_SHIFT)
-
 /*
  * Builds a layer map data
  */
@@ -524,3 +527,36 @@ void ClassChip::buildLayerMap()
     layermap.setText("name", "bw.layermap");
     m_img.append(layermap);
 }
+
+/*
+ * Returns a vector containing the feature (given by mask) outlines in the map x,y space
+ *
+ * XXX This is just for experimenting
+ */
+QVector<xy> &ClassChip::getOutline(QImage &image, uchar mask)
+{
+    QVector<xy> *outline = new QVector<xy>();
+    uint sx = image.width();
+    uint sy = image.height();
+    const uchar *p_src = image.constBits();
+    uchar *p_map = new uchar[sx * sy]{};
+
+    for (uint y=0; y<sy; y++)
+    {
+        for (uint x=0; x<sx; x++)
+        {
+            if (p_src[y*sx+x] & mask)
+            {
+                p_map[y*sx+x] = mask;
+            }
+        }
+    }
+
+    int stride = image.width(); // Create QImage with a specific stride and a cleanup function as needed when using a custom data buffer
+    QImage imgmap(p_map, sx, sy, stride, QImage::Format_Grayscale8, [](void *p){ delete[] static_cast<uchar *>(p); }, (void *)p_map);
+    imgmap.setText("name", "bw.trans");
+    m_img.append(imgmap);
+
+    return *outline;
+}
+

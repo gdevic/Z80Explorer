@@ -25,6 +25,12 @@ struct transdef
     bool is_weak;
 };
 
+struct xy
+{
+    uint x;
+    uint y;
+};
+
 /*
  * ClassChip contains functions to hold the chip data
  */
@@ -70,6 +76,7 @@ private:
 
     QImage &getImageByName(QString name, bool &ok);
     void buildLayerMap();               // Builds a layer map data
+    QVector<xy> &getOutline(QImage &image, uchar mask); // Returns a vector containing the feature (mask) outlines
 };
 
 #endif // CLASSCHIP_H
