@@ -103,7 +103,9 @@ bool ClassChip::convertToGrayscale()
     {
         qInfo() << "Processing image " << image;
         e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
-        new_images.append(image.convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor));
+        QImage new_image = image.convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
+        new_image.setText("name", "bw." + image.text("name"));
+        new_images.append(new_image);
     }
     m_img.append(new_images);
     return true;
@@ -210,10 +212,10 @@ bool ClassChip::loadTransdefs(QString dir)
  */
 bool ClassChip::addTransistorsLayer()
 {
-    QImage m_trans(m_img[0].width(), m_img[0].height(), QImage::Format_ARGB32);
-    drawTransistors(m_trans);
-    m_trans.setText("name", "transistors");
-    m_img.append(m_trans);
+    QImage trans(m_img[0].width(), m_img[0].height(), QImage::Format_ARGB32);
+    drawTransistors(trans);
+    trans.setText("name", "transistors");
+    m_img.append(trans);
     return true;
 }
 
@@ -239,6 +241,9 @@ bool ClassChip::loadChipResources(QString dir)
     qInfo() << "Loading chip resources from " << dir;
     if (loadImages(dir) && loadNodenames(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
+        // XXX
+        buildLayerMap();
+
         m_dir = dir;
         qInfo() << "Completed loading chip resources";
         emit refresh();
@@ -329,7 +334,7 @@ void ClassChip::onBuild()
                     painter.setBrush(QColor(255,255,255)), c = QColor(255,255,255);
                 else
                     painter.setBrush(QColor(4 << s.layer,255,0)), c = QColor(255,255,50);
-                painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));               
+                painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
 #endif
                 painter.setOpacity(0.5);
                 painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
@@ -388,4 +393,134 @@ const QStringList ClassChip::getNodenamesFromNodes(QList<int> nodes)
             list.append(m_nodenames[i]);
     }
     return list;
+}
+
+QImage &ClassChip::getImageByName(QString name, bool &ok)
+{
+    static QImage img_empty;
+    for (int i=0; i<m_img.count(); i++)
+    {
+        if (m_img[i].text("name")==name)
+            return m_img[i];
+    }
+    ok = false;
+    return img_empty;
+}
+
+// Set any bits, but these provide a compelling layer image when viewed:
+#define DIFF_SHIFT       6
+#define POLY_SHIFT       5
+#define METAL_SHIFT      4
+#define BURIED_SHIFT     3
+#define VIA_DIFF_SHIFT   2
+#define VIA_POLY_SHIFT   1
+#define TRANSISTOR_SHIFT 7
+
+#define DIFF       (1 << DIFF_SHIFT)
+#define POLY       (1 << POLY_SHIFT)
+#define METAL      (1 << METAL_SHIFT)
+#define BURIED     (1 << BURIED_SHIFT)
+#define VIA_DIFF   (1 << VIA_DIFF_SHIFT)
+#define VIA_POLY   (1 << VIA_POLY_SHIFT)
+#define TRANSISTOR (1 << TRANSISTOR_SHIFT)
+
+/*
+ * Builds a layer map data
+ */
+void ClassChip::buildLayerMap()
+{
+    qInfo() << "Building the layer map";
+    uint sx = m_img[0].width();
+    uint sy = m_img[0].height();
+    QImage layermap(sx, sy, QImage::Format_Grayscale8);
+
+    bool ok = true;
+    QImage img_diff(getImageByName("bw.diffusion", ok));
+    QImage img_poly(getImageByName("bw.polysilicon", ok));
+    QImage img_metl(getImageByName("bw.metal", ok));
+    QImage img_buri(getImageByName("bw.buried", ok));
+    QImage img_vias(getImageByName("bw.vias", ok));
+    //QImage img_ions(getImageByName("bw.ions", ok));
+    if (!ok)
+    {
+        qWarning() << "Unable to load bw.* image";
+        return;
+    }
+
+    // Get the pointer to the first byte in each image data
+    uchar *p_diff = img_diff.bits();
+    uchar *p_poly = img_poly.bits();
+    uchar *p_metl = img_metl.bits();
+    uchar *p_buri = img_buri.bits();
+    uchar *p_vias = img_vias.bits();
+    //uchar *p_ions = img_ions.bits();
+    // ...and of the destination buffer
+    uchar *p_dest = layermap.bits();
+
+    for (uint i=0; i<sy*sx; i++)
+    {
+        uchar diff = !!p_diff[i] << DIFF_SHIFT;
+        uchar poly = !!p_poly[i] << POLY_SHIFT;
+        uchar metl = !!p_metl[i] << METAL_SHIFT;
+        uchar buri = !!p_buri[i] << BURIED_SHIFT;
+        uchar viad = !!(p_vias[i] && diff) << VIA_DIFF_SHIFT;
+        uchar viap = !!(p_vias[i] && poly) << VIA_POLY_SHIFT;
+        //uchar ions = (!!(*p_ions++)) << VIA_DIFF_SHIFT;  XXX how to process ions?
+
+        // Vias are connections from metal to (poly or diffusion) layer
+        if (p_vias[i])
+        {
+            // Check that the vias are actually connected to either poly or metal
+            if (!diff && !poly)
+                qDebug() << "Via to nowhere at:" << i%sx << i/sx;
+            else if (!metl)
+                qDebug() << "Via without metal at:" << i%sx << i/sx;
+            else if (metl && poly && diff)
+                qDebug() << "Via both to polysilicon and diffusion at:" << i%sx << i/sx;
+            else if (buri)
+                qDebug() << "Buried under via at:" << i%sx << i/sx;
+        }
+
+        uchar c = diff | poly | metl | buri | viad | viap;
+
+        // Check valid combinations of layers and correct them
+        if (1)
+        {
+            // These combinations appear in the Z80 layers, many are valid but some are non-functional:
+            switch (c)
+            {
+            case (0                                       ): c = 0                                       ; break; // - No features
+            case (DIFF                                    ): c = DIFF                                    ; break; // - Diffusion area
+            case (     POLY                               ): c =      POLY                               ; break; // - Poly trace
+            case (DIFF|POLY                               ): c = DIFF|POLY                               ; break; // - *Transistor*
+            case (          METAL                         ): c =           METAL                         ; break; // - Metal trace
+            case (DIFF|     METAL                         ): c = DIFF|     METAL                         ; break; // - Diffusion area with a metal trace on top
+            case (     POLY|METAL                         ): c =      POLY|METAL                         ; break; // - Poly and metal traces
+            case (DIFF|POLY|METAL                         ): c = DIFF|POLY|METAL                         ; break; // - *Transistor* with a metal trace running over it
+            case (                BURIED                  ): c =                 0                       ; break; // X (invalid buried connection) -> ignore BURIED
+            case (DIFF|           BURIED                  ): c = DIFF|           0                       ; break; // X (invalid buried connection, no poly) -> ignore BURIED
+            case (     POLY|      BURIED                  ): c =      POLY|      0                       ; break; // X (invalid buried connection, no diffusion) -> ignore BURIED
+            case (DIFF|POLY|      BURIED                  ): c = DIFF|POLY|      BURIED                  ; break; // - Poly connected to diffusion
+            case (          METAL|BURIED                  ): c =           METAL|0                       ; break; // X (invalid buried connection, no poly) -> ignore BURIED
+            case (DIFF|     METAL|BURIED                  ): c = DIFF|     METAL|0                       ; break; // X (invalid buried connection, no poly) -> ignore BURIED
+            case (     POLY|METAL|BURIED                  ): c =      POLY|METAL|0                       ; break; // X (invalid buried connection, no diffusion) -> ignore BURIED
+            case (DIFF|POLY|METAL|BURIED                  ): c = DIFF|POLY|METAL|BURIED                  ; break; // - Poly connected to diffusion with a metal trace on top
+            case (DIFF|                  VIA_DIFF         ): c = DIFF|                  0                ; break; // X (via to nowhere) -> ignore VIA_DIFF
+            case (DIFF|     METAL|       VIA_DIFF         ): c = DIFF|     METAL|       VIA_DIFF         ; break; // - Metal connected to diffusion
+            case (     POLY|METAL|                VIA_POLY): c =      POLY|METAL|                VIA_POLY; break; // - Metal connected to poly
+            default:
+                qWarning() << "Unexpected layer combination:" << c;
+            }
+            // Reassign bits based on the correction
+            viad = c & VIA_DIFF;
+            viap = c & VIA_POLY;
+        }
+        // Mark a transistor area (poly over diffusion without a buried contact)
+        // Transistor path also splits the diffusion area into two, so we remove DIFF over these traces
+        if ((c & (DIFF | POLY | BURIED)) == (DIFF | POLY)) c = (c & ~DIFF) | TRANSISTOR;
+
+        p_dest[i] = c;
+    }
+    layermap.setText("name", "bw.layermap");
+    m_img.append(layermap);
 }

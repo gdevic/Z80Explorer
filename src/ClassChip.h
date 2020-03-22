@@ -67,6 +67,9 @@ private:
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
     bool convertToGrayscale();          // Converts loaded images to grayscale format
     void drawTransistors(QImage &img);  // Draws transistors on the given image surface
+
+    QImage &getImageByName(QString name, bool &ok);
+    void buildLayerMap();               // Builds a layer map data
 };
 
 #endif // CLASSCHIP_H
