@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionReload, SIGNAL(triggered()), this, SLOT(onReload()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
+    connect(ui->actionRun, SIGNAL(triggered()), this, SLOT(onSimulatorRun()));
 
     // As soon as the GUI becomes idle, load chip resources
     QTimer::singleShot(0, this, SLOT(loadChipResources()));
@@ -133,4 +134,20 @@ void MainWindow::onNewImageView()
 void MainWindow::onReload()
 {
     loadChipResources();
+}
+
+extern int simulate(const char *p_z80state);
+
+/*
+ * Run simulation using the Z80_Simulator code
+ */
+void MainWindow::onSimulatorRun()
+{
+    QSettings settings;
+    QString path = settings.value("ChipResources", QDir::currentPath()).toString();
+    QString file = path + "/z80.state";
+    if (QFileInfo::exists(file) && QFileInfo(file).isFile())
+        ::simulate(file.toUtf8().constData());
+    else
+        qWarning() << "Unable to locate \"z80.state\" file in chip resource folder " << path;
 }

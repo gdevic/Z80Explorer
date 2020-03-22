@@ -29,6 +29,7 @@ private slots:
     void onReload();                    // Reload all chip data and reset the images
     void onNewImageView();              // Open a new view to the chip data
     void onExit();                      // Exit the application
+    void onSimulatorRun();              // Run the simulator (Z80_Simulator)
 
 private:
     Ui::MainWindow *ui;

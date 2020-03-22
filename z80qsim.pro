@@ -7,6 +7,10 @@ CONFIG += c++11
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
+win32 {
+DEFINES += WINDOWS
+DEFINES += _CRT_SECURE_NO_WARNINGS
+}
 
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -21,6 +25,7 @@ SOURCES += \
     src/FormImageView.cpp \
     src/LogWindow.cpp \
     src/MainWindow.cpp \
+    src/Z80_Simulator.cpp \
     src/main.cpp
 
 HEADERS += \
