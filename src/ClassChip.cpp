@@ -1,4 +1,5 @@
 #include "ClassChip.h"
+#include "Z80_Simulator.h"
 
 #include <QDebug>
 #include <QDir>
@@ -264,10 +265,19 @@ bool ClassChip::loadChipResources(QString dir)
         bool ok;
         QVector<xy> trans_outlines = getOutline(getImageByName("bw.layermap", ok), TRANSISTOR);
 
-        m_dir = dir;
-        qInfo() << "Completed loading chip resources";
-        emit refresh();
-        return true;
+        qDebug() << "Loading Z80 netlist into the simulator...";
+        QString file = dir + "/z80.netlist";
+        if (QFileInfo::exists(file) && QFileInfo(file).isFile())
+        {
+            sim.simLoadNetlist(file.toUtf8().constData());
+
+            m_dir = dir;
+            qInfo() << "Completed loading chip resources";
+            emit refresh();
+            return true;
+        }
+        else
+            qWarning() << "Unable to load \"z80.netlist\" file";
     }
     else
         qWarning() << "Loading chip resource failed";

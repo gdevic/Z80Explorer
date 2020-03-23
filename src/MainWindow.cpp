@@ -4,6 +4,7 @@
 #include "CommandWindow.h"
 #include "FormImageView.h"
 #include "LogWindow.h"
+#include "Z80_Simulator.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -136,18 +137,10 @@ void MainWindow::onReload()
     loadChipResources();
 }
 
-extern int simulate(const char *p_z80state);
-
 /*
  * Run simulation using the Z80_Simulator code
  */
 void MainWindow::onSimulatorRun()
 {
-    QSettings settings;
-    QString path = settings.value("ChipResources", QDir::currentPath()).toString();
-    QString file = path + "/z80.state";
-    if (QFileInfo::exists(file) && QFileInfo(file).isFile())
-        ::simulate(file.toUtf8().constData());
-    else
-        qWarning() << "Unable to locate \"z80.state\" file in chip resource folder " << path;
+    sim.simulate();
 }

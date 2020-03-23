@@ -1,22 +1,18 @@
-// Z80_Simulator.cpp : Defines the entry point for the console application.
-//
-
 // ChipBrowser.cpp : Defines the entry point for the console application.
 // 8085 CPU Simulator
 // Version: 1.0
 // Author: Pavel Zima
 // Date: 1.1.2013
-
 // Adapted to Z80 CPU Simulator on 26.9.2013
 // Ported to Linux/g++ by Dave Banks 29.8.2018
 
-#include <inttypes.h>
-#include <locale.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "Z80_Simulator.h"
 #include <vector>
+
+// Serialization support
+#include "cereal/types/vector.hpp"
+#include "cereal/archives/binary.hpp"
+#include <fstream>
 
 #if !defined(WINDOWS)
 #include <sys/time.h>
@@ -24,55 +20,17 @@
 #include <Windows.h>
 #endif
 
-using namespace std;
+Z80Sim sim;
 
-// GD: my changes
-#define GDX 1
+using namespace std;
 
 extern void logf(char *fmt, ...);
 extern void yield();
 
-// GD: Adding serialization support
-#include "cereal/types/vector.hpp"
-#include "cereal/archives/binary.hpp"
-#include <fstream>
-
-// DMB: Not a problem on Linux!
-// it says that fopen is unsafe
-//#pragma warning(disable : 4996)
-
-// DMB: Need to use ulimit -s 131072
-// we need really big stack for recursive flood fill (need to be reimplemented)
-//#pragma comment(linker, "/STACK:536870912")
-
-#ifndef ZeroMemory
-#define ZeroMemory(p, sz) memset((p), 0, (sz))
-#endif
-
 unsigned int DIVISOR = 600; // the lower the faster is clock, 1000 is lowest value I achieved
-#define MINSHAPESIZE 25 // if a shape is smaller than this it gets reported
 
-#define VCC 5.0f
-#define QUANTUM 100.0f // basic quantum of charge moved in one cycle
 #define MAXQUANTUM 600.0f // charge gets truncated to this value
 #define PULLUPDEFLATOR 1.1f // positive charge gets divided by this
-
-// Define "type" of each pixel data in pombuf
-#define METAL 1
-#define POLYSILICON 2
-#define DIFFUSION 4
-#define VIAS 8
-#define BURIED 16 // layer
-#define PADS 32
-#define TRANSISTORS 64
-#define VIAS_TO_POLYSILICON 128
-#define VIAS_TO_DIFFUSION 256
-#define BURIED_CONTACT 512 // real contact
-#define REAL_DIFFUSION 1024 // i.e. no transistor
-#define ION_IMPLANTS 2048 // Z80 traps
-#define TEMPORARY 32768
-
-// basic signals - they get their own color while exporting figures
 
 #define GND 1
 #define SIG_VCC 2
@@ -123,23 +81,13 @@ unsigned int DIVISOR = 600; // the lower the faster is clock, 1000 is lowest val
 #define PAD__HALT 40
 #define PAD__BUSAK 41
 
-// all other signals are numbered automaticaly
-
-#define FIRST_SIGNAL 42
-
-// Global variables which can be set
-
 #define GATE 1
 #define DRAIN 2
 #define SOURCE 3
 
-uint8_t memory[65536];
-uint8_t ports[256];
-
 // Connection to transistor remembers index of connected transistor and its terminal
 // proportion is the proportion of that transisor are to the area of all transistors connected
 // to the respective signal - it is here for optimalisation purposes
-
 class Connection
 {
 public:
@@ -165,7 +113,6 @@ Connection::Connection()
 // Homogenize() averages the charge proportionally by transistor area
 // ignore means that this signal need not to be homogenized - a try for optimalization
 // but it works only for Vcc and GND
-
 class Signal
 {
 public:
@@ -283,7 +230,6 @@ inline int Transistor::Valuate()
     // 2 enhancement pullup
     // 3 direct pulldown
     // 4 other
-
     if (depletion)
         return 1;
     if (drain == SIG_VCC)
@@ -545,7 +491,7 @@ int Pad::ReadOutputStatus()
 }
 
 // gets the value of 8 transistors - for listing purposes
-int GetRegVal(unsigned int reg[])
+int Z80Sim::GetRegVal(unsigned int reg[])
 {
     int pomvalue = 0;
     for (int i = 7; i >= 0; i--)
@@ -554,7 +500,7 @@ int GetRegVal(unsigned int reg[])
 }
 
 // finds the transistor by coordinates - the coordinations must be upper - left corner ie the most top (first) and most left (second) corner
-int FindTransistor(unsigned int x, unsigned int y)
+int Z80Sim::FindTransistor(unsigned int x, unsigned int y)
 {
     for (unsigned int i = 0; i < transistors.size(); i++)
         if (transistors[i].x == int(x) && transistors[i].y == int(y))
@@ -563,77 +509,31 @@ int FindTransistor(unsigned int x, unsigned int y)
     return -1;
 }
 
-// Everything starts here
-int simulate(const char *p_z80state)
+/*
+ * Load Z80 netlist
+ */
+void Z80Sim::simLoadNetlist(const char *p_z80netlist)
 {
-    // -------------------------------------------------------
-    // READ Z80 CHIP LAYOUT DATA
-    // -------------------------------------------------------
-    {
-        std::ifstream is(p_z80state, std::ios::binary);
-        cereal::BinaryInputArchive archive(is);
+    std::ifstream is(p_z80netlist, std::ios::binary);
+    cereal::BinaryInputArchive archive(is);
 
-        archive(transistors);
-        archive(signals);
-        archive(pads);
-    }
+    // Deserialize netlist components
+    archive(transistors);
+    archive(signals);
+    archive(pads);
 
-    ZeroMemory(&memory[0], 65536 * sizeof(uint8_t));
-    ZeroMemory(&ports[0], 256 * sizeof(uint8_t));
+    sig_t1 = FindTransistor(572, 1203);
+    sig_t2 = FindTransistor(831, 1895);
+    sig_t3 = FindTransistor(901, 1242);
+    sig_t4 = FindTransistor(876, 1259);
+    sig_t5 = FindTransistor(825, 1958);
+    sig_t6 = FindTransistor(921, 1211);
 
-    // Simulated Z80 program
-
-    memory[0x00] = 0x21;
-    memory[0x01] = 0x34;
-    memory[0x02] = 0x12;
-    memory[0x03] = 0x31;
-    memory[0x04] = 0xfe;
-    memory[0x05] = 0xdc;
-    memory[0x06] = 0xe5;
-    memory[0x07] = 0x21;
-    memory[0x08] = 0x78;
-    memory[0x09] = 0x56;
-    memory[0x0a] = 0xe3;
-    memory[0x0b] = 0xdd;
-    memory[0x0c] = 0x21;
-    memory[0x0d] = 0xbc;
-    memory[0x0e] = 0x9a;
-    memory[0x0f] = 0xdd;
-    memory[0x10] = 0xe3;
-    memory[0x11] = 0x76;
-
-    int lastadr = 0;
-    int lastdata = 0;
-    int pomadr = 0;
-    bool pom_wr = true;
-    bool pom_rd = true;
-    bool pom_rst = true;
-    bool pom_mreq = true;
-    bool pom_iorq = true;
-    bool pom_halt = true;
-
-    int outcounter = 0;
-
-    // Simulated Z80 program
-
-    unsigned int reg_a[8], reg_f[8], reg_b[8], reg_c[8], reg_d[8], reg_e[8], reg_d2[8], reg_e2[8], reg_h[8], reg_l[8], reg_h2[8], reg_l2[8];
-    unsigned int reg_w[8], reg_z[8], reg_pch[8], reg_pcl[8], reg_sph[8], reg_spl[8];
-    unsigned int reg_ixh[8], reg_ixl[8], reg_iyh[8], reg_iyl[8], reg_i[8], reg_r[8];
-    unsigned int reg_a2[8], reg_f2[8], reg_b2[8], reg_c2[8];
-
-    unsigned int sig_t1 = FindTransistor(572, 1203);
-    unsigned int sig_t2 = FindTransistor(831, 1895);
-    unsigned int sig_t3 = FindTransistor(901, 1242);
-    unsigned int sig_t4 = FindTransistor(876, 1259);
-    unsigned int sig_t5 = FindTransistor(825, 1958);
-    unsigned int sig_t6 = FindTransistor(921, 1211);
-
-    unsigned int sig_m1 = FindTransistor(1051, 1057);
-    unsigned int sig_m2 = FindTransistor(1014, 1165);
-    unsigned int sig_m3 = FindTransistor(1018, 1319);
-    unsigned int sig_m4 = FindTransistor(1027, 1300);
-    unsigned int sig_m5 = FindTransistor(1014, 1243);
-    //unsigned int sig_m6 = FindTransistor(3180, 3026);
+    sig_m1 = FindTransistor(1051, 1057);
+    sig_m2 = FindTransistor(1014, 1165);
+    sig_m3 = FindTransistor(1018, 1319);
+    sig_m4 = FindTransistor(1027, 1300);
+    sig_m5 = FindTransistor(1014, 1243);
 
     reg_pcl[0] = FindTransistor(1345, 3231);
     reg_pcl[1] = FindTransistor(1345, 3307);
@@ -927,6 +827,33 @@ int simulate(const char *p_z80state)
     reg_a[5] = FindTransistor(2328, 4192);
     reg_a[6] = FindTransistor(2328, 4259);
     reg_a[7] = FindTransistor(2328, 4336);
+}
+
+int Z80Sim::simulate()
+{
+    memset(memory, 0, sizeof(memory));
+    memset(ports, 0, sizeof(ports));
+
+    // Simulated Z80 program
+
+    memory[0x00] = 0x21;
+    memory[0x01] = 0x34;
+    memory[0x02] = 0x12;
+    memory[0x03] = 0x31;
+    memory[0x04] = 0xfe;
+    memory[0x05] = 0xdc;
+    memory[0x06] = 0xe5;
+    memory[0x07] = 0x21;
+    memory[0x08] = 0x78;
+    memory[0x09] = 0x56;
+    memory[0x0a] = 0xe3;
+    memory[0x0b] = 0xdd;
+    memory[0x0c] = 0x21;
+    memory[0x0d] = 0xbc;
+    memory[0x0e] = 0x9a;
+    memory[0x0f] = 0xdd;
+    memory[0x10] = 0xe3;
+    memory[0x11] = 0x76;
 
     // ============================= Simulation =============================
     int totcycles = 0;

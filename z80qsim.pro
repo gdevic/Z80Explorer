@@ -37,7 +37,8 @@ HEADERS += \
     src/FormImageOverlay.h \
     src/FormImageView.h \
     src/LogWindow.h \
-    src/MainWindow.h
+    src/MainWindow.h \
+    src/Z80_Simulator.h
 
 FORMS += \
     src/CommandWindow.ui \
