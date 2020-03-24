@@ -30,6 +30,7 @@ private slots:
     void onNewImageView();              // Open a new view to the chip data
     void onExit();                      // Exit the application
     void onSimulatorRun();              // Run the simulator (Z80_Simulator)
+    void onSimulatorStop();             // Stop the running simulator (Z80_Simulator)
 
 private:
     Ui::MainWindow *ui;

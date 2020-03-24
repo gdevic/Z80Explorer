@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionRun, SIGNAL(triggered()), this, SLOT(onSimulatorRun()));
+    connect(ui->actionStop, SIGNAL(triggered()), this, SLOT(onSimulatorStop()));
 
     // As soon as the GUI becomes idle, load chip resources
     QTimer::singleShot(0, this, SLOT(loadChipResources()));
@@ -143,4 +144,12 @@ void MainWindow::onReload()
 void MainWindow::onSimulatorRun()
 {
     sim.simulate();
+}
+
+/*
+ * Handle menu item to stop simulation run
+ */
+void MainWindow::onSimulatorStop()
+{
+    sim.stop();
 }

@@ -831,8 +831,16 @@ void Z80Sim::simLoadNetlist(const char *p_z80netlist)
     reg_a[7] = FindTransistor(2328, 4336);
 }
 
+void Z80Sim::stop()
+{
+    is_running = false;
+}
+
 int Z80Sim::simulate()
 {
+    if (is_running) return 0;
+    is_running = true;
+
     memset(memory, 0, sizeof(memory));
     memset(ports, 0, sizeof(ports));
 
@@ -1051,6 +1059,8 @@ int Z80Sim::simulate()
 
         // End of Simulation itself
         yield();
+        if (!is_running) // XXX Stop()
+            return 0;
 
         if (!(i % (DIVISOR / 5))) // writes out every 100s cycle (for output to be not too verbous)
         {
@@ -1345,5 +1355,6 @@ int Z80Sim::simulate()
         totcycles = i;
     }
 
+    is_running = false;
     return 0;
 }

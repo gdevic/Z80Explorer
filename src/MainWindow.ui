@@ -48,6 +48,7 @@
      <string>Simulation</string>
     </property>
     <addaction name="actionRun"/>
+    <addaction name="actionStop"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -116,6 +117,17 @@
    </property>
    <property name="statusTip">
     <string>Run Z80_Simulator</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop running simulation</string>
+   </property>
+   <property name="statusTip">
+    <string>Stop running simulation</string>
    </property>
   </action>
  </widget>

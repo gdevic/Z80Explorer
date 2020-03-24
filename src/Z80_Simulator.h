@@ -13,8 +13,10 @@ class Z80Sim
 public:
     void simLoadNetlist(const char *p_z80netlist);
     int simulate();
+    void stop();
 
 private:
+    bool is_running;
     int FindTransistor(unsigned int x, unsigned int y);
     int GetRegVal(unsigned int reg[]);
 
