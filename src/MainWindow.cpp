@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Let the log and command windows use the same space on the bottom
     tabifyDockWidget(m_logWindow, m_cmdWindow);
     m_logWindow->show();
-    m_cmdWindow->show();
+    m_cmdWindow->hide();
 
     // Connect the rest of the menu actions...
     connect(ui->actionOpenChipDir, SIGNAL(triggered()), this, SLOT(onOpenChipDir()));
