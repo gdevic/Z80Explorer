@@ -18,7 +18,8 @@ CAppLogHandler *applog = nullptr; // Application logging subsystem
 void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QSettings settings;
-    int logLevel = settings.value("AppLogLevel", 2).toInt();
+    // XXX This is temporary: logLevel should be 2 (not to include qDebug() messages)
+    int logLevel = settings.value("AppLogLevel", 3).toInt();
 
     QByteArray localMsg = msg.toLocal8Bit();
     QString s1 = "File: " + (context.file ? QString(context.file) : "?");
