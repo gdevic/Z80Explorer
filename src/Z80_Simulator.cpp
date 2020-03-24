@@ -27,17 +27,19 @@ using namespace std;
 extern void logf(char *fmt, ...);
 extern void yield();
 
-unsigned int DIVISOR = 600; // the lower the faster is clock, 1000 is lowest value I achieved
+unsigned int DIVISOR = 600; // the lower the faster is clock
 
 #define MAXQUANTUM 600.0f // charge gets truncated to this value
 #define PULLUPDEFLATOR 1.1f // positive charge gets divided by this
 
 #define GND 1
 #define SIG_VCC 2
-#define PAD_CLK 3
-#define SIG_RESET 4
 
-// definition of pads
+// definition of pads (pad 4 is skipped)
+
+#define PAD_GND 1
+#define PAD_VCC 2
+#define PAD_CLK 3
 
 #define PAD_A0 5
 #define PAD_A1 6
@@ -192,9 +194,9 @@ public:
 
     template <class Archive> void serialize(Archive & ar)
     {
-        ar(x, y, gate, source, drain, sourcelen, drainlen, otherlen, area, depletion, resist, gatecharge, sourcecharge, draincharge,
-           gateneighborhood, sourceneighborhood, drainneighborhood, chargetobeon, pomchargetogo);
-        ar(gateconnections, sourceconnections, drainconnections);
+       ar(x, y, gate, source, drain, sourcelen, drainlen, otherlen, area, depletion);
+       ar(resist, gatecharge, sourcecharge, draincharge, gateneighborhood, sourceneighborhood, drainneighborhood, chargetobeon, pomchargetogo);
+       ar(gateconnections, sourceconnections, drainconnections);
     }
 };
 
@@ -905,137 +907,131 @@ int Z80Sim::simulate()
             }
             else if (pads[j].type == PAD_BIDIRECTIONAL) // we have to pull data bus up or down when memory, I/O or interrupt instruction is read
             {
+                if (pom_rd) // nothing is read
                 {
-                    if (pom_rd) // nothing is read
+                    pads[j].SetInputSignal(SIG_FLOATING);
+                }
+                else
+                {
+                    if (!pom_mreq) // memory is read
                     {
-                        pads[j].SetInputSignal(SIG_FLOATING);
-                    }
-                    else
-                    {
-                        if (!pom_mreq) // memory is read
+                        if (pads[j].origsignal == PAD_D7)
                         {
-                            if (pads[j].origsignal == PAD_D7)
-                            {
-                                if (memory[lastadr] & 0x80)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D6)
-                            {
-                                if (memory[lastadr] & 0x40)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D5)
-                            {
-                                if (memory[lastadr] & 0x20)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D4)
-                            {
-                                if (memory[lastadr] & 0x10)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D3)
-                            {
-                                if (memory[lastadr] & 0x08)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D2)
-                            {
-                                if (memory[lastadr] & 0x04)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D1)
-                            {
-                                if (memory[lastadr] & 0x02)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D0)
-                            {
-                                if (memory[lastadr] & 0x01)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
+                            if (memory[lastadr] & 0x80)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
                         }
-                        else if (!pom_iorq) // I/O is read
+                        else if (pads[j].origsignal == PAD_D6)
                         {
-                            if (pads[j].origsignal == PAD_D7)
-                            {
-                                if (ports[lastadr & 0xff] & 0x80)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D6)
-                            {
-                                if (ports[lastadr & 0xff] & 0x40)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D5)
-                            {
-                                if (ports[lastadr & 0xff] & 0x20)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D4)
-                            {
-                                if (ports[lastadr & 0xff] & 0x10)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D3)
-                            {
-                                if (ports[lastadr & 0xff] & 0x08)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D2)
-                            {
-                                if (ports[lastadr & 0xff] & 0x04)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D1)
-                            {
-                                if (ports[lastadr & 0xff] & 0x02)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
-                            else if (pads[j].origsignal == PAD_D0)
-                            {
-                                if (ports[lastadr & 0xff] & 0x01)
-                                    pads[j].SetInputSignal(SIG_VCC);
-                                else
-                                    pads[j].SetInputSignal(SIG_GND);
-                            }
+                            if (memory[lastadr] & 0x40)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D5)
+                        {
+                            if (memory[lastadr] & 0x20)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D4)
+                        {
+                            if (memory[lastadr] & 0x10)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D3)
+                        {
+                            if (memory[lastadr] & 0x08)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D2)
+                        {
+                            if (memory[lastadr] & 0x04)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D1)
+                        {
+                            if (memory[lastadr] & 0x02)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D0)
+                        {
+                            if (memory[lastadr] & 0x01)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                    }
+                    else if (!pom_iorq) // I/O is read
+                    {
+                        if (pads[j].origsignal == PAD_D7)
+                        {
+                            if (ports[lastadr & 0xff] & 0x80)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D6)
+                        {
+                            if (ports[lastadr & 0xff] & 0x40)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D5)
+                        {
+                            if (ports[lastadr & 0xff] & 0x20)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D4)
+                        {
+                            if (ports[lastadr & 0xff] & 0x10)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D3)
+                        {
+                            if (ports[lastadr & 0xff] & 0x08)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D2)
+                        {
+                            if (ports[lastadr & 0xff] & 0x04)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D1)
+                        {
+                            if (ports[lastadr & 0xff] & 0x02)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
+                        }
+                        else if (pads[j].origsignal == PAD_D0)
+                        {
+                            if (ports[lastadr & 0xff] & 0x01)
+                                pads[j].SetInputSignal(SIG_VCC);
+                            else
+                                pads[j].SetInputSignal(SIG_GND);
                         }
                     }
                 }
-            }
-            else
-            {
-                // some other code here ...
             }
         }
         // End of Setting input pads
@@ -1049,6 +1045,7 @@ int Z80Sim::simulate()
         for (unsigned int j = 0; j < signals.size(); j++)
             if (!signals[j].ignore)
                 signals[j].Homogenize();
+
         for (unsigned int j = 0; j < transistors.size(); j++)
             transistors[j].Normalize();
 
