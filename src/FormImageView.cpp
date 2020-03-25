@@ -12,6 +12,7 @@
 #include <QRgb>
 #include <QSpacerItem>
 #include <QtGlobal>
+#include <QTimer>
 
 //============================================================================
 // Class constructor and destructor
@@ -23,7 +24,9 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     m_chip(chip),
     m_image(QImage()),
     m_view_mode(Fill),
-    m_mousePressed(false)
+    m_mousePressed(false),
+    m_highlight_path(nullptr),
+    m_highlight_box(nullptr)
 {
     ui->setupUi(this);
     setZoomMode(Fit);
@@ -44,15 +47,32 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     m_ov->move(10, 10);
     m_ov->show();
 
+    // Create a timer that updates image every 1/2 seconds to show highlight blink
+    m_timer = new QTimer(this);
+    m_timer->setInterval(500);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
+    m_timer->start();
+
     connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
     connect(m_ov, SIGNAL(actionBuild()), m_chip, SLOT(onBuild()));
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
+    connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
 }
 
 FormImageView::~FormImageView()
 {
     delete ui;
+}
+
+/*
+ * Timer timeout handler
+ */
+void FormImageView::onTimeout()
+{
+    if (m_timer_tick)
+        m_timer_tick--;
+    update();
 }
 
 //============================================================================
@@ -219,6 +239,27 @@ void FormImageView::paintEvent(QPaintEvent *)
     painter.setTransform(m_tx);
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
     painter.drawImage(size, m_image, size);
+
+    //------------------------------------------------------------------------
+    // Draw two selected features on top of the image: box (a transistor) and
+    // a path (a signal), both of which are selected with the "Find" dialog
+    //------------------------------------------------------------------------
+    if (m_timer_tick & 1)
+    {
+        painter.setBrush(QColor(255,255,0));
+        painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+        painter.setCompositionMode(QPainter::CompositionMode_Clear);
+    }
+    else
+    {
+        painter.setBrush(QColor(255,255,255));
+        painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+        painter.setCompositionMode(QPainter::CompositionMode_Plus);
+    }
+    if (m_highlight_box)
+        painter.drawRect(*m_highlight_box);
+    if (m_highlight_path)
+        painter.drawPath(*m_highlight_path);
 }
 
 void FormImageView::calcTransform()
@@ -358,4 +399,61 @@ void FormImageView::keyPressEvent(QKeyEvent *event)
 void FormImageView::contextMenuRequested(const QPoint& localWhere)
 {
     emit contextMenuRequestedAt(this, mapToGlobal(localWhere));
+}
+
+/*
+ * Search for the named feature
+ * This function is called when the user enters some text in the Find box
+ * Typing [Enter] in the empty Find dialog will re-trigger the highlight flash
+ * Typing "0" will clear all highlights
+ */
+void FormImageView::onFind(QString text)
+{
+    if (text.length() == 0)
+    {
+        m_timer_tick = 10;
+        return;
+    }
+    if (text=='0')
+    {
+        m_highlight_box = nullptr;
+        m_highlight_path = nullptr;
+        qDebug() << "Highlights cleared";
+        return;
+    }
+    bool ok;
+    if (text.startsWith(QChar('t')))
+    {
+        const transdef *trans = m_chip->getTrans(text);
+        if (trans)
+        {
+            m_highlight_box = &trans->box;
+            qDebug() << "Found transistor" << text;
+            qDebug() << trans->box << "(x,y):" << trans->box.x() << "," << trans->box.y() << "w:" << trans->box.width() << "h:" << trans->box.height();
+            m_timer_tick = 10;
+            update();
+        }
+        else
+            qWarning() << "Segment" << text << "not found";
+    }
+    else
+    {
+        uint nodenum = text.toUInt(&ok);
+        if (ok)
+        {
+            const segdef *seg = m_chip->getSegment(nodenum);
+            if (seg)
+            {
+                m_highlight_path = &seg->path;
+                qDebug() << "Found segment" << text;
+                qDebug() << "Pullup:" << seg->pullup << "Layer:" << seg->layer << "Points:" << seg->points.count() << "Path:" << seg->path.elementCount();
+                m_timer_tick = 10;
+                update();
+            }
+            else
+                qWarning() << "Segment" << text << "not found";
+        }
+        else
+            qWarning() << "Invalid input value" << text;
+    }
 }

@@ -7,6 +7,7 @@ class ClassChip;
 class FormImageOverlay;
 class QGridLayout;
 class QResizeEvent;
+class QTimer;
 
 namespace Ui { class FormImageView; }
 
@@ -55,6 +56,10 @@ public slots:
     void imageCenterV();                // Centers the image vertically
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
 
+private slots:
+    void onFind(QString text);          // Search for the named feature
+    void onTimeout();                   // Timer timeout handler
+
 private:
     Ui::FormImageView *ui;
     ClassChip *m_chip;
@@ -74,6 +79,10 @@ private:
     QRect      m_viewPort;              // Bounding rectangle of the current screen view
     QRectF     m_imageView;             // Helper variable for getImageView()
     FormImageOverlay *m_ov;             // Image overlay class
+    QTimer     *m_timer;                // Image refresh timer
+    uint       m_timer_tick;            // Timer timeout tick counter
+    const QPainterPath *m_highlight_path; // Path to highlight on the current image view
+    const QRect *m_highlight_box;       // Box to highlight on the current image view
 
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);

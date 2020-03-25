@@ -8,6 +8,8 @@ FormImageOverlay::FormImageOverlay(QWidget *parent) :
     ui(new Ui::FormImageOverlay)
 {
     ui->setupUi(this);
+
+    connect(ui->editFind, SIGNAL(returnPressed()), this, SLOT(onFind()));
 }
 
 FormImageOverlay::~FormImageOverlay()
@@ -59,4 +61,14 @@ void FormImageOverlay::setText(int index, QString text)
     if (index == 2) ui->label2->setText(text);
     if (index == 3) ui->label3->setText(text);
     if (index == 4) ui->label4->setText(text);
+}
+
+/*
+ * Called by the editFind edit widget when the user presses the Enter key
+ */
+void FormImageOverlay::onFind()
+{
+    QString text = ui->editFind->text().trimmed();
+    ui->editFind->clear(); // Clear the edit box from the user input
+    emit actionFind(text);
 }

@@ -186,8 +186,9 @@ bool ClassChip::loadTransdefs(QString dir)
                     t.gatenode = list[1].toUInt();
                     t.sourcenode = list[2].toUInt();
                     t.drainnode = list[3].toUInt();
-                    // The order of values in the data file is: rl, rr, tl, tb
-                    t.box = QRect(QPoint(list[4].toInt(), y - list[6].toInt()), QPoint(list[5].toInt(), y - list[7].toInt()));
+                    // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
+                    // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
+                    t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt(), y - list[6].toInt()));
                     t.area = list[12].toUInt();
                     t.is_weak = list[13] == "true";
 
@@ -336,16 +337,12 @@ void ClassChip::onBuild()
                     uint x = list[i].toUInt();
                     uint y = img.height() - list[i+1].toUInt() - 1;
                     s.points.append(QPoint(x,y));
-//                  s.poly << QPoint(x,y);
-
-                    //painter.fillRect(x,y,4,4,QColor(255,255,0));
                 }
 #if 0 // One way to do it is to manually draw a closed loop of lines
                 for (int i=0; i < s.points.count() - 1; i++)
                     painter.drawLine(s.points[i], s.points[i+1]);
                 painter.drawLine(s.points[0], s.points[s.points.length()-1]);
 #endif
-                QPainterPath path_xxx;
                 s.path.setFillRule(Qt::WindingFill);
                 s.path.moveTo(s.points[0].x(),s.points[0].y());
                 for (int i=1; i < s.points.count(); i++)
@@ -383,6 +380,7 @@ void ClassChip::onBuild()
     file.close();
     drawTransistors(img);
     emit refresh();
+    qDebug() << "Finished loading segdefs";
 }
 
 QList<int> ClassChip::getNodesAt(int x, int y)
@@ -570,3 +568,28 @@ QVector<xy> &ClassChip::getOutline(QImage &image, uchar mask)
     return *outline;
 }
 
+/*
+ * Search for the segdef given its node number, nullptr if not found
+ */
+const segdef *ClassChip::getSegment(uint nodenum)
+{
+    for (int i=0; i<m_segdefs.size(); i++)
+    {
+        if (m_segdefs.at(i).nodenum == nodenum)
+            return &m_segdefs.at(i);
+    }
+    return nullptr;
+}
+
+/*
+ * Returns transistor definition given its name, nullptr if not found
+ */
+const transdef *ClassChip::getTrans(QString name)
+{
+    for (int i=0; i<m_transdefs.size(); i++)
+    {
+        if (m_transdefs.at(i).name == name)
+            return &m_transdefs.at(i);
+    }
+    return nullptr;
+}

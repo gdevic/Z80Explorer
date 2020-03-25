@@ -9,8 +9,7 @@ struct segdef
     uint nodenum;
     bool pullup;
     uint layer;
-    QVector<QPoint> points;
-    QPolygon poly;
+    QVector<QPoint> points; // XXX Do we need both points *and* path?
     QPainterPath path;
 };
 
@@ -49,6 +48,8 @@ public:
     const QStringList getTransistorsAt(int x, int y);
     const QStringList getNodenamesFromNodes(QList<int> nodes);
     const QStringList getLayerNames();  // Returns a list of layer / image names
+    const segdef *getSegment(uint nodenum); // Search for the segdef given its node number, nullptr if not found
+    const transdef *getTrans(QString name); // Returns transistor definition given its name, nullptr if not found
 
 signals:
     void refresh();                     // One of the images has changed
