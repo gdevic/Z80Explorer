@@ -148,7 +148,7 @@ void FormImageView::onCoords()
     QString coords = QInputDialog::getText(this, "Center Image", "Enter the coordinates x,y", QLineEdit::Normal, "", &ok);
     if (ok && !coords.isEmpty())
     {
-        QRegularExpression re("^(\\d+),(\\d+)$");
+        QRegularExpression re("(\\d+)\\s*,\\s*(\\d+)");
         QRegularExpressionMatch match = re.match(coords);
         if (match.hasMatch())
         {
