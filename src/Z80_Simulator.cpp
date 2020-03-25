@@ -403,15 +403,15 @@ void Transistor::Normalize()
 {
     if (gatecharge < -area)
         gatecharge = -area;
-    if (gatecharge > area)
+    else if (gatecharge > area)
         gatecharge = area;
     if (sourcecharge < -area)
         sourcecharge = -area;
-    if (sourcecharge > area)
+    else if (sourcecharge > area)
         sourcecharge = area;
     if (draincharge < -area)
         draincharge = -area;
-    if (draincharge > area)
+    else if (draincharge > area)
         draincharge = area;
 }
 
