@@ -25,6 +25,7 @@ private slots:
     void loadResources();               // Loads application resources
     void onOpenChipDir();               // Open directory with chip resources
     void onNewImageView();              // Open a new view to the chip data
+    void onNewWaveformView();           // Open a new view to the waveforms
     void onExit();                      // Exit the application
 
 private:

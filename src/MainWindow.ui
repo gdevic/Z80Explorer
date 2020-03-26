@@ -42,6 +42,7 @@
      <string>Window</string>
     </property>
     <addaction name="actionNewImageView"/>
+    <addaction name="actionNewWaveformView"/>
    </widget>
    <widget class="QMenu" name="menuSimulation">
     <property name="title">
@@ -128,6 +129,20 @@
    </property>
    <property name="statusTip">
     <string>Stop running simulation</string>
+   </property>
+  </action>
+  <action name="actionNewWaveformView">
+   <property name="text">
+    <string>New Waveform View</string>
+   </property>
+   <property name="statusTip">
+    <string>Create a new waveform view window</string>
+   </property>
+   <property name="whatsThis">
+    <string>wave</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>

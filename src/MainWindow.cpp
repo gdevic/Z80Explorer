@@ -4,6 +4,7 @@
 #include "ClassSim.h"
 #include "CommandWindow.h"
 #include "FormImageView.h"
+#include "FormWaveView.h"
 #include "LogWindow.h"
 
 #include <QDebug>
@@ -61,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionReload, SIGNAL(triggered()), this, SLOT(loadResources()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
+    connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
     connect(ui->actionRun, SIGNAL(triggered()), m_sim, SLOT(onRun()));
     connect(ui->actionStop, SIGNAL(triggered()), m_sim, SLOT(onStop()));
 
@@ -144,5 +146,22 @@ void MainWindow::onNewImageView()
     dock->resize(300, 300);
 
     w->onRefresh();
+    w->show();
+}
+
+/*
+ * Handle menu item to create a new waveform window
+ */
+void MainWindow::onNewWaveformView()
+{
+    QDockWidget *dock = new QDockWidget("Waveform", this);
+    FormWaveView *w = new FormWaveView(dock, m_sim);
+    dock->setWidget(w);
+
+    addDockWidget(Qt::BottomDockWidgetArea, dock);
+    dock->setFloating(true);
+    dock->resize(300, 300);
+
+    //w->onRefresh();
     w->show();
 }

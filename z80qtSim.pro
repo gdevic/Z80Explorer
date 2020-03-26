@@ -24,6 +24,7 @@ SOURCES += \
     src/CommandWindow.cpp \
     src/FormImageOverlay.cpp \
     src/FormImageView.cpp \
+    src/FormWaveView.cpp \
     src/LogWindow.cpp \
     src/MainWindow.cpp \
     src/Z80_Simulator.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     src/CommandWindow.h \
     src/FormImageOverlay.h \
     src/FormImageView.h \
+    src/FormWaveView.h \
     src/LogWindow.h \
     src/MainWindow.h \
     src/Z80_Simulator.h
@@ -47,6 +49,7 @@ FORMS += \
     src/FormGraphWindow.ui \
     src/FormImageOverlay.ui \
     src/FormImageView.ui \
+    src/FormWaveView.ui \
     src/LogWindow.ui \
     src/MainWindow.ui
 
