@@ -4,8 +4,8 @@
 #include <QMainWindow>
 
 class ClassChip;
+class ClassSim;
 class CommandWindow;
-class FormImageView;
 class LogWindow;
 
 namespace Ui { class MainWindow; }
@@ -21,24 +21,20 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-public slots:
-    void loadChipResources();
-
 private slots:
+    void loadResources();               // Loads application resources
     void onOpenChipDir();               // Open directory with chip resources
-    void onReload();                    // Reload all chip data and reset the images
     void onNewImageView();              // Open a new view to the chip data
     void onExit();                      // Exit the application
-    void onSimulatorRun();              // Run the simulator (Z80_Simulator)
-    void onSimulatorStop();             // Stop the running simulator (Z80_Simulator)
 
 private:
     Ui::MainWindow *ui;
-    QMenu *m_menuView;                  // Pointer to the "View" menu pull-down
-    QMenu *m_menuWindow;                // Pointer to the "Window" menu pull-down
+    ClassChip *m_chip;                  // Holds chip information
+    ClassSim *m_sim;                    // Interface to netlist simulation code
     LogWindow *m_logWindow;             // Log window class and form
     CommandWindow *m_cmdWindow;         // Command window class and form
-    ClassChip *m_chip;                  // Holds chip information
+    QMenu *m_menuView;                  // Pointer to the "View" menu pull-down
+    QMenu *m_menuWindow;                // Pointer to the "Window" menu pull-down
 };
 
 #endif // MAINWINDOW_H

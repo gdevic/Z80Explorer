@@ -30,8 +30,7 @@ class ClassChip: public QObject
     Q_OBJECT
 
 public:
-    ClassChip();
-    ~ClassChip();
+    ClassChip(QObject *parent);
 
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
@@ -51,7 +50,7 @@ public slots:
 
 private:
     QVector<QImage> m_img;              // Chip layer images
-    uint m_last_image;                  // Index of the last image requested by getImage() call
+    uint m_last_image {};               // Index of the last image requested by getImage() call
     QString m_dir;                      // Directory containing chip resources (set by loadChipResources)
 
     QVector<QPolygon> m_poly;

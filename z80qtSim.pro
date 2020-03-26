@@ -20,6 +20,7 @@ DEFINES += _CRT_SECURE_NO_WARNINGS
 SOURCES += \
     src/ClassApplog.cpp \
     src/ClassChip.cpp \
+    src/ClassSim.cpp \
     src/CommandWindow.cpp \
     src/FormImageOverlay.cpp \
     src/FormImageView.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     src/ClassApplog.h \
     src/ClassChip.h \
     src/ClassException.h \
+    src/ClassSim.h \
     src/ClassSingleton.h \
     src/CommandWindow.h \
     src/FormImageOverlay.h \

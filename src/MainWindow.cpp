@@ -1,10 +1,10 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "ClassChip.h"
+#include "ClassSim.h"
 #include "CommandWindow.h"
 #include "FormImageView.h"
 #include "LogWindow.h"
-#include "Z80_Simulator.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -18,8 +18,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // Create interface to the simulation code
+    m_sim = new ClassSim(this);
+
     // Create the main chip class
-    m_chip = new ClassChip();
+    m_chip = new ClassChip(this);
 
     // Create a central widget to show a chip image
     setCentralWidget(new FormImageView(this, m_chip));
@@ -55,14 +58,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Connect the rest of the menu actions...
     connect(ui->actionOpenChipDir, SIGNAL(triggered()), this, SLOT(onOpenChipDir()));
-    connect(ui->actionReload, SIGNAL(triggered()), this, SLOT(onReload()));
+    connect(ui->actionReload, SIGNAL(triggered()), this, SLOT(loadResources()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
-    connect(ui->actionRun, SIGNAL(triggered()), this, SLOT(onSimulatorRun()));
-    connect(ui->actionStop, SIGNAL(triggered()), this, SLOT(onSimulatorStop()));
+    connect(ui->actionRun, SIGNAL(triggered()), m_sim, SLOT(onRun()));
+    connect(ui->actionStop, SIGNAL(triggered()), m_sim, SLOT(onStop()));
 
     // As soon as the GUI becomes idle, load chip resources
-    QTimer::singleShot(0, this, SLOT(loadChipResources()));
+    QTimer::singleShot(0, this, SLOT(loadResources()));
 }
 
 /*
@@ -70,7 +73,6 @@ MainWindow::MainWindow(QWidget *parent) :
  */
 MainWindow::~MainWindow()
 {
-    delete m_chip;
     delete ui;
 }
 
@@ -103,14 +105,29 @@ void MainWindow::onOpenChipDir()
 }
 
 /*
- * Load chip resources on startup
+ * Loads application resources
  */
-void MainWindow::loadChipResources()
+void MainWindow::loadResources()
 {
     QSettings settings;
     QString path = settings.value("ChipResources", QDir::currentPath()).toString();
-    if (!m_chip->loadChipResources(path))
-        onOpenChipDir(); // Make the user select the chip resource folder
+    while (!m_chip->loadChipResources(path))
+    {
+        // Prompts the user to select the chip resource folder
+        QString fileName = QFileDialog::getOpenFileName(this, "Select chip resource folder", "", "Images (*.png)");
+        if (!fileName.isEmpty())
+            path = QFileInfo(fileName).path();
+    }
+    settings.setValue("ChipResources", path);
+
+    while (!m_sim->loadSimResources(path))
+    {
+        // Prompts the user to select the chip resource folder
+        QString fileName = QFileDialog::getOpenFileName(this, "Select netlist file", "", "Netlist (*.netlist)");
+        if (!fileName.isEmpty())
+            path = QFileInfo(fileName).path();
+    }
+    settings.setValue("ChipResources", path);
 }
 
 /*
@@ -128,28 +145,4 @@ void MainWindow::onNewImageView()
 
     w->onRefresh();
     w->show();
-}
-
-/*
- * Handle menu item to reload chip data and reset all images
- */
-void MainWindow::onReload()
-{
-    loadChipResources();
-}
-
-/*
- * Run simulation using the Z80_Simulator code
- */
-void MainWindow::onSimulatorRun()
-{
-    sim.simulate();
-}
-
-/*
- * Handle menu item to stop simulation run
- */
-void MainWindow::onSimulatorStop()
-{
-    sim.stop();
 }

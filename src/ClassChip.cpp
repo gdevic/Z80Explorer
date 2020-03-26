@@ -1,5 +1,4 @@
 #include "ClassChip.h"
-#include "Z80_Simulator.h"
 
 #include <QDebug>
 #include <QDir>
@@ -21,12 +20,8 @@ static const QStringList files =
     { "vias_VCC_GND" },
 };
 
-ClassChip::ClassChip() :
-    m_last_image(0)
-{
-}
-
-ClassChip::~ClassChip()
+ClassChip::ClassChip(QObject *parent) :
+    QObject(parent)
 {
 }
 
@@ -38,21 +33,12 @@ bool ClassChip::loadChipResources(QString dir)
     qInfo() << "Loading chip resources from " << dir;
     if (loadImages(dir) && loadNodenames(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
-        buildLayerMap();
+        buildLayerMap(); // XXX
 
-        qDebug() << "Loading Z80 netlist into the simulator...";
-        QString file = dir + "/z80.netlist";
-        if (QFileInfo::exists(file) && QFileInfo(file).isFile())
-        {
-            sim.simLoadNetlist(file.toUtf8().constData());
-
-            m_dir = dir;
-            qInfo() << "Completed loading chip resources";
-            emit refresh();
-            return true;
-        }
-        else
-            qWarning() << "Unable to load \"z80.netlist\" file";
+        m_dir = dir;
+        qInfo() << "Completed loading chip resources";
+        emit refresh();
+        return true;
     }
     else
         qWarning() << "Loading chip resource failed";
