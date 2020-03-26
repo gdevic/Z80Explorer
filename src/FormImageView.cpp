@@ -25,7 +25,7 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
     m_image(QImage()),
     m_view_mode(Fill),
     m_mousePressed(false),
-    m_highlight_path(nullptr),
+    m_highlight_segment(nullptr),
     m_highlight_box(nullptr)
 {
     ui->setupUi(this);
@@ -242,7 +242,7 @@ void FormImageView::paintEvent(QPaintEvent *)
 
     //------------------------------------------------------------------------
     // Draw two selected features on top of the image: box (a transistor) and
-    // a path (a signal), both of which are selected with the "Find" dialog
+    // a segment (a signal), both of which are selected with the "Find" dialog
     //------------------------------------------------------------------------
     if (m_timer_tick & 1)
     {
@@ -258,8 +258,11 @@ void FormImageView::paintEvent(QPaintEvent *)
     }
     if (m_highlight_box)
         painter.drawRect(*m_highlight_box);
-    if (m_highlight_path)
-        painter.drawPath(*m_highlight_path);
+    if (m_highlight_segment)
+    {
+        for (auto path : m_highlight_segment->paths)
+            painter.drawPath(path);
+    }
 }
 
 void FormImageView::calcTransform()
@@ -414,15 +417,15 @@ void FormImageView::onFind(QString text)
         m_timer_tick = 10;
         return;
     }
+    m_timer_tick = 0; // Stop highlights flash
     if (text=='0')
     {
         m_highlight_box = nullptr;
-        m_highlight_path = nullptr;
+        m_highlight_segment = nullptr;
         qDebug() << "Highlights cleared";
         return;
     }
-    bool ok;
-    if (text.startsWith(QChar('t')))
+    if (text.startsWith(QChar('t'))) // Search the transistors by their number
     {
         const transdef *trans = m_chip->getTrans(text);
         if (trans)
@@ -436,17 +439,18 @@ void FormImageView::onFind(QString text)
         else
             qWarning() << "Segment" << text << "not found";
     }
-    else
+    else // Search the visual segment numbers
     {
+        bool ok;
         uint nodenum = text.toUInt(&ok);
         if (ok)
         {
             const segdef *seg = m_chip->getSegment(nodenum);
             if (seg)
             {
-                m_highlight_path = &seg->path;
+                m_highlight_segment = seg;
                 qDebug() << "Found segment" << text;
-                qDebug() << "Path:" << seg->path.elementCount();
+                qDebug() << "Path:" << seg->paths.count();
                 m_timer_tick = 10;
                 update();
             }

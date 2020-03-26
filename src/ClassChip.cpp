@@ -138,19 +138,27 @@ bool ClassChip::loadSegdefs(QString dir)
                 if (list.length() > 4)
                 {
                     segdef s;
-                    s.nodenum = list[0].toUInt();
+                    uint key = list[0].toUInt();
+                    QPainterPath path;
                     for (int i=3; i<list.length()-1; i+=2)
                     {
                         uint x = list[i].toUInt();
                         uint y = m_img[0].height() - list[i+1].toUInt() - 1;
                         if (i == 3)
-                            s.path.moveTo(x,y);
+                            path.moveTo(x,y);
                         else
-                            s.path.lineTo(x,y);
+                            path.lineTo(x,y);
                     }
-                    s.path.closeSubpath();
+                    path.closeSubpath();
 
-                    m_segdefs.append(s);
+                    if (!m_segdefs.contains(key))
+                    {
+                        s.nodenum = key;
+                        s.paths.append(path);
+                        m_segdefs[key] = s;
+                    }
+                    else
+                        m_segdefs[key].paths.append(path);
                 }
                 else
                     qWarning() << "Invalid line" << line;
@@ -363,7 +371,9 @@ void ClassChip::onBuild()
 
         painter.setOpacity(0.5);
         painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
-        painter.drawPath(s.path);
+
+        for (auto path : s.paths)
+            painter.drawPath(path);
 
         count++;
         if (!(count % 500))
@@ -383,10 +393,10 @@ QList<int> ClassChip::getNodesAt(int x, int y)
     int i = 0; // tmp to help out finding erroneous lines of data
     for(auto s : m_segdefs)
     {
-        if (s.path.contains(QPointF(x, y)))
+        for (auto path : s.paths)
         {
-            list.append(s.nodenum);
-            //list.append(i);
+            if (path.contains(QPointF(x, y)))
+                list.append(s.nodenum);
         }
         i++;
     }
@@ -563,15 +573,12 @@ QVector<xy> &ClassChip::getOutline(QImage &image, uchar mask)
 }
 
 /*
- * Search for the segdef given its node number, nullptr if not found
+ * Returns the segdef given its node number, nullptr if not found
  */
 const segdef *ClassChip::getSegment(uint nodenum)
 {
-    for (int i=0; i<m_segdefs.size(); i++)
-    {
-        if (m_segdefs.at(i).nodenum == nodenum)
-            return &m_segdefs.at(i);
-    }
+    if (m_segdefs.contains(nodenum))
+        return &m_segdefs[nodenum];
     return nullptr;
 }
 

@@ -8,7 +8,7 @@
 struct segdef
 {
     uint nodenum;       // Node (segment) number
-    QPainterPath path;  // Visual QPainter class path describing the area
+    QVector<QPainterPath> paths; // Visual QPainter class' list of paths (patches) describing the area
 };
 
 struct transdef
@@ -46,7 +46,7 @@ public:
     const QStringList getTransistorsAt(int x, int y);
     const QStringList getNodenamesFromNodes(QList<int> nodes);
     const QStringList getLayerNames();  // Returns a list of layer / image names
-    const segdef *getSegment(uint nodenum); // Search for the segdef given its node number, nullptr if not found
+    const segdef *getSegment(uint nodenum); // Returns the segdef given its node number, nullptr if not found
     const transdef *getTrans(QString name); // Returns transistor definition given its name, nullptr if not found
 
 signals:
@@ -61,8 +61,8 @@ private:
     QString m_dir;                      // Directory containing chip resources (set by loadChipResources)
 
     QVector<QPolygon> m_poly;
-    QVector<segdef> m_segdefs;          // Array of visual segment definitions
-    QHash<int, QString> m_nodenames;    // Hash of node numbers to their names (vcc, vss,...)
+    QHash<uint, segdef> m_segdefs;      // Hash of visual segment definitions, key is the segment node number
+    QHash<int, QString> m_nodenames;    // Hash of node names (vcc, vss,...), key is the node number
     QVector<transdef> m_transdefs;      // Array of visual transistor definitions
 
 private:

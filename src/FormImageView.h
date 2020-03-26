@@ -8,6 +8,7 @@ class FormImageOverlay;
 class QGridLayout;
 class QResizeEvent;
 class QTimer;
+struct segdef;
 
 namespace Ui { class FormImageView; }
 
@@ -81,8 +82,8 @@ private:
     FormImageOverlay *m_ov;             // Image overlay class
     QTimer     *m_timer;                // Image refresh timer
     uint       m_timer_tick;            // Timer timeout tick counter
-    const QPainterPath *m_highlight_path; // Path to highlight on the current image view
-    const QRect *m_highlight_box;       // Box to highlight on the current image view
+    const segdef *m_highlight_segment;  // Segment to highlight in the current image
+    const QRect *m_highlight_box;       // Box to highlight in the current image
 
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
