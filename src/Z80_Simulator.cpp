@@ -94,19 +94,12 @@ unsigned int DIVISOR = 600; // the lower the faster is clock
 class Connection
 {
 public:
-    Connection();
-    int terminal;           // One of: GATE, DRAIN or SOURCE
-    int index;
-    float proportion;
+    int terminal {};           // One of: GATE, DRAIN or SOURCE
+    int index {};
+    float proportion {};
 
     template <class Archive> void serialize(Archive & ar) { ar(terminal, index, proportion); }
 };
-
-Connection::Connection()
-{
-    terminal = index = 0;
-    proportion = 0.0f;
-}
 
 #define SIG_GND 1
 #define SIG_PWR 2
@@ -119,20 +112,14 @@ Connection::Connection()
 class Signal
 {
 public:
-    Signal();
     void Homogenize();
+
     vector<Connection> connections;
-    float signalarea;
-    bool ignore;
+    float signalarea {};
+    bool ignore {};
 
     template <class Archive> void serialize(Archive & ar) { ar(connections, signalarea, ignore); }
 };
-
-Signal::Signal()
-{
-    signalarea = 0.0f;
-    ignore = false;
-}
 
 vector<Signal> signals;
 
@@ -144,26 +131,18 @@ vector<Signal> signals;
 class Pad
 {
 public:
-    Pad();
     void SetInputSignal(int signal);
     float ReadOutput();
     int ReadOutputStatus();
     int ReadInputStatus();
 
-    int type;                           // Signal direction; one of: PAD_INPUT, PAD_OUTPUT or PAD_BIDIRECTIONAL
-    int x, y;                           // Center coordinates of this pad within the image map
-    int origsignal;                     // Identifies the pad, signal; one of the defines PAD_*
+    int type {};                        // Signal direction; one of: PAD_INPUT, PAD_OUTPUT or PAD_BIDIRECTIONAL
+    int x {}, y {};                     // Center coordinates of this pad within the image map
+    int origsignal {};                  // Identifies the pad, signal; one of the defines PAD_*
     vector<Connection> connections;     // List of transistors this pad is connected to
 
     template <class Archive> void serialize(Archive & ar) { ar(type, x, y, origsignal, connections); }
 };
-
-Pad::Pad()
-{
-    type = 0;
-    x = y = 0;
-    origsignal = 0;
-}
 
 vector<Pad> pads;
 
@@ -172,61 +151,35 @@ vector<Pad> pads;
 class Transistor
 {
 public:
-    Transistor();
-    bool IsOn();
-    int IsOnAnalog();
+    bool IsOn()       { return m_gatecharge > 0.0f; }
+    int IsOnAnalog()  { return int(50.0f * m_gatecharge / m_area) + 50; }
     void Simulate();
     void Normalize();
     int Valuate();
 
-    int x, y;                           // Top-left coordinates of this transistor within the image map
-    int gate, source, drain;
-    int sourcelen, drainlen, otherlen;
-    float area;                         // Determines the maximum amount of charge that this transistor can have (-area/+area)
-    bool depletion;
-    float resist;
-    float gatecharge;                   // Transistor is "ON" when gatecharge > 0.0
-    float sourcecharge, draincharge;
+    int x {}, y {};                     // Top-left coordinates of this transistor within the image map
+    int gate {}, source {}, drain {};
+    int sourcelen {}, drainlen {}, otherlen {};
+    float m_area {};                    // Determines the maximum amount of charge that this transistor can have (-area/+area)
+    bool depletion {};
+    float resist {};
+    float m_gatecharge {};              // Transistor is "ON" when gatecharge > 0.0
+    float m_sourcecharge {}, m_draincharge {};
 
     vector<Connection> gateconnections;
     vector<Connection> sourceconnections;
     vector<Connection> drainconnections;
 
-    float gateneighborhood, sourceneighborhood, drainneighborhood;
-    float chargetobeon, pomchargetogo;
+    float gateneighborhood {}, sourceneighborhood {}, drainneighborhood {};
+    float m_chargetobeon {}, m_chargetogo {};
 
     template <class Archive> void serialize(Archive & ar)
     {
-       ar(x, y, gate, source, drain, sourcelen, drainlen, otherlen, area, depletion);
-       ar(resist, gatecharge, sourcecharge, draincharge, gateneighborhood, sourceneighborhood, drainneighborhood, chargetobeon, pomchargetogo);
-       ar(gateconnections, sourceconnections, drainconnections);
+        ar(x, y, gate, source, drain, sourcelen, drainlen, otherlen, m_area, depletion);
+        ar(resist, m_gatecharge, m_sourcecharge, m_draincharge, gateneighborhood, sourceneighborhood, drainneighborhood, m_chargetobeon, m_chargetogo);
+        ar(gateconnections, sourceconnections, drainconnections);
     }
 };
-
-Transistor::Transistor()
-{
-    x = y = 0;
-    gate = source = drain = 0;
-    sourcelen = drainlen = otherlen = 0;
-    area = 0.0f;
-    depletion = false;
-    resist = 0.0f;
-    gatecharge = sourcecharge = draincharge = 0.0f;
-    gateneighborhood = sourceneighborhood = drainneighborhood = 0.0f;
-    chargetobeon = pomchargetogo = 0.0f;
-}
-
-inline bool Transistor::IsOn()
-{
-    if (gatecharge > 0.0f)
-        return true;
-    return false;
-}
-
-int Transistor::IsOnAnalog()
-{
-    return int(50.0f * gatecharge / area) + 50;
-}
 
 // Gets the type of the transistor - originally for optimization purposes now more for statistical purposes
 inline int Transistor::Valuate()
@@ -248,92 +201,90 @@ vector<Transistor> transistors;
 
 void Signal::Homogenize()
 {
-    float pomcharge = 0.0f;
+    float charge = 0;
     for (unsigned int i = 0; i < connections.size(); i++)
     {
         if (connections[i].terminal == GATE)
-            pomcharge += transistors[connections[i].index].gatecharge;
+            charge += transistors[connections[i].index].m_gatecharge;
         else if (connections[i].terminal == SOURCE)
-            pomcharge += transistors[connections[i].index].sourcecharge;
+            charge += transistors[connections[i].index].m_sourcecharge;
         else if (connections[i].terminal == DRAIN)
-            pomcharge += transistors[connections[i].index].draincharge;
+            charge += transistors[connections[i].index].m_draincharge;
     }
 
     for (unsigned int i = 0; i < connections.size(); i++)
     {
         if (connections[i].terminal == GATE)
-            transistors[connections[i].index].gatecharge = pomcharge * connections[i].proportion;
+            transistors[connections[i].index].m_gatecharge = charge * connections[i].proportion;
         else if (connections[i].terminal == SOURCE)
-            transistors[connections[i].index].sourcecharge = pomcharge * connections[i].proportion;
+            transistors[connections[i].index].m_sourcecharge = charge * connections[i].proportion;
         else if (connections[i].terminal == DRAIN)
-            transistors[connections[i].index].draincharge = pomcharge * connections[i].proportion;
+            transistors[connections[i].index].m_draincharge = charge * connections[i].proportion;
     }
 }
 
 void Transistor::Simulate()
 {
     if (gate == SIG_GND)
-        gatecharge = 0.0f;
+        m_gatecharge = 0.0f;
     else if (gate == SIG_VCC)
-        gatecharge = area;
+        m_gatecharge = m_area;
 
     if (depletion)
     {
         if (drain == SIG_VCC)
         {
-            float chargetogo = pomchargetogo;
+            float charge = m_chargetogo;
 
-            chargetogo /= PULLUPDEFLATOR; // pull-ups are too strong, we need to weaken them
+            charge /= PULLUPDEFLATOR; // pull-ups are too strong, we need to weaken them
 
             for (unsigned int i = 0; i < sourceconnections.size(); i++)
             {
                 if (sourceconnections[i].terminal == GATE)
-                    transistors[sourceconnections[i].index].gatecharge += chargetogo * sourceconnections[i].proportion;
+                    transistors[sourceconnections[i].index].m_gatecharge += charge * sourceconnections[i].proportion;
                 else if (sourceconnections[i].terminal == SOURCE)
-                    transistors[sourceconnections[i].index].sourcecharge += chargetogo * sourceconnections[i].proportion;
+                    transistors[sourceconnections[i].index].m_sourcecharge += charge * sourceconnections[i].proportion;
                 else if (sourceconnections[i].terminal == DRAIN)
-                    transistors[sourceconnections[i].index].draincharge += chargetogo * sourceconnections[i].proportion;
+                    transistors[sourceconnections[i].index].m_draincharge += charge * sourceconnections[i].proportion;
             }
         }
         else if (source == SIG_GND)
         {
-            float chargetogo = pomchargetogo;
+            float charge = m_chargetogo;
 
             for (unsigned int i = 0; i < drainconnections.size(); i++)
             {
                 if (drainconnections[i].terminal == GATE)
-                    transistors[drainconnections[i].index].gatecharge -= chargetogo * drainconnections[i].proportion;
+                    transistors[drainconnections[i].index].m_gatecharge -= charge * drainconnections[i].proportion;
                 else if (drainconnections[i].terminal == SOURCE)
-                    transistors[drainconnections[i].index].sourcecharge -= chargetogo * drainconnections[i].proportion;
+                    transistors[drainconnections[i].index].m_sourcecharge -= charge * drainconnections[i].proportion;
                 else if (drainconnections[i].terminal == DRAIN)
-                    transistors[drainconnections[i].index].draincharge -= chargetogo * drainconnections[i].proportion;
+                    transistors[drainconnections[i].index].m_draincharge -= charge * drainconnections[i].proportion;
             }
         }
         else
         {
-            float pomsourcecharge = 0.0f, pomdraincharge = 0.0f;
+            float sourcecharge = m_sourcecharge;
+            if (sourcecharge > 0.0f)
+                sourcecharge /= PULLUPDEFLATOR;
 
-            pomsourcecharge = sourcecharge;
-            if (pomsourcecharge > 0.0f)
-                pomsourcecharge /= PULLUPDEFLATOR;
+            float draincharge = m_draincharge;
+            if (draincharge > 0.0f)
+                draincharge /= PULLUPDEFLATOR;
 
-            pomdraincharge = draincharge;
-            if (pomdraincharge > 0.0f)
-                pomdraincharge /= PULLUPDEFLATOR;
-
-            float chargetogo = ((pomsourcecharge - pomdraincharge) / resist) / PULLUPDEFLATOR;
-            float pomsign = 1.0;
+            float chargetogo = ((sourcecharge - draincharge) / resist) / PULLUPDEFLATOR;
+            float sign = 1.0;
             if (chargetogo < 0.0f)
             {
-                pomsign = -1.0;
+                sign = -1.0;
                 chargetogo = -chargetogo;
             }
             if (chargetogo > MAXQUANTUM)
                 chargetogo = MAXQUANTUM;
-            chargetogo *= pomsign;
+            chargetogo *= sign;
 
-            sourcecharge -= chargetogo;
-            draincharge += chargetogo;
+            m_sourcecharge -= chargetogo;
+            m_draincharge += chargetogo;
         }
     }
     else
@@ -342,61 +293,59 @@ void Transistor::Simulate()
         {
             if (drain == SIG_VCC)
             {
-                float chargetogo = pomchargetogo;
-                chargetogo *= gatecharge / area;
+                float chargetogo = m_chargetogo;
+                chargetogo *= m_gatecharge / m_area;
                 chargetogo /= PULLUPDEFLATOR;
 
                 for (unsigned int i = 0; i < sourceconnections.size(); i++)
                 {
                     if (sourceconnections[i].terminal == GATE)
-                        transistors[sourceconnections[i].index].gatecharge += chargetogo * sourceconnections[i].proportion;
+                        transistors[sourceconnections[i].index].m_gatecharge += chargetogo * sourceconnections[i].proportion;
                     else if (sourceconnections[i].terminal == SOURCE)
-                        transistors[sourceconnections[i].index].sourcecharge += chargetogo * sourceconnections[i].proportion;
+                        transistors[sourceconnections[i].index].m_sourcecharge += chargetogo * sourceconnections[i].proportion;
                     else if (sourceconnections[i].terminal == DRAIN)
-                        transistors[sourceconnections[i].index].draincharge += chargetogo * sourceconnections[i].proportion;
+                        transistors[sourceconnections[i].index].m_draincharge += chargetogo * sourceconnections[i].proportion;
                 }
             }
             else if (source == SIG_GND)
             {
-                float chargetogo = pomchargetogo;
-                chargetogo *= gatecharge / area;
+                float chargetogo = m_chargetogo;
+                chargetogo *= m_gatecharge / m_area;
 
                 for (unsigned int i = 0; i < drainconnections.size(); i++)
                 {
                     if (drainconnections[i].terminal == GATE)
-                        transistors[drainconnections[i].index].gatecharge -= chargetogo * drainconnections[i].proportion;
+                        transistors[drainconnections[i].index].m_gatecharge -= chargetogo * drainconnections[i].proportion;
                     else if (drainconnections[i].terminal == SOURCE)
-                        transistors[drainconnections[i].index].sourcecharge -= chargetogo * drainconnections[i].proportion;
+                        transistors[drainconnections[i].index].m_sourcecharge -= chargetogo * drainconnections[i].proportion;
                     else if (drainconnections[i].terminal == DRAIN)
-                        transistors[drainconnections[i].index].draincharge -= chargetogo * drainconnections[i].proportion;
+                        transistors[drainconnections[i].index].m_draincharge -= chargetogo * drainconnections[i].proportion;
                 }
             }
             else
             {
-                float pomsourcecharge = 0.0f, pomdraincharge = 0.0f;
+                float sourcecharge = m_sourcecharge;
+                if (sourcecharge > 0.0f)
+                    sourcecharge /= PULLUPDEFLATOR;
 
-                pomsourcecharge = sourcecharge;
-                if (pomsourcecharge > 0.0f)
-                    pomsourcecharge /= PULLUPDEFLATOR;
+                float draincharge = m_draincharge;
+                if (draincharge > 0.0f)
+                    draincharge /= PULLUPDEFLATOR;
 
-                pomdraincharge = draincharge;
-                if (pomdraincharge > 0.0f)
-                    pomdraincharge /= PULLUPDEFLATOR;
-
-                float chargetogo = ((pomsourcecharge - pomdraincharge) / resist) / PULLUPDEFLATOR;
-                float pomsign = 1.0;
+                float chargetogo = ((sourcecharge - draincharge) / resist) / PULLUPDEFLATOR;
+                float sign = 1.0;
                 if (chargetogo < 0.0f)
                 {
-                    pomsign = -1.0;
+                    sign = -1.0;
                     chargetogo = -chargetogo;
                 }
                 if (chargetogo > MAXQUANTUM)
                     chargetogo = MAXQUANTUM;
-                chargetogo *= gatecharge / area;
-                chargetogo *= pomsign;
+                chargetogo *= m_gatecharge / m_area;
+                chargetogo *= sign;
 
-                sourcecharge -= chargetogo;
-                draincharge += chargetogo;
+                m_sourcecharge -= chargetogo;
+                m_draincharge += chargetogo;
             }
         }
     }
@@ -404,38 +353,36 @@ void Transistor::Simulate()
 
 void Transistor::Normalize()
 {
-    if (gatecharge < -area)
-        gatecharge = -area;
-    else if (gatecharge > area)
-        gatecharge = area;
-    if (sourcecharge < -area)
-        sourcecharge = -area;
-    else if (sourcecharge > area)
-        sourcecharge = area;
-    if (draincharge < -area)
-        draincharge = -area;
-    else if (draincharge > area)
-        draincharge = area;
+    if (m_gatecharge < -m_area)
+        m_gatecharge = -m_area;
+    else if (m_gatecharge > m_area)
+        m_gatecharge = m_area;
+    if (m_sourcecharge < -m_area)
+        m_sourcecharge = -m_area;
+    else if (m_sourcecharge > m_area)
+        m_sourcecharge = m_area;
+    if (m_draincharge < -m_area)
+        m_draincharge = -m_area;
+    else if (m_draincharge > m_area)
+        m_draincharge = m_area;
 }
 
 int Pad::ReadInputStatus()
 {
-    int pomvalue = SIG_FLOATING;
+    int value = SIG_FLOATING;
 
     if (connections.size())
     {
         if (connections[0].terminal == GATE)
-            pomvalue = transistors[connections[0].index].gate;
+            value = transistors[connections[0].index].gate;
         else if (connections[0].terminal == SOURCE)
-            pomvalue = transistors[connections[0].index].source;
+            value = transistors[connections[0].index].source;
         else if (connections[0].terminal == DRAIN)
-            pomvalue = transistors[connections[0].index].drain;
+            value = transistors[connections[0].index].drain;
     }
-
-    if (pomvalue > SIG_VCC)
-        pomvalue = SIG_FLOATING;
-
-    return pomvalue;
+    if (value > SIG_VCC)
+        value = SIG_FLOATING;
+    return value;
 }
 
 void Pad::SetInputSignal(int signal)
@@ -465,21 +412,20 @@ void Pad::SetInputSignal(int signal)
 
 float Pad::ReadOutput()
 {
-    float shouldbe = 0.0f, reallywas = 0.0f;
+    float shouldbe = 0, reallywas = 0;
     for (unsigned int i = 0; i < connections.size(); i++)
     {
         if (connections[i].terminal == SOURCE)
         {
-            shouldbe += transistors[connections[i].index].area;
-            reallywas += transistors[connections[i].index].sourcecharge;
+            shouldbe += transistors[connections[i].index].m_area;
+            reallywas += transistors[connections[i].index].m_sourcecharge;
         }
         else if (connections[i].terminal == DRAIN)
         {
-            shouldbe += transistors[connections[i].index].area;
-            reallywas += transistors[connections[i].index].draincharge;
+            shouldbe += transistors[connections[i].index].m_area;
+            reallywas += transistors[connections[i].index].m_draincharge;
         }
     }
-
     return reallywas / shouldbe;
 }
 
@@ -487,10 +433,10 @@ float Pad::ReadOutput()
 // i.e. it cannot recoginze floating status
 int Pad::ReadOutputStatus()
 {
-    float pom = ReadOutput();
-    if (pom < -0.05f)
+    float value = ReadOutput();
+    if (value < -0.05f)
         return SIG_GND;
-    else if (pom > 0.05f)
+    else if (value > 0.05f)
         return SIG_VCC;
     return SIG_FLOATING;
 }
@@ -498,10 +444,10 @@ int Pad::ReadOutputStatus()
 // gets the value of 8 transistors - for listing purposes
 int Z80Sim::GetRegVal(unsigned int reg[])
 {
-    int pomvalue = 0;
+    int value = 0;
     for (int i = 7; i >= 0; i--)
-        pomvalue = (pomvalue << 1) | (transistors[reg[i]].IsOn() & 1);
-    return pomvalue;
+        value = (value << 1) | (transistors[reg[i]].IsOn() & 1);
+    return value;
 }
 
 // finds the transistor by coordinates - the coordinations must be upper - left corner ie the most top (first) and most left (second) corner
@@ -836,11 +782,6 @@ void Z80Sim::simLoadNetlist(const char *p_z80netlist)
     reg_a[7] = FindTransistor(2328, 4336);
 }
 
-void Z80Sim::stop()
-{
-    is_running = false;
-}
-
 void Z80Sim::dumpPads()
 {
     // Sort the pads based on their pad number
@@ -896,12 +837,12 @@ int Z80Sim::simulate()
                     if (i < DIVISOR * 8)
                     {
                         pads[j].SetInputSignal(SIG_GND);
-                        pom_rst = true;
+                        is_rst = true;
                     }
                     else
                     {
                         pads[j].SetInputSignal(SIG_VCC);
-                        pom_rst = false;
+                        is_rst = false;
                     }
                 }
                 else if (pads[j].origsignal == PAD_CLK)
@@ -931,13 +872,13 @@ int Z80Sim::simulate()
             }
             else if (pads[j].type == PAD_BIDIRECTIONAL) // we have to pull data bus up or down when memory, I/O or interrupt instruction is read
             {
-                if (pom_rd) // nothing is read
+                if (is_rd) // nothing is read
                 {
                     pads[j].SetInputSignal(SIG_FLOATING);
                 }
                 else
                 {
-                    if (!pom_mreq) // memory is read
+                    if (!is_mreq) // memory is read
                     {
                         if (pads[j].origsignal == PAD_D7)
                         {
@@ -996,7 +937,7 @@ int Z80Sim::simulate()
                                 pads[j].SetInputSignal(SIG_GND);
                         }
                     }
-                    else if (!pom_iorq) // I/O is read
+                    else if (!is_iorq) // I/O is read
                     {
                         if (pads[j].origsignal == PAD_D7)
                         {
@@ -1106,7 +1047,7 @@ int Z80Sim::simulate()
                     logf((char*)"%c", pom2);
                 if (pads[j].origsignal == PAD__HALT)
                 {
-                    pom_halt = (pom2 == '1');
+                    is_halt = (pom2 == '1');
                     logf((char*)"%c ", pom2);
                 }
                 if (pads[j].origsignal == PAD__M1)
@@ -1115,120 +1056,120 @@ int Z80Sim::simulate()
                     logf((char*)"%c ", pom2);
                 if (pads[j].origsignal == PAD__RD)
                 {
-                    pom_rd = (pom2 == '1');
+                    is_rd = (pom2 == '1');
                     logf((char*)"%c", pom2);
                 }
                 if (pads[j].origsignal == PAD__WR)
                 {
-                    pom_wr = (pom2 == '1');
+                    is_wr = (pom2 == '1');
                     logf((char*)"%c ", pom2);
                 }
                 if (pads[j].origsignal == PAD__MREQ)
                 {
-                    pom_mreq = (pom2 == '1');
+                    is_mreq = (pom2 == '1');
                     logf((char*)"%c", pom2);
                 }
                 if (pads[j].origsignal == PAD__IORQ)
                 {
-                    pom_iorq = (pom2 == '1');
+                    is_iorq = (pom2 == '1');
                     logf((char*)"%c ", pom2);
                 }
                 if (pads[j].origsignal == PAD_A15)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x8000;
-                    pomadr |= (pom2 == '1') ? 0x8000 : 0;
+                    adr &= ~0x8000;
+                    adr |= (pom2 == '1') ? 0x8000 : 0;
                 }
                 if (pads[j].origsignal == PAD_A14)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x4000;
-                    pomadr |= (pom2 == '1') ? 0x4000 : 0;
+                    adr &= ~0x4000;
+                    adr |= (pom2 == '1') ? 0x4000 : 0;
                 }
                 if (pads[j].origsignal == PAD_A13)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x2000;
-                    pomadr |= (pom2 == '1') ? 0x2000 : 0;
+                    adr &= ~0x2000;
+                    adr |= (pom2 == '1') ? 0x2000 : 0;
                 }
                 if (pads[j].origsignal == PAD_A12)
                 {
                     logf((char*)"%c ", pom2);
-                    pomadr &= ~0x1000;
-                    pomadr |= (pom2 == '1') ? 0x1000 : 0;
+                    adr &= ~0x1000;
+                    adr |= (pom2 == '1') ? 0x1000 : 0;
                 }
                 if (pads[j].origsignal == PAD_A11)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0800;
-                    pomadr |= (pom2 == '1') ? 0x0800 : 0;
+                    adr &= ~0x0800;
+                    adr |= (pom2 == '1') ? 0x0800 : 0;
                 }
                 if (pads[j].origsignal == PAD_A10)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0400;
-                    pomadr |= (pom2 == '1') ? 0x0400 : 0;
+                    adr &= ~0x0400;
+                    adr |= (pom2 == '1') ? 0x0400 : 0;
                 }
                 if (pads[j].origsignal == PAD_A9)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0200;
-                    pomadr |= (pom2 == '1') ? 0x0200 : 0;
+                    adr &= ~0x0200;
+                    adr |= (pom2 == '1') ? 0x0200 : 0;
                 }
                 if (pads[j].origsignal == PAD_A8)
                 {
                     logf((char*)"%c ", pom2);
-                    pomadr &= ~0x0100;
-                    pomadr |= (pom2 == '1') ? 0x0100 : 0;
+                    adr &= ~0x0100;
+                    adr |= (pom2 == '1') ? 0x0100 : 0;
                 }
                 if (pads[j].origsignal == PAD_A7)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0080;
-                    pomadr |= (pom2 == '1') ? 0x0080 : 0;
+                    adr &= ~0x0080;
+                    adr |= (pom2 == '1') ? 0x0080 : 0;
                 }
                 if (pads[j].origsignal == PAD_A6)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0040;
-                    pomadr |= (pom2 == '1') ? 0x0040 : 0;
+                    adr &= ~0x0040;
+                    adr |= (pom2 == '1') ? 0x0040 : 0;
                 }
                 if (pads[j].origsignal == PAD_A5)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0020;
-                    pomadr |= (pom2 == '1') ? 0x0020 : 0;
+                    adr &= ~0x0020;
+                    adr |= (pom2 == '1') ? 0x0020 : 0;
                 }
                 if (pads[j].origsignal == PAD_A4)
                 {
                     logf((char*)"%c ", pom2);
-                    pomadr &= ~0x0010;
-                    pomadr |= (pom2 == '1') ? 0x0010 : 0;
+                    adr &= ~0x0010;
+                    adr |= (pom2 == '1') ? 0x0010 : 0;
                 }
                 if (pads[j].origsignal == PAD_A3)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0008;
-                    pomadr |= (pom2 == '1') ? 0x0008 : 0;
+                    adr &= ~0x0008;
+                    adr |= (pom2 == '1') ? 0x0008 : 0;
 
                 }
                 if (pads[j].origsignal == PAD_A2)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0004;
-                    pomadr |= (pom2 == '1') ? 0x0004 : 0;
+                    adr &= ~0x0004;
+                    adr |= (pom2 == '1') ? 0x0004 : 0;
                 }
                 if (pads[j].origsignal == PAD_A1)
                 {
                     logf((char*)"%c", pom2);
-                    pomadr &= ~0x0002;
-                    pomadr |= (pom2 == '1') ? 0x0002 : 0;
+                    adr &= ~0x0002;
+                    adr |= (pom2 == '1') ? 0x0002 : 0;
                 }
                 if (pads[j].origsignal == PAD_A0)
                 {
                     logf((char*)"%c ", pom2);
-                    pomadr &= ~0x0001;
-                    pomadr |= (pom2 == '1') ? 0x0001 : 0;
+                    adr &= ~0x0001;
+                    adr |= (pom2 == '1') ? 0x0001 : 0;
                 }
                 if (pads[j].origsignal == PAD_D7)
                 {
@@ -1325,34 +1266,34 @@ int Z80Sim::simulate()
             logf((char*)"%c", (transistors[sig_m4].IsOn()) ? '4' : '.');
             logf((char*)"%c", (transistors[sig_m5].IsOn()) ? '5' : '.');
 
-            if (!pom_rd && !pom_mreq && transistors[sig_m1].IsOn())
-                logf((char*)" ***** OPCODE FETCH: %04x[%02x]", pomadr, memory[pomadr]);
+            if (!is_rd && !is_mreq && transistors[sig_m1].IsOn())
+                logf((char*)" ***** OPCODE FETCH: %04x[%02x]", adr, memory[adr]);
 
-            if (!pom_mreq || !pom_iorq)
+            if (!is_mreq || !is_iorq)
             {
-                lastadr = pomadr; // gets the valid address
-                if (!pom_rst)
+                lastadr = adr; // gets the valid address
+                if (!is_rst)
                 {
-                    if (!pom_wr)
+                    if (!is_wr)
                     {
-                        if (!pom_mreq)
+                        if (!is_mreq)
                         {
                             memory[lastadr] = lastdata;
                             logf((char*)" MEMORY WRITE: %04x[%02x]", lastadr, lastdata);
                         }
-                        if (!pom_iorq)
+                        if (!is_iorq)
                         {
                             ports[lastadr & 0xff] = lastdata;
                             logf((char*)" I/O WRITE: %04x[%02x]", lastadr, lastdata);
                         }
                     }
-                    if (!pom_rd)
+                    if (!is_rd)
                     {
-                        if (!pom_mreq && !transistors[sig_m1].IsOn())
+                        if (!is_mreq && !transistors[sig_m1].IsOn())
                         {
                             logf((char*)" MEMORY READ: %04x[%02x]", lastadr, memory[lastadr]);
                         }
-                        if (!pom_iorq)
+                        if (!is_iorq)
                         {
                             logf((char*)" I/O READ: %04x[%02x]", lastadr, memory[lastadr]);
                         }
@@ -1361,7 +1302,7 @@ int Z80Sim::simulate()
             }
             logf((char*)"\n");
 
-            if (!pom_halt && !pom_rst)
+            if (!is_halt && !is_rst)
                 outcounter++;
             else
                 outcounter = 0;

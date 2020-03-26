@@ -13,7 +13,7 @@ class Z80Sim
 public:
     void simLoadNetlist(const char *p_z80netlist);
     int simulate();
-    void stop();
+    void stop() { is_running = false; }
 
 private:
     bool is_running;
@@ -26,13 +26,13 @@ private:
 
     int lastadr = 0;
     int lastdata = 0;
-    int pomadr = 0;
-    bool pom_wr = true;
-    bool pom_rd = true;
-    bool pom_rst = true;
-    bool pom_mreq = true;
-    bool pom_iorq = true;
-    bool pom_halt = true;
+    int adr = 0;
+    bool is_wr = true;
+    bool is_rd = true;
+    bool is_rst = true;
+    bool is_mreq = true;
+    bool is_iorq = true;
+    bool is_halt = true;
 
     int outcounter = 0;
 
