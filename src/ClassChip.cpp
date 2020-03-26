@@ -113,6 +113,61 @@ bool ClassChip::convertToGrayscale()
 }
 
 /*
+ * Loads segdefs.js
+ */
+bool ClassChip::loadSegdefs(QString dir)
+{
+    QString segdefs_file = dir + "/segdefs.js";
+    qInfo() << "Loading " << segdefs_file;
+    QFile file(segdefs_file);
+    if (file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QTextStream in(&file);
+        QString line;
+        QStringList list;
+        m_segdefs.clear();
+        while(!in.atEnd())
+        {
+            line = in.readLine();
+            if (line.startsWith('['))
+            {
+                line.replace("-0.5", "0"); // segdefs.js contains a couple of negative coordinates
+                line.replace(".5", ""); // segdefs.js contains qreal values with (this) fraction but we want ints
+                line = line.mid(2, line.length() - 4);
+                list = line.split(',');
+                if (list.length() > 4)
+                {
+                    segdef s;
+                    s.nodenum = list[0].toUInt();
+                    for (int i=3; i<list.length()-1; i+=2)
+                    {
+                        uint x = list[i].toUInt();
+                        uint y = m_img[0].height() - list[i+1].toUInt() - 1;
+                        if (i == 3)
+                            s.path.moveTo(x,y);
+                        else
+                            s.path.lineTo(x,y);
+                    }
+                    s.path.closeSubpath();
+
+                    m_segdefs.append(s);
+                }
+                else
+                    qWarning() << "Invalid line" << line;
+            }
+            else
+                qDebug() << "Skipping " << line;
+        }
+        file.close();
+        qInfo() << "Loaded " << m_segdefs.count() << " segdefs";
+        return true;
+    }
+    else
+        qWarning() << "Error opening segdefs.js";
+    return false;
+}
+
+/*
  * Load nodenames.js
  */
 bool ClassChip::loadNodenames(QString dir)
@@ -209,32 +264,6 @@ bool ClassChip::loadTransdefs(QString dir)
     return false;
 }
 
-/*
- * Inserts an image of the transistors layer
- */
-bool ClassChip::addTransistorsLayer()
-{
-    QImage trans(m_img[0].width(), m_img[0].height(), QImage::Format_ARGB32);
-    drawTransistors(trans);
-    trans.setText("name", "transistors");
-    m_img.append(trans);
-    return true;
-}
-
-/*
- * Draws transistors on the given image surface
- */
-void ClassChip::drawTransistors(QImage &img)
-{
-    QPainter painter(&img);
-    painter.setBrush(QColor(255,255,255));
-    painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-    painter.setOpacity(0.5);
-    painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
-    for (auto s : m_transdefs)
-        painter.drawRect(s.box);
-}
-
 // Set any bits, but these provide a compelling layer image when viewed:
 #define DIFF_SHIFT       6
 #define POLY_SHIFT       5
@@ -258,7 +287,7 @@ void ClassChip::drawTransistors(QImage &img)
 bool ClassChip::loadChipResources(QString dir)
 {
     qInfo() << "Loading chip resources from " << dir;
-    if (loadImages(dir) && loadNodenames(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
+    if (loadImages(dir) && loadNodenames(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         buildLayerMap();
 
@@ -285,84 +314,67 @@ bool ClassChip::loadChipResources(QString dir)
     return false;
 }
 
+/*
+ * Inserts an image of the transistors layer
+ */
+bool ClassChip::addTransistorsLayer()
+{
+    QImage trans(m_img[0].width(), m_img[0].height(), QImage::Format_ARGB32);
+    drawTransistors(trans);
+    trans.setText("name", "transistors");
+    m_img.append(trans);
+    return true;
+}
+
+/*
+ * Draws transistors on the given image surface
+ */
+void ClassChip::drawTransistors(QImage &img)
+{
+    QPainter painter(&img);
+    painter.setBrush(QColor(255,255,255));
+    painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setOpacity(0.5);
+    painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
+    for (auto s : m_transdefs)
+        painter.drawRect(s.box);
+}
+
 void ClassChip::onBuild()
 {
     QEventLoop e; // Don't freeze the GUI
     QImage &img = getLastImage();
 
-    QString segdefs_file = m_dir + "/segdefs.js";
-    QFile file(segdefs_file);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-    {
-        qDebug() << "Error loading segdefs.js";
-        return;
-    }
-    QTextStream in(&file);
-    QString line;
-    QStringList list;
-    QVector<QPoint> path;
-    m_segdefs.clear();
     int count = 0;
-    while(!in.atEnd())
-//    while(!in.atEnd() && count<1732)
-//    while(!in.atEnd() && count<100)
+    for (auto s : m_segdefs)
     {
-        if ((rand() & 255) > 255)
-            continue;
-        line = in.readLine();
-        if (line.startsWith('['))
-//        if (line.startsWith("#[")) // XXX Helps out reading individual lines of the data file
+        QPainter painter(&img);
+
+        QColor c;
+        if (s.nodenum == 1) // GND
+            painter.setBrush(QColor(0,255,0)), c = QColor(50,255,50);
+        else if (s.nodenum == 2) // VCC
+            painter.setBrush(QColor(255,0,0)), c = QColor(255,50,50);
+        else if (s.nodenum == 2) // CLK
+            painter.setBrush(QColor(255,255,255)), c = QColor(255,255,255);
+        else
+            painter.setBrush(QColor(128,255,0)), c = QColor(255,255,50);
+        painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+
+        painter.setOpacity(0.5);
+        painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
+        painter.drawPath(s.path);
+
+        count++;
+        if (!(count % 500))
         {
-            line.replace("-0.5", "0"); // XXX The data file contains a couple of these coordinates!
-            line.replace(".5", ""); // XXX The data file contains qreal values with this fraction but we read ints!
-            line = line.mid(2, line.length() - 4);
-            list = line.split(',');
-            if (list.length() > 4)
-            {
-                QPainter painter(&img);
-
-                segdef s;
-                s.nodenum = list[0].toUInt();
-
-                for (int i=3; i<list.length()-1; i+=2)
-                {
-                    uint x = list[i].toUInt();
-                    uint y = img.height() - list[i+1].toUInt() - 1;
-                    if (i == 3)
-                        s.path.moveTo(x,y);
-                    else
-                        s.path.lineTo(x,y);
-                }
-                s.path.closeSubpath();
-                m_segdefs.append(s);
-
-                QColor c;
-                if (s.nodenum == 1) // GND
-                    painter.setBrush(QColor(0,255,0)), c = QColor(50,255,50);
-                else if (s.nodenum == 2) // VCC
-                    painter.setBrush(QColor(255,0,0)), c = QColor(255,50,50);
-                else if (s.nodenum == 2) // CLK
-                    painter.setBrush(QColor(255,255,255)), c = QColor(255,255,255);
-                else
-                    painter.setBrush(QColor(128,255,0)), c = QColor(255,255,50);
-                painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-
-                painter.setOpacity(0.5);
-                painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
-                painter.drawPath(s.path);
-            }
-            count++;
-            if (!(count % 100))
-            {
-                emit refresh();
-                e.processEvents(QEventLoop::AllEvents);
-            }
+            emit refresh();
+            e.processEvents(QEventLoop::AllEvents);
         }
     }
-    file.close();
     drawTransistors(img);
     emit refresh();
-    qDebug() << "Finished loading segdefs";
+    qDebug() << "Finished drawing segdefs";
 }
 
 QList<int> ClassChip::getNodesAt(int x, int y)
@@ -461,7 +473,7 @@ void ClassChip::buildLayerMap()
         //uchar ions = (!!(*p_ions++)) << VIA_DIFF_SHIFT;  XXX how to process ions?
 
         // Vias are connections from metal to (poly or diffusion) layer
-        if (p_vias[i])
+        if (false && p_vias[i]) // XXX I am tired of watching this warning all the time...
         {
             // Check that the vias are actually connected to either poly or metal
             if (!diff && !poly)

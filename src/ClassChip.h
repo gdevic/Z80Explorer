@@ -67,6 +67,7 @@ private:
 
 private:
     bool loadImages(QString dir);       // Loads chip images
+    bool loadSegdefs(QString dir);      // Loads segdefs.js
     bool loadNodenames(QString dir);    // Loads nodenames.js
     bool loadTransdefs(QString dir);    // Loads transdefs.js
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
