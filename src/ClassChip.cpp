@@ -299,10 +299,6 @@ bool ClassChip::loadChipResources(QString dir)
     {
         buildLayerMap();
 
-        // XXX not coded, just experimental
-        bool ok;
-        QVector<xy> trans_outlines = getOutline(getImageByName("bw.layermap", ok), TRANSISTOR);
-
         qDebug() << "Loading Z80 netlist into the simulator...";
         QString file = dir + "/z80.netlist";
         if (QFileInfo::exists(file) && QFileInfo(file).isFile())
@@ -538,38 +534,6 @@ void ClassChip::buildLayerMap()
     }
     layermap.setText("name", "bw.layermap");
     m_img.append(layermap);
-}
-
-/*
- * Returns a vector containing the feature (given by mask) outlines in the map x,y space
- *
- * XXX This is just for experimenting
- */
-QVector<xy> &ClassChip::getOutline(QImage &image, uchar mask)
-{
-    QVector<xy> *outline = new QVector<xy>();
-    uint sx = image.width();
-    uint sy = image.height();
-    const uchar *p_src = image.constBits();
-    uchar *p_map = new uchar[sx * sy]{};
-
-    for (uint y=0; y<sy; y++)
-    {
-        for (uint x=0; x<sx; x++)
-        {
-            if (p_src[y*sx+x] & mask)
-            {
-                p_map[y*sx+x] = mask;
-            }
-        }
-    }
-
-    int stride = image.width(); // Create QImage with a specific stride and a cleanup function as needed when using a custom data buffer
-    QImage imgmap(p_map, sx, sy, stride, QImage::Format_Grayscale8, [](void *p){ delete[] static_cast<uchar *>(p); }, (void *)p_map);
-    imgmap.setText("name", "bw.trans");
-    m_img.append(imgmap);
-
-    return *outline;
 }
 
 /*
