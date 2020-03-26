@@ -7,6 +7,7 @@
 // Ported to Linux/g++ by Dave Banks 29.8.2018
 
 #include "Z80_Simulator.h"
+#include <algorithm>
 #include <vector>
 
 // Serialization support
@@ -37,8 +38,8 @@ unsigned int DIVISOR = 600; // the lower the faster is clock
 
 // definition of pads (pad 4 is skipped)
 
-#define PAD_GND 1
-#define PAD_VCC 2
+#define PAD_GND 1   // Pad is optimized out
+#define PAD_VCC 2   // Pad is optimized out
 #define PAD_CLK 3
 
 #define PAD_A0 5
@@ -89,12 +90,12 @@ unsigned int DIVISOR = 600; // the lower the faster is clock
 
 // Connection to transistor remembers index of connected transistor and its terminal
 // proportion is the proportion of that transisor are to the area of all transistors connected
-// to the respective signal - it is here for optimalisation purposes
+// to the respective signal - it is here for optimization purposes
 class Connection
 {
 public:
     Connection();
-    int terminal;
+    int terminal;           // One of: GATE, DRAIN or SOURCE
     int index;
     float proportion;
 
@@ -113,7 +114,7 @@ Connection::Connection()
 
 // Signal keeps the vector of Connections (i.e. all transistors connected to the respective signal)
 // Homogenize() averages the charge proportionally by transistor area
-// ignore means that this signal need not to be homogenized - a try for optimalization
+// ignore means that this signal need not to be homogenized - a try for optimization
 // but it works only for Vcc and GND
 class Signal
 {
@@ -148,10 +149,11 @@ public:
     float ReadOutput();
     int ReadOutputStatus();
     int ReadInputStatus();
-    int type;
-    int x, y;
-    int origsignal;
-    vector<Connection> connections;
+
+    int type;                           // Signal direction; one of: PAD_INPUT, PAD_OUTPUT or PAD_BIDIRECTIONAL
+    int x, y;                           // Center coordinates of this pad within the image map
+    int origsignal;                     // Identifies the pad, signal; one of the defines PAD_*
+    vector<Connection> connections;     // List of transistors this pad is connected to
 
     template <class Archive> void serialize(Archive & ar) { ar(type, x, y, origsignal, connections); }
 };
@@ -177,18 +179,19 @@ public:
     void Normalize();
     int Valuate();
 
-    int x, y;
+    int x, y;                           // Top-left coordinates of this transistor within the image map
     int gate, source, drain;
     int sourcelen, drainlen, otherlen;
-    float area;
+    float area;                         // Determines the maximum amount of charge that this transistor can have (-area/+area)
     bool depletion;
-
     float resist;
-    float gatecharge, sourcecharge, draincharge;
+    float gatecharge;                   // Transistor is "ON" when gatecharge > 0.0
+    float sourcecharge, draincharge;
 
     vector<Connection> gateconnections;
     vector<Connection> sourceconnections;
     vector<Connection> drainconnections;
+
     float gateneighborhood, sourceneighborhood, drainneighborhood;
     float chargetobeon, pomchargetogo;
 
@@ -225,7 +228,7 @@ int Transistor::IsOnAnalog()
     return int(50.0f * gatecharge / area) + 50;
 }
 
-// Gets the type of the transistor - originally for optimalization purposes now more for statistical purposes
+// Gets the type of the transistor - originally for optimization purposes now more for statistical purposes
 inline int Transistor::Valuate()
 {
     // 1 depletion pullup
@@ -523,6 +526,8 @@ void Z80Sim::simLoadNetlist(const char *p_z80netlist)
     archive(transistors);
     archive(signals);
     archive(pads);
+
+    dumpPads(); // Show a list of pads and their information for debug
 
     sig_t1 = FindTransistor(572, 1203);
     sig_t2 = FindTransistor(831, 1895);
@@ -834,6 +839,17 @@ void Z80Sim::simLoadNetlist(const char *p_z80netlist)
 void Z80Sim::stop()
 {
     is_running = false;
+}
+
+void Z80Sim::dumpPads()
+{
+    // Sort the pads based on their pad number
+    std::sort(pads.begin(), pads.end(), [](Pad i, Pad j){return i.origsignal<j.origsignal;});
+
+    static char *d[4] = {(char*)"?", (char*)"IN", (char*)"OUT", (char*)"BIDIR"};
+    logf((char*)"Pads:\n");
+    for (unsigned int i=0; i<pads.size(); i++)
+        logf((char*)"[%d] x,y=%d,%d  %s sig=%d\n", i, pads[i].x, pads[i].y, d[pads[i].type], pads[i].origsignal);
 }
 
 int Z80Sim::simulate()

@@ -19,6 +19,7 @@ private:
     bool is_running;
     int FindTransistor(unsigned int x, unsigned int y);
     int GetRegVal(unsigned int reg[]);
+    void dumpPads();                    // Dumps pads information
 
     uint8_t memory[65536];
     uint8_t ports[256];
