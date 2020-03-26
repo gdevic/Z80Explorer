@@ -45,9 +45,9 @@ void FormImageOverlay::onClearPointerData()
     ui->label1->setText(QString());
 }
 
-void FormImageOverlay::on_btBuild_clicked()
+void FormImageOverlay::on_btTraces_clicked()
 {
-    emit actionBuild();
+    emit actionTraces();
 }
 
 void FormImageOverlay::on_btCoords_clicked()

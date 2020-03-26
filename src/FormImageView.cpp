@@ -55,7 +55,7 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
 
     connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
-    connect(m_ov, SIGNAL(actionBuild()), m_chip, SLOT(onBuild()));
+    connect(m_ov, SIGNAL(actionTraces()), m_chip, SLOT(drawSegdefs()));
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
 }

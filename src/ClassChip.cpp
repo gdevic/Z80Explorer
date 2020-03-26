@@ -30,33 +30,33 @@ ClassChip::~ClassChip()
 {
 }
 
-QImage &ClassChip::getImage(uint i)
-{
-    if (i < uint(m_img.count()))
-    {
-        m_last_image = i;
-        return m_img[i];
-    }
-    return getLastImage();
-}
-
-QImage &ClassChip::getLastImage()
-{
-    static QImage img_empty;
-    if (m_last_image < uint(m_img.count()))
-        return m_img[m_last_image];
-    return img_empty;
-}
-
 /*
- * Returns a list of layer / image names, text stored with each image
+ * Attempts to load all chip resource that we expect to have
  */
-const QStringList ClassChip::getLayerNames()
+bool ClassChip::loadChipResources(QString dir)
 {
-    QStringList names;
-    for (auto name : m_img)
-        names.append(name.text("name"));
-    return names;
+    qInfo() << "Loading chip resources from " << dir;
+    if (loadImages(dir) && loadNodenames(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
+    {
+        buildLayerMap();
+
+        qDebug() << "Loading Z80 netlist into the simulator...";
+        QString file = dir + "/z80.netlist";
+        if (QFileInfo::exists(file) && QFileInfo(file).isFile())
+        {
+            sim.simLoadNetlist(file.toUtf8().constData());
+
+            m_dir = dir;
+            qInfo() << "Completed loading chip resources";
+            emit refresh();
+            return true;
+        }
+        else
+            qWarning() << "Unable to load \"z80.netlist\" file";
+    }
+    else
+        qWarning() << "Loading chip resource failed";
+    return false;
 }
 
 /*
@@ -89,26 +89,6 @@ bool ClassChip::loadImages(QString dir)
         }
     }
     qInfo() << "Loaded " << m_img.count() << " images";
-    return true;
-}
-
-/*
- * Converts loaded images to grayscale format
- */
-bool ClassChip::convertToGrayscale()
-{
-    qInfo() << "Converting images to grayscale format...";
-    QEventLoop e; // Don't freeze the GUI
-    QVector<QImage> new_images;
-    for (auto image : m_img)
-    {
-        qInfo() << "Processing image " << image;
-        e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
-        QImage new_image = image.convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
-        new_image.setText("name", "bw." + image.text("name"));
-        new_images.append(new_image);
-    }
-    m_img.append(new_images);
     return true;
 }
 
@@ -252,8 +232,6 @@ bool ClassChip::loadTransdefs(QString dir)
                     // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
                     // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
                     t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt(), y - list[6].toInt()));
-                    t.area = list[12].toUInt();
-                    t.is_weak = list[13] == "true";
 
                     m_transdefs.append(t);
                 }
@@ -272,50 +250,98 @@ bool ClassChip::loadTransdefs(QString dir)
     return false;
 }
 
-// Set any bits, but these provide a compelling layer image when viewed:
-#define DIFF_SHIFT       6
-#define POLY_SHIFT       5
-#define METAL_SHIFT      4
-#define BURIED_SHIFT     3
-#define VIA_DIFF_SHIFT   2
-#define VIA_POLY_SHIFT   1
-#define TRANSISTOR_SHIFT 7
-
-#define DIFF       (1 << DIFF_SHIFT)
-#define POLY       (1 << POLY_SHIFT)
-#define METAL      (1 << METAL_SHIFT)
-#define BURIED     (1 << BURIED_SHIFT)
-#define VIA_DIFF   (1 << VIA_DIFF_SHIFT)
-#define VIA_POLY   (1 << VIA_POLY_SHIFT)
-#define TRANSISTOR (1 << TRANSISTOR_SHIFT)
+/*
+ * Returns the reference to the image by the image index
+ */
+QImage &ClassChip::getImage(uint i)
+{
+    if (i < uint(m_img.count()))
+    {
+        m_last_image = i;
+        return m_img[i];
+    }
+    return getLastImage();
+}
 
 /*
- * Attempts to load all chip resource that we expect to have
+ * Returns the reference to the last image returned by getImage()
  */
-bool ClassChip::loadChipResources(QString dir)
+QImage &ClassChip::getLastImage()
 {
-    qInfo() << "Loading chip resources from " << dir;
-    if (loadImages(dir) && loadNodenames(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
+    static QImage img_empty;
+    if (m_last_image < uint(m_img.count()))
+        return m_img[m_last_image];
+    return img_empty;
+}
+
+/*
+ * Returns a list of layer / image names, text stored with each image
+ */
+const QStringList ClassChip::getLayerNames()
+{
+    QStringList names;
+    for (auto name : m_img)
+        names.append(name.text("name"));
+    return names;
+}
+
+QList<int> ClassChip::getNodesAt(int x, int y)
+{
+    QList<int> list;
+    for(auto s : m_segdefs)
     {
-        buildLayerMap();
-
-        qDebug() << "Loading Z80 netlist into the simulator...";
-        QString file = dir + "/z80.netlist";
-        if (QFileInfo::exists(file) && QFileInfo(file).isFile())
+        for (auto path : s.paths)
         {
-            sim.simLoadNetlist(file.toUtf8().constData());
-
-            m_dir = dir;
-            qInfo() << "Completed loading chip resources";
-            emit refresh();
-            return true;
+            if (path.contains(QPointF(x, y)))
+                list.append(s.nodenum);
         }
-        else
-            qWarning() << "Unable to load \"z80.netlist\" file";
     }
-    else
-        qWarning() << "Loading chip resource failed";
-    return false;
+    return list;
+}
+
+const QStringList ClassChip::getTransistorsAt(int x, int y)
+{
+    QStringList list;
+    for(auto s : m_transdefs)
+    {
+        if (s.box.contains(QPoint(x, y)))
+            list.append(s.name);
+    }
+    return list;
+}
+
+const QStringList ClassChip::getNodenamesFromNodes(QList<int> nodes)
+{
+    QList<QString> list;
+    for(auto i : nodes)
+    {
+        if (m_nodenames.contains(i) && !list.contains(m_nodenames[i])) // Do not create duplicates
+            list.append(m_nodenames[i]);
+    }
+    return list;
+}
+
+/*
+ * Returns the segdef given its node number, nullptr if not found
+ */
+const segdef *ClassChip::getSegment(uint nodenum)
+{
+    if (m_segdefs.contains(nodenum))
+        return &m_segdefs[nodenum];
+    return nullptr;
+}
+
+/*
+ * Returns transistor definition given its name, nullptr if not found
+ */
+const transdef *ClassChip::getTrans(QString name)
+{
+    for (int i=0; i<m_transdefs.size(); i++)
+    {
+        if (m_transdefs.at(i).name == name)
+            return &m_transdefs.at(i);
+    }
+    return nullptr;
 }
 
 /*
@@ -344,7 +370,27 @@ void ClassChip::drawTransistors(QImage &img)
         painter.drawRect(s.box);
 }
 
-void ClassChip::onBuild()
+/*
+ * Converts loaded images to grayscale format
+ */
+bool ClassChip::convertToGrayscale()
+{
+    qInfo() << "Converting images to grayscale format...";
+    QEventLoop e; // Don't freeze the GUI
+    QVector<QImage> new_images;
+    for (auto image : m_img)
+    {
+        qInfo() << "Processing image " << image;
+        e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
+        QImage new_image = image.convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
+        new_image.setText("name", "bw." + image.text("name"));
+        new_images.append(new_image);
+    }
+    m_img.append(new_images);
+    return true;
+}
+
+void ClassChip::drawSegdefs()
 {
     QEventLoop e; // Don't freeze the GUI
     QImage &img = getLastImage();
@@ -372,7 +418,7 @@ void ClassChip::onBuild()
             painter.drawPath(path);
 
         count++;
-        if (!(count % 500))
+        if (!(count % 400))
         {
             emit refresh();
             e.processEvents(QEventLoop::AllEvents);
@@ -383,49 +429,27 @@ void ClassChip::onBuild()
     qDebug() << "Finished drawing segdefs";
 }
 
-QList<int> ClassChip::getNodesAt(int x, int y)
-{
-    QList<int> list;
-    int i = 0; // tmp to help out finding erroneous lines of data
-    for(auto s : m_segdefs)
-    {
-        for (auto path : s.paths)
-        {
-            if (path.contains(QPointF(x, y)))
-                list.append(s.nodenum);
-        }
-        i++;
-    }
-    return list;
-}
+// Set any bits, but these provide a compelling layer image when viewed:
+#define DIFF_SHIFT       6
+#define POLY_SHIFT       5
+#define METAL_SHIFT      4
+#define BURIED_SHIFT     3
+#define VIA_DIFF_SHIFT   2
+#define VIA_POLY_SHIFT   1
+#define TRANSISTOR_SHIFT 7
 
-const QStringList ClassChip::getTransistorsAt(int x, int y)
-{
-    QStringList list;
-    for(auto s : m_transdefs)
-    {
-        if (s.box.contains(QPoint(x, y)))
-        {
-            list.append(s.name);
-        }
-    }
-    return list;
-}
-
-const QStringList ClassChip::getNodenamesFromNodes(QList<int> nodes)
-{
-    QList<QString> list;
-    for(auto i : nodes)
-    {
-        if (m_nodenames.contains(i) && !list.contains(m_nodenames[i])) // Do not create duplicates
-            list.append(m_nodenames[i]);
-    }
-    return list;
-}
+#define DIFF       (1 << DIFF_SHIFT)
+#define POLY       (1 << POLY_SHIFT)
+#define METAL      (1 << METAL_SHIFT)
+#define BURIED     (1 << BURIED_SHIFT)
+#define VIA_DIFF   (1 << VIA_DIFF_SHIFT)
+#define VIA_POLY   (1 << VIA_POLY_SHIFT)
+#define TRANSISTOR (1 << TRANSISTOR_SHIFT)
 
 QImage &ClassChip::getImageByName(QString name, bool &ok)
 {
     static QImage img_empty;
+    ok = true;
     for (int i=0; i<m_img.count(); i++)
     {
         if (m_img[i].text("name")==name)
@@ -534,27 +558,4 @@ void ClassChip::buildLayerMap()
     }
     layermap.setText("name", "bw.layermap");
     m_img.append(layermap);
-}
-
-/*
- * Returns the segdef given its node number, nullptr if not found
- */
-const segdef *ClassChip::getSegment(uint nodenum)
-{
-    if (m_segdefs.contains(nodenum))
-        return &m_segdefs[nodenum];
-    return nullptr;
-}
-
-/*
- * Returns transistor definition given its name, nullptr if not found
- */
-const transdef *ClassChip::getTrans(QString name)
-{
-    for (int i=0; i<m_transdefs.size(); i++)
-    {
-        if (m_transdefs.at(i).name == name)
-            return &m_transdefs.at(i);
-    }
-    return nullptr;
 }

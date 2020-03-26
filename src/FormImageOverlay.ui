@@ -71,7 +71,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="btBuild">
+    <widget class="QPushButton" name="btTraces">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
      </property>
