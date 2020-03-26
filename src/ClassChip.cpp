@@ -323,35 +323,19 @@ void ClassChip::onBuild()
 
                 segdef s;
                 s.nodenum = list[0].toUInt();
-                s.pullup = list[1] == "'+'";
-                s.layer = list[2].toUInt();
-                if (s.layer == 0)
-                    painter.setPen(QColor(0,255,0));
-                else if (s.layer == 3)
-                    painter.setPen(QColor(255,0,0));
-                else
-                    painter.setPen(QColor(4 << s.layer,255,0));
 
                 for (int i=3; i<list.length()-1; i+=2)
                 {
                     uint x = list[i].toUInt();
                     uint y = img.height() - list[i+1].toUInt() - 1;
-                    s.points.append(QPoint(x,y));
-                }
-#if 0 // One way to do it is to manually draw a closed loop of lines
-                for (int i=0; i < s.points.count() - 1; i++)
-                    painter.drawLine(s.points[i], s.points[i+1]);
-                painter.drawLine(s.points[0], s.points[s.points.length()-1]);
-#endif
-                s.path.setFillRule(Qt::WindingFill);
-                s.path.moveTo(s.points[0].x(),s.points[0].y());
-                for (int i=1; i < s.points.count(); i++)
-                {
-                    s.path.lineTo(s.points[i].x(),s.points[i].y());
+                    if (i == 3)
+                        s.path.moveTo(x,y);
+                    else
+                        s.path.lineTo(x,y);
                 }
                 s.path.closeSubpath();
+                m_segdefs.append(s);
 
-#if 1 // If you set a pen to a solid line, or you set a brush, the path will be filled
                 QColor c;
                 if (s.nodenum == 1) // GND
                     painter.setBrush(QColor(0,255,0)), c = QColor(50,255,50);
@@ -360,14 +344,12 @@ void ClassChip::onBuild()
                 else if (s.nodenum == 2) // CLK
                     painter.setBrush(QColor(255,255,255)), c = QColor(255,255,255);
                 else
-                    painter.setBrush(QColor(4 << s.layer,255,0)), c = QColor(255,255,50);
+                    painter.setBrush(QColor(128,255,0)), c = QColor(255,255,50);
                 painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-#endif
+
                 painter.setOpacity(0.5);
                 painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
                 painter.drawPath(s.path);
-
-                m_segdefs.append(s);
             }
             count++;
             if (!(count % 100))

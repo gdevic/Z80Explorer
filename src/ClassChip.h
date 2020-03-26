@@ -4,13 +4,11 @@
 #include <QImage>
 #include <QHash>
 
+// Holds visual definition of a segment (wire with the same voltage level)
 struct segdef
 {
-    uint nodenum;
-    bool pullup;
-    uint layer;
-    QVector<QPoint> points; // XXX Do we need both points *and* path?
-    QPainterPath path;
+    uint nodenum;       // Node (segment) number
+    QPainterPath path;  // Visual QPainter class path describing the area
 };
 
 struct transdef

@@ -446,7 +446,7 @@ void FormImageView::onFind(QString text)
             {
                 m_highlight_path = &seg->path;
                 qDebug() << "Found segment" << text;
-                qDebug() << "Pullup:" << seg->pullup << "Layer:" << seg->layer << "Points:" << seg->points.count() << "Path:" << seg->path.elementCount();
+                qDebug() << "Path:" << seg->path.elementCount();
                 m_timer_tick = 10;
                 update();
             }
