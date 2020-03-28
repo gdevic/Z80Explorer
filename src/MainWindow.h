@@ -5,6 +5,7 @@
 
 class ClassChip;
 class ClassSim;
+class ClassSimX;
 class CommandWindow;
 class LogWindow;
 
@@ -32,6 +33,7 @@ private:
     Ui::MainWindow *ui;
     ClassChip *m_chip;                  // Holds chip information
     ClassSim *m_sim;                    // Interface to netlist simulation code
+    ClassSimX *m_simx;                  // Chip netlist simulator code
     LogWindow *m_logWindow;             // Log window class and form
     CommandWindow *m_cmdWindow;         // Command window class and form
     QMenu *m_menuView;                  // Pointer to the "View" menu pull-down

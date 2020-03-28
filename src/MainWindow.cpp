@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 #include "ClassChip.h"
 #include "ClassSim.h"
+#include "ClassSimX.h"
 #include "CommandWindow.h"
 #include "FormImageView.h"
 #include "FormWaveView.h"
@@ -24,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Create the main chip class
     m_chip = new ClassChip(this);
+
+    // Create the chip netlist simulator code class
+    m_simx = new ClassSimX(this);
 
     // Create a central widget to show a chip image
     setCentralWidget(new FormImageView(this, m_chip));
