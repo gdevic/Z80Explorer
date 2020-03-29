@@ -1,6 +1,7 @@
 #include "FormImageView.h"
 #include "ui_FormImageView.h"
 #include "ClassChip.h"
+#include "ClassSimX.h"
 #include "FormImageOverlay.h"
 
 #include <QDebug>
@@ -18,10 +19,11 @@
 // Class constructor and destructor
 //============================================================================
 
-FormImageView::FormImageView(QWidget *parent, ClassChip *chip) :
+FormImageView::FormImageView(QWidget *parent, ClassChip *chip, ClassSimX *simx) :
     QWidget(parent),
     ui(new Ui::FormImageView),
     m_chip(chip),
+    m_simx(simx),
     m_image(QImage()),
     m_view_mode(Fill),
     m_mousePressed(false),
@@ -262,6 +264,25 @@ void FormImageView::paintEvent(QPaintEvent *)
     {
         for (auto path : m_highlight_segment->paths)
             painter.drawPath(path);
+    }
+
+    //------------------------------------------------------------------------
+    // Draw active nets from the simx class
+    //------------------------------------------------------------------------
+    painter.setBrush(QColor(155, 0, 0)); // Only for the Vcc
+    painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setCompositionMode(QPainter::CompositionMode_Plus);
+
+    for (uint i=3; i<m_simx->getNetlistCount(); i++)
+    {
+        if (i==3) // After painting Vcc, this is the default brush
+            painter.setBrush(QColor(255, 0, 255));
+
+        if (m_simx->getNetState(i))
+        {
+            for (auto path : m_chip->getSegment(i)->paths)
+                painter.drawPath(path);
+        }
     }
 }
 

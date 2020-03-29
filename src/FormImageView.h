@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class ClassChip;
+class ClassSimX;
 class FormImageOverlay;
 class QGridLayout;
 class QResizeEvent;
@@ -21,7 +22,7 @@ class FormImageView : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormImageView(QWidget *parent, ClassChip *chip);
+    explicit FormImageView(QWidget *parent, ClassChip *chip, ClassSimX *simx);
     ~FormImageView();
 
     const QImage& getImage();           // Returns the current QImage; is never NULL
@@ -64,6 +65,7 @@ private slots:
 private:
     Ui::FormImageView *ui;
     ClassChip *m_chip;
+    ClassSimX *m_simx;
 
     QImage  m_image;                    // Current image
     QSize   m_panelSize;                // View panel size, drawable area

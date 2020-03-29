@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_simx = new ClassSimX(this);
 
     // Create a central widget to show a chip image
-    setCentralWidget(new FormImageView(this, m_chip));
+    setCentralWidget(new FormImageView(this, m_chip, m_simx));
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");
@@ -134,6 +134,15 @@ void MainWindow::loadResources()
             path = QFileInfo(fileName).path();
     }
     settings.setValue("ChipResources", path);
+
+    if (!m_simx->loadResources(path))
+    {
+        // Prompts the user to select the chip resource folder
+        QString fileName = QFileDialog::getOpenFileName(this, "Select simX resource folder", "", "Javascript (*.js)");
+        if (!fileName.isEmpty())
+            path = QFileInfo(fileName).path();
+    }
+    settings.setValue("ChipResources", path);
 }
 
 /*
@@ -142,7 +151,7 @@ void MainWindow::loadResources()
 void MainWindow::onNewImageView()
 {
     QDockWidget *dock = new QDockWidget("Image View", this);
-    FormImageView *w = new FormImageView(dock, m_chip);
+    FormImageView *w = new FormImageView(dock, m_chip, m_simx);
     dock->setWidget(w);
 
     addDockWidget(Qt::BottomDockWidgetArea, dock);
