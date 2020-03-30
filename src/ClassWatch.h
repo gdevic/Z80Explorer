@@ -6,11 +6,14 @@
 typedef uint16_t net_t;                 // Type of an index to the net array
 typedef uint8_t  pin_t;                 // Type of the pin state (0, 1; or 2 for floating)
 
+// Watch structure defines a net or a bus to watch. A net is a single object identified by net number "n"
+// A bus is a collection of nets; n is zero and nn contains a list of nets comprising a bus.
 struct watch
 {
-    QString name;                       // The name of the net to watch
+    QString name;                       // The name of the net or bus to watch
     uint x, y;                          // Coordinates of a pushpin on the chip image
-    net_t n;                            // Net number
+    net_t n;                            // Net number (if nonzero)
+    QVector<net_t> nn;                  // List of nets comprising the bus
 };
 
 /*

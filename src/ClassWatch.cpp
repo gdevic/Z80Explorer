@@ -24,8 +24,17 @@ bool ClassWatch::loadWatchlist(QString name)
             m_watchlist.clear();
             while (num--)
             {
-                watch w;
-                in >> w.name >> w.x >> w.y >> w.n;
+                watch w {};
+                in >> w.name >> w.x >> w.y >> w.n >> num;
+                if (num)
+                {
+                    while (num--)
+                    {
+                        net_t n;
+                        in >> n;
+                        w.nn.append(n);
+                    }
+                }
                 m_watchlist.append(w);
             }
         }
@@ -46,7 +55,11 @@ bool ClassWatch::saveWatchlist(QString name)
         QDataStream out(&file);
         out << m_watchlist.count();
         for (auto w : m_watchlist)
-            out << w.name << w.x << w.y << w.n;
+        {
+            out << w.name << w.x << w.y << w.n << w.nn.count();
+            for (auto n : w.nn)
+                out << n;
+        }
     }
     catch(...) { return false; }
     return true;
