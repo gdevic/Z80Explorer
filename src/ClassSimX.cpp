@@ -43,22 +43,6 @@ void ClassSimX::initChip()
         halfCycle();
 
     set(1, "reset");
-
-    // XXX Test
-    // Create a timer that runs the simulation ticks by toggling the clk
-    m_timer = new QTimer(this);
-    m_timer->setInterval(500);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
-    m_timer->start();
-}
-
-void ClassSimX::onTimeout()
-{
-    halfCycle();
-
-    z80state z80;
-    readStatus(z80);
-    qInfo() << dumpStatus(z80).split('\n');
 }
 
 void ClassSimX::halfCycle()
@@ -300,7 +284,6 @@ bool ClassSimX::loadTransdefs(QString dir)
                     Q_ASSERT(i < MAX_TRANSDEFS);
                     trans *p = &m_transdefs[i];
 
-                    p->name = list[0]; // XXX Temp to aid debugging
                     p->gate = list[1].toUInt();
                     p->c1 = list[2].toUInt();
                     p->c2 = list[3].toUInt();
@@ -470,10 +453,10 @@ void ClassSimX::readStatus(z80state &z)
     z.reset = readPin("reset");
     z.m1 = readPin("m1");
     z.rfsh = readPin("rfsh");
-    for (int i=1; i<=6; i++)
+    for (int i=0; i<6; i++)
     {
-        z.m[i-1] = readPin("m" + QString::number(i));
-        z.t[i-1] = readPin("t" + QString::number(i));
+        z.m[i] = readPin("m" + QString::number(i+1));
+        z.t[i] = readPin("t" + QString::number(i+1));
     }
 }
 

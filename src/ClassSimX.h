@@ -28,7 +28,6 @@ struct z80state
 // Contains individual transistor definition
 class trans
 {
-    QString name;                       // XXX Temp to aid debugging: Transistor name
     net_t gate;                         // Gate net
     net_t c1, c2;                       // Connections 1, 2 (source, drain) nets
     bool on {false};                    // Is the transistor on?
@@ -57,6 +56,16 @@ public:
     explicit ClassSimX(QObject *parent);
     bool loadResources(QString dir);
     void initChip();
+    net_t getNetlistCount()             // Returns the number of nets in the netlist
+        { return m_netlist.count(); }
+    bool getNetState(net_t i)           // Returns the net logic state
+        { return m_netlist[i].state; }
+
+private:
+    bool loadNodenames(QString dir);
+    bool loadTransdefs(QString dir);
+    bool loadPullups(QString dir);
+
     void readStatus(z80state &z);       // Reads chip state into a state structure
     QString dumpStatus(z80state z);     // Returns chip state as a string
     void set(bool on, QString name);    // Sets a named input net to pullup or pulldown status
@@ -64,16 +73,6 @@ public:
     uint readBit(QString name);         // Returns a bit value read from the netlist for a particular net
     pin_t readPin(QString name);        // Returns the pin value
     uint16_t readAB();                  // Returns the value on the address bus
-    net_t getNetlistCount() { return m_netlist.count(); }
-    bool getNetState(net_t i) { return m_netlist[i].state; }
-
-private slots:
-    void onTimeout();                   // Timer timeout handler
-
-private:
-    bool loadNodenames(QString dir);
-    bool loadTransdefs(QString dir);
-    bool loadPullups(QString dir);
 
     void halfCycle();
     bool getNetValue();

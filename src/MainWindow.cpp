@@ -67,8 +67,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
-    connect(ui->actionRun, SIGNAL(triggered()), m_sim, SLOT(onRun()));
-    connect(ui->actionStop, SIGNAL(triggered()), m_sim, SLOT(onStop()));
 
     // As soon as the GUI becomes idle, load chip resources
     QTimer::singleShot(0, this, SLOT(loadResources()));

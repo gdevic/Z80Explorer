@@ -44,17 +44,9 @@
     <addaction name="actionNewImageView"/>
     <addaction name="actionNewWaveformView"/>
    </widget>
-   <widget class="QMenu" name="menuSimulation">
-    <property name="title">
-     <string>Simulation</string>
-    </property>
-    <addaction name="actionRun"/>
-    <addaction name="actionStop"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuWindow"/>
-   <addaction name="menuSimulation"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">
@@ -107,28 +99,6 @@
    </property>
    <property name="shortcut">
     <string>F5</string>
-   </property>
-  </action>
-  <action name="actionRun">
-   <property name="text">
-    <string>Run</string>
-   </property>
-   <property name="toolTip">
-    <string>Run Z80_Simulator</string>
-   </property>
-   <property name="statusTip">
-    <string>Run Z80_Simulator</string>
-   </property>
-  </action>
-  <action name="actionStop">
-   <property name="text">
-    <string>Stop</string>
-   </property>
-   <property name="toolTip">
-    <string>Stop running simulation</string>
-   </property>
-   <property name="statusTip">
-    <string>Stop running simulation</string>
    </property>
   </action>
   <action name="actionNewWaveformView">
