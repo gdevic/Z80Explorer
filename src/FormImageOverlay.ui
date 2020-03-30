@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>150</width>
-    <height>463</height>
+    <height>184</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,16 +32,6 @@
    <property name="bottomMargin">
     <number>4</number>
    </property>
-   <item>
-    <layout class="QVBoxLayout" name="verticalLayout"/>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item>
     <widget class="QLabel" name="label1">
      <property name="text">
@@ -105,7 +95,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>180</height>
+       <height>40</height>
       </size>
      </property>
     </spacer>

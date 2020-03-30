@@ -20,12 +20,15 @@ FormImageOverlay::~FormImageOverlay()
 void FormImageOverlay::setLayerNames(QStringList layers)
 {
     const QString c = "123456789abcdefghijklmnopq";
+    QVBoxLayout *layout = new QVBoxLayout(this);
     for (int i=0; i < layers.count(); i++)
     {
         QLabel *p = new QLabel(this);
         p->setText(QString(c[i % c.length()]) + " ... " + layers[i]);
-        ui->verticalLayout->addWidget(p);
+        layout->addWidget(p);
     }
+    ui->verticalLayout_2->addLayout(layout);
+    ui->verticalLayout_2->setSizeConstraint(QLayout::SetMinimumSize);
 }
 
 /*
