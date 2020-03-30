@@ -6,6 +6,7 @@
 class ClassChip;
 class ClassSim;
 class ClassSimX;
+class ClassWatch;
 class CommandWindow;
 class LogWindow;
 
@@ -27,6 +28,9 @@ private slots:
     void onOpenChipDir();               // Open directory with chip resources
     void onNewImageView();              // Open a new view to the chip data
     void onNewWaveformView();           // Open a new view to the waveforms
+    void onLoadWatchlist();             // Loads watchlist
+    void onSaveWatchlistAs();           // Saves watchlist as
+    void onSaveWatchlist();             // Saves current watchlist
     void onExit();                      // Exit the application
 
 private:
@@ -34,6 +38,7 @@ private:
     ClassChip *m_chip;                  // Holds chip information
     ClassSim *m_sim;                    // Interface to netlist simulation code
     ClassSimX *m_simx;                  // Chip netlist simulator code
+    ClassWatch *m_watch;                // Watchlist of nets to track
     LogWindow *m_logWindow;             // Log window class and form
     CommandWindow *m_cmdWindow;         // Command window class and form
     QMenu *m_menuView;                  // Pointer to the "View" menu pull-down

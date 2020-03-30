@@ -44,8 +44,17 @@
     <addaction name="actionNewImageView"/>
     <addaction name="actionNewWaveformView"/>
    </widget>
+   <widget class="QMenu" name="menuWatch">
+    <property name="title">
+     <string>Watch</string>
+    </property>
+    <addaction name="actionLoadWatchlist"/>
+    <addaction name="actionSaveWatchlistAs"/>
+    <addaction name="actionSaveWatchlist"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuWatch"/>
    <addaction name="menuWindow"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -113,6 +122,30 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionLoadWatchlist">
+   <property name="text">
+    <string>Load watchlist...</string>
+   </property>
+   <property name="statusTip">
+    <string>Load a list of nets to watch</string>
+   </property>
+  </action>
+  <action name="actionSaveWatchlistAs">
+   <property name="text">
+    <string>Save watchlist as...</string>
+   </property>
+   <property name="statusTip">
+    <string>Save current list of nets to watch</string>
+   </property>
+  </action>
+  <action name="actionSaveWatchlist">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="statusTip">
+    <string>Save current list of nets to watch</string>
    </property>
   </action>
  </widget>

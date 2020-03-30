@@ -3,6 +3,7 @@
 #include "ClassChip.h"
 #include "ClassSim.h"
 #include "ClassSimX.h"
+#include "ClassWatch.h"
 #include "CommandWindow.h"
 #include "FormImageView.h"
 #include "FormWaveView.h"
@@ -19,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Create our list of nets to track
+    m_watch = new ClassWatch(this);
 
     // Create interface to the simulation code
     m_sim = new ClassSim(this);
@@ -67,6 +71,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
+    connect(ui->actionLoadWatchlist, SIGNAL(triggered()), this, SLOT(onLoadWatchlist()));
+    connect(ui->actionSaveWatchlistAs, SIGNAL(triggered()), this, SLOT(onSaveWatchlistAs()));
+    connect(ui->actionSaveWatchlist, SIGNAL(triggered()), this, SLOT(onSaveWatchlist()));
 
     // As soon as the GUI becomes idle, load chip resources
     QTimer::singleShot(0, this, SLOT(loadResources()));
@@ -114,6 +121,11 @@ void MainWindow::onOpenChipDir()
 void MainWindow::loadResources()
 {
     QSettings settings;
+
+    // Load last recently used list of watches
+    QString file = settings.value("WatchlistFile", "").toString();
+    m_watch->loadWatchlist(file);
+
     QString path = settings.value("ChipResources", QDir::currentPath()).toString();
     while (!m_chip->loadChipResources(path))
     {
@@ -175,4 +187,46 @@ void MainWindow::onNewWaveformView()
 
     //w->onRefresh();
     w->show();
+}
+
+void MainWindow::onLoadWatchlist()
+{
+    QSettings settings;
+    QString defName = settings.value("WatchlistFile", "watchlist.wlist").toString();
+    // Prompts the user to select which watchlist file to load
+    QString fileName = QFileDialog::getOpenFileName(this, "Select watchlist file to load", defName, "watchlist (*.wlist)");
+    if (!fileName.isEmpty())
+    {
+        if (m_watch->loadWatchlist(fileName))
+        {
+            QSettings settings;
+            settings.setValue("WatchlistFile", fileName);
+        }
+        else
+            QMessageBox::critical(this, "Error", "Selected file is not a valid watchlist file");
+    }
+}
+
+void MainWindow::onSaveWatchlistAs()
+{
+    // Prompts the user to select the watches file to load
+    QString fileName = QFileDialog::getSaveFileName(this, "Save watchlist file", "", "watchlist (*.wlist)");
+    if (!fileName.isEmpty())
+    {
+        if (m_watch->saveWatchlist(fileName))
+        {
+            QSettings settings;
+            settings.setValue("WatchlistFile", fileName);
+        }
+        else
+            QMessageBox::critical(this, "Error", "Unable to save watchlist file " + fileName);
+    }
+}
+
+void MainWindow::onSaveWatchlist()
+{
+    QSettings settings;
+    QString fileName = settings.value("WatchlistFile", "watchlist.wlist").toString();
+    if (!m_watch->saveWatchlist(fileName))
+        QMessageBox::critical(this, "Error", "Unable to save watchlist file " + fileName);
 }

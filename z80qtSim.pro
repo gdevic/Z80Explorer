@@ -22,6 +22,7 @@ SOURCES += \
     src/ClassChip.cpp \
     src/ClassSim.cpp \
     src/ClassSimX.cpp \
+    src/ClassWatch.cpp \
     src/CommandWindow.cpp \
     src/FormImageOverlay.cpp \
     src/FormImageView.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     src/ClassSim.h \
     src/ClassSimX.h \
     src/ClassSingleton.h \
+    src/ClassWatch.h \
     src/CommandWindow.h \
     src/FormImageOverlay.h \
     src/FormImageView.h \
