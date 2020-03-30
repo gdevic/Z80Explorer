@@ -326,9 +326,8 @@ void FormImageView::mouseMoveEvent(QMouseEvent *event)
     }
     else
     {
-        // With no buttons pushed, a mouse move needs to update the XY/RGB
-        // information in the application status bar. So let's emit the signal
-        // that does that.
+        // With no buttons pushed, a mouse move needs to update the information
+        // about the net or object it is currently pointing to
         QPoint imageCoords = m_invtx.map(event->pos());
         if (m_image.valid(imageCoords.x(), imageCoords.y()))
         {
