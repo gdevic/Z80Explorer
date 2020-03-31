@@ -63,7 +63,7 @@
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
-      <widget class="WidgetPane" name="scrollAreaWidgetContents">
+      <widget class="WidgetWaveform" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
          <x>0</x>
@@ -97,9 +97,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>WidgetPane</class>
+   <class>WidgetWaveform</class>
    <extends>QWidget</extends>
-   <header>WidgetPane.h</header>
+   <header>WidgetWaveform.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

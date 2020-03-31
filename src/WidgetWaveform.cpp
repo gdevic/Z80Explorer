@@ -1,12 +1,12 @@
-#include "WidgetPane.h"
+#include "WidgetWaveform.h"
 #include <QPainter>
 #include <QPaintEvent>
 
-WidgetPane::WidgetPane(QWidget *parent) : QWidget(parent)
+WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 {
 }
 
-void WidgetPane::paintEvent(QPaintEvent *pe)
+void WidgetWaveform::paintEvent(QPaintEvent *pe)
 {
     const QRect &r = pe->rect();
     QPainter painter(this);

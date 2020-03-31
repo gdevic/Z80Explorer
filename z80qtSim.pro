@@ -32,7 +32,7 @@ SOURCES += \
     src/MainWindow.cpp \
     src/WidgetImageOverlay.cpp \
     src/WidgetImageView.cpp \
-    src/WidgetPane.cpp \
+    src/WidgetWaveform.cpp \
     src/Z80_Simulator.cpp \
     src/main.cpp
 
@@ -51,7 +51,7 @@ HEADERS += \
     src/MainWindow.h \
     src/WidgetImageOverlay.h \
     src/WidgetImageView.h \
-    src/WidgetPane.h \
+    src/WidgetWaveform.h \
     src/Z80_Simulator.h
 
 FORMS += \
