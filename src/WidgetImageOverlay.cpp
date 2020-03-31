@@ -1,23 +1,23 @@
-#include "FormImageOverlay.h"
-#include "ui_FormImageOverlay.h"
+#include "WidgetImageOverlay.h"
+#include "ui_WidgetImageOverlay.h"
 
 #include <QLabel>
 
-FormImageOverlay::FormImageOverlay(QWidget *parent) :
+WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FormImageOverlay)
+    ui(new Ui::WidgetImageOverlay)
 {
     ui->setupUi(this);
 
     connect(ui->editFind, SIGNAL(returnPressed()), this, SLOT(onFind()));
 }
 
-FormImageOverlay::~FormImageOverlay()
+WidgetImageOverlay::~WidgetImageOverlay()
 {
     delete ui;
 }
 
-void FormImageOverlay::setLayerNames(QStringList layers)
+void WidgetImageOverlay::setLayerNames(QStringList layers)
 {
     const QString c = "123456789abcdefghijklmnopq";
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -34,7 +34,7 @@ void FormImageOverlay::setLayerNames(QStringList layers)
 /*
  * Shows the coordinate and color pointed to by a mouse location
  */
-void FormImageOverlay::onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b)
+void WidgetImageOverlay::onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     QString rgb = QString("RGB(%1,%2,%3)").arg(r).arg(g).arg(b);
     setText(1,rgb);
@@ -43,22 +43,22 @@ void FormImageOverlay::onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t
     ui->btCoords->setText(coords);
 }
 
-void FormImageOverlay::onClearPointerData()
+void WidgetImageOverlay::onClearPointerData()
 {
     ui->label1->setText(QString());
 }
 
-void FormImageOverlay::on_btTraces_clicked()
+void WidgetImageOverlay::on_btTraces_clicked()
 {
     emit actionTraces();
 }
 
-void FormImageOverlay::on_btCoords_clicked()
+void WidgetImageOverlay::on_btCoords_clicked()
 {
     emit actionCoords();
 }
 
-void FormImageOverlay::setText(int index, QString text)
+void WidgetImageOverlay::setText(int index, QString text)
 {
     if (index == 1) ui->label1->setText(text);
     if (index == 2) ui->label2->setText(text);
@@ -69,7 +69,7 @@ void FormImageOverlay::setText(int index, QString text)
 /*
  * Called by the editFind edit widget when the user presses the Enter key
  */
-void FormImageOverlay::onFind()
+void WidgetImageOverlay::onFind()
 {
     QString text = ui->editFind->text().trimmed();
     ui->editFind->clear(); // Clear the edit box from the user input

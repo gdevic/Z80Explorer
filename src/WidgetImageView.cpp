@@ -2,7 +2,7 @@
 #include "ui_WidgetImageView.h"
 #include "ClassChip.h"
 #include "ClassSimX.h"
-#include "FormImageOverlay.h"
+#include "WidgetImageOverlay.h"
 
 #include <QDebug>
 #include <QGridLayout>
@@ -37,7 +37,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
 
     // Create and set the image overlay widget
-    m_ov = new FormImageOverlay(this);
+    m_ov = new WidgetImageOverlay(this);
     m_ov->setParent(this);
     m_ov->move(10, 10);
     m_ov->show();

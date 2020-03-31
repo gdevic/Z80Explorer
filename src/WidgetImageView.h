@@ -5,7 +5,7 @@
 
 class ClassChip;
 class ClassSimX;
-class FormImageOverlay;
+class WidgetImageOverlay;
 class QGridLayout;
 class QResizeEvent;
 class QTimer;
@@ -82,7 +82,7 @@ private:
     QTransform m_invtx;                 // Transformation matrix from screen to normalized image space
     QRect      m_viewPort;              // Bounding rectangle of the current screen view
     QRectF     m_imageView;             // Helper variable for getImageView()
-    FormImageOverlay *m_ov;             // Image overlay class
+    WidgetImageOverlay *m_ov;           // Image overlay class
     QTimer     *m_timer;                // Image refresh timer
     uint       m_timer_tick;            // Timer timeout tick counter
     const segdef *m_highlight_segment;  // Segment to highlight in the current image

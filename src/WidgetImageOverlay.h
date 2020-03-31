@@ -1,20 +1,20 @@
-#ifndef FORMIMAGEOVERLAY_H
-#define FORMIMAGEOVERLAY_H
+#ifndef WIDGETIMAGEOVERLAY_H
+#define WIDGETIMAGEOVERLAY_H
 
 #include <QWidget>
 
-namespace Ui { class FormImageOverlay; }
+namespace Ui { class WidgetImageOverlay; }
 
 /*
  * This class implements the overlay widget shown in the WidgetImageView
  */
-class FormImageOverlay : public QWidget
+class WidgetImageOverlay : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FormImageOverlay(QWidget *parent);
-    ~FormImageOverlay();
+    explicit WidgetImageOverlay(QWidget *parent);
+    ~WidgetImageOverlay();
 
     void setLayerNames(QStringList layers);
 
@@ -34,7 +34,7 @@ private slots:
     void onFind();                      // Called by the editFind edit widget when the user presses the Enter key
 
 private:
-    Ui::FormImageOverlay *ui;
+    Ui::WidgetImageOverlay *ui;
 };
 
-#endif // FORMIMAGEOVERLAY_H
+#endif // WIDGETIMAGEOVERLAY_H

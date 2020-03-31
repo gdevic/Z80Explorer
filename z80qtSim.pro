@@ -29,8 +29,8 @@ SOURCES += \
     src/DockImageView.cpp \
     src/DockLog.cpp \
     src/DockWaveform.cpp \
-    src/FormImageOverlay.cpp \
     src/MainWindow.cpp \
+    src/WidgetImageOverlay.cpp \
     src/WidgetImageView.cpp \
     src/WidgetPane.cpp \
     src/Z80_Simulator.cpp \
@@ -48,8 +48,8 @@ HEADERS += \
     src/DockImageView.h \
     src/DockLog.h \
     src/DockWaveform.h \
-    src/FormImageOverlay.h \
     src/MainWindow.h \
+    src/WidgetImageOverlay.h \
     src/WidgetImageView.h \
     src/WidgetPane.h \
     src/Z80_Simulator.h
@@ -59,8 +59,8 @@ FORMS += \
     src/DockImageView.ui \
     src/DockLog.ui \
     src/DockWaveform.ui \
-    src/FormImageOverlay.ui \
     src/MainWindow.ui \
+    src/WidgetImageOverlay.ui \
     src/WidgetImageView.ui
 
 # Default rules for deployment.
