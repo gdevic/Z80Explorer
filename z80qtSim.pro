@@ -30,8 +30,8 @@ SOURCES += \
     src/DockLog.cpp \
     src/DockWaveform.cpp \
     src/FormImageOverlay.cpp \
-    src/FormImageView.cpp \
     src/MainWindow.cpp \
+    src/WidgetImageView.cpp \
     src/WidgetPane.cpp \
     src/Z80_Simulator.cpp \
     src/main.cpp
@@ -49,8 +49,8 @@ HEADERS += \
     src/DockLog.h \
     src/DockWaveform.h \
     src/FormImageOverlay.h \
-    src/FormImageView.h \
     src/MainWindow.h \
+    src/WidgetImageView.h \
     src/WidgetPane.h \
     src/Z80_Simulator.h
 
@@ -60,8 +60,8 @@ FORMS += \
     src/DockLog.ui \
     src/DockWaveform.ui \
     src/FormImageOverlay.ui \
-    src/FormImageView.ui \
-    src/MainWindow.ui
+    src/MainWindow.ui \
+    src/WidgetImageView.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

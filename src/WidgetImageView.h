@@ -1,5 +1,5 @@
-#ifndef FORMIMAGEVIEW_H
-#define FORMIMAGEVIEW_H
+#ifndef WIDGETIMAGEVIEW_H
+#define WIDGETIMAGEVIEW_H
 
 #include <QWidget>
 
@@ -11,19 +11,19 @@ class QResizeEvent;
 class QTimer;
 struct segdef;
 
-namespace Ui { class FormImageView; }
+namespace Ui { class WidgetImageView; }
 
 /*
  * This class implement an image viewer tied to the set of images stored in
  * ClassChip. It allows the user to move and zoom into images.
  */
-class FormImageView : public QWidget
+class WidgetImageView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FormImageView(QWidget *parent = nullptr);
-    ~FormImageView();
+    explicit WidgetImageView(QWidget *parent = nullptr);
+    ~WidgetImageView();
 
     void init(ClassChip *chip, ClassSimX *simx);
     const QImage& getImage();           // Returns the current QImage; is never NULL
@@ -46,7 +46,7 @@ signals:
     // the right mouse button over the widget. The signal includes
     // a reference to this widget, and the global position of the
     // click.
-    void contextMenuRequestedAt(FormImageView* widget, const QPoint& where);
+    void contextMenuRequestedAt(WidgetImageView* widget, const QPoint& where);
 
 public slots:
     void onRefresh();                   // Called when class chip changes image
@@ -64,7 +64,7 @@ private slots:
     void onTimeout();                   // Timer timeout handler
 
 private:
-    Ui::FormImageView *ui;
+    Ui::WidgetImageView *ui;
     ClassChip *m_chip;
     ClassSimX *m_simx;
 
@@ -105,4 +105,4 @@ private slots:
     void contextMenuRequested(const QPoint& localWhere);
 };
 
-#endif // FORMIMAGEVIEW_H
+#endif // WIDGETIMAGEVIEW_H

@@ -6,7 +6,7 @@
 namespace Ui { class FormImageOverlay; }
 
 /*
- * This class implements the overlay widget shown in the FormImageView
+ * This class implements the overlay widget shown in the WidgetImageView
  */
 class FormImageOverlay : public QWidget
 {

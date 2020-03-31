@@ -1,5 +1,5 @@
-#include "FormImageView.h"
-#include "ui_FormImageView.h"
+#include "WidgetImageView.h"
+#include "ui_WidgetImageView.h"
 #include "ClassChip.h"
 #include "ClassSimX.h"
 #include "FormImageOverlay.h"
@@ -15,9 +15,9 @@
 #include <QtGlobal>
 #include <QTimer>
 
-FormImageView::FormImageView(QWidget *parent) :
+WidgetImageView::WidgetImageView(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FormImageView),
+    ui(new Ui::WidgetImageView),
     m_image(QImage()),
     m_view_mode(Fill),
     m_mousePressed(false),
@@ -54,7 +54,7 @@ FormImageView::FormImageView(QWidget *parent) :
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
 }
 
-void FormImageView::init(ClassChip *chip, ClassSimX *simx)
+void WidgetImageView::init(ClassChip *chip, ClassSimX *simx)
 {
     m_chip = chip;
     m_simx = simx;
@@ -63,7 +63,7 @@ void FormImageView::init(ClassChip *chip, ClassSimX *simx)
     connect(m_ov, SIGNAL(actionTraces()), m_chip, SLOT(drawSegdefs()));
 }
 
-FormImageView::~FormImageView()
+WidgetImageView::~WidgetImageView()
 {
     delete ui;
 }
@@ -71,7 +71,7 @@ FormImageView::~FormImageView()
 /*
  * Timer timeout handler
  */
-void FormImageView::onTimeout()
+void WidgetImageView::onTimeout()
 {
     if (m_timer_tick)
         m_timer_tick--;
@@ -82,19 +82,19 @@ void FormImageView::onTimeout()
 // Public Methods
 //============================================================================
 
-void FormImageView::setImage(const QImage &img)
+void WidgetImageView::setImage(const QImage &img)
 {
     m_image = img;
     m_ov->setText(3, m_image.text("name"));
     update();
 }
 
-const QImage& FormImageView::getImage()
+const QImage& WidgetImageView::getImage()
 {
     return m_image;
 }
 
-void FormImageView::setZoomMode(ZoomType mode)
+void WidgetImageView::setZoomMode(ZoomType mode)
 {
     qreal sx = (qreal) width()/m_image.width();
     qreal sy = (qreal) height()/m_image.height();
@@ -129,34 +129,34 @@ void FormImageView::setZoomMode(ZoomType mode)
     setFocus();
 }
 
-void FormImageView::setZoom(double value)
+void WidgetImageView::setZoom(double value)
 {
     // Make sure that the zoom value is in the sane range
     m_scale = qBound(0.1, value, 10.0);
     setZoomMode(Value);
 }
 
-void FormImageView::moveBy(QPointF delta)
+void WidgetImageView::moveBy(QPointF delta)
 {
     m_tex -= delta;
     clampImageCoords(m_tex);
     update();
 }
 
-void FormImageView::moveTo(QPointF pos)
+void WidgetImageView::moveTo(QPointF pos)
 {
     m_tex = pos;
     clampImageCoords(m_tex);
     update();
 }
 
-void FormImageView::imageCenterH()
+void WidgetImageView::imageCenterH()
 {
     m_tex.setX(0.5);
     update();
 }
 
-void FormImageView::imageCenterV()
+void WidgetImageView::imageCenterV()
 {
     m_tex.setY(0.5);
     update();
@@ -165,7 +165,7 @@ void FormImageView::imageCenterV()
 /*
  * Open coordinate dialog and center image on user input coordinates
  */
-void FormImageView::onCoords()
+void WidgetImageView::onCoords()
 {
     bool ok;
     QString coords = QInputDialog::getText(this, "Center Image", "Enter the coordinates x,y", QLineEdit::Normal, "", &ok);
@@ -183,7 +183,7 @@ void FormImageView::onCoords()
 }
 
 // Called when class chip changes image
-void FormImageView::onRefresh()
+void WidgetImageView::onRefresh()
 {
     bool is_init = m_image.isNull(); // The very first image after init
     m_image = m_chip->getLastImage();
@@ -197,7 +197,7 @@ void FormImageView::onRefresh()
 }
 
 // Clamp the image coordinates into the range [0,1]
-void FormImageView::clampImageCoords(QPointF &tex)
+void WidgetImageView::clampImageCoords(QPointF &tex)
 {
     tex.setX(qBound(0.0, tex.x(), 1.0));
     tex.setY(qBound(0.0, tex.y(), 1.0));
@@ -205,7 +205,7 @@ void FormImageView::clampImageCoords(QPointF &tex)
 
 // Return the coordinates within the image that the view is clipped at, given
 // its position and zoom ratio. This rectangle corresponds to what the user sees.
-QRectF FormImageView::getImageView()
+QRectF WidgetImageView::getImageView()
 {
     // Point 0 is at the top-left corner; point 1 is at the bottom-right corner of the view.
     // Do the inverse map to get to the coordinates in the texture space.
@@ -230,7 +230,7 @@ QRectF FormImageView::getImageView()
 // Callbacks
 //============================================================================
 
-void FormImageView::paintEvent(QPaintEvent *)
+void WidgetImageView::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     m_viewPort = painter.viewport();
@@ -287,7 +287,7 @@ void FormImageView::paintEvent(QPaintEvent *)
     }
 }
 
-void FormImageView::calcTransform()
+void WidgetImageView::calcTransform()
 {
     int sx = m_image.width();
     int sy = m_image.height();
@@ -300,7 +300,7 @@ void FormImageView::calcTransform()
     m_invtx = m_tx.inverted();
 }
 
-void FormImageView::resizeEvent(QResizeEvent * event)
+void WidgetImageView::resizeEvent(QResizeEvent * event)
 {
     m_panelSize = event->size();
 }
@@ -309,7 +309,7 @@ void FormImageView::resizeEvent(QResizeEvent * event)
 // Mouse tracking
 //============================================================================
 
-void FormImageView::mouseMoveEvent(QMouseEvent *event)
+void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
 {
     m_mousePos = event->pos();
 
@@ -356,7 +356,7 @@ void FormImageView::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void FormImageView::mousePressEvent(QMouseEvent *event)
+void WidgetImageView::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::RightButton)
         return; // handled via customContextMenuRequested() signal
@@ -365,12 +365,12 @@ void FormImageView::mousePressEvent(QMouseEvent *event)
     m_mousePressed = true;
 }
 
-void FormImageView::mouseReleaseEvent (QMouseEvent *)
+void WidgetImageView::mouseReleaseEvent (QMouseEvent *)
 {
     m_mousePressed = false;
 }
 
-void FormImageView::wheelEvent(QWheelEvent *event)
+void WidgetImageView::wheelEvent(QWheelEvent *event)
 {
     if (event->delta() > 0)
         m_scale = m_scale * 1.2;
@@ -379,12 +379,12 @@ void FormImageView::wheelEvent(QWheelEvent *event)
     emit setZoom(m_scale);
 }
 
-void FormImageView::leaveEvent(QEvent *)
+void WidgetImageView::leaveEvent(QEvent *)
 {
     emit clearPointerData();
 }
 
-void FormImageView::keyPressEvent(QKeyEvent *event)
+void WidgetImageView::keyPressEvent(QKeyEvent *event)
 {
     bool alt = event->modifiers() & Qt::AltModifier;
     int i = -1;
@@ -420,7 +420,7 @@ void FormImageView::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void FormImageView::contextMenuRequested(const QPoint& localWhere)
+void WidgetImageView::contextMenuRequested(const QPoint& localWhere)
 {
     emit contextMenuRequestedAt(this, mapToGlobal(localWhere));
 }
@@ -431,7 +431,7 @@ void FormImageView::contextMenuRequested(const QPoint& localWhere)
  * Typing [Enter] in the empty Find dialog will re-trigger the highlight flash
  * Typing "0" will clear all highlights
  */
-void FormImageView::onFind(QString text)
+void WidgetImageView::onFind(QString text)
 {
     if (text.length() == 0)
     {

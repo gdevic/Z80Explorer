@@ -13,15 +13,15 @@
   <property name="windowTitle">
    <string>Image View</string>
   </property>
-  <widget class="FormImageView" name="pane">
+  <widget class="WidgetImageView" name="pane">
    <layout class="QGridLayout" name="layoutImage"/>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FormImageView</class>
+   <class>WidgetImageView</class>
    <extends>QWidget</extends>
-   <header>FormImageView.h</header>
+   <header>WidgetImageView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

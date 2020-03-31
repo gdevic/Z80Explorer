@@ -7,7 +7,7 @@
 #include "DockWaveform.h"
 #include "DockCommand.h"
 #include "DockImageView.h"
-#include "FormImageView.h"
+#include "WidgetImageView.h"
 #include "DockLog.h"
 
 #include <QDebug>
@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_simx = new ClassSimX(this);
 
     // Assign the central widget to show the chip image view
-    FormImageView *m_central = new FormImageView();
+    WidgetImageView *m_central = new WidgetImageView();
     setCentralWidget(m_central);
     m_central->init(m_chip, m_simx);
 
