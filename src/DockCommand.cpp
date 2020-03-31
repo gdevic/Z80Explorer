@@ -1,14 +1,14 @@
-#include "CommandWindow.h"
-#include "ui_CommandWindow.h"
+#include "DockCommand.h"
+#include "ui_DockCommand.h"
 
 #include <QtGui>
 
 /*
- * CommandWindow constructor.
+ * DockCommand constructor.
  */
-CommandWindow::CommandWindow(QWidget *parent) :
+DockCommand::DockCommand(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::CommandWindow)
+    ui(new Ui::DockCommand)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -27,9 +27,9 @@ CommandWindow::CommandWindow(QWidget *parent) :
 }
 
 /*
- * CommandWindow destructor.
+ * DockCommand destructor.
  */
-CommandWindow::~CommandWindow()
+DockCommand::~DockCommand()
 {
     delete ui;
 }
@@ -38,7 +38,7 @@ CommandWindow::~CommandWindow()
  * The event filter is installed into the textEdit object and calls this
  * function every time there is a event, including user pressed on a Return key
  */
-bool CommandWindow::eventFilter(QObject *object, QEvent *event)
+bool DockCommand::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_edit && event->type() == QEvent::KeyPress)
     {
@@ -58,7 +58,7 @@ bool CommandWindow::eventFilter(QObject *object, QEvent *event)
 /*
  * Appends text to the text window
  */
-void CommandWindow::appendText(QString str)
+void DockCommand::appendText(QString str)
 {
     m_edit->moveCursor(QTextCursor::End);
     m_edit->insertPlainText("\n" + str);

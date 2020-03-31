@@ -25,11 +25,11 @@ SOURCES += \
     src/ClassSim.cpp \
     src/ClassSimX.cpp \
     src/ClassWatch.cpp \
-    src/CommandWindow.cpp \
+    src/DockCommand.cpp \
+    src/DockLog.cpp \
     src/DockWaveform.cpp \
     src/FormImageOverlay.cpp \
     src/FormImageView.cpp \
-    src/LogWindow.cpp \
     src/MainWindow.cpp \
     src/WidgetPane.cpp \
     src/Z80_Simulator.cpp \
@@ -43,21 +43,21 @@ HEADERS += \
     src/ClassSimX.h \
     src/ClassSingleton.h \
     src/ClassWatch.h \
-    src/CommandWindow.h \
+    src/DockCommand.h \
+    src/DockLog.h \
     src/DockWaveform.h \
     src/FormImageOverlay.h \
     src/FormImageView.h \
-    src/LogWindow.h \
     src/MainWindow.h \
     src/WidgetPane.h \
     src/Z80_Simulator.h
 
 FORMS += \
-    src/CommandWindow.ui \
+    src/DockCommand.ui \
+    src/DockLog.ui \
     src/DockWaveform.ui \
     src/FormImageOverlay.ui \
     src/FormImageView.ui \
-    src/LogWindow.ui \
     src/MainWindow.ui
 
 # Default rules for deployment.

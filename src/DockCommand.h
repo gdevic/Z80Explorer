@@ -1,23 +1,23 @@
-#ifndef COMMANDWINDOW_H
-#define COMMANDWINDOW_H
+#ifndef DOCKCOMMAND_H
+#define DOCKCOMMAND_H
 
 #include <QDockWidget>
 
 class QPlainTextEdit;
 
-namespace Ui { class CommandWindow; }
+namespace Ui { class DockCommand; }
 
 /*
- * CommandWindow implements a docking window widget that contains text field where
+ * DockCommand implements a docking window widget that contains text field where
  * user can issue internal commands and read the output from these commands.
  */
-class CommandWindow : public QDockWidget
+class DockCommand : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit CommandWindow(QWidget *parent);
-    ~CommandWindow();
+    explicit DockCommand(QWidget *parent);
+    ~DockCommand();
 
 signals:
     void run(QString);
@@ -29,8 +29,8 @@ private:
     bool eventFilter(QObject *, QEvent *);
 
 private:
-    Ui::CommandWindow *ui;
+    Ui::DockCommand *ui;
     QPlainTextEdit *m_edit;
 };
 
-#endif // COMMANDWINDOW_H
+#endif // DOCKCOMMAND_H

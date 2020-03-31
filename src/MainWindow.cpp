@@ -5,9 +5,9 @@
 #include "ClassSimX.h"
 #include "ClassWatch.h"
 #include "DockWaveform.h"
-#include "CommandWindow.h"
+#include "DockCommand.h"
 #include "FormImageView.h"
-#include "LogWindow.h"
+#include "DockLog.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setDockOptions(AllowNestedDocks | AnimatedDocks | AllowTabbedDocks);
 
     // Create and dock the log window
-    m_logWindow = new LogWindow(this);
+    m_logWindow = new DockLog(this);
     addDockWidget(Qt::BottomDockWidgetArea, m_logWindow);
     QAction *actionLog = m_logWindow->toggleViewAction();
     actionLog->setShortcut(QKeySequence("F2"));
@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_menuView->addAction(actionLog);
 
     // Create and dock the cmd window
-    m_cmdWindow = new CommandWindow(this);
+    m_cmdWindow = new DockCommand(this);
     addDockWidget(Qt::BottomDockWidgetArea, m_cmdWindow);
     QAction *actionCmd = m_cmdWindow->toggleViewAction();
     actionCmd->setShortcut(QKeySequence("F12"));

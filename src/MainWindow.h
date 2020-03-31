@@ -7,8 +7,8 @@ class ClassChip;
 class ClassSim;
 class ClassSimX;
 class ClassWatch;
-class CommandWindow;
-class LogWindow;
+class DockCommand;
+class DockLog;
 
 namespace Ui { class MainWindow; }
 
@@ -39,8 +39,8 @@ private:
     ClassSim *m_sim;                    // Interface to netlist simulation code
     ClassSimX *m_simx;                  // Chip netlist simulator code
     ClassWatch *m_watch;                // Watchlist of nets to track
-    LogWindow *m_logWindow;             // Log window class and form
-    CommandWindow *m_cmdWindow;         // Command window class and form
+    DockLog *m_logWindow;               // Log window class and form
+    DockCommand *m_cmdWindow;           // Command window class and form
     QMenu *m_menuView;                  // Pointer to the "View" menu pull-down
     QMenu *m_menuWindow;                // Pointer to the "Window" menu pull-down
 };

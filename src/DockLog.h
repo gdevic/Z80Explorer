@@ -1,21 +1,21 @@
-#ifndef LOGWINDOW_H
-#define LOGWINDOW_H
+#ifndef DOCKLOG_H
+#define DOCKLOG_H
 
 #include <QDockWidget>
 
-namespace Ui { class LogWindow; }
+namespace Ui { class DockLog; }
 
 /*
- * LogWindow contains implementation of a dockable window showing
+ * DockLog contains implementation of a dockable window showing
  * application logs in a scrollable text pane.
  */
-class LogWindow : public QDockWidget
+class DockLog : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit LogWindow(QWidget *parent);
-    ~LogWindow();
+    explicit DockLog(QWidget *parent);
+    ~DockLog();
 
 public slots:
     void processNewMessage(QString, bool);  // Add a new line of log as a string message
@@ -27,7 +27,7 @@ private slots:
     void showContextMenu(const QPoint &pt); // Open a context menu
 
 private:
-    Ui::LogWindow *ui;
+    Ui::DockLog *ui;
 };
 
-#endif // LOGWINDOW_H
+#endif // DOCKLOG_H

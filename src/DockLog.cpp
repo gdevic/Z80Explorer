@@ -1,5 +1,5 @@
-#include "LogWindow.h"
-#include "ui_LogWindow.h"
+#include "DockLog.h"
+#include "ui_DockLog.h"
 #include "ClassApplog.h"
 #include "ClassSingleton.h"
 
@@ -8,11 +8,11 @@
 #include <QtGui>
 
 /*
- * LogWindow constructor.
+ * DockLog constructor.
  */
-LogWindow::LogWindow(QWidget *parent) :
+DockLog::DockLog(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::LogWindow)
+    ui(new Ui::DockLog)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -33,7 +33,7 @@ LogWindow::LogWindow(QWidget *parent) :
     QObject::connect(applog, SIGNAL(NewLogMessage(QString, bool)), this, SLOT(processNewMessage(QString, bool)));
 }
 
-LogWindow::~LogWindow()
+DockLog::~DockLog()
 {
     delete ui;
 }
@@ -41,7 +41,7 @@ LogWindow::~LogWindow()
 /*
  * Slot functions that receives log messages and display them in the log window
  */
-void LogWindow::processNewMessage(QString message, bool newLine)
+void DockLog::processNewMessage(QString message, bool newLine)
 {
     Q_UNUSED(newLine)
     ui->textEdit->appendPlainText(message);
@@ -50,7 +50,7 @@ void LogWindow::processNewMessage(QString message, bool newLine)
 /*
  * Another version of appending to a log
  */
-void LogWindow::log(const QString &message)
+void DockLog::log(const QString &message)
 {
     ui->textEdit->appendPlainText(message);
 }
@@ -58,7 +58,7 @@ void LogWindow::log(const QString &message)
 /*
  * Menu is blocked to only support copy and select-all
  */
-void LogWindow::showContextMenu(const QPoint &pt)
+void DockLog::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = new QMenu(this);
     menu->addAction("Select All", ui->textEdit, SLOT(selectAll()), QKeySequence::SelectAll);
@@ -84,7 +84,7 @@ void LogWindow::showContextMenu(const QPoint &pt)
 /*
  * Menu handler to set the max number of lines to keep
  */
-void LogWindow::onMaxLines()
+void DockLog::onMaxLines()
 {
     bool ok;
     // Get and change the number of lines that we keep in the log buffer
@@ -102,7 +102,7 @@ void LogWindow::onMaxLines()
 /*
  * Changes the log level
  */
-void LogWindow::onLogLevel()
+void DockLog::onLogLevel()
 {
     // Make sure this slot is really called by a context menu action, so it carries the data we need
     if (QAction* contextAction = qobject_cast<QAction*>(sender()))
