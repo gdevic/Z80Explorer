@@ -60,8 +60,7 @@ FORMS += \
     src/DockLog.ui \
     src/DockWaveform.ui \
     src/MainWindow.ui \
-    src/WidgetImageOverlay.ui \
-    src/WidgetImageView.ui
+    src/WidgetImageOverlay.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

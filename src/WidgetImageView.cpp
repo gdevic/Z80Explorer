@@ -1,5 +1,4 @@
 #include "WidgetImageView.h"
-#include "ui_WidgetImageView.h"
 #include "ClassChip.h"
 #include "ClassSimX.h"
 #include "WidgetImageOverlay.h"
@@ -17,14 +16,12 @@
 
 WidgetImageView::WidgetImageView(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::WidgetImageView),
     m_image(QImage()),
     m_view_mode(Fill),
     m_mousePressed(false),
     m_highlight_segment(nullptr),
     m_highlight_box(nullptr)
 {
-    ui->setupUi(this);
     setZoomMode(Fit);
     setMouseTracking(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -65,7 +62,6 @@ void WidgetImageView::init(ClassChip *chip, ClassSimX *simx)
 
 WidgetImageView::~WidgetImageView()
 {
-    delete ui;
 }
 
 /*
