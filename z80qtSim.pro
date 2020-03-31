@@ -2,6 +2,8 @@ QT += core gui widgets xml
 
 CONFIG += c++11
 
+INCLUDEPATH += src
+
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -24,11 +26,12 @@ SOURCES += \
     src/ClassSimX.cpp \
     src/ClassWatch.cpp \
     src/CommandWindow.cpp \
+    src/DockWaveform.cpp \
     src/FormImageOverlay.cpp \
     src/FormImageView.cpp \
-    src/FormWaveView.cpp \
     src/LogWindow.cpp \
     src/MainWindow.cpp \
+    src/WidgetPane.cpp \
     src/Z80_Simulator.cpp \
     src/main.cpp
 
@@ -41,19 +44,19 @@ HEADERS += \
     src/ClassSingleton.h \
     src/ClassWatch.h \
     src/CommandWindow.h \
+    src/DockWaveform.h \
     src/FormImageOverlay.h \
     src/FormImageView.h \
-    src/FormWaveView.h \
     src/LogWindow.h \
     src/MainWindow.h \
+    src/WidgetPane.h \
     src/Z80_Simulator.h
 
 FORMS += \
     src/CommandWindow.ui \
-    src/FormGraphWindow.ui \
+    src/DockWaveform.ui \
     src/FormImageOverlay.ui \
     src/FormImageView.ui \
-    src/FormWaveView.ui \
     src/LogWindow.ui \
     src/MainWindow.ui
 

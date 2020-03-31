@@ -4,9 +4,9 @@
 #include "ClassSim.h"
 #include "ClassSimX.h"
 #include "ClassWatch.h"
+#include "DockWaveform.h"
 #include "CommandWindow.h"
 #include "FormImageView.h"
-#include "FormWaveView.h"
 #include "LogWindow.h"
 
 #include <QDebug>
@@ -177,15 +177,9 @@ void MainWindow::onNewImageView()
  */
 void MainWindow::onNewWaveformView()
 {
-    QDockWidget *dock = new QDockWidget("Waveform", this);
-    FormWaveView *w = new FormWaveView(dock, m_sim);
-    dock->setWidget(w);
-
-    addDockWidget(Qt::BottomDockWidgetArea, dock);
-    dock->setFloating(true);
-    dock->resize(300, 300);
-
-    //w->onRefresh();
+    DockWaveform *w = new DockWaveform(this);
+    w->setFloating(true);
+    w->resize(1000, 500);
     w->show();
 }
 
