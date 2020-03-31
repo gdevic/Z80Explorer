@@ -22,9 +22,10 @@ class FormImageView : public QWidget
     Q_OBJECT
 
 public:
-    explicit FormImageView(QWidget *parent, ClassChip *chip, ClassSimX *simx);
+    explicit FormImageView(QWidget *parent = nullptr);
     ~FormImageView();
 
+    void init(ClassChip *chip, ClassSimX *simx);
     const QImage& getImage();           // Returns the current QImage; is never NULL
     QRectF getImageView();              // Return the normalized viewport in the image space
     enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes

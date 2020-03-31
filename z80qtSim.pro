@@ -26,6 +26,7 @@ SOURCES += \
     src/ClassSimX.cpp \
     src/ClassWatch.cpp \
     src/DockCommand.cpp \
+    src/DockImageView.cpp \
     src/DockLog.cpp \
     src/DockWaveform.cpp \
     src/FormImageOverlay.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     src/ClassSingleton.h \
     src/ClassWatch.h \
     src/DockCommand.h \
+    src/DockImageView.h \
     src/DockLog.h \
     src/DockWaveform.h \
     src/FormImageOverlay.h \
@@ -54,6 +56,7 @@ HEADERS += \
 
 FORMS += \
     src/DockCommand.ui \
+    src/DockImageView.ui \
     src/DockLog.ui \
     src/DockWaveform.ui \
     src/FormImageOverlay.ui \

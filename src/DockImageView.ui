@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DockImageView</class>
+ <widget class="QDockWidget" name="DockImageView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>780</width>
+    <height>579</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Image View</string>
+  </property>
+  <widget class="FormImageView" name="pane">
+   <layout class="QGridLayout" name="layoutImage"/>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FormImageView</class>
+   <extends>QWidget</extends>
+   <header>FormImageView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

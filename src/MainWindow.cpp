@@ -6,6 +6,7 @@
 #include "ClassWatch.h"
 #include "DockWaveform.h"
 #include "DockCommand.h"
+#include "DockImageView.h"
 #include "FormImageView.h"
 #include "DockLog.h"
 
@@ -33,8 +34,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create the chip netlist simulator code class
     m_simx = new ClassSimX(this);
 
-    // Create a central widget to show a chip image
-    setCentralWidget(new FormImageView(this, m_chip, m_simx));
+    // Assign the central widget to show the chip image view
+    FormImageView *m_central = new FormImageView();
+    setCentralWidget(m_central);
+    m_central->init(m_chip, m_simx);
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");
@@ -160,15 +163,9 @@ void MainWindow::loadResources()
  */
 void MainWindow::onNewImageView()
 {
-    QDockWidget *dock = new QDockWidget("Image View", this);
-    FormImageView *w = new FormImageView(dock, m_chip, m_simx);
-    dock->setWidget(w);
-
-    addDockWidget(Qt::BottomDockWidgetArea, dock);
-    dock->setFloating(true);
-    dock->resize(300, 300);
-
-    w->onRefresh();
+    DockImageView *w = new DockImageView(this, m_chip, m_simx);
+    w->setFloating(true);
+    w->resize(800, 800);
     w->show();
 }
 

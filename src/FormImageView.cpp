@@ -15,15 +15,9 @@
 #include <QtGlobal>
 #include <QTimer>
 
-//============================================================================
-// Class constructor and destructor
-//============================================================================
-
-FormImageView::FormImageView(QWidget *parent, ClassChip *chip, ClassSimX *simx) :
+FormImageView::FormImageView(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormImageView),
-    m_chip(chip),
-    m_simx(simx),
     m_image(QImage()),
     m_view_mode(Fill),
     m_mousePressed(false),
@@ -40,7 +34,6 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip, ClassSimX *simx) 
     // Connect the view's internal intent to move its image (for example,
     // when the user drags it with a mouse)
     connect(this, SIGNAL(imageMoved(QPointF)), this, SLOT(moveBy(QPointF)));
-    connect(m_chip, SIGNAL(refresh()), this, SLOT(onRefresh()));
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
 
     // Create and set the image overlay widget
@@ -57,9 +50,17 @@ FormImageView::FormImageView(QWidget *parent, ClassChip *chip, ClassSimX *simx) 
 
     connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
-    connect(m_ov, SIGNAL(actionTraces()), m_chip, SLOT(drawSegdefs()));
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
+}
+
+void FormImageView::init(ClassChip *chip, ClassSimX *simx)
+{
+    m_chip = chip;
+    m_simx = simx;
+
+    connect(m_chip, SIGNAL(refresh()), this, SLOT(onRefresh()));
+    connect(m_ov, SIGNAL(actionTraces()), m_chip, SLOT(drawSegdefs()));
 }
 
 FormImageView::~FormImageView()
