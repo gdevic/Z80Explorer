@@ -35,6 +35,16 @@
         <height>16777215</height>
        </size>
       </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(75, 75, 75);
+color: rgb(255, 255, 255);</string>
+      </property>
+      <attribute name="headerVisible">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="headerDefaultSectionSize">
+       <number>100</number>
+      </attribute>
       <column>
        <property name="text">
         <string>Name</string>
@@ -57,6 +67,9 @@
     </item>
     <item>
      <widget class="QScrollArea" name="scrollArea">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(74, 74, 74);</string>
+      </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOn</enum>
       </property>
