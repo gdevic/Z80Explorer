@@ -33,6 +33,7 @@ SOURCES += \
     src/MainWindow.cpp \
     src/WidgetImageOverlay.cpp \
     src/WidgetImageView.cpp \
+    src/WidgetToolbar.cpp \
     src/WidgetWaveform.cpp \
     src/Z80_Simulator.cpp \
     src/main.cpp
@@ -53,6 +54,7 @@ HEADERS += \
     src/MainWindow.h \
     src/WidgetImageOverlay.h \
     src/WidgetImageView.h \
+    src/WidgetToolbar.h \
     src/WidgetWaveform.h \
     src/Z80_Simulator.h
 
@@ -63,7 +65,8 @@ FORMS += \
     src/DockLog.ui \
     src/DockWaveform.ui \
     src/MainWindow.ui \
-    src/WidgetImageOverlay.ui
+    src/WidgetImageOverlay.ui \
+    src/WidgetToolbar.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
