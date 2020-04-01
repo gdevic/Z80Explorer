@@ -22,6 +22,9 @@ public: // API
     ClassSimX  &getSimx()  { return m_simx; }   // Returns a reference to the simx class
     ClassWatch &getWatch() { return m_watch; }  // Returns a reference to the watch class
 
+public slots:
+    void doRunsim(uint ticks);  // Controls the simulation
+
 private:
     ClassChip  m_chip;      // Global chip resource class
     ClassSimX  m_simx;      // Global simulator simx class

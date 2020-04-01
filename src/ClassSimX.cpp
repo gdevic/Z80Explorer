@@ -5,6 +5,9 @@
 #include <QDir>
 #include <QTimer>
 
+#include <QFuture>
+#include <QtConcurrent>
+
 #define MAX_TRANSDEFS 9000 // Max number of transistors stored in m_transdefs array
 #define MAX_NET 3600 // Max number of nets
 
@@ -12,6 +15,48 @@ ClassSimX::ClassSimX():
     m_transdefs(MAX_TRANSDEFS),
     m_netlist(MAX_NET)
 {
+    m_timer = new QTimer(this);
+    m_timer->setInterval(500);
+    connect(m_timer, &QTimer::timeout, this, &ClassSimX::onTimeout);
+}
+
+void ClassSimX::onTimeout()
+{
+    z80state z80;
+    readStatus(z80);    
+    qDebug() << dumpStatus(z80).split("\n") << (m_cyclecnt / 2.0) / (m_time.elapsed() / 1000.0) << " Hz";
+    if (m_runcount <= 0)
+        m_timer->stop();
+}
+
+void ClassSimX::doRunsim(uint ticks)
+{
+    if (!m_runcount && !ticks) // For Stop signal (ticks=0), do nothing if the sim thread is not running
+        return;
+    if (m_runcount) // If the sim thread is already running, simply set the new tick counter
+        m_runcount = ticks;
+    else
+    {
+        if (ticks == 1) // Optimize for the special case of a single-step, makes the interaction more responsive
+        {
+            halfCycle();
+            onTimeout();
+        }
+        else
+        {
+            m_runcount = ticks; // If the sim thread is not running, start it using the new tick counter
+            m_timer->start();
+            m_time.start();
+            m_cyclecnt = 0;
+            // Code in this block will run in another thread
+            QFuture<void> future = QtConcurrent::run([=]()
+            {
+                while (--m_runcount >= 0)
+                    halfCycle();
+                m_runcount = 0;
+            });
+        }
+    }
 }
 
 void ClassSimX::initChip()
@@ -45,8 +90,9 @@ void ClassSimX::initChip()
     set(1, "reset");
 }
 
-void ClassSimX::halfCycle()
+inline void ClassSimX::halfCycle()
 {
+    m_cyclecnt++;
     set(!readBit("clk"), "clk");
 }
 

@@ -3,6 +3,7 @@
 
 #include <QHash>
 #include <QObject>
+#include <QTime>
 #include <QVector>
 
 class QTimer;
@@ -61,6 +62,12 @@ public:
     bool getNetState(net_t i)           // Returns the net logic state
         { return m_netlist[i].state; }
 
+public slots:
+    void doRunsim(uint ticks);          // Controls the simulation
+
+private slots:
+    void onTimeout();                   // Dump z80 state every 500ms when running the simulation
+
 private:
     bool loadNodenames(QString dir);
     bool loadTransdefs(QString dir);
@@ -96,7 +103,10 @@ private:
     QVector<net_t> group;
     net_t ngnd {}, npwr {};             // 'vss' and 'vcc' nets (expected values: 1 and 2)
 
-    QTimer *m_timer;                    // XXX Temp clk timer
+    QTime m_time;                       // Calculates elapsed time during a simulation thread run
+    QTimer *m_timer;                    // Timer to dump z80 state every 500ms when running the simulation
+    QAtomicInt m_runcount {};           // Simulation thread down-counts this to exit
+    QAtomicInt m_cyclecnt {};           // Simulation cycle count (resets on each runstart event)
 };
 
 #endif // CLASSSIMX_H

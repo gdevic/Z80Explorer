@@ -16,11 +16,6 @@ public:
     explicit WidgetToolbar(QWidget *parent = nullptr);
     ~WidgetToolbar();
 
-private slots:
-    void onRun();
-    void onStop();
-    void onStep();
-
 private:
     Ui::WidgetToolbar *ui;
 };

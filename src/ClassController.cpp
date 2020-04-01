@@ -49,3 +49,11 @@ bool ClassController::init()
 
     return true;
 }
+
+/*
+ * Controls the simulation
+ */
+void ClassController::doRunsim(uint ticks)
+{
+    emit m_simx.doRunsim(ticks);
+}
