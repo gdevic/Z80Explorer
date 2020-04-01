@@ -11,7 +11,7 @@ class ClassSim : public QObject
 {
     Q_OBJECT
 public:
-    ClassSim(QObject *parent);
+    ClassSim() {};
     bool loadSimResources(QString dir); // Loads sim resources (netlist)
 
 public slots:

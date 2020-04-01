@@ -4,10 +4,6 @@
 #include <QDebug>
 #include <QDir>
 
-ClassSim::ClassSim(QObject *parent) : QObject(parent)
-{
-}
-
 /*
  * Loads sim resources (netlist)
  */

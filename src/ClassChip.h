@@ -30,7 +30,7 @@ class ClassChip: public QObject
     Q_OBJECT
 
 public:
-    ClassChip(QObject *parent);
+    ClassChip() {};
 
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index

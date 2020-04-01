@@ -22,6 +22,7 @@ DEFINES += _CRT_SECURE_NO_WARNINGS
 SOURCES += \
     src/ClassApplog.cpp \
     src/ClassChip.cpp \
+    src/ClassController.cpp \
     src/ClassSim.cpp \
     src/ClassSimX.cpp \
     src/ClassWatch.cpp \
@@ -41,6 +42,7 @@ SOURCES += \
 HEADERS += \
     src/ClassApplog.h \
     src/ClassChip.h \
+    src/ClassController.h \
     src/ClassException.h \
     src/ClassSim.h \
     src/ClassSimX.h \

@@ -3,10 +3,6 @@
 
 #include <QMainWindow>
 
-class ClassChip;
-class ClassSim;
-class ClassSimX;
-class ClassWatch;
 class DockCommand;
 class DockLog;
 
@@ -24,10 +20,6 @@ public:
     ~MainWindow();
 
 private slots:
-    bool loadResources();               // Loads application resources
-    void loadResourcesOrClose()         // Initial resource load
-        { if (!loadResources()) close(); }
-    void onOpenChipDir();               // Open directory with chip resources
     void onNewImageView();              // Open a new view to the chip data
     void onNewWaveformView();           // Open a new view to the waveforms
     void onEditWatchlist();             // Edits watchlist
@@ -39,10 +31,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    ClassChip *m_chip;                  // Holds chip information
-    ClassSim *m_sim;                    // Interface to netlist simulation code
-    ClassSimX *m_simx;                  // Chip netlist simulator code
-    ClassWatch *m_watch;                // Watchlist of nets to track
     DockLog *m_logWindow;               // Log window class and form
     DockCommand *m_cmdWindow;           // Command window class and form
     QMenu *m_menuView;                  // Pointer to the "View" menu pull-down

@@ -1,20 +1,15 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "ClassChip.h"
-#include "ClassSim.h"
-#include "ClassSimX.h"
-#include "ClassWatch.h"
+#include "ClassController.h"
 #include "DialogEditWatchlist.h"
 #include "DockWaveform.h"
 #include "DockCommand.h"
 #include "DockImageView.h"
-#include "WidgetImageView.h"
 #include "DockLog.h"
 
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QTimer>
 #include <QSettings>
 #include <QCloseEvent>
 
@@ -24,20 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Create our list of nets to track
-    m_watch = new ClassWatch(this);
-
-    // Create interface to the simulation code
-    m_sim = new ClassSim(this);
-
-    // Create the main chip class
-    m_chip = new ClassChip(this);
-
-    // Create the chip netlist simulator code class
-    m_simx = new ClassSimX(this);
-
     // Initialize image view that is embedded within the central pane
-    ui->widgetImageView->init(m_chip, m_simx);
+    ui->widgetImageView->init();
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");
@@ -69,8 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_cmdWindow->hide();
 
     // Connect the rest of the menu actions...
-    connect(ui->actionOpenChipDir, SIGNAL(triggered()), this, SLOT(onOpenChipDir()));
-    connect(ui->actionReload, SIGNAL(triggered()), this, SLOT(loadResources()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
@@ -78,11 +59,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSaveWatchlistAs, SIGNAL(triggered()), this, SLOT(onSaveWatchlistAs()));
     connect(ui->actionSaveWatchlist, SIGNAL(triggered()), this, SLOT(onSaveWatchlist()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
-
-    // As soon as the GUI becomes idle, load chip resources
-    // This app is RAII, it needs resources to work:
-    // https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization
-    QTimer::singleShot(0, this, SLOT(loadResourcesOrClose()));
 }
 
 /*
@@ -111,78 +87,11 @@ void MainWindow::onExit()
 }
 
 /*
- * Handle menu item to open directory with chip resources
- */
-void MainWindow::onOpenChipDir()
-{
-    // Prompts the user to select the chip resource folder
-    QString fileName = QFileDialog::getOpenFileName(this, "Select chip resource folder", "", "Images (*.png)");
-    if (!fileName.isEmpty())
-    {
-        QString path = QFileInfo(fileName).path();
-        if (m_chip->loadChipResources(path))
-        {
-            QSettings settings;
-            settings.setValue("ChipResources", path);
-        }
-        else
-            QMessageBox::critical(this, "Error", "Selected folder does not contain expected chip resources");
-    }
-}
-
-/*
- * Loads application resources
- */
-bool MainWindow::loadResources()
-{
-    QSettings settings;
-
-    // Load last recently used list of watches
-    QString file = settings.value("WatchlistFile", "").toString();
-    m_watch->loadWatchlist(file);
-
-    QString path = settings.value("ChipResources", QDir::currentPath()).toString();
-    while (!m_chip->loadChipResources(path))
-    {
-        // Prompts the user to select the chip resource folder
-        QString fileName = QFileDialog::getOpenFileName(this, "Select chip resource folder", "", "Images (*.png)");
-        if (!fileName.isEmpty())
-            path = QFileInfo(fileName).path();
-        else
-            return false;
-    }
-    settings.setValue("ChipResources", path);
-
-    while (!m_sim->loadSimResources(path))
-    {
-        // Prompts the user to select the chip resource folder
-        QString fileName = QFileDialog::getOpenFileName(this, "Select netlist file", "", "Netlist (*.netlist)");
-        if (!fileName.isEmpty())
-            path = QFileInfo(fileName).path();
-        else
-            return false;
-    }
-    settings.setValue("ChipResources", path);
-
-    if (!m_simx->loadResources(path))
-    {
-        // Prompts the user to select the chip resource folder
-        QString fileName = QFileDialog::getOpenFileName(this, "Select simX resource folder", "", "Javascript (*.js)");
-        if (!fileName.isEmpty())
-            path = QFileInfo(fileName).path();
-        else
-            return false;
-    }
-    settings.setValue("ChipResources", path);
-    return true;
-}
-
-/*
  * Handle menu item to create a new image view
  */
 void MainWindow::onNewImageView()
 {
-    DockImageView *w = new DockImageView(this, m_chip, m_simx);
+    DockImageView *w = new DockImageView(this);
     w->setFloating(true);
     w->resize(800, 800);
     w->show();
@@ -202,10 +111,10 @@ void MainWindow::onNewWaveformView()
 void MainWindow::onEditWatchlist()
 {
     DialogEditWatchlist dlg(this);
-    dlg.setNodeList(m_chip->getNodenames());
-    dlg.setWatchlist(m_watch->getWatchlist());
+    dlg.setNodeList(::controller.getChip().getNodenames());
+    dlg.setWatchlist(::controller.getWatch().getWatchlist());
     if (dlg.exec()==QDialog::Accepted)
-        m_watch->setWatchlist(dlg.getWatchlist());
+        ::controller.getWatch().setWatchlist(dlg.getWatchlist());
 }
 
 void MainWindow::onLoadWatchlist()
@@ -216,7 +125,7 @@ void MainWindow::onLoadWatchlist()
     QString fileName = QFileDialog::getOpenFileName(this, "Select watchlist file to load", defName, "watchlist (*.wlist)");
     if (!fileName.isEmpty())
     {
-        if (m_watch->loadWatchlist(fileName))
+        if (::controller.getWatch().loadWatchlist(fileName))
         {
             QSettings settings;
             settings.setValue("WatchlistFile", fileName);
@@ -232,7 +141,7 @@ void MainWindow::onSaveWatchlistAs()
     QString fileName = QFileDialog::getSaveFileName(this, "Save watchlist file", "", "watchlist (*.wlist)");
     if (!fileName.isEmpty())
     {
-        if (m_watch->saveWatchlist(fileName))
+        if (::controller.getWatch().saveWatchlist(fileName))
         {
             QSettings settings;
             settings.setValue("WatchlistFile", fileName);
@@ -246,6 +155,6 @@ void MainWindow::onSaveWatchlist()
 {
     QSettings settings;
     QString fileName = settings.value("WatchlistFile", "watchlist.wlist").toString();
-    if (!m_watch->saveWatchlist(fileName))
+    if (!::controller.getWatch().saveWatchlist(fileName))
         QMessageBox::critical(this, "Error", "Unable to save watchlist file " + fileName);
 }

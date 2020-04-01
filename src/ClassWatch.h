@@ -21,7 +21,8 @@ class ClassWatch : public QObject
 {
     Q_OBJECT
 public:
-    explicit ClassWatch(QObject *parent);
+    ClassWatch() {};
+
     bool loadWatchlist(QString name);   // Loads a watchlist
     bool saveWatchlist(QString name);   // Saves the current watchlist
     QStringList getWatchlist();         // Returns the list of net names in the watchlist

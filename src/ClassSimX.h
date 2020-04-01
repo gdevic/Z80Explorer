@@ -1,8 +1,8 @@
 #ifndef CLASSSIMX_H
 #define CLASSSIMX_H
 
-#include <QObject>
 #include <QHash>
+#include <QObject>
 #include <QVector>
 
 class QTimer;
@@ -53,7 +53,7 @@ class ClassSimX : public QObject
 {
     Q_OBJECT
 public:
-    explicit ClassSimX(QObject *parent);
+    explicit ClassSimX();
     bool loadResources(QString dir);
     void initChip();
     net_t getNetlistCount()             // Returns the number of nets in the netlist

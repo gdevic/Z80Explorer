@@ -8,7 +8,7 @@
 #define MAX_TRANSDEFS 9000 // Max number of transistors stored in m_transdefs array
 #define MAX_NET 3600 // Max number of nets
 
-ClassSimX::ClassSimX(QObject *parent) : QObject(parent),
+ClassSimX::ClassSimX():
     m_transdefs(MAX_TRANSDEFS),
     m_netlist(MAX_NET)
 {

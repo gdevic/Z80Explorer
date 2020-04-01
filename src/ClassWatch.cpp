@@ -1,11 +1,7 @@
 #include "ClassWatch.h"
 
-#include <QFile>
 #include <QDataStream>
-
-ClassWatch::ClassWatch(QObject *parent) : QObject(parent)
-{
-}
+#include <QFile>
 
 /*
  * Returns the watch of a given name or nullptr

@@ -20,11 +20,6 @@ static const QStringList files =
     { "vias_vcc_gnd" },
 };
 
-ClassChip::ClassChip(QObject *parent) :
-    QObject(parent)
-{
-}
-
 /*
  * Attempts to load all chip resource that we expect to have
  */

@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "ClassApplog.h"
+#include "ClassController.h"
 #include "ClassSingleton.h"
 
 #include <QApplication>
@@ -10,6 +11,7 @@
 // Global objects
 MainWindow *mainWindow = nullptr; // Window: main window class
 CAppLogHandler *applog = nullptr; // Application logging subsystem
+ClassController controller {}; // Application-wide controller class
 
 /*
  * Handler for both Qt messages and application messages.
@@ -115,26 +117,32 @@ int main(int argc, char *argv[])
         // Install the message hook into the log window so we can use qDebug, etc.
         qInstallMessageHandler(appLogMsgHandler);
 
-        // Create main application window
-        mainWindow = new MainWindow();
+        // Initialize the controller object outside the constructor
+        if (::controller.init())
+        {
+            // Create main application window
+            mainWindow = new MainWindow();
 
-        // Load and set main window location and size
-        // Include also all docking windows location, size and docking status
-        mainWindow->restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
-        mainWindow->restoreState(settings.value("MainWindow/State").toByteArray());
+            // Load and set main window location and size
+            // Include also all docking windows location, size and docking status
+            mainWindow->restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
+            mainWindow->restoreState(settings.value("MainWindow/State").toByteArray());
 
-        // Show the main window
-        mainWindow->show();
+            // Show the main window
+            mainWindow->show();
 
-        // Run the application main code loop
-        retCode = a.exec();
+            // Run the application main code loop
+            retCode = a.exec();
 
-        // Save window configuration after the main application finished executing
-        // Include also all docking windows location, size and docking status
-        settings.setValue("MainWindow/State", mainWindow->saveState());
-        settings.setValue("MainWindow/Geometry", mainWindow->saveGeometry());
+            // Save window configuration after the main application finished executing
+            // Include also all docking windows location, size and docking status
+            settings.setValue("MainWindow/State", mainWindow->saveState());
+            settings.setValue("MainWindow/Geometry", mainWindow->saveGeometry());
 
-        delete mainWindow;
+            delete mainWindow;
+        }
+        else
+            QMessageBox::critical(0, "Error", "Error initializing app controller!");
     }
     catch(std::exception& e)
     {

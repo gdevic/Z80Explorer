@@ -3,9 +3,6 @@
 
 #include <QDockWidget>
 
-class ClassChip;
-class ClassSimX;
-
 namespace Ui { class DockImageView; }
 
 /*
@@ -16,7 +13,7 @@ class DockImageView : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit DockImageView(QWidget *parent, ClassChip *chip, ClassSimX *simx);
+    explicit DockImageView(QWidget *parent);
     ~DockImageView();
 
 private:

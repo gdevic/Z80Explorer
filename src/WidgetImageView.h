@@ -3,12 +3,7 @@
 
 #include <QWidget>
 
-class ClassChip;
-class ClassSimX;
 class WidgetImageOverlay;
-class QGridLayout;
-class QResizeEvent;
-class QTimer;
 struct segdef;
 
 namespace Ui { class WidgetImageView; }
@@ -25,7 +20,7 @@ public:
     explicit WidgetImageView(QWidget *parent = nullptr);
     ~WidgetImageView();
 
-    void init(ClassChip *chip, ClassSimX *simx);
+    void init();
     const QImage& getImage();           // Returns the current QImage; is never NULL
     QRectF getImageView();              // Return the normalized viewport in the image space
     enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes
@@ -65,8 +60,6 @@ private slots:
 
 private:
     Ui::WidgetImageView *ui;
-    ClassChip *m_chip;
-    ClassSimX *m_simx;
 
     QImage  m_image;                    // Current image
     QSize   m_panelSize;                // View panel size, drawable area

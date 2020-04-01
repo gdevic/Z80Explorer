@@ -1,17 +1,14 @@
 #include "WidgetImageView.h"
 #include "ClassChip.h"
+#include "ClassController.h"
 #include "ClassSimX.h"
 #include "WidgetImageOverlay.h"
 
 #include <QDebug>
-#include <QGridLayout>
 #include <QInputDialog>
 #include <QPainter>
 #include <QRegularExpression>
 #include <QResizeEvent>
-#include <QRgb>
-#include <QSpacerItem>
-#include <QtGlobal>
 #include <QTimer>
 
 WidgetImageView::WidgetImageView(QWidget *parent) :
@@ -51,13 +48,11 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
 }
 
-void WidgetImageView::init(ClassChip *chip, ClassSimX *simx)
+void WidgetImageView::init()
 {
-    m_chip = chip;
-    m_simx = simx;
-
-    connect(m_chip, SIGNAL(refresh()), this, SLOT(onRefresh()));
-    connect(m_ov, SIGNAL(actionTraces()), m_chip, SLOT(drawSegdefs()));
+    connect(&::controller.getChip(), SIGNAL(refresh()), this, SLOT(onRefresh()));
+    connect(m_ov, SIGNAL(actionTraces()), &::controller.getChip(), SLOT(drawSegdefs()));
+    onRefresh();
 }
 
 WidgetImageView::~WidgetImageView()
@@ -182,13 +177,14 @@ void WidgetImageView::onCoords()
 void WidgetImageView::onRefresh()
 {
     bool is_init = m_image.isNull(); // The very first image after init
-    m_image = m_chip->getLastImage();
+    m_image = ::controller.getChip().getLastImage();
     m_ov->setText(3, m_image.text("name"));
     update();
     if (is_init)
     {
-        m_ov->setLayerNames(m_chip->getLayerNames());
-        setZoomMode(Fit);
+        m_ov->setLayerNames(::controller.getChip().getLayerNames());
+        m_scale = 0.2;
+        setZoomMode(Value);
     }
 }
 
@@ -270,14 +266,14 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
     painter.setCompositionMode(QPainter::CompositionMode_Plus);
 
-    for (uint i=3; i<m_simx->getNetlistCount(); i++)
+    for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
     {
         if (i==3) // After painting Vcc, this is the default brush
             painter.setBrush(QColor(255, 0, 255));
 
-        if (m_simx->getNetState(i))
+        if (::controller.getSimx().getNetState(i))
         {
-            for (auto path : m_chip->getSegment(i)->paths)
+            for (auto path : ::controller.getChip().getSegment(i)->paths)
                 painter.drawPath(path);
         }
     }
@@ -331,16 +327,16 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             QRgb imageColor = m_image.pixel(imageCoords);
             emit pointerData(imageCoords.x(), imageCoords.y(), qRed(imageColor), qGreen(imageColor), qBlue(imageColor));
 
-            QList<int> nodes = m_chip->getNodesAt(imageCoords.x(), imageCoords.y());
+            QList<int> nodes = ::controller.getChip().getNodesAt(imageCoords.x(), imageCoords.y());
             QString s;
             for (int &i : nodes)
                 s.append(QString::number(i)).append(',');
-            QStringList trans = m_chip->getTransistorsAt(imageCoords.x(), imageCoords.y());
+            QStringList trans = ::controller.getChip().getTransistorsAt(imageCoords.x(), imageCoords.y());
             for (QString name : trans)
                 s.append(name).append(',');
             m_ov->setText(1, s);
 
-            QStringList names = m_chip->getNodenamesFromNodes(nodes);
+            QStringList names =::controller.getChip().getNodenamesFromNodes(nodes);
             m_ov->setText(2, names.join(','));
         }
         else
@@ -404,12 +400,12 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         {
             QPainter painter(&m_image);
             painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
-            painter.drawImage(0,0, m_chip->getImage(i));
+            painter.drawImage(0,0, ::controller.getChip().getImage(i));
             painter.end();
         }
         else // Simple image view
         {
-            m_image = m_chip->getImage(i); // Creates a shallow image copy
+            m_image = ::controller.getChip().getImage(i); // Creates a shallow image copy
             m_ov->setText(3, m_image.text("name"));
         }
         update();
@@ -444,7 +440,7 @@ void WidgetImageView::onFind(QString text)
     }
     if (text.startsWith(QChar('t'))) // Search the transistors by their number
     {
-        const transdef *trans = m_chip->getTrans(text);
+        const transdef *trans = ::controller.getChip().getTrans(text);
         if (trans)
         {
             m_highlight_box = &trans->box;
@@ -462,7 +458,7 @@ void WidgetImageView::onFind(QString text)
         uint nodenum = text.toUInt(&ok);
         if (ok)
         {
-            const segdef *seg = m_chip->getSegment(nodenum);
+            const segdef *seg = ::controller.getChip().getSegment(nodenum);
             if (seg)
             {
                 m_highlight_segment = seg;
