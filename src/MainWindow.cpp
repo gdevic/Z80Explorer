@@ -80,7 +80,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
 
     // As soon as the GUI becomes idle, load chip resources
-    QTimer::singleShot(0, this, SLOT(loadResources()));
+    // This app is RAII, it needs resources to work:
+    // https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization
+    QTimer::singleShot(0, this, SLOT(loadResourcesOrClose()));
 }
 
 /*
@@ -131,7 +133,7 @@ void MainWindow::onOpenChipDir()
 /*
  * Loads application resources
  */
-void MainWindow::loadResources()
+bool MainWindow::loadResources()
 {
     QSettings settings;
 
@@ -146,6 +148,8 @@ void MainWindow::loadResources()
         QString fileName = QFileDialog::getOpenFileName(this, "Select chip resource folder", "", "Images (*.png)");
         if (!fileName.isEmpty())
             path = QFileInfo(fileName).path();
+        else
+            return false;
     }
     settings.setValue("ChipResources", path);
 
@@ -155,6 +159,8 @@ void MainWindow::loadResources()
         QString fileName = QFileDialog::getOpenFileName(this, "Select netlist file", "", "Netlist (*.netlist)");
         if (!fileName.isEmpty())
             path = QFileInfo(fileName).path();
+        else
+            return false;
     }
     settings.setValue("ChipResources", path);
 
@@ -164,8 +170,11 @@ void MainWindow::loadResources()
         QString fileName = QFileDialog::getOpenFileName(this, "Select simX resource folder", "", "Javascript (*.js)");
         if (!fileName.isEmpty())
             path = QFileInfo(fileName).path();
+        else
+            return false;
     }
     settings.setValue("ChipResources", path);
+    return true;
 }
 
 /*

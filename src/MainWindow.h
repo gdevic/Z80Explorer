@@ -24,7 +24,9 @@ public:
     ~MainWindow();
 
 private slots:
-    void loadResources();               // Loads application resources
+    bool loadResources();               // Loads application resources
+    void loadResourcesOrClose()         // Initial resource load
+        { if (!loadResources()) close(); }
     void onOpenChipDir();               // Open directory with chip resources
     void onNewImageView();              // Open a new view to the chip data
     void onNewWaveformView();           // Open a new view to the waveforms

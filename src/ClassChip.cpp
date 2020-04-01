@@ -16,8 +16,8 @@ static const QStringList files =
     { "vias" },
     { "ions" },
     { "pads" },
-    { "metal_VCC_GND" },
-    { "vias_VCC_GND" },
+    { "metal_vcc_gnd" },
+    { "vias_vcc_gnd" },
 };
 
 ClassChip::ClassChip(QObject *parent) :
@@ -55,7 +55,7 @@ bool ClassChip::loadImages(QString dir)
     m_img.clear();
     for (auto image : files)
     {
-        QString png_file = dir + "/Z80_" + image + ".png";
+        QString png_file = dir + "/z80_" + image + ".png";
         qInfo() << "Loading " + png_file;
         e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
         if (img.load(png_file))

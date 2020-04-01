@@ -7,6 +7,7 @@
 // Ported to Linux/g++ by Dave Banks 29.8.2018
 
 #include "Z80_Simulator.h"
+#include <string.h>
 #include <algorithm>
 #include <vector>
 
