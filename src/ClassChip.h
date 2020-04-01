@@ -36,6 +36,7 @@ public:
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
     QList<int> getNodesAt(int x, int y);
+    const QStringList getNodenames() { return m_nodenames.values(); }
     const QStringList getTransistorsAt(int x, int y);
     const QStringList getNodenamesFromNodes(QList<int> nodes);
     const QStringList getLayerNames();  // Returns a list of layer / image names

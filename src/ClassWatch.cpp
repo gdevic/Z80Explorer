@@ -8,6 +8,49 @@ ClassWatch::ClassWatch(QObject *parent) : QObject(parent)
 }
 
 /*
+ * Returns the watch of a given name or nullptr
+ */
+watch *ClassWatch::find(QString name)
+{
+    for (auto &item : m_watchlist)
+        if (item.name == name)
+            return &item;
+    return nullptr;
+}
+
+/*
+ * Returns the list of net names in the watchlist
+ */
+QStringList ClassWatch::getWatchlist()
+{
+    QStringList list;
+    for (auto item : m_watchlist)
+        list.append(item.name);
+    return list;
+}
+
+/*
+ * Sets new watchlist
+ */
+void ClassWatch::setWatchlist(QStringList list)
+{
+    QVector<watch> newlist;
+    for (auto item : list)
+    {
+        watch *w = find(item);
+        if (w)
+            newlist.append(*w);
+        else
+        {
+            watch w {};
+            w.name = item;
+            newlist.append(w);
+        }
+    }
+    m_watchlist = newlist;
+}
+
+/*
  * Loads a watchlist
  */
 bool ClassWatch::loadWatchlist(QString name)
@@ -25,16 +68,7 @@ bool ClassWatch::loadWatchlist(QString name)
             while (num--)
             {
                 watch w {};
-                in >> w.name >> w.x >> w.y >> w.n >> num;
-                if (num)
-                {
-                    while (num--)
-                    {
-                        net_t n;
-                        in >> n;
-                        w.nn.append(n);
-                    }
-                }
+                in >> w.name >> w.x >> w.y >> w.n;
                 m_watchlist.append(w);
             }
         }
@@ -55,11 +89,7 @@ bool ClassWatch::saveWatchlist(QString name)
         QDataStream out(&file);
         out << m_watchlist.count();
         for (auto w : m_watchlist)
-        {
-            out << w.name << w.x << w.y << w.n << w.nn.count();
-            for (auto n : w.nn)
-                out << n;
-        }
+            out << w.name << w.x << w.y << w.n;
     }
     catch(...) { return false; }
     return true;

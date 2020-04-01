@@ -48,6 +48,7 @@
     <property name="title">
      <string>Watch</string>
     </property>
+    <addaction name="actionEditWatchlist"/>
     <addaction name="actionLoadWatchlist"/>
     <addaction name="actionSaveWatchlistAs"/>
     <addaction name="actionSaveWatchlist"/>
@@ -146,6 +147,17 @@
    </property>
    <property name="statusTip">
     <string>Save current list of nets to watch</string>
+   </property>
+  </action>
+  <action name="actionEditWatchlist">
+   <property name="text">
+    <string>Edit...</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit list of nets to watch</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
    </property>
   </action>
  </widget>

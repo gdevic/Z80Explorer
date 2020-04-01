@@ -28,10 +28,12 @@ private slots:
     void onOpenChipDir();               // Open directory with chip resources
     void onNewImageView();              // Open a new view to the chip data
     void onNewWaveformView();           // Open a new view to the waveforms
+    void onEditWatchlist();             // Edits watchlist
     void onLoadWatchlist();             // Loads watchlist
     void onSaveWatchlistAs();           // Saves watchlist as
     void onSaveWatchlist();             // Saves current watchlist
     void onExit();                      // Exit the application
+    void closeEvent(QCloseEvent *event);// Called on application close event
 
 private:
     Ui::MainWindow *ui;

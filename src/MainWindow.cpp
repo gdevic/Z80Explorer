@@ -4,6 +4,7 @@
 #include "ClassSim.h"
 #include "ClassSimX.h"
 #include "ClassWatch.h"
+#include "DialogEditWatchlist.h"
 #include "DockWaveform.h"
 #include "DockCommand.h"
 #include "DockImageView.h"
@@ -15,6 +16,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QSettings>
+#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -77,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionLoadWatchlist, SIGNAL(triggered()), this, SLOT(onLoadWatchlist()));
     connect(ui->actionSaveWatchlistAs, SIGNAL(triggered()), this, SLOT(onSaveWatchlistAs()));
     connect(ui->actionSaveWatchlist, SIGNAL(triggered()), this, SLOT(onSaveWatchlist()));
+    connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
 
     // As soon as the GUI becomes idle, load chip resources
     QTimer::singleShot(0, this, SLOT(loadResources()));
@@ -88,6 +91,15 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+/*
+ * Called on application close event
+ */
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    onSaveWatchlist();
+    event->accept();
 }
 
 /*
@@ -178,6 +190,15 @@ void MainWindow::onNewWaveformView()
     w->setFloating(true);
     w->resize(1000, 500);
     w->show();
+}
+
+void MainWindow::onEditWatchlist()
+{
+    DialogEditWatchlist dlg(this);
+    dlg.setNodeList(m_chip->getNodenames());
+    dlg.setWatchlist(m_watch->getWatchlist());
+    if (dlg.exec()==QDialog::Accepted)
+        m_watch->setWatchlist(dlg.getWatchlist());
 }
 
 void MainWindow::onLoadWatchlist()

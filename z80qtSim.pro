@@ -25,6 +25,7 @@ SOURCES += \
     src/ClassSim.cpp \
     src/ClassSimX.cpp \
     src/ClassWatch.cpp \
+    src/DialogEditWatchlist.cpp \
     src/DockCommand.cpp \
     src/DockImageView.cpp \
     src/DockLog.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     src/ClassSimX.h \
     src/ClassSingleton.h \
     src/ClassWatch.h \
+    src/DialogEditWatchlist.h \
     src/DockCommand.h \
     src/DockImageView.h \
     src/DockLog.h \
@@ -55,6 +57,7 @@ HEADERS += \
     src/Z80_Simulator.h
 
 FORMS += \
+    src/DialogEditWatchlist.ui \
     src/DockCommand.ui \
     src/DockImageView.ui \
     src/DockLog.ui \
