@@ -36,10 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create the chip netlist simulator code class
     m_simx = new ClassSimX(this);
 
-    // Assign the central widget to show the chip image view
-    WidgetImageView *m_central = new WidgetImageView();
-    setCentralWidget(m_central);
-    m_central->init(m_chip, m_simx);
+    // Initialize image view that is embedded within the central pane
+    ui->widgetImageView->init(m_chip, m_simx);
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");
