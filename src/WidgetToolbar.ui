@@ -29,7 +29,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QSpinBox" name="spinBox"/>
+    <widget class="QSpinBox" name="spinBox">
+     <property name="accelerated">
+      <bool>true</bool>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>999</number>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QPushButton" name="btStep">

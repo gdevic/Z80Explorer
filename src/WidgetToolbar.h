@@ -3,10 +3,11 @@
 
 #include <QWidget>
 
-namespace Ui {
-class WidgetToolbar;
-}
+namespace Ui { class WidgetToolbar; }
 
+/*
+ * This widget provides a convenient interface to run the simulation
+ */
 class WidgetToolbar : public QWidget
 {
     Q_OBJECT
@@ -14,6 +15,11 @@ class WidgetToolbar : public QWidget
 public:
     explicit WidgetToolbar(QWidget *parent = nullptr);
     ~WidgetToolbar();
+
+private slots:
+    void onRun();
+    void onStop();
+    void onStep();
 
 private:
     Ui::WidgetToolbar *ui;
