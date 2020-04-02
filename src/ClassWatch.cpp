@@ -6,7 +6,7 @@
 #include "cereal/types/QVector.hpp"
 #include <fstream>
 
-#include <QDataStream>
+#include <QDebug>
 #include <QFile>
 
 /*
@@ -57,10 +57,13 @@ void ClassWatch::setWatchlist(QStringList list)
  */
 bool ClassWatch::loadWatchlist(QString name)
 {
-    std::ifstream os(name.toLatin1(), std::ios::binary);
-    cereal::BinaryInputArchive archive(os);
-    archive(m_watchlist);
-
+    try
+    {
+        std::ifstream os(name.toLatin1(), std::ios::binary);
+        cereal::BinaryInputArchive archive(os);
+        archive(m_watchlist);
+    }
+    catch(...) { qWarning() << "Unable to load" << name; }
     return true;
 }
 
@@ -69,9 +72,12 @@ bool ClassWatch::loadWatchlist(QString name)
  */
 bool ClassWatch::saveWatchlist(QString name)
 {
-    std::ofstream os(name.toLatin1(), std::ios::binary);
-    cereal::BinaryOutputArchive archive(os);
-    archive(m_watchlist);
-
+    try
+    {
+        std::ofstream os(name.toLatin1(), std::ios::binary);
+        cereal::BinaryOutputArchive archive(os);
+        archive(m_watchlist);
+    }
+    catch(...) { qWarning() << "Unable to save" << name; }
     return true;
 }

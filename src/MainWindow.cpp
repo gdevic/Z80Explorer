@@ -120,9 +120,9 @@ void MainWindow::onEditWatchlist()
 void MainWindow::onLoadWatchlist()
 {
     QSettings settings;
-    QString defName = settings.value("WatchlistFile", "watchlist.wlist").toString();
+    QString defName = settings.value("WatchlistFile", "watchlist.wt").toString();
     // Prompts the user to select which watchlist file to load
-    QString fileName = QFileDialog::getOpenFileName(this, "Select watchlist file to load", defName, "watchlist (*.wlist)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Select watchlist file to load", defName, "watchlist (*.wl);;All files (*.*)");
     if (!fileName.isEmpty())
     {
         if (::controller.getWatch().loadWatchlist(fileName))
@@ -138,7 +138,7 @@ void MainWindow::onLoadWatchlist()
 void MainWindow::onSaveWatchlistAs()
 {
     // Prompts the user to select the watches file to load
-    QString fileName = QFileDialog::getSaveFileName(this, "Save watchlist file", "", "watchlist (*.wlist)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save watchlist file", "", "watchlist (*.wl);;All files (*.*)");
     if (!fileName.isEmpty())
     {
         if (::controller.getWatch().saveWatchlist(fileName))
@@ -154,7 +154,7 @@ void MainWindow::onSaveWatchlistAs()
 void MainWindow::onSaveWatchlist()
 {
     QSettings settings;
-    QString fileName = settings.value("WatchlistFile", "watchlist.wlist").toString();
+    QString fileName = settings.value("WatchlistFile", "watchlist.wl").toString();
     if (!::controller.getWatch().saveWatchlist(fileName))
         QMessageBox::critical(this, "Error", "Unable to save watchlist file " + fileName);
 }
