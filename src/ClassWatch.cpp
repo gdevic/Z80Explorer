@@ -1,5 +1,11 @@
 #include "ClassWatch.h"
 
+// Serialization support
+#include "cereal/archives/binary.hpp"
+#include "cereal/types/QString.hpp"
+#include "cereal/types/QVector.hpp"
+#include <fstream>
+
 #include <QDataStream>
 #include <QFile>
 
@@ -51,25 +57,10 @@ void ClassWatch::setWatchlist(QStringList list)
  */
 bool ClassWatch::loadWatchlist(QString name)
 {
-    try
-    {
-        QFile file(name);
-        file.open(QIODevice::ReadOnly);
-        QDataStream in(&file);
-        uint num;
-        in >> num;
-        if (num) // Don't load an empty watchlist
-        {
-            m_watchlist.clear();
-            while (num--)
-            {
-                watch w {};
-                in >> w.name >> w.x >> w.y >> w.n;
-                m_watchlist.append(w);
-            }
-        }
-    }
-    catch(...) { return false; }
+    std::ifstream os(name.toLatin1(), std::ios::binary);
+    cereal::BinaryInputArchive archive(os);
+    archive(m_watchlist);
+
     return true;
 }
 
@@ -78,15 +69,9 @@ bool ClassWatch::loadWatchlist(QString name)
  */
 bool ClassWatch::saveWatchlist(QString name)
 {
-    try
-    {
-        QFile file(name);
-        file.open(QIODevice::WriteOnly);
-        QDataStream out(&file);
-        out << m_watchlist.count();
-        for (auto w : m_watchlist)
-            out << w.name << w.x << w.y << w.n;
-    }
-    catch(...) { return false; }
+    std::ofstream os(name.toLatin1(), std::ios::binary);
+    cereal::BinaryOutputArchive archive(os);
+    archive(m_watchlist);
+
     return true;
 }

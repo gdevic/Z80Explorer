@@ -12,6 +12,8 @@ struct watch
     QString name;                       // The name of the net to watch
     uint x, y;                          // Coordinates of a pushpin on the chip image
     net_t n;                            // Net number (if nonzero)
+
+    template <class Archive> void serialize(Archive & ar) { ar(name, x, y, n); }
 };
 
 /*
