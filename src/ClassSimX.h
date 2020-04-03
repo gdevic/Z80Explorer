@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QObject>
 #include <QTime>
+#include <QTimer>
 
 typedef uint16_t net_t;                 // Type of an index to the net array
 typedef uint16_t tran_t;                // Type of an index to the transistor array
