@@ -600,9 +600,7 @@ QString ClassSimX::dumpStatus(z80state z)
              hex(z.af2,4),hex(z.bc2,4),hex(z.de2,4),hex(z.hl2,4));
     s += QString("IX:%1 IY:%2 SP:%3 IR:%4 WZ:%5 PC:%6\n").arg
             (hex(z.ix,4),hex(z.iy,4),hex(z.sp,4),hex(z.ir,4),hex(z.wz,4),hex(z.pc,4));
-    s += QString("AB:%1 DB:%2 ").arg(hex(z.ab,4),hex(z.db,4));
-    for (auto c : z._db)
-        s += pin(c);
+    s += QString("AB:%1 DB:%2 ").arg(hex(z.ab,4),hex(z.db,2));
     s += QString("\nclk:%1 int:%2 nmi:%3 halt:%4 mreq:%5 iorq:%6 rd:%7 wr:%8 ").arg
             (pin(z.clk),pin(z.intr),pin(z.nmi),pin(z.halt),pin(z.mreq),pin(z.iorq),pin(z.rd),pin(z.wr));
     s += QString("busak:%1 wait:%2 busrq:%3 reset:%4 m1:%5 rfsh:%6\n").arg
