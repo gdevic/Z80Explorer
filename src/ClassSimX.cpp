@@ -97,8 +97,7 @@ inline void ClassSimX::halfCycle()
 {
     m_cyclecnt++;
     pin_t clk = ! readBit("clk");
-    set(clk, "clk");
-    if (clk) // After the clock rise, service the chip pins
+    if (clk) // Before the clock rise, service the chip pins
     {
         bool m1   = readBit("m1");
         bool rfsh = readBit("rfsh");
@@ -130,6 +129,7 @@ inline void ClassSimX::halfCycle()
             // Weak pull up on all input pins (tri-state)
         }
     }
+    set(clk, "clk"); // Let the clock edge propagate through the chip
 }
 
 inline void ClassSimX::handleMemRead(uint16_t ab)

@@ -5,6 +5,7 @@
 
 class DockCommand;
 class DockLog;
+class DockMonitor;
 
 namespace Ui { class MainWindow; }
 
@@ -33,6 +34,7 @@ private:
     Ui::MainWindow *ui;
     DockLog *m_logWindow;               // Log window class and form
     DockCommand *m_cmdWindow;           // Command window class and form
+    DockMonitor *m_monitor;             // Z80 environment monitor window
     QMenu *m_menuView;                  // Pointer to the "View" menu pull-down
     QMenu *m_menuWindow;                // Pointer to the "Window" menu pull-down
 };

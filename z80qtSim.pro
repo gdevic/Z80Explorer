@@ -31,6 +31,7 @@ SOURCES += \
     src/DockCommand.cpp \
     src/DockImageView.cpp \
     src/DockLog.cpp \
+    src/DockMonitor.cpp \
     src/DockWaveform.cpp \
     src/MainWindow.cpp \
     src/WidgetImageOverlay.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     src/DockCommand.h \
     src/DockImageView.h \
     src/DockLog.h \
+    src/DockMonitor.h \
     src/DockWaveform.h \
     src/MainWindow.h \
     src/WidgetImageOverlay.h \
@@ -67,6 +69,7 @@ FORMS += \
     src/DockCommand.ui \
     src/DockImageView.ui \
     src/DockLog.ui \
+    src/DockMonitor.ui \
     src/DockWaveform.ui \
     src/MainWindow.ui \
     src/WidgetImageOverlay.ui \

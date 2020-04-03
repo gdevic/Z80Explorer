@@ -6,6 +6,8 @@
 
 bool ClassController::init()
 {
+    connect(&m_trick, SIGNAL(echo(char)), this, SIGNAL(echo(char)));
+
     QSettings settings;
     QString path = settings.value("ChipResources", QDir::currentPath()).toString();
 

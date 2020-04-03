@@ -19,6 +19,9 @@ public:
     uint8_t readIO(uint16_t ab);            // Read environment IO
     void writeIO(uint16_t ab, uint8_t db);  // Write environment IO
 
+signals:
+    void echo(char c);                      // Character to a terminal
+
 private:
     bool readHex(QString fileName);
     uint8_t m_mem[65536] {};                // Simulated 64K memory

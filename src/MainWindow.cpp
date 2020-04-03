@@ -5,6 +5,7 @@
 #include "DockWaveform.h"
 #include "DockCommand.h"
 #include "DockImageView.h"
+#include "DockMonitor.h"
 #include "DockLog.h"
 
 #include <QDebug>
@@ -46,10 +47,15 @@ MainWindow::MainWindow(QWidget *parent) :
     actionCmd->setStatusTip("Show or hide the command window");
     m_menuView->addAction(actionCmd);
 
+    // Create and dock the monitor window
+    m_monitor = new DockMonitor(this);
+    addDockWidget(Qt::RightDockWidgetArea, m_monitor);
+
     // Let the log and command windows use the same space on the bottom
     tabifyDockWidget(m_logWindow, m_cmdWindow);
     m_logWindow->show();
     m_cmdWindow->hide();
+    m_monitor->show();
 
     // Connect the rest of the menu actions...
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));

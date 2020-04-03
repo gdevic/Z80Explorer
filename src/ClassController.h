@@ -31,9 +31,14 @@ public: // API
         { return m_trick.readIO(ab); }
     void writeIO(uint16_t ab, uint8_t db)   // Write environment IO
         { m_trick.writeIO(ab, db); }
+    bool loadIntelHex(QString fileName)     // Loads file into RAM memory
+        { return m_trick.loadIntelHex(fileName); }
 
 public slots:
-    void doRunsim(uint ticks);  // Controls the simulation
+    void doRunsim(uint ticks);              // Controls the simulation
+
+signals:
+    void echo(char e);                      // Echo a character onto the virtual console
 
 private:
     ClassChip  m_chip;      // Global chip resource class

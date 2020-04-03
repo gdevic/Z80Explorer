@@ -24,8 +24,13 @@ uint8_t ClassTrickbox::readIO(uint16_t ab)
 
 void ClassTrickbox::writeIO(uint16_t ab, uint8_t db)
 {
-    Q_UNUSED(ab);
-    Q_UNUSED(db);
+    if (ab != 8 * 256)
+        return;
+    if (db == 10)
+        return;
+    static uint wr_count = 0;
+    if ((wr_count++ %2)==0)
+        emit echo(char(db));
 }
 
 bool ClassTrickbox::loadIntelHex(QString fileName)
@@ -77,6 +82,7 @@ bool ClassTrickbox::loadIntelHex(QString fileName)
             }
         }
         file.close();
+        qDebug() << "File loaded into RAM";
     }
     catch (...)
     {
