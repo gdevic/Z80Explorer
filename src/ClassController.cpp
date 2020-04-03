@@ -1,7 +1,5 @@
 #include "ClassController.h"
-
 #include <QDebug>
-#include <QFile>
 #include <QFileDialog>
 #include <QLabel>
 #include <QSettings>
@@ -44,6 +42,10 @@ bool ClassController::init()
     // Load the optional watchlist file
     QString fileWatchlist = settings.value("WatchlistFile", "").toString();
     m_watch.loadWatchlist(fileWatchlist);
+
+    // Load the "hello world" sample executable file
+    if (!m_trick.loadIntelHex(path + "/hello_world.hex"))
+        qWarning() << "Unable to load example Z80 hex file";
 
     qPopup.hide();
 

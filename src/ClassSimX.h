@@ -4,9 +4,6 @@
 #include <QHash>
 #include <QObject>
 #include <QTime>
-#include <QVector>
-
-class QTimer;
 
 typedef uint16_t net_t;                 // Type of an index to the net array
 typedef uint16_t tran_t;                // Type of an index to the transistor array
@@ -73,8 +70,15 @@ private:
     bool loadTransdefs(QString dir);
     bool loadPullups(QString dir);
 
+    void handleMemRead(uint16_t ab);    // Simulated chip requested memory read
+    void handleMemWrite(uint16_t ab);   // Simulated chip requested memory write
+    void handleIORead(uint16_t ab);     // Simulated chip requested IO read
+    void handleIOWrite(uint16_t ab);    // Simulated chip requested IO write
+    void handleIrq(uint16_t ab);        // Simulated chip requested interrupt service (to read data on the bus)
+
     void readStatus(z80state &z);       // Reads chip state into a state structure
     QString dumpStatus(z80state z);     // Returns chip state as a string
+    void setDB(uint8_t db);             // Sets data bus to a value
     void set(bool on, QString name);    // Sets a named input net to pullup or pulldown status
     uint readByte(QString name);        // Returns a byte value read from the netlist for a particular net bus
     uint readBit(QString name);         // Returns a bit value read from the netlist for a particular net

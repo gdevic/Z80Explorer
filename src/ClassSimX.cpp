@@ -1,11 +1,11 @@
 #include "ClassSimX.h"
-
+#include "ClassController.h"
 #include <algorithm>
 #include <QDebug>
 #include <QDir>
-#include <QTimer>
-
 #include <QFuture>
+#include <QStringBuilder>
+#include <QTimer>
 #include <QtConcurrent>
 
 #define MAX_TRANSDEFS 9000 // Max number of transistors stored in m_transdefs array
@@ -90,10 +90,82 @@ void ClassSimX::initChip()
     set(1, "reset");
 }
 
+/*
+ * Advance the simulation by one half-cycle of the clock
+ */
 inline void ClassSimX::halfCycle()
 {
     m_cyclecnt++;
-    set(!readBit("clk"), "clk");
+    pin_t clk = ! readBit("clk");
+    set(clk, "clk");
+    if (clk) // After the clock rise, service the chip pins
+    {
+        bool m1   = readBit("m1");
+        bool rfsh = readBit("rfsh");
+        bool mreq = readBit("mreq");
+        bool rd   = readBit("rd");
+        bool wr   = readBit("wr");
+        bool iorq = readBit("iorq");
+        uint16_t ab = readAB();
+
+        if (!m1 && rfsh && !mreq && !rd &&  wr &&  iorq)
+            handleMemRead(ab); // Instruction read
+        else
+        if ( m1 && rfsh && !mreq && !rd &&  wr &&  iorq)
+            handleMemRead(ab); // Data read
+        else
+        if ( m1 && rfsh && !mreq &&  rd && !wr &&  iorq)
+            handleMemWrite(ab); // Data write
+        else
+        if ( m1 && rfsh &&  mreq && !rd &&  wr && !iorq)
+            handleIORead(ab); // IO read
+        else
+        if ( m1 && rfsh &&  mreq &&  rd && !wr && !iorq)
+            handleIOWrite(ab); // IO write
+        else
+        if (!m1 && rfsh &&  mreq &&  rd &&  wr && !iorq)
+            handleIrq(ab); // Interrupt request/Ack cycle
+        else
+        {
+            // Weak pull up on all input pins (tri-state)
+        }
+    }
+}
+
+inline void ClassSimX::handleMemRead(uint16_t ab)
+{
+    uint8_t db = ::controller.readMem(ab);
+    setDB(db);
+}
+
+inline void ClassSimX::handleMemWrite(uint16_t ab)
+{
+    uint8_t db = readByte("db");
+    ::controller.writeMem(ab, db);
+}
+
+inline void ClassSimX::handleIORead(uint16_t ab)
+{
+    uint8_t db = ::controller.readIO(ab);
+    setDB(db);
+}
+
+inline void ClassSimX::handleIOWrite(uint16_t ab)
+{
+    uint8_t db = readByte("db");
+    ::controller.writeIO(ab, db);
+}
+
+inline void ClassSimX::handleIrq(uint16_t ab)
+{
+    uint8_t db = ::controller.readIO(ab);
+    setDB(db);
+}
+
+inline void ClassSimX::setDB(uint8_t db)
+{
+    for (int i=0; i < 8; i++, db >>= 1)
+        set(db & 1, "db" % QString::number(i));
 }
 
 /*

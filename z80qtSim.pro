@@ -25,6 +25,7 @@ SOURCES += \
     src/ClassController.cpp \
     src/ClassSim.cpp \
     src/ClassSimX.cpp \
+    src/ClassTrickbox.cpp \
     src/ClassWatch.cpp \
     src/DialogEditWatchlist.cpp \
     src/DockCommand.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
     src/ClassSim.h \
     src/ClassSimX.h \
     src/ClassSingleton.h \
+    src/ClassTrickbox.h \
     src/ClassWatch.h \
     src/DialogEditWatchlist.h \
     src/DockCommand.h \
