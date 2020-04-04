@@ -28,9 +28,7 @@ void ClassTrickbox::writeIO(uint16_t ab, uint8_t db)
         return;
     if (db == 10)
         return;
-    static uint wr_count = 0;
-    if ((wr_count++ %2)==0)
-        emit echo(char(db));
+    emit echo(char(db));
 }
 
 // https://en.wikipedia.org/wiki/Intel_HEX

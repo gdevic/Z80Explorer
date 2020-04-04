@@ -113,29 +113,24 @@ inline void ClassSimX::halfCycle()
         bool rd   = readBit("rd");
         bool wr   = readBit("wr");
         bool iorq = readBit("iorq");
-        uint16_t ab = readAB();
 
-        if (!m1 && rfsh && !mreq && !rd &&  wr &&  iorq)
-            handleMemRead(ab); // Instruction read
+        if (!m1 && rfsh && !mreq && !rd &&  wr &&  iorq && readBit("t2"))
+            handleMemRead(readAB()); // Instruction read
         else
-        if ( m1 && rfsh && !mreq && !rd &&  wr &&  iorq)
-            handleMemRead(ab); // Data read
+        if ( m1 && rfsh && !mreq && !rd &&  wr &&  iorq && readBit("t3"))
+            handleMemRead(readAB()); // Data read
         else
-        if ( m1 && rfsh && !mreq &&  rd && !wr &&  iorq)
-            handleMemWrite(ab); // Data write
+        if ( m1 && rfsh && !mreq &&  rd && !wr &&  iorq && readBit("t3"))
+            handleMemWrite(readAB()); // Data write
         else
-        if ( m1 && rfsh &&  mreq && !rd &&  wr && !iorq)
-            handleIORead(ab); // IO read
+        if ( m1 && rfsh &&  mreq && !rd &&  wr && !iorq && readBit("t3"))
+            handleIORead(readAB()); // IO read
         else
-        if ( m1 && rfsh &&  mreq &&  rd && !wr && !iorq)
-            handleIOWrite(ab); // IO write
+        if ( m1 && rfsh &&  mreq &&  rd && !wr && !iorq && readBit("t3"))
+            handleIOWrite(readAB()); // IO write
         else
         if (!m1 && rfsh &&  mreq &&  rd &&  wr && !iorq)
-            handleIrq(ab); // Interrupt request/Ack cycle
-        else
-        {
-            // Weak pull up on all input pins (tri-state)
-        }
+            handleIrq(readAB()); // Interrupt request/Ack cycle
     }
     set(clk, "clk"); // Let the clock edge propagate through the chip
 }
