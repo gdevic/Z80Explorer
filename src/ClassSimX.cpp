@@ -191,7 +191,7 @@ void ClassSimX::set(bool on, QString name)
         qWarning() << "set: nonexistent net" << name;
 }
 
-bool ClassSimX::getNetValue()
+inline bool ClassSimX::getNetValue()
 {
     // 1. deal with power connections first
     if (group.contains(ngnd)) return false;
@@ -221,7 +221,7 @@ bool ClassSimX::getNetValue()
     return max_state;
 }
 
-void ClassSimX::recalcNetlist(QVector<net_t> list)
+inline void ClassSimX::recalcNetlist(QVector<net_t> list)
 {
     recalcList.clear();
     for (int i=0; i<100 && list.count(); i++) // loop limiter
@@ -233,7 +233,7 @@ void ClassSimX::recalcNetlist(QVector<net_t> list)
     }
 }
 
-void ClassSimX::recalcNet(net_t n)
+inline void ClassSimX::recalcNet(net_t n)
 {
     if ((n==ngnd) || (n==npwr)) return;
     getNetGroup(n);
@@ -265,14 +265,14 @@ QVector<net_t> ClassSimX::allNets()
     return nets;
 }
 
-void ClassSimX::setTransOn(class trans &t)
+inline void ClassSimX::setTransOn(class trans &t)
 {
     if (t.on) return;
     t.on = true;
     addRecalcNet(t.c1);
 }
 
-void ClassSimX::setTransOff(class trans &t)
+inline void ClassSimX::setTransOff(class trans &t)
 {
     if (!t.on) return;
     t.on = false;
@@ -280,20 +280,20 @@ void ClassSimX::setTransOff(class trans &t)
     addRecalcNet(t.c2);
 }
 
-void ClassSimX::addRecalcNet(net_t n)
+inline void ClassSimX::addRecalcNet(net_t n)
 {
     if ((n==ngnd) || (n==npwr)) return;
     if (!recalcList.contains(n))
         recalcList.append(n);
 }
 
-void ClassSimX::getNetGroup(net_t n)
+inline void ClassSimX::getNetGroup(net_t n)
 {
     group.clear();
     addNetToGroup(n);
 }
 
-void ClassSimX::addNetToGroup(net_t n)
+inline void ClassSimX::addNetToGroup(net_t n)
 {
     if (group.contains(n)) return;
     group.append(n);
@@ -601,7 +601,7 @@ inline QString ClassSimX::pin(pin_t p)
 QString ClassSimX::dumpState(z80state z)
 {
 
-    QString s = QString("AF:%1 BC:%2 DE:%3 HL:%4 AF':%5 BC':%6 DE':%7 HL':%8\n").arg
+    QString s = QString("AF:%1 BC:%2 DE:%3 HL:%4\nAF':%5 BC':%6 DE':%7 HL':%8\n").arg
             (hex(z.af,4),hex(z.bc,4),hex(z.de,4),hex(z.hl,4),
              hex(z.af2,4),hex(z.bc2,4),hex(z.de2,4),hex(z.hl2,4));
     s += QString("IX:%1 IY:%2 SP:%3 IR:%4 WZ:%5 PC:%6\n").arg
