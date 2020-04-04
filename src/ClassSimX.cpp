@@ -88,7 +88,7 @@ void ClassSimX::initChip()
 void ClassSimX::doReset()
 {
     // Initialize control pins
-    set(0, "reset");
+    set(0, "_reset");
     set(1, "clk");
     set(1, "busrq");
     set(1, "int");
@@ -101,7 +101,7 @@ void ClassSimX::doReset()
     for (int i=0; i < 8; i++)
         halfCycle();
 
-    set(1, "reset");
+    set(1, "_reset");
     emit runStopped();
 }
 
@@ -113,12 +113,12 @@ inline void ClassSimX::halfCycle()
     pin_t clk = ! readBit("clk");
     if (clk) // Before the clock rise, service the chip pins
     {
-        bool m1   = readBit("m1");
-        bool rfsh = readBit("rfsh");
-        bool mreq = readBit("mreq");
-        bool rd   = readBit("rd");
-        bool wr   = readBit("wr");
-        bool iorq = readBit("iorq");
+        bool m1   = readBit("_m1");
+        bool rfsh = readBit("_rfsh");
+        bool mreq = readBit("_mreq");
+        bool rd   = readBit("_rd");
+        bool wr   = readBit("_wr");
+        bool iorq = readBit("_iorq");
 
         if (!m1 && rfsh && !mreq && !rd &&  wr &&  iorq && readBit("t2"))
             handleMemRead(readAB()); // Instruction read
@@ -139,6 +139,16 @@ inline void ClassSimX::halfCycle()
             handleIrq(readAB()); // Interrupt request/Ack cycle
     }
     set(clk, "clk"); // Let the clock edge propagate through the chip
+#if 1
+    // After each half-cycle, populate the watch data
+    // XXX Optimize this for perf, critical path
+    ClassWatch &watch = ::controller.getWatch();
+    for (auto &w : watch.getWatchlist())
+    {
+        net_t bit = readBit(w);
+        watch.setWatch(w, m_hcycletotal, bit);
+    }
+#endif
     m_hcyclecnt++; // Half-cycle count for this single simulation run
     m_hcycletotal++; // Total cycle count since the chip reset
 }
@@ -354,8 +364,6 @@ bool ClassSimX::loadNodenames(QString dir)
                 if (list.length()==2)
                 {
                     QString key = QString(list[0]);
-                    if (key.startsWith('_')) // We remove _ prefix from the node names
-                        key.remove(0,1);
                     if (!m_netnames.contains(key))
                         m_netnames[key] = list[1].toUInt();
                     else
@@ -571,21 +579,21 @@ void ClassSimX::readState(z80state &z)
     z.clk = readPin("clk");
     z.intr = readPin("int");
     z.nmi = readPin("nmi");
-    z.halt = readPin("halt");
-    z.mreq = readPin("mreq");
-    z.iorq = readPin("iorq");
-    z.rd = readPin("rd");
-    z.wr = readPin("wr");
-    z.busak = readPin("busak");
+    z.halt = readPin("_halt");
+    z.mreq = readPin("_mreq");
+    z.iorq = readPin("_iorq");
+    z.rd = readPin("_rd");
+    z.wr = readPin("_wr");
+    z.busak = readPin("_busak");
     z.wait= readPin("wait");
     z.busrq = readPin("busrq");
-    z.reset = readPin("reset");
-    z.m1 = readPin("m1");
-    z.rfsh = readPin("rfsh");
+    z.reset = readPin("_reset");
+    z.m1 = readPin("_m1");
+    z.rfsh = readPin("_rfsh");
     for (int i=0; i<6; i++)
     {
         z.m[i] = readPin("m" % QString::number(i+1));
         z.t[i] = readPin("t" % QString::number(i+1));
     }
-    z.instr = readByte("instr");
+    z.instr = readByte("_instr");
 }
