@@ -62,7 +62,8 @@ HEADERS += \
     src/WidgetImageView.h \
     src/WidgetToolbar.h \
     src/WidgetWaveform.h \
-    src/Z80_Simulator.h
+    src/Z80_Simulator.h \
+    src/z80state.h
 
 FORMS += \
     src/DialogEditWatchlist.ui \

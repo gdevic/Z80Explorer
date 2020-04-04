@@ -46,6 +46,6 @@ void DockMonitor::onRunStopped()
 {
     z80state z80; // Get and display the chip state
     ::controller.readState(z80);
-    QString s = ClassSimX::dumpState(z80);
+    QString s = z80state::dumpState(z80);
     ui->textStatus->setPlainText(s);
 }

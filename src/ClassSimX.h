@@ -1,29 +1,11 @@
 #ifndef CLASSSIMX_H
 #define CLASSSIMX_H
 
+#include "z80state.h"
 #include <QHash>
 #include <QObject>
 #include <QTime>
 #include <QTimer>
-
-typedef uint16_t net_t;                 // Type of an index to the net array
-typedef uint16_t tran_t;                // Type of an index to the transistor array
-typedef uint8_t  pin_t;                 // Type of the pin state (0, 1; or 2 for floating)
-
-// Holds chip state, mainly registers and pins
-struct z80state
-{
-    uint16_t af, bc, de, hl;
-    uint16_t af2, bc2, de2, hl2;
-    uint16_t ix, iy, sp, ir, wz, pc;
-    uint16_t ab;
-    uint8_t db;                         // Data bus value
-    pin_t _db[8];                       // Data bus with floating state information
-    pin_t clk, intr, nmi, halt, mreq, iorq;
-    pin_t rd, wr, busak, wait, busrq, reset, m1, rfsh;
-    pin_t m[6], t[6];                   // M and T cycles
-    uint8_t instr;                      // Instruction register
-};
 
 // Contains individual transistor definition
 class trans
@@ -61,7 +43,6 @@ public:
     bool getNetState(net_t i)           // Returns the net logic state
         { return m_netlist[i].state; }
     void readState(z80state &z);        // Reads chip state into a state structure
-    static QString dumpState(z80state z); // Returns chip state as a string
 
 signals:
     void runStopped();                  // Current simulation run completed
@@ -101,9 +82,6 @@ private:
     QVector<net_t> allNets();
     void getNetGroup(net_t n);
     void addNetToGroup(net_t n);
-
-    static QString hex(uint n, uint width);
-    static QString pin(pin_t p);
 
     QHash<QString, net_t> m_netnames;   // Hash of net (node) names (vcc, vss,...) to nets, key is the net name string
     QVector<trans> m_transdefs;         // Array of transistors, indexed by the transistor number
