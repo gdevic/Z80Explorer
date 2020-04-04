@@ -33,6 +33,7 @@ void ClassTrickbox::writeIO(uint16_t ab, uint8_t db)
         emit echo(char(db));
 }
 
+// https://en.wikipedia.org/wiki/Intel_HEX
 bool ClassTrickbox::loadIntelHex(QString fileName)
 {
     QFile file(fileName);
@@ -42,52 +43,46 @@ bool ClassTrickbox::loadIntelHex(QString fileName)
         return false;
     }
 
-    try
+    QTextStream in(&file);
+    while (!in.atEnd())
     {
-        QTextStream in(&file);
-        while (!in.atEnd())
+        bool bStatus;
+        in.skipWhiteSpace();
+        if (in.atEnd())
+            break;
+        QString c = in.read(1);
+        if (c != ':')
         {
-            bool bStatus;
-            in.skipWhiteSpace();
-            if (in.atEnd())
-                break;
-            QString c = in.read(1);
-            if (c != ':')
-            {
-                qDebug() << "Invalid starting character" << c;
-                throw;
-            }
-            uint8_t count = in.read(2).toUtf8().toUInt(&bStatus, 16);
-            uint8_t addressH = in.read(2).toUtf8().toUInt(&bStatus, 16);
-            uint8_t addressL = in.read(2).toUtf8().toUInt(&bStatus, 16);
-            uint8_t type = in.read(2).toUtf8().toUInt(&bStatus, 16);
-            if (type != 0)
-            {
-                qDebug() << "Unexpected type" << type;
-                throw;
-            }
-            uint16_t sum = count + addressL + addressH + type;
-            uint16_t address = (uint16_t(addressH) << 8) + addressL;
-            while (count--)
-            {
-                uint8_t byte = in.read(2).toUtf8().toUInt(&bStatus, 16);
-                m_mem[address++] = byte;
-                sum += byte;
-            }
-            uint16_t checksum = in.read(2).toUtf8().toUInt(&bStatus, 16);
-            if ((checksum + sum) & 0xFF)
-            {
-                qDebug() << "Checksum mismatch";
-                throw;
-            }
+            qDebug() << "Invalid starting character" << c;
+            break;
         }
-        file.close();
-        qDebug() << "File loaded into RAM";
+        uint8_t count = in.read(2).toUtf8().toUInt(&bStatus, 16);
+        uint8_t addressH = in.read(2).toUtf8().toUInt(&bStatus, 16);
+        uint8_t addressL = in.read(2).toUtf8().toUInt(&bStatus, 16);
+        uint8_t type = in.read(2).toUtf8().toUInt(&bStatus, 16);
+        if (type > 1) // 0 - "Data", 1 - "End Of file"
+        {
+            qDebug() << "Unexpected type" << type;
+            break;
+        }
+        uint16_t sum = count + addressL + addressH + type;
+        uint16_t address = (uint16_t(addressH) << 8) + addressL;
+        while (count--)
+        {
+            uint8_t byte = in.read(2).toUtf8().toUInt(&bStatus, 16);
+            m_mem[address++] = byte;
+            sum += byte;
+        }
+        uint16_t checksum = in.read(2).toUtf8().toUInt(&bStatus, 16);
+        if ((checksum + sum) & 0xFF)
+        {
+            qDebug() << "Checksum mismatch";
+            break;
+        }
     }
-    catch (...)
-    {
-        file.close();
-        return false;
-    }
-    return true;
+    file.close();
+    if (in.atEnd())
+        qDebug() << "Loaded" << fileName << "into RAM";
+
+    return in.atEnd();
 }
