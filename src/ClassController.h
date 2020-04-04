@@ -35,6 +35,7 @@ public: // API
         { return m_trick.loadIntelHex(fileName); }
 
 public slots:
+    void doReset();                         // Run chip reset sequence
     void doRunsim(uint ticks);              // Controls the simulation
 
 signals:

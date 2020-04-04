@@ -11,6 +11,7 @@ WidgetToolbar::WidgetToolbar(QWidget *parent) :
     connect(ui->btRun, &QPushButton::clicked, &::controller, []() { emit ::controller.doRunsim(INT_MAX); });
     connect(ui->btStop, &QPushButton::clicked, &::controller, []() { emit ::controller.doRunsim(0); });
     connect(ui->btStep, &QPushButton::clicked, &::controller, [this]() { emit ::controller.doRunsim(ui->spinBox->value()); });
+    connect(ui->btReset, &QPushButton::clicked, &::controller, []() { emit ::controller.doReset(); });
 }
 
 WidgetToolbar::~WidgetToolbar()

@@ -74,6 +74,14 @@ void ClassSimX::initChip()
     for (auto t : m_transdefs)
         t.on = false;
 
+    doReset();
+}
+
+/*
+ * Run chip reset sequence
+ */
+void ClassSimX::doReset()
+{
     // Initialize control pins
     set(0, "reset");
     set(1, "clk");

@@ -55,9 +55,19 @@ bool ClassController::init()
 }
 
 /*
+ * Runs chip reset sequence
+ */
+void ClassController::doReset()
+{
+    emit m_simx.doReset();
+    qDebug() << "Chip reset";
+}
+
+/*
  * Controls the simulation
  */
 void ClassController::doRunsim(uint ticks)
 {
     emit m_simx.doRunsim(ticks);
+    qDebug() << "Chip run for" << ticks << "half-clocks";
 }

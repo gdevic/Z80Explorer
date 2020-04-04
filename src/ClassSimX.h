@@ -54,13 +54,14 @@ class ClassSimX : public QObject
 public:
     explicit ClassSimX();
     bool loadResources(QString dir);
-    void initChip();
+    void initChip();                    // One-time initialization
     net_t getNetlistCount()             // Returns the number of nets in the netlist
         { return m_netlist.count(); }
     bool getNetState(net_t i)           // Returns the net logic state
         { return m_netlist[i].state; }
 
 public slots:
+    void doReset();                     // Run chip reset sequence
     void doRunsim(uint ticks);          // Controls the simulation
 
 private slots:
