@@ -94,7 +94,8 @@ private:
     QTime m_time;                       // Calculates elapsed time during a simulation thread run
     QTimer *m_timer;                    // Timer to dump z80 state every 500ms when running the simulation
     QAtomicInt m_runcount {};           // Simulation thread down-counts this to exit
-    QAtomicInt m_cyclecnt {};           // Simulation cycle count (resets on each runstart event)
+    QAtomicInt m_hcyclecnt {};          // Simulation half-cycle count (resets on each runstart event)
+    QAtomicInt m_hcycletotal {};        // Total simulation half-cycle count (resets on a chip reset)
 };
 
 #endif // CLASSSIMX_H

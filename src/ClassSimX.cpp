@@ -20,11 +20,14 @@ ClassSimX::ClassSimX():
     connect(m_timer, &QTimer::timeout, this, &ClassSimX::onTimeout);
 }
 
+// XXX Remove this timer here and implement it somewhere else (?)
 void ClassSimX::onTimeout()
 {
     z80state z80;
     readState(z80);
-    qDebug() << z80state::dumpState(z80).split("\n") << (m_cyclecnt / 2.0) / (m_time.elapsed() / 1000.0) << " Hz";
+    QStringList s = z80state::dumpState(z80).split("\n");
+    s.removeAt(4); // Remove pins section
+    qDebug() << s << "Half-Cycles:" % QString::number(m_hcycletotal) << (m_hcyclecnt / 2.0) / (m_time.elapsed() / 1000.0) << " Hz";
     if (m_runcount <= 0)
         m_timer->stop();
 }
@@ -48,7 +51,7 @@ void ClassSimX::doRunsim(uint ticks)
             m_runcount = ticks; // If the sim thread is not running, start it using the new tick counter
             m_timer->start();
             m_time.start();
-            m_cyclecnt = 0;
+            m_hcyclecnt = 0;
             // Code in this block will run in another thread
             QFuture<void> future = QtConcurrent::run([=]()
             {
@@ -92,6 +95,7 @@ void ClassSimX::doReset()
     set(1, "nmi");
     set(1, "wait");
     recalcNetlist(allNets());
+    m_hcycletotal = 0;
 
     // Propagate the reset before deasserting it
     for (int i=0; i < 8; i++)
@@ -106,7 +110,6 @@ void ClassSimX::doReset()
  */
 inline void ClassSimX::halfCycle()
 {
-    m_cyclecnt++;
     pin_t clk = ! readBit("clk");
     if (clk) // Before the clock rise, service the chip pins
     {
@@ -136,6 +139,8 @@ inline void ClassSimX::halfCycle()
             handleIrq(readAB()); // Interrupt request/Ack cycle
     }
     set(clk, "clk"); // Let the clock edge propagate through the chip
+    m_hcyclecnt++; // Half-cycle count for this single simulation run
+    m_hcycletotal++; // Total cycle count since the chip reset
 }
 
 inline void ClassSimX::handleMemRead(uint16_t ab)
