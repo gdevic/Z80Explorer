@@ -23,8 +23,8 @@ ClassSimX::ClassSimX():
 void ClassSimX::onTimeout()
 {
     z80state z80;
-    readStatus(z80);    
-    qDebug() << dumpStatus(z80).split("\n") << (m_cyclecnt / 2.0) / (m_time.elapsed() / 1000.0) << " Hz";
+    readState(z80);
+    qDebug() << dumpState(z80).split("\n") << (m_cyclecnt / 2.0) / (m_time.elapsed() / 1000.0) << " Hz";
     if (m_runcount <= 0)
         m_timer->stop();
 }
@@ -40,7 +40,8 @@ void ClassSimX::doRunsim(uint ticks)
         if (ticks == 1) // Optimize for the special case of a single-step, makes the interaction more responsive
         {
             halfCycle();
-            onTimeout();
+            emit runStopped();
+            onTimeout(); // XXX Can we get rid of this chain?
         }
         else
         {
@@ -54,6 +55,7 @@ void ClassSimX::doRunsim(uint ticks)
                 while (--m_runcount >= 0)
                     halfCycle();
                 m_runcount = 0;
+                emit runStopped();
             });
         }
     }
@@ -96,6 +98,7 @@ void ClassSimX::doReset()
         halfCycle();
 
     set(1, "reset");
+    emit runStopped();
 }
 
 /*
@@ -540,7 +543,7 @@ pin_t ClassSimX::readPin(QString name)
 /*
  * Reads chip state into a state structure
  */
-void ClassSimX::readStatus(z80state &z)
+void ClassSimX::readState(z80state &z)
 {
     z.af = (readByte("reg_a") << 8) | readByte("reg_f");
     z.bc = (readByte("reg_b") << 8) | readByte("reg_c");
@@ -595,7 +598,7 @@ inline QString ClassSimX::pin(pin_t p)
 /*
  * Returns chip state as a string
  */
-QString ClassSimX::dumpStatus(z80state z)
+QString ClassSimX::dumpState(z80state z)
 {
 
     QString s = QString("AF:%1 BC:%2 DE:%3 HL:%4 AF':%5 BC':%6 DE':%7 HL':%8\n").arg

@@ -17,8 +17,9 @@ public:
     ~DockMonitor();
 
 private slots:
-    void on_btLoadHex_clicked();
-    void onEcho(char c);
+    void on_btLoadHex_clicked();        // Button pressed to load a hex file into memory
+    void onEcho(char c);                // Signal from the controller that a new virtual character is ready
+    void onRunStopped();                // Signal from the controller that the simulation run stopped
 
 private:
     Ui::DockMonitor *ui;

@@ -59,6 +59,11 @@ public:
         { return m_netlist.count(); }
     bool getNetState(net_t i)           // Returns the net logic state
         { return m_netlist[i].state; }
+    void readState(z80state &z);        // Reads chip state into a state structure
+    static QString dumpState(z80state z); // Returns chip state as a string
+
+signals:
+    void runStopped();                  // Current simulation run completed
 
 public slots:
     void doReset();                     // Run chip reset sequence
@@ -78,8 +83,6 @@ private:
     void handleIOWrite(uint16_t ab);    // Simulated chip requested IO write
     void handleIrq(uint16_t ab);        // Simulated chip requested interrupt service (to read data on the bus)
 
-    void readStatus(z80state &z);       // Reads chip state into a state structure
-    QString dumpStatus(z80state z);     // Returns chip state as a string
     void setDB(uint8_t db);             // Sets data bus to a value
     void set(bool on, QString name);    // Sets a named input net to pullup or pulldown status
     uint readByte(QString name);        // Returns a byte value read from the netlist for a particular net bus
@@ -98,8 +101,8 @@ private:
     void getNetGroup(net_t n);
     void addNetToGroup(net_t n);
 
-    QString hex(uint n, uint width);
-    QString pin(pin_t p);
+    static QString hex(uint n, uint width);
+    static QString pin(pin_t p);
 
     QHash<QString, net_t> m_netnames;   // Hash of net (node) names (vcc, vss,...) to nets, key is the net name string
     QVector<trans> m_transdefs;         // Array of transistors, indexed by the transistor number

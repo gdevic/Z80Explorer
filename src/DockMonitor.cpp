@@ -11,6 +11,7 @@ DockMonitor::DockMonitor(QWidget *parent) :
     ui->setupUi(this);
 
     connect(&::controller, SIGNAL(echo(char)), this, SLOT(onEcho(char)));
+    connect(&::controller, SIGNAL(onRunStopped()), this, SLOT(onRunStopped()));
 }
 
 DockMonitor::~DockMonitor()
@@ -28,9 +29,23 @@ void DockMonitor::on_btLoadHex_clicked()
     }
 }
 
+/*
+ * Controller signals us that a new character is ready to print into the virtual terminal
+ */
 void DockMonitor::onEcho(char c)
 {
-    QString s = ui->textTerminal->toPlainText();
-    s.append(QChar(c));
-    ui->textTerminal->setPlainText(s);
+    ui->textTerminal->moveCursor (QTextCursor::End);
+    ui->textTerminal->insertPlainText(QChar(c));
+    ui->textTerminal->moveCursor (QTextCursor::End);
+}
+
+/*
+ * Controller signals us that the current simulation run completed
+ */
+void DockMonitor::onRunStopped()
+{
+    z80state z80; // Get and display the chip state
+    ::controller.readState(z80);
+    QString s = ClassSimX::dumpState(z80);
+    ui->textStatus->setPlainText(s);
 }
