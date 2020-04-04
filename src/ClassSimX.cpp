@@ -487,7 +487,7 @@ uint16_t ClassSimX::readAB()
     uint16_t value= 0;
     for (int i=15; i >= 0; --i)
     {
-        QString bit_name = "ab" + QString::number(i);
+        QString bit_name = "ab" % QString::number(i);
         value <<= 1;
         value |= readBit(bit_name);
     }
@@ -503,7 +503,7 @@ uint ClassSimX::readByte(QString name)
     uint value = 0;
     for (int i=7; i >= 0; --i)
     {
-        QString bit_name = name + QString::number(i);
+        QString bit_name = name % QString::number(i);
         value <<= 1;
         value |= readBit(bit_name);
     }
@@ -564,7 +564,7 @@ void ClassSimX::readStatus(z80state &z)
     z.ab = readAB();
     z.db = readByte("db");
     for (int i=0; i < 8; i++)
-        z._db[i] = readPin("db" + QString::number(i));
+        z._db[i] = readPin("db" % QString::number(i));
     z.clk = readPin("clk");
     z.intr = readPin("int");
     z.nmi = readPin("nmi");
@@ -581,8 +581,8 @@ void ClassSimX::readStatus(z80state &z)
     z.rfsh = readPin("rfsh");
     for (int i=0; i<6; i++)
     {
-        z.m[i] = readPin("m" + QString::number(i+1));
-        z.t[i] = readPin("t" + QString::number(i+1));
+        z.m[i] = readPin("m" % QString::number(i+1));
+        z.t[i] = readPin("t" % QString::number(i+1));
     }
 }
 
