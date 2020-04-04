@@ -22,6 +22,7 @@ struct z80state
     pin_t clk, intr, nmi, halt, mreq, iorq;
     pin_t rd, wr, busak, wait, busrq, reset, m1, rfsh;
     pin_t m[6], t[6];                   // M and T cycles
+    uint8_t instr;                      // Instruction register
 };
 
 // Contains individual transistor definition

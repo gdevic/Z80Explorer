@@ -582,6 +582,7 @@ void ClassSimX::readState(z80state &z)
         z.m[i] = readPin("m" % QString::number(i+1));
         z.t[i] = readPin("t" % QString::number(i+1));
     }
+    z.instr = readByte("instr");
 }
 
 inline QString ClassSimX::hex(uint n, uint width)
@@ -613,7 +614,8 @@ QString ClassSimX::dumpState(z80state z)
             (pin(z.busak),pin(z.wait),pin(z.busrq),pin(z.reset),pin(z.m1),pin(z.rfsh));
 #define MT(x,c) (x==0 ? "_" : ((x==1) ? c : "?"))
     s += QString("M:%1%2%3%4%5%6 ").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
-    s += QString("T:%1%2%3%4%5%6").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
+    s += QString("T:%1%2%3%4%5%6\n").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
 #undef MT
+    s += QString("Instr:%1 %2").arg(hex(z.instr,2)).arg("");
     return s;
 }
