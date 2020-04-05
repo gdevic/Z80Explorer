@@ -9,7 +9,7 @@
  */
 bool ClassSim::loadSimResources(QString dir)
 {
-    qInfo() << "Loading netlist from " << dir;
+    qInfo() << "Loading netlist from" << dir;
     QString file = dir + "/z80.netlist";
     if (QFileInfo::exists(file) && QFileInfo(file).isFile())
     {

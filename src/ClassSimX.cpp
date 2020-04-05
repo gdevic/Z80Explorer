@@ -338,7 +338,7 @@ inline void ClassSimX::addNetToGroup(net_t n)
  */
 bool ClassSimX::loadResources(QString dir)
 {
-    qInfo() << "Loading simX resources from " << dir;
+    qInfo() << "Loading simX resources from" << dir;
     if (loadNodenames(dir) && ngnd && npwr && loadTransdefs(dir) && loadPullups(dir))
     {
         qInfo() << "Completed loading simX resources";
@@ -376,13 +376,13 @@ bool ClassSimX::loadNodenames(QString dir)
                     if (!m_netnames.contains(key))
                         m_netnames[key] = list[1].toUInt();
                     else
-                        qWarning() << "Duplicate key " << key;
+                        qWarning() << "Duplicate key" << key;
                 }
                 else
-                    qWarning() << "Invalid line " << list;
+                    qWarning() << "Invalid line" << list;
             }
             else
-                qDebug() << "Skipping " << line;
+                qDebug() << "Skipping" << line;
         }
         file.close();
         qInfo() << "Loaded pads";
@@ -403,7 +403,7 @@ bool ClassSimX::loadNodenames(QString dir)
 bool ClassSimX::loadTransdefs(QString dir)
 {
     QString transdefs_file = dir + "/transdefs.js";
-    qInfo() << "Loading " << transdefs_file;
+    qInfo() << "Loading" << transdefs_file;
     QFile file(transdefs_file);
     net_t max = 0;
     if (file.open(QFile::ReadOnly | QFile::Text))
@@ -445,13 +445,13 @@ bool ClassSimX::loadTransdefs(QString dir)
                     m_netlist[p->c2].c1c2s.append(p);
                 }
                 else
-                    qWarning() << "Invalid line " << list;
+                    qWarning() << "Invalid line" << list;
             }
             else
-                qDebug() << "Skipping " << line;
+                qDebug() << "Skipping" << line;
         }
         file.close();
-        qInfo() << "Loaded " << m_transdefs.count() << " transistor definitions";
+        qInfo() << "Loaded" << m_transdefs.count() << "transistor definitions";
         qInfo() << "Max net index" << max;
         net_t count = 0;
         for (auto net : m_netlist)
@@ -467,7 +467,7 @@ bool ClassSimX::loadTransdefs(QString dir)
 bool ClassSimX::loadPullups(QString dir)
 {
     QString segdefs_file = dir + "/segdefs.js";
-    qInfo() << "Loading " << segdefs_file;
+    qInfo() << "Loading" << segdefs_file;
     QFile file(segdefs_file);
     if (file.open(QFile::ReadOnly | QFile::Text))
     {

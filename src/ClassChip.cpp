@@ -25,7 +25,7 @@ static const QStringList files =
  */
 bool ClassChip::loadChipResources(QString dir)
 {
-    qInfo() << "Loading chip resources from " << dir;
+    qInfo() << "Loading chip resources from" << dir;
     if (loadImages(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         buildLayerMap(); // XXX
@@ -51,7 +51,7 @@ bool ClassChip::loadImages(QString dir)
     for (auto image : files)
     {
         QString png_file = dir + "/z80_" + image + ".png";
-        qInfo() << "Loading " + png_file;
+        qInfo() << "Loading" + png_file;
         e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
         if (img.load(png_file))
         {
@@ -59,17 +59,17 @@ bool ClassChip::loadImages(QString dir)
             int h = img.height();
             int d = img.depth();
             QImage::Format f = img.format();
-            qInfo() << "Image w=" << w << " h=" << h << " depth=" << d << "format=" << f;
+            qInfo() << "Image w=" << w << "h=" << h << "depth=" << d << "format=" << f;
             img.setText("name", image); // Set the key with the layer/image name
             m_img.append(img);
         }
         else
         {
-            qWarning() << "Error loading " + image;
+            qWarning() << "Error loading" + image;
             return false;
         }
     }
-    qInfo() << "Loaded " << m_img.count() << " images";
+    qInfo() << "Loaded" << m_img.count() << "images";
     return true;
 }
 
@@ -79,7 +79,7 @@ bool ClassChip::loadImages(QString dir)
 bool ClassChip::loadSegdefs(QString dir)
 {
     QString segdefs_file = dir + "/segdefs.js";
-    qInfo() << "Loading " << segdefs_file;
+    qInfo() << "Loading" << segdefs_file;
     QFile file(segdefs_file);
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
@@ -125,10 +125,10 @@ bool ClassChip::loadSegdefs(QString dir)
                     qWarning() << "Invalid line" << line;
             }
             else
-                qDebug() << "Skipping " << line;
+                qDebug() << "Skipping" << line;
         }
         file.close();
-        qInfo() << "Loaded " << m_segdefs.count() << " segdefs";
+        qInfo() << "Loaded" << m_segdefs.count() << "segdefs";
         return true;
     }
     else
@@ -142,7 +142,7 @@ bool ClassChip::loadSegdefs(QString dir)
 bool ClassChip::loadTransdefs(QString dir)
 {
     QString transdefs_file = dir + "/transdefs.js";
-    qInfo() << "Loading " << transdefs_file;
+    qInfo() << "Loading" << transdefs_file;
     QFile file(transdefs_file);
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
@@ -173,13 +173,13 @@ bool ClassChip::loadTransdefs(QString dir)
                     m_transdefs.append(t);
                 }
                 else
-                    qWarning() << "Invalid line " << list;
+                    qWarning() << "Invalid line" << list;
             }
             else
-                qDebug() << "Skipping " << line;
+                qDebug() << "Skipping" << line;
         }
         file.close();
-        qInfo() << "Loaded " << m_transdefs.count() << " transistor definitions";
+        qInfo() << "Loaded" << m_transdefs.count() << "transistor definitions";
         return true;
     }
     else
@@ -306,7 +306,7 @@ bool ClassChip::convertToGrayscale()
     QVector<QImage> new_images;
     for (auto image : m_img)
     {
-        qInfo() << "Processing image " << image;
+        qInfo() << "Processing image" << image;
         e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
         QImage new_image = image.convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
         new_image.setText("name", "bw." + image.text("name"));

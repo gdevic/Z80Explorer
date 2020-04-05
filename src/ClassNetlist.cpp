@@ -14,7 +14,7 @@ ClassNetlist::~ClassNetlist()
 
 bool ClassNetlist::loadResources(QString dir)
 {
-    qInfo() << "Loading netlist resources from " << dir;
+    qInfo() << "Loading netlist resources from" << dir;
 
     if (loadNetNames(dir + "/nodenames.js", false))
     {
@@ -36,7 +36,7 @@ bool ClassNetlist::loadResources(QString dir)
  */
 bool ClassNetlist::saveNetNames(QString fileName)
 {
-    //qInfo() << "Saving net names " << fileName; // XXX We are calling from a destructor, can't use this
+    //qInfo() << "Saving net names" << fileName; // XXX We are calling from a destructor, can't use this
     QFile file(fileName);
     if (file.open(QFile::WriteOnly | QFile::Text))
     {
@@ -63,7 +63,7 @@ bool ClassNetlist::saveNetNames(QString fileName)
  */
 bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
 {
-    qInfo() << "Loading " << fileName;
+    qInfo() << "Loading" << fileName;
     QFile file(fileName);
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
@@ -93,27 +93,27 @@ bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
                     {
                         // Each net number can have only 1 name, in the case of a duplicate, store the last name
                         if (!m_netnames[n].isEmpty())
-                            qWarning() << "Duplicate name " << name << " for net " << n << ", was " << m_netnames[n];
+                            qWarning() << "Duplicate name" << name << "for net" << n << ", was" << m_netnames[n];
                         m_netnames[n] = name;
 
                         // Each net number can be mapped to only one name
                         if (m_netnums.contains(name))
-                            qWarning() << "Duplicate mapping of net " << n << " to " << name << ", was " << m_netnums[name];
+                            qWarning() << "Duplicate mapping of net" << n << "to" << name << ", was" << m_netnums[name];
                         else
                             m_netnums[name] = n;
                     }
                 }
                 else
-                    qWarning() << "Invalid line " << list;
+                    qWarning() << "Invalid line" << list;
             }
             else
-                qDebug() << "Skipping " << line;
+                qDebug() << "Skipping" << line;
         }
         file.close();
         return true;
     }
     else
-        qWarning() << "Error opening " << fileName;
+        qWarning() << "Error opening" << fileName;
     return false;
 }
 
