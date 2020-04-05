@@ -83,7 +83,6 @@ private:
     void getNetGroup(net_t n);
     void addNetToGroup(net_t n);
 
-    QHash<QString, net_t> m_netnames;   // Hash of net (node) names (vcc, vss,...) to nets, key is the net name string
     QVector<trans> m_transdefs;         // Array of transistors, indexed by the transistor number
     QVector<net> m_netlist;             // Array of nets, indexed by the net number
 

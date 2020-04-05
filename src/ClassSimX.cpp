@@ -203,9 +203,9 @@ inline void ClassSimX::setDB(uint8_t db)
  */
 void ClassSimX::set(bool on, QString name)
 {
-    if (m_netnames.contains(name))
+    if (::controller.getNetlist().get(name))
     {
-        net_t n = m_netnames.value(name);
+        net_t n = ::controller.getNetlist().get(name);
         m_netlist[n].pullup = on;
         m_netlist[n].pulldown = !on;
         QVector<net_t> list {n}; // XXX optimize to send only 1 net
@@ -339,59 +339,16 @@ inline void ClassSimX::addNetToGroup(net_t n)
 bool ClassSimX::loadResources(QString dir)
 {
     qInfo() << "Loading simX resources from" << dir;
-    if (loadNodenames(dir) && ngnd && npwr && loadTransdefs(dir) && loadPullups(dir))
+    ngnd = ::controller.getNetlist().get("vss");
+    npwr = ::controller.getNetlist().get("vcc");
+    if (ngnd && npwr && loadTransdefs(dir) && loadPullups(dir))
     {
         qInfo() << "Completed loading simX resources";
-
         initChip();
-
         return true;
     }
     else
         qWarning() << "Loading simX resource failed";
-    return false;
-}
-
-bool ClassSimX::loadNodenames(QString dir)
-{
-    QString nodenames_file = dir + "/nodenames.js";
-    qInfo() << "Loading pads from" << nodenames_file;
-    QFile file(nodenames_file);
-    if (file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QTextStream in(&file);
-        QString line;
-        QStringList list;
-        m_netnames.clear();
-        while(!in.atEnd())
-        {
-            line = in.readLine();
-            if (!line.startsWith('/') && line.indexOf(':') != -1)
-            {
-                line.chop(1);
-                list = line.split(':');
-                if (list.length()==2)
-                {
-                    QString key = QString(list[0]);
-                    if (!m_netnames.contains(key))
-                        m_netnames[key] = list[1].toUInt();
-                    else
-                        qWarning() << "Duplicate key" << key;
-                }
-                else
-                    qWarning() << "Invalid line" << list;
-            }
-            else
-                qDebug() << "Skipping" << line;
-        }
-        file.close();
-        qInfo() << "Loaded pads";
-        ngnd = m_netnames["vss"];
-        npwr = m_netnames["vcc"];
-        return true;
-    }
-    else
-        qWarning() << "Error opening nodenames.js";
     return false;
 }
 
@@ -535,9 +492,9 @@ uint ClassSimX::readByte(QString name)
  */
 inline uint ClassSimX::readBit(QString name)
 {
-    if (m_netnames.contains(name))
+    if (::controller.getNetlist().get(name))
     {
-        net_t n = m_netnames[name];
+        net_t n = ::controller.getNetlist().get(name);
         Q_ASSERT(n < MAX_NET);
         return !!m_netlist[n].state;
     }
@@ -550,9 +507,9 @@ inline uint ClassSimX::readBit(QString name)
  */
 pin_t ClassSimX::readPin(QString name)
 {
-    if (m_netnames.contains(name))
+    if (::controller.getNetlist().get(name))
     {
-        net_t n = m_netnames[name];
+        net_t n = ::controller.getNetlist().get(name);
         Q_ASSERT(n < MAX_NET);
 //        if (m_netlist[n].floats) // XXX handle floating node
 //            return 2;
