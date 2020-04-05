@@ -43,7 +43,7 @@ signals:
 
 private:
     inline ClassChip    &getChip()    { return m_chip; }    // Returns a reference to the chip class
-    inline ClassNetlist &netNetlist() { return m_netlist; } // Returns a reference to the netlist class
+    inline ClassNetlist &getNetlist() { return m_netlist; } // Returns a reference to the netlist class
     inline ClassSim     &getSim()     { return m_sim; }     // Returns a reference to the sim class
     inline ClassSimX    &getSimx()    { return m_simx; }    // Returns a reference to the simx class
     inline ClassWatch   &getWatch()   { return m_watch; }   // Returns a reference to the watch class
