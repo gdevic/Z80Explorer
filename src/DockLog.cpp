@@ -45,6 +45,7 @@ void DockLog::processNewMessage(QString message, bool newLine)
 {
     Q_UNUSED(newLine)
     ui->textEdit->appendPlainText(message);
+    ui->textEdit->ensureCursorVisible();
 }
 
 /*
@@ -53,6 +54,7 @@ void DockLog::processNewMessage(QString message, bool newLine)
 void DockLog::log(const QString &message)
 {
     ui->textEdit->appendPlainText(message);
+    ui->textEdit->ensureCursorVisible();
 }
 
 /*
