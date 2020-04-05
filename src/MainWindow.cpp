@@ -117,7 +117,7 @@ void MainWindow::onNewWaveformView()
 void MainWindow::onEditWatchlist()
 {
     DialogEditWatchlist dlg(this);
-    dlg.setNodeList(::controller.getChip().getNodenames());
+    dlg.setNodeList(::controller.getNetlist().getNodenames());
     dlg.setWatchlist(::controller.getWatch().getWatchlist());
     if (dlg.exec()==QDialog::Accepted)
         ::controller.getWatch().setWatchlist(dlg.getWatchlist());

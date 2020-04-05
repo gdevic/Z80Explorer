@@ -336,7 +336,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
                 s.append(name).append(',');
             m_ov->setText(1, s);
 
-            QStringList names =::controller.getChip().getNodenamesFromNodes(nodes);
+            QStringList names = ::controller.getNetlist().getNodenamesFromNodes(nodes);
             m_ov->setText(2, names.join(','));
         }
         else

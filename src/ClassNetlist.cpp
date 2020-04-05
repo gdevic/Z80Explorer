@@ -79,7 +79,7 @@ bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
                 list = line.split(':');
                 if (list.length()==2)
                 {
-                    QString name = list[0];
+                    QString name = list[0].trimmed();
                     net_t n = list[1].toInt();
                     // We are loading 2 different files: nodenames.js and custom netnames.js with updates and overrides
                     if (loadCustom)
@@ -115,4 +115,15 @@ bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
     else
         qWarning() << "Error opening " << fileName;
     return false;
+}
+
+const QStringList ClassNetlist::getNodenamesFromNodes(QList<int> nodes)
+{
+    QList<QString> list;
+    for(auto i : nodes)
+    {
+        if (!m_netnames[i].isEmpty() && !list.contains(m_netnames[i])) // Do not create duplicates
+            list.append(m_netnames[i]);
+    }
+    return list;
 }

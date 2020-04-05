@@ -36,9 +36,7 @@ public:
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
     QList<int> getNodesAt(int x, int y);
-    const QStringList getNodenames() { return m_nodenames.values(); }
     const QStringList getTransistorsAt(int x, int y);
-    const QStringList getNodenamesFromNodes(QList<int> nodes);
     const QStringList getLayerNames();  // Returns a list of layer / image names
     const segdef *getSegment(uint nodenum); // Returns the segdef given its node number, nullptr if not found
     const transdef *getTrans(QString name); // Returns transistor definition given its name, nullptr if not found
@@ -56,13 +54,11 @@ private:
 
     QVector<QPolygon> m_poly;
     QHash<uint, segdef> m_segdefs;      // Hash of segment definitions, key is the segment node number
-    QHash<int, QString> m_nodenames;    // Hash of node names (vcc, vss,...), key is the node number
     QVector<transdef> m_transdefs;      // Array of transistor definitions
 
 private:
     bool loadImages(QString dir);       // Loads chip images
     bool loadSegdefs(QString dir);      // Loads segdefs.js
-    bool loadNodenames(QString dir);    // Loads nodenames.js
     bool loadTransdefs(QString dir);    // Loads transdefs.js
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
     void drawTransistors(QImage &img);  // Draws transistors on the given image surface

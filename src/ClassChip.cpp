@@ -26,7 +26,7 @@ static const QStringList files =
 bool ClassChip::loadChipResources(QString dir)
 {
     qInfo() << "Loading chip resources from " << dir;
-    if (loadImages(dir) && loadNodenames(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
+    if (loadImages(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         buildLayerMap(); // XXX
 
@@ -137,50 +137,6 @@ bool ClassChip::loadSegdefs(QString dir)
 }
 
 /*
- * Load nodenames.js
- */
-bool ClassChip::loadNodenames(QString dir)
-{
-    QString nodenames_file = dir + "/nodenames.js";
-    qInfo() << "Loading " << nodenames_file;
-    QFile file(nodenames_file);
-    if (file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QTextStream in(&file);
-        QString line;
-        QStringList list;
-        m_nodenames.clear();
-        while(!in.atEnd())
-        {
-            line = in.readLine();
-            if (!line.startsWith('/') && line.indexOf(':') != -1)
-            {
-                line.chop(1);
-                list = line.split(':');
-                if (list.length()==2)
-                {
-                    int key = list[1].toInt();
-                    if (!m_nodenames.contains(key))
-                        m_nodenames[key] = list[0];
-                    else
-                        qWarning() << "Duplicate key " << key;
-                }
-                else
-                    qWarning() << "Invalid line " << list;
-            }
-            else
-                qDebug() << "Skipping " << line;
-        }
-        file.close();
-        qInfo() << "Loaded " << m_nodenames.count() << " names";
-        return true;
-    }
-    else
-        qWarning() << "Error opening nodenames.js";
-    return false;
-}
-
-/*
  * Loads transdefs.js
  */
 bool ClassChip::loadTransdefs(QString dir)
@@ -287,17 +243,6 @@ const QStringList ClassChip::getTransistorsAt(int x, int y)
     {
         if (s.box.contains(QPoint(x, y)))
             list.append(s.name);
-    }
-    return list;
-}
-
-const QStringList ClassChip::getNodenamesFromNodes(QList<int> nodes)
-{
-    QList<QString> list;
-    for(auto i : nodes)
-    {
-        if (m_nodenames.contains(i) && !list.contains(m_nodenames[i])) // Do not create duplicates
-            list.append(m_nodenames[i]);
     }
     return list;
 }
