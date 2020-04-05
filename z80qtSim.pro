@@ -23,6 +23,7 @@ SOURCES += \
     src/ClassApplog.cpp \
     src/ClassChip.cpp \
     src/ClassController.cpp \
+    src/ClassNetlist.cpp \
     src/ClassSim.cpp \
     src/ClassSimX.cpp \
     src/ClassTrickbox.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     src/ClassChip.h \
     src/ClassController.h \
     src/ClassException.h \
+    src/ClassNetlist.h \
     src/ClassSim.h \
     src/ClassSimX.h \
     src/ClassSingleton.h \

@@ -2,6 +2,7 @@
 #define CLASSCONTROLLER_H
 
 #include "ClassChip.h"
+#include "ClassNetlist.h"
 #include "ClassSim.h"
 #include "ClassSimX.h"
 #include "ClassTrickbox.h"
@@ -41,16 +42,18 @@ signals:
     void onRunStopped();                    // Called by the sim when run stops
 
 private:
-    inline ClassChip  &getChip()  { return m_chip; }   // Returns a reference to the chip class
-    inline ClassSim   &getSim()   { return m_sim;  }   // Returns a reference to the sim class
-    inline ClassSimX  &getSimx()  { return m_simx; }   // Returns a reference to the simx class
-    inline ClassWatch &getWatch() { return m_watch; }  // Returns a reference to the watch class
+    inline ClassChip    &getChip()    { return m_chip; }    // Returns a reference to the chip class
+    inline ClassNetlist &netNetlist() { return m_netlist; } // Returns a reference to the netlist class
+    inline ClassSim     &getSim()     { return m_sim; }     // Returns a reference to the sim class
+    inline ClassSimX    &getSimx()    { return m_simx; }    // Returns a reference to the simx class
+    inline ClassWatch   &getWatch()   { return m_watch; }   // Returns a reference to the watch class
 
-    ClassChip  m_chip;      // Global chip resource class
-    ClassSimX  m_simx;      // Global simulator simx class
-    ClassSim   m_sim;       // Global simulator sim class
-    ClassWatch m_watch;     // Global watchlist
-    ClassTrickbox m_trick;  // Global trickbox supporting environment
+    ClassChip     m_chip;      // Global chip resource class
+    ClassNetlist  m_netlist;   // Global netlist
+    ClassSimX     m_simx;      // Global simulator simx class
+    ClassSim      m_sim;       // Global simulator sim class
+    ClassWatch    m_watch;     // Global watchlist
+    ClassTrickbox m_trick;     // Global trickbox supporting environment
 
     friend class MainWindow;      // XXX We will let them be friends but really should not
     friend class WidgetImageView; // XXX as it breaks the design pattern
