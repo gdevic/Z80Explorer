@@ -39,9 +39,10 @@ void ClassSimX::doRunsim(uint ticks)
         m_runcount = ticks;
     else
     {
-        if (ticks == 1) // Optimize for the special case of a single-step, makes the interaction more responsive
+        if (ticks < 3) // Optimize for special cases of up to 2 half-cycle steps, makes the interaction more responsive
         {
-            halfCycle();
+            while (ticks--)
+                halfCycle();
             emit runStopped();
             onTimeout(); // XXX Can we get rid of this chain?
         }
@@ -86,6 +87,13 @@ void ClassSimX::initChip()
  */
 void ClassSimX::doReset()
 {
+    // If the chip is running, stop it instead
+    if (m_runcount)
+    {
+        m_runcount = 0; // XXX This is not enough since the runnig thread may continue for a cycle or two
+        return;
+    }
+
     // Initialize control pins
     set(0, "_reset");
     set(1, "clk");
