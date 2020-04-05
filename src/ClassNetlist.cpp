@@ -116,14 +116,3 @@ bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
         qWarning() << "Error opening" << fileName;
     return false;
 }
-
-const QStringList ClassNetlist::getNodenamesFromNodes(QList<int> nodes)
-{
-    QList<QString> list;
-    for(auto i : nodes)
-    {
-        if (!m_netnames[i].isEmpty() && !list.contains(m_netnames[i])) // Do not create duplicates
-            list.append(m_netnames[i]);
-    }
-    return list;
-}

@@ -336,8 +336,15 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
                 s.append(name).append(',');
             m_ov->setText(1, s);
 
-            QStringList names = ::controller.getNetlist().getNodenamesFromNodes(nodes);
-            m_ov->setText(2, names.join(','));
+            // For each node number in the nodes list, get their name
+            QList<QString> list;
+            for(net_t n : nodes)
+            {
+                QString name = ::controller.getNetlist().get(n);
+                if (!name.isEmpty() && !list.contains(name)) // Do not create duplicates
+                    list.append(name);
+            }
+            m_ov->setText(2, list.join(','));
         }
         else
         {

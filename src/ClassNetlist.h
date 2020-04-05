@@ -18,8 +18,8 @@ public:
 
     bool loadResources(QString dir);
     QStringList getNodenames() { return m_netnums.keys(); }
-    const QStringList getNodenamesFromNodes(QList<int> nodes);
-    net_t get(QString name) { return m_netnums[name]; }
+    inline net_t get(QString name) { return m_netnums[name]; }
+    inline QString get(net_t n) { return m_netnames[n]; }
 
 private:
     bool loadNetNames(QString dir, bool);
