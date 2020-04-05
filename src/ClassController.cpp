@@ -1,7 +1,6 @@
 #include "ClassController.h"
 #include <QDebug>
 #include <QFileDialog>
-#include <QLabel>
 #include <QSettings>
 
 bool ClassController::init()
@@ -24,17 +23,6 @@ bool ClassController::init()
     }
     settings.setValue("ChipResources", path);
 
-    // Since the init phase can take some time (loading images, processing them etc.)
-    // show a popup to let the user know what is going on
-    QLabel qPopup("Loading application resource files... Please wait...", nullptr, Qt::SplashScreen | Qt::WindowStaysOnTopHint);
-    QPalette qPalette = qPopup.palette();
-    qPalette.setBrush(QPalette::Background, QColor(0xff, 0xe0, 0xc0));
-    qPopup.setPalette(qPalette);
-    qPopup.setFrameStyle(QLabel::Raised | QLabel::Panel);
-    qPopup.setAlignment(Qt::AlignCenter);
-    qPopup.setFixedSize(320, 200);
-    qPopup.show();
-
     // Initialize all global classes using the given path to resource
     if (!m_chip.loadChipResources(path) || !m_sim.loadSimResources(path) || !m_simx.loadResources(path))
     {
@@ -49,8 +37,6 @@ bool ClassController::init()
     // Load the "hello world" sample executable file
     if (!m_trick.loadIntelHex(path + "/hello_world.hex"))
         qWarning() << "Unable to load example Z80 hex file";
-
-    qPopup.hide();
 
     return true;
 }

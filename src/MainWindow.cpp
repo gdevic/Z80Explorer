@@ -14,7 +14,7 @@
 #include <QSettings>
 #include <QCloseEvent>
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -31,8 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Enable all bells and whistles of the Qt docking engine!
     setDockOptions(AllowNestedDocks | AnimatedDocks | AllowTabbedDocks);
 
-    // Create and dock the log window
-    m_logWindow = new DockLog(this);
+    // Log window has been created by the main.cpp and here we simply re-parent it
+    m_logWindow = logWindow;
     addDockWidget(Qt::BottomDockWidgetArea, m_logWindow);
     QAction *actionLog = m_logWindow->toggleViewAction();
     actionLog->setShortcut(QKeySequence("F2"));

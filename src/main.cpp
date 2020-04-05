@@ -2,11 +2,13 @@
 #include "ClassApplog.h"
 #include "ClassController.h"
 #include "ClassSingleton.h"
+#include "DockLog.h"
 
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
 #include <QSettings>
+#include <QVBoxLayout>
 
 // Global objects
 MainWindow *mainWindow = nullptr; // Window: main window class
@@ -117,11 +119,22 @@ int main(int argc, char *argv[])
         // Install the message hook into the log window so we can use qDebug, etc.
         qInstallMessageHandler(appLogMsgHandler);
 
+        // Create a temporary window that contains the log widget so we can observe init log messages
+        QWidget *wndInit = new QWidget();
+        QVBoxLayout *layout = new QVBoxLayout(wndInit);
+        DockLog *logWindow = new DockLog(wndInit);
+        layout->addWidget(logWindow);
+        wndInit->setWindowState(Qt::WindowMaximized);
+        wndInit->show();
+
         // Initialize the controller object outside the constructor
         if (::controller.init())
         {
             // Create main application window
-            mainWindow = new MainWindow();
+            mainWindow = new MainWindow(nullptr, logWindow);
+
+            // At this point hide the initialization log window
+            wndInit->hide();
 
             // Load and set main window location and size
             // Include also all docking windows location, size and docking status
@@ -142,7 +155,10 @@ int main(int argc, char *argv[])
             delete mainWindow;
         }
         else
-            QMessageBox::critical(0, "Error", "Error initializing app controller!");
+        {
+            QMessageBox::critical(0, "Error", "Error initializing the application!");
+        }
+        delete wndInit;
     }
     catch(std::exception& e)
     {
