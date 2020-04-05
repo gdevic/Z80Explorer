@@ -438,7 +438,7 @@ void WidgetImageView::onFind(QString text)
         qDebug() << "Highlights cleared";
         return;
     }
-    if (text.startsWith(QChar('t'))) // Search the transistors by their number
+    if (text.startsWith(QChar('t')) && (text.length() > 3)) // Search the transistors by their number, which has at least 3 digits
     {
         const transdef *trans = ::controller.getChip().getTrans(text);
         if (trans)
@@ -452,10 +452,15 @@ void WidgetImageView::onFind(QString text)
         else
             qWarning() << "Segment" << text << "not found";
     }
-    else // Search the visual segment numbers
+    else // Search the visual segment numbers or net names
     {
         bool ok;
-        uint nodenum = text.toUInt(&ok);
+        net_t nodenum = text.toUInt(&ok);
+        if (!ok) // Check if the input is a net name
+        {
+            nodenum = ::controller.getNetlist().get(text);
+            ok = nodenum > 0;
+        }
         if (ok)
         {
             const segdef *seg = ::controller.getChip().getSegment(nodenum);
