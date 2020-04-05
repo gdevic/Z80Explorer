@@ -37,6 +37,7 @@ private:
     QPoint  m_mousePos;                 // Current mouse position
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
     bool    m_mousePressed;             // Mouse button is pressed
+    int     m_fontheight;               // Cursor flag font height in pixels
 
     QTimer m_timer;                     // Refresh graph every twice a second
 };

@@ -15,7 +15,6 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent),
     // Set up few dummy cursors
     m_cursors2x.append(1);
     m_cursors2x.append(10);
-    m_cursors2x.append(200);
     // Select the second cursor
     m_cursor = 1;
 
@@ -79,7 +78,7 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
     painter.setFont(font);
 
     QFontMetrics fontm = QFontMetrics(painter.font());
-    int height = fontm.height();
+    m_fontheight = fontm.height();
     QPen pen(Qt::yellow);
     painter.setPen(pen);
 
@@ -87,14 +86,14 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
     {
         uint cursorX = m_cursors2x[i];
         uint x = cursorX * m_hscale / 2.0;
-        uint y = r.bottom() - i * height;
+        uint y = r.bottom() - i * m_fontheight;
         painter.drawLine(x, r.top(), x, y);
 
         QString text = QString::number((cursorX + hstart) / 2);
         QRect bb = painter.fontMetrics().boundingRect(text);
         bb.adjust(x, y, x, y);
 
-        painter.drawText(x + 2, r.bottom() - i * height, text);
+        painter.drawText(x + 2, r.bottom() - i * m_fontheight, text);
         painter.drawRect(bb.adjusted(0, 0, 4, 0));
     }
 
@@ -105,7 +104,7 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
         painter.setPen(pen);
         uint i = m_cursor;
         uint x = m_cursors2x.at(m_cursor) * m_hscale / 2.0;
-        painter.drawLine(x, r.top(), x, r.bottom() - i * height + 1);
+        painter.drawLine(x, r.top(), x, r.bottom() - i * m_fontheight + 1);
     }
 }
 
@@ -143,14 +142,19 @@ void WidgetWaveform::mousePressEvent(QMouseEvent *event)
 
     if (m_cursors2x.count()) // The following code moves cursors
     {
-        // On a mouse click, try to find the cursor that is close to the mouse pointer (off by a few pixels)
+        // On a mouse click, identify the cursor to be used:
+        // If the mouse is on the bottom row (where the cursors' flags are), use the corresponding cursor
+        QRect r = geometry();
+        if (m_mousePos.y() > (r.bottom() - m_cursors2x.count() * m_fontheight))
+            m_cursor = (r.bottom() - m_mousePos.y()) / m_fontheight;
+        else
+        // Next, try to find the cursor that is close to the mouse pointer (off by a few pixels)
         // If found, make that cursor active and ready to move it. If not, move the currently active cursor
         // to the mouse position and have it ready to move.
-        int mouseX = m_mousePos.x();
         for (int i=0; i<m_cursors2x.count(); i++)
         {
             int data_to_screenX = m_cursors2x.at(i) * (m_hscale / 2);
-            if (abs(mouseX - data_to_screenX) < 5)
+            if (abs(m_mousePos.x() - data_to_screenX) < 10)
                 m_cursor = i;
         }
         uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
