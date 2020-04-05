@@ -24,7 +24,7 @@ bool ClassController::init()
     settings.setValue("ChipResources", path);
 
     // Initialize all global classes using the given path to resource
-    if (!m_chip.loadChipResources(path) || !m_sim.loadSimResources(path) || !m_simx.loadResources(path))
+    if (!m_netlist.loadResources(path) || !m_chip.loadChipResources(path) || !m_sim.loadSimResources(path) || !m_simx.loadResources(path))
     {
         qCritical() << "Unable to load chip resources from" << path;
         return false;
