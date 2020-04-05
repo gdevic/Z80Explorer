@@ -10,6 +10,26 @@
 #include <QFile>
 
 /*
+ * Adds watch data to the watch item's buffer
+ */
+void ClassWatch::append(watch *w, uint hcycle, net_t value)
+{
+    hringstart = (hcycle > MAX_WATCH_HISTORY) ? (hcycle - MAX_WATCH_HISTORY) : 0;
+    next = hcycle % MAX_WATCH_HISTORY;
+    w->d[next] = value;
+    next = (next + 1) % MAX_WATCH_HISTORY;
+}
+
+net_t ClassWatch::at(watch *w, uint hcycle)
+{
+    if ((hringstart == 0) && (hcycle >= next))
+        return 3;
+    if ((hcycle < hringstart) || (hcycle >= (hringstart + MAX_WATCH_HISTORY)))
+        return 3;
+    return w->d[hcycle % MAX_WATCH_HISTORY];
+}
+
+/*
  * Returns the watch of a given name or nullptr
  */
 watch *ClassWatch::find(QString name)
@@ -18,6 +38,14 @@ watch *ClassWatch::find(QString name)
         if (item.name == name)
             return &item;
     return nullptr;
+}
+
+void ClassWatch::doReset()
+{
+    hringstart = 0;
+    next = 0;
+    for (auto &watch : m_watchlist)
+        memset(watch.d, 3, sizeof(watch.d));
 }
 
 /*

@@ -41,10 +41,10 @@ signals:
     void onRunStopped();                    // Called by the sim when run stops
 
 private:
-    ClassChip  &getChip()  { return m_chip; }   // Returns a reference to the chip class
-    ClassSim   &getSim()   { return m_sim;  }   // Returns a reference to the sim class
-    ClassSimX  &getSimx()  { return m_simx; }   // Returns a reference to the simx class
-    ClassWatch &getWatch() { return m_watch; }  // Returns a reference to the watch class
+    inline ClassChip  &getChip()  { return m_chip; }   // Returns a reference to the chip class
+    inline ClassSim   &getSim()   { return m_sim;  }   // Returns a reference to the sim class
+    inline ClassSimX  &getSimx()  { return m_simx; }   // Returns a reference to the simx class
+    inline ClassWatch &getWatch() { return m_watch; }  // Returns a reference to the watch class
 
     ClassChip  m_chip;      // Global chip resource class
     ClassSimX  m_simx;      // Global simulator simx class
@@ -54,6 +54,8 @@ private:
 
     friend class MainWindow;      // XXX We will let them be friends but really should not
     friend class WidgetImageView; // XXX as it breaks the design pattern
+    friend class ClassSimX;
+    friend class WidgetWaveform;
 };
 
 extern ClassController controller;

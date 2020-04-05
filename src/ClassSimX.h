@@ -92,7 +92,7 @@ private:
     net_t ngnd {}, npwr {};             // 'vss' and 'vcc' nets (expected values: 1 and 2)
 
     QTime m_time;                       // Calculates elapsed time during a simulation thread run
-    QTimer *m_timer;                    // Timer to dump z80 state every 500ms when running the simulation
+    QTimer m_timer;                     // Timer to dump z80 state every 500ms when running the simulation
     QAtomicInt m_runcount {};           // Simulation thread down-counts this to exit
     QAtomicInt m_hcyclecnt {};          // Simulation half-cycle count (resets on each runstart event)
     QAtomicInt m_hcycletotal {};        // Total simulation half-cycle count (resets on a chip reset)

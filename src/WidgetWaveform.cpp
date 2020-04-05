@@ -1,4 +1,5 @@
 #include "WidgetWaveform.h"
+#include "ClassController.h"
 #include <QPainter>
 #include <QPaintEvent>
 
@@ -6,18 +7,10 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent),
     m_hscale(10),
     m_waveheight(10)
 {
-    m_lastdataindex = 500;
-    for (auto &data : m_data)
-    {
-        for (uint i=0; i<500; i++)
-        {
-            data.append(rand());
-        }
-    }
-    m_data[0][0] = 0;
-    m_data[0][1] = 0;
-    m_data[0][2] = 1;
-    m_data[0][3] = 0;
+    m_timer.setInterval(500);
+    connect(&m_timer, &QTimer::timeout, this, &WidgetWaveform::onTimeout);
+
+    connect(&::controller, SIGNAL(onRunStopped()), this, SLOT(onRunStopped()));
 
     // Set up few dummy cursors
     m_cursors2x.append(1);
@@ -28,72 +21,99 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent),
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     setMouseTracking(true);
+    m_timer.start();
+}
+
+/*
+ * Controller signals us that the current simulation run completed
+ */
+void WidgetWaveform::onRunStopped()
+{
+    update(); // Repaint the view
 }
 
 void WidgetWaveform::paintEvent(QPaintEvent *pe)
 {
     const QRect &r = pe->rect();
     QPainter painter(this);
-
     painter.setPen(QPen(QColor(0, 255, 0), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-
-    // For each data trace
+    uint hstart = ::controller.getWatch().gethstart();
     uint y = 10;
-    for (auto &trace : m_data)
+    int it;
+    watch *w = ::controller.getWatch().getFirst(it);
+    while (w != nullptr)
     {
-        drawOneSignal(painter, y, trace);
+        if (w->enabled)
+            drawOneSignal(painter, y, hstart, w);
         y += 20;
+        w = ::controller.getWatch().getNext(it);
     }
-
-    drawCursors(painter, r);
+    drawCursors(painter, r, hstart);
 }
 
-void WidgetWaveform::drawOneSignal(QPainter &painter, uint y, QVector<pin_t> &data)
+void WidgetWaveform::drawOneSignal(QPainter &painter, uint y, uint hstart, watch *w)
 {
-    pin_t data_prev = data.at(0) & 1;
-    for (int i = 0; i < data.length(); i++)
+    net_t data_prev = ::controller.getWatch().at(w, hstart);
+    pin_t data_cur;
+    for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
     {
-        pin_t data_cur = data.at(i) & 1;
-
+        data_cur = ::controller.getWatch().at(w, hstart + i);
+        if (data_cur > 2) // If the data is undef at this cycle, skip drawing it
+            continue;
         uint x1 = i * m_hscale;
         uint x2 = (i + 1) * m_hscale;
-
         uint y2 = data_cur ? m_waveheight : 0;
-
         if (data_prev != data_cur)
         {
             uint y1 = data_prev ? m_waveheight : 0;
             painter.drawLine(x1, y - y1, x1, y - y2);
         }
-
         painter.drawLine(x1, y - y2, x2, y - y2);
-
-        data_prev = data_cur;
     }
 }
 
-void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r)
+void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
 {
-    painter.setPen(QPen(QColor(255, 255, 0), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-    for (auto cursorX : m_cursors2x)
+    QFont font = painter.font();
+    font.setPixelSize(14);
+    painter.setFont(font);
+
+    QFontMetrics fontm = QFontMetrics(painter.font());
+    int height = fontm.height();
+    QPen pen(Qt::yellow);
+    painter.setPen(pen);
+
+    for (int i=0; i<m_cursors2x.count(); i++)
     {
+        uint cursorX = m_cursors2x[i];
         uint x = cursorX * m_hscale / 2.0;
-        painter.drawLine(x, r.top(), x, r.bottom());
+        uint y = r.bottom() - i * height;
+        painter.drawLine(x, r.top(), x, y);
+
+        QString text = QString::number((cursorX + hstart) / 2);
+        QRect bb = painter.fontMetrics().boundingRect(text);
+        bb.adjust(x, y, x, y);
+
+        painter.drawText(x + 2, r.bottom() - i * height, text);
+        painter.drawRect(bb.adjusted(0, 0, 4, 0));
     }
+
     // Draw the selected cursor on top
     if (m_cursor < uint(m_cursors2x.count()))
     {
-        painter.setPen(QPen(QColor(255, 239, 0), 3, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+        pen.setWidth(3);
+        painter.setPen(pen);
+        uint i = m_cursor;
         uint x = m_cursors2x.at(m_cursor) * m_hscale / 2.0;
-        painter.drawLine(x, r.top(), x, r.bottom());
+        painter.drawLine(x, r.top(), x, r.bottom() - i * height + 1);
     }
 }
 
 QSize WidgetWaveform::sizeHint() const
 {
     // The total data size plus some (~12%), to give space on the right end
-    uint extra = m_lastdataindex >> 3;
-    QSize size((m_lastdataindex + extra) * m_hscale, 0);
+    uint extra = MAX_WATCH_HISTORY >> 3;
+    QSize size((MAX_WATCH_HISTORY + extra) * m_hscale, 0);
     return size;
 }
 
@@ -108,7 +128,7 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
     if(m_mousePressed && m_cursormoving)
     {
         uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
-        if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= m_lastdataindex * 2))
+        if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= MAX_WATCH_HISTORY * 2))
             m_cursors2x[m_cursor] = mouse_in_dataX;
         update();
     }
@@ -134,7 +154,7 @@ void WidgetWaveform::mousePressEvent(QMouseEvent *event)
                 m_cursor = i;
         }
         uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
-        if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= m_lastdataindex * 2))
+        if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= MAX_WATCH_HISTORY * 2))
             m_cursors2x[m_cursor] = mouse_in_dataX;
         m_cursormoving = true;
         update();

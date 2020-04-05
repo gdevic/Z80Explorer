@@ -60,7 +60,9 @@ bool ClassController::init()
  */
 void ClassController::doReset()
 {
-    emit m_simx.doReset();
+    m_simx.doReset();
+    m_watch.doReset();
+    emit this->onRunStopped();
     qDebug() << "Chip reset";
 }
 

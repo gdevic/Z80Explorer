@@ -15,9 +15,8 @@ ClassSimX::ClassSimX():
     m_transdefs(MAX_TRANSDEFS),
     m_netlist(MAX_NET)
 {
-    m_timer = new QTimer(this);
-    m_timer->setInterval(500);
-    connect(m_timer, &QTimer::timeout, this, &ClassSimX::onTimeout);
+    m_timer.setInterval(500);
+    connect(&m_timer, &QTimer::timeout, this, &ClassSimX::onTimeout);
 }
 
 // XXX Remove this timer here and implement it somewhere else (?)
@@ -29,7 +28,7 @@ void ClassSimX::onTimeout()
     s.removeAt(4); // Remove pins section
     qDebug() << s << "Half-Cycles:" % QString::number(m_hcycletotal) << (m_hcyclecnt / 2.0) / (m_time.elapsed() / 1000.0) << " Hz";
     if (m_runcount <= 0)
-        m_timer->stop();
+        m_timer.stop();
 }
 
 void ClassSimX::doRunsim(uint ticks)
@@ -49,7 +48,7 @@ void ClassSimX::doRunsim(uint ticks)
         else
         {
             m_runcount = ticks; // If the sim thread is not running, start it using the new tick counter
-            m_timer->start();
+            m_timer.start();
             m_time.start();
             m_hcyclecnt = 0;
             // Code in this block will run in another thread
@@ -95,11 +94,11 @@ void ClassSimX::doReset()
     set(1, "nmi");
     set(1, "wait");
     recalcNetlist(allNets());
-    m_hcycletotal = 0;
 
     // Propagate the reset before deasserting it
     for (int i=0; i < 8; i++)
         halfCycle();
+    m_hcycletotal = 0; // XXX For now we will not pay attention to this reset sequence
 
     set(1, "_reset");
     emit runStopped();
@@ -139,16 +138,18 @@ inline void ClassSimX::halfCycle()
             handleIrq(readAB()); // Interrupt request/Ack cycle
     }
     set(clk, "clk"); // Let the clock edge propagate through the chip
-#if 1
+
     // After each half-cycle, populate the watch data
-    // XXX Optimize this for perf, critical path
-    ClassWatch &watch = ::controller.getWatch();
-    for (auto &w : watch.getWatchlist())
+    int it;
+    watch *w = ::controller.getWatch().getFirst(it);
+    while (w != nullptr)
     {
-        net_t bit = readBit(w);
-        watch.setWatch(w, m_hcycletotal, bit);
+        net_t bit = w->enabled ? readBit(w->name) : 3;
+        ::controller.getWatch().append(w, m_hcycletotal, bit);
+
+        w = ::controller.getWatch().getNext(it);
     }
-#endif
+
     m_hcyclecnt++; // Half-cycle count for this single simulation run
     m_hcycletotal++; // Total cycle count since the chip reset
 }

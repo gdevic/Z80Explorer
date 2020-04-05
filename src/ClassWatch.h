@@ -1,19 +1,23 @@
 #ifndef CLASSWATCH_H
 #define CLASSWATCH_H
 
-#include <QObject>
+#include "z80state.h"
 
-typedef uint16_t net_t;                 // Type of an index to the net array
-typedef uint8_t  pin_t;                 // Type of the pin state (0, 1; or 2 for floating)
+#define MAX_WATCH_HISTORY  1000
 
-// Watch structure defines a net to watch. A net is a single object identified by net number "n"
+/*
+ * Watch structure defines a net to watch. A net is a single object identified by a net number "n".
+ */
 struct watch
 {
     QString name;                       // The name of the net to watch
     uint x, y;                          // Coordinates of a pushpin on the chip image
     net_t n;                            // Net number (if nonzero)
+    bool enabled { true };              // Watch history is enabled
 
-    template <class Archive> void serialize(Archive & ar) { ar(name, x, y, n); }
+    template <class Archive> void serialize(Archive & ar) { ar(name, x, y, n, enabled); }
+
+    net_t d[MAX_WATCH_HISTORY];         // Circular buffer of watch data (not serialized out)
 };
 
 /*
@@ -23,16 +27,31 @@ class ClassWatch : public QObject
 {
     Q_OBJECT
 public:
-    ClassWatch() {};
+    ClassWatch() { doReset(); };
 
     bool loadWatchlist(QString name);   // Loads a watchlist
     bool saveWatchlist(QString name);   // Saves the current watchlist
     QStringList getWatchlist();         // Returns the list of net names in the watchlist
     void setWatchlist(QStringList);     // Sets new watchlist
     watch *find(QString name);          // Returns the watch of a given name or nullptr
+    void doReset();                     // Chip reset sequence, reset watch history buffers
+
+    inline watch *getFirst(int &it)     // Iterator
+        { it = 1; return (m_watchlist.count() > 0) ? m_watchlist.data() : nullptr; }
+    inline watch *getNext(int &it)      // Iterator
+        { return (it < m_watchlist.count()) ? &m_watchlist[it++] : nullptr; }
+
+    void append(watch *w, uint hcycle, net_t value); // Adds watch data to the specified cycle position
+    net_t at(watch *w, uint hcycle);    // Returns watch data at the specified cycle position
+
+    uint gethstart() { return hringstart; }
 
 private:
-    QVector<watch> m_watchlist;         // The list of items that are tracked
+    QVector<watch> m_watchlist {};      // The list of watch items that are tracked
+    uint next {};                       // Next index within each watch buffer to write to
+    uint hringstart {};                 // Buffer start maps to this absolute cycle
+
+    friend class WidgetWaveform;        // This is ok: the whole purpose of that widget is to draw the data contained herein
 };
 
 #endif // CLASSWATCH_H
