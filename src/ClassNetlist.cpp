@@ -60,11 +60,10 @@ bool ClassNetlist::saveNetNames(QString fileName)
                 out << m_netnames[i] << ": " << QString::number(i) << ",\n";
         }        
         out << "// Buses:\n"; // Write out the buses
-        QHash<QString, QVector<net_t>>::iterator i;
-        for (i = m_buses.begin(); i != m_buses.end(); i++)
+        for (auto i : m_buses.keys())
         {
-            QString line = QString("%1: [").arg(i.key());
-            for (auto net : i.value())
+            QString line = QString("%1: [").arg(i);
+            for (auto net : m_buses[i])
                 line.append(QString::number(net) % ",");
             line.chop(1); // Remove that last comma
             line.append("],\n");
@@ -257,6 +256,16 @@ bool ClassNetlist::loadPullups(QString dir)
     else
         qWarning() << "Error opening segdefs.js";
     return false;
+}
+
+/*
+ * Returns a list of net and bus names
+ */
+QStringList ClassNetlist::getNodenames()
+{
+    QStringList nodes = m_netnums.keys();
+    QStringList buses = m_buses.keys();
+    return nodes + buses;
 }
 
 /*

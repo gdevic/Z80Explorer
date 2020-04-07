@@ -37,7 +37,7 @@ public:
     ~ClassNetlist();
 
     bool loadResources(QString dir);
-    QStringList getNodenames() { return m_netnums.keys(); }
+    QStringList getNodenames();         // Returns a list of net and bus names
     inline net_t get(QString name) { return m_netnums[name]; }
     inline QString get(net_t n) { return m_netnames[n]; }
 
