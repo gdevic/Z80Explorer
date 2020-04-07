@@ -1,6 +1,7 @@
 #include "ClassNetlist.h"
 #include <QDebug>
 #include <QFile>
+#include <QStringBuilder>
 
 ClassNetlist::ClassNetlist()
 {    
@@ -42,11 +43,22 @@ bool ClassNetlist::saveNetNames(QString fileName)
     {
         QTextStream out(&file);
         out << "// This file contains custom net names and overrides of the names defined in nodenames.js\n";
-        out << "var nodenames_override ={\n";
+        out << "var nodenames_override = {\n";
         for (int i=0; i<MAX_NET; i++)
         {
             if (m_netoverrides[i])
                 out << m_netnames[i] << ": " << QString::number(i) << ",\n";
+        }        
+        out << "// Buses:\n"; // Write out the buses
+        QHash<QString, QVector<net_t>>::iterator i;
+        for (i = m_buses.begin(); i != m_buses.end(); i++)
+        {
+            QString line = QString("%1: [").arg(i.key());
+            for (auto net : i.value())
+                line.append(QString::number(net) % ",");
+            line.chop(1); // Remove that last comma
+            line.append("],\n");
+            out << line;
         }
         out << "}\n";
         file.close();
@@ -76,18 +88,31 @@ bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
             if (!line.startsWith('/') && line.indexOf(':') != -1)
             {
                 line.chop(1);
-                list = line.split(':');
+                list = line.split(':', QString::SkipEmptyParts);
                 if (list.length()==2)
                 {
                     QString name = list[0].trimmed();
-                    net_t n = list[1].toInt();
+                    net_t n = list[1].toUInt();
                     // We are loading 2 different files: nodenames.js and custom netnames.js with updates and overrides
+                    // Custom file can also contain bus definitions
                     if (loadCustom)
                     {
-                        // Custom file overrides previously loaded names
-                        m_netnames[n] = name;
-                        m_netoverrides[n] = true;
-                        m_netnums[name] = n;
+                        // Bus is the collections of 2 or more individual nets
+                        QStringList buslist = list[1].replace('[',' ').replace(']',' ').split(",", QString::SkipEmptyParts);
+                        if (buslist.count() > 1)
+                        {
+                            QVector<net_t> nets;
+                            for (auto n : buslist)
+                                nets.append(n.toUInt());
+                            m_buses[name] = nets;
+                        }
+                        else
+                        {
+                            // Custom file overrides previously loaded names
+                            m_netnames[n] = name;
+                            m_netoverrides[n] = true;
+                            m_netnums[name] = n;
+                        }
                     }
                     else // Load base nodename.js
                     {

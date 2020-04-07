@@ -27,10 +27,11 @@ private:
 
 private:
     // The lookup between net names and their numbers is performance critical, so we keep two ways to access them:
-    QString m_netnames[MAX_NET] {};         // List of net names, directly indexed by the net number
-    QHash<QString, net_t> m_netnums {};     // Hash of net names to their net numbers; key is the net name string
-    bool m_netoverrides[MAX_NET] {};        // Net names that are overriden or new
-    QString m_resDir;                       // Directory with the resources XXX keep this here?
+    QString m_netnames[MAX_NET] {};             // List of net names, directly indexed by the net number
+    QHash<QString, net_t> m_netnums {};         // Hash of net names to their net numbers; key is the net name string
+    bool m_netoverrides[MAX_NET] {};            // Net names that are overriden or new
+    QHash<QString, QVector<net_t>> m_buses {};  // Hash of bus names to their list (vector) of nets
+    QString m_resDir;                           // Directory with the resources XXX keep this here?
 };
 
 #endif // CLASSNETLIST_H
