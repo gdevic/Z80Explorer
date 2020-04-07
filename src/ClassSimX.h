@@ -2,7 +2,7 @@
 #define CLASSSIMX_H
 
 #include "ClassNetlist.h"
-#include <QTime>
+#include <QElapsedTimer>
 #include <QTimer>
 
 /*
@@ -51,8 +51,8 @@ private:
     QVector<net_t> group;
     //----------------------------------------------------------
 
-    QTime m_time;                       // Calculates elapsed time during a simulation thread run
     QTimer m_timer;                     // Timer to dump z80 state every 500ms when running the simulation
+    QElapsedTimer m_elapsed;            // Calculates elapsed time during a simulation thread run
     QAtomicInt m_runcount {};           // Simulation thread down-counts this to exit
     QAtomicInt m_hcyclecnt {};          // Simulation half-cycle count (resets on each runstart event)
     QAtomicInt m_hcycletotal {};        // Total simulation half-cycle count (resets on a chip reset)

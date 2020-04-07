@@ -38,7 +38,7 @@ void ClassSimX::onTimeout()
     readState(z80);
     QStringList s = z80state::dumpState(z80).split("\n");
     s.removeAt(4); // Remove pins section
-    qDebug() << s << "Half-Cycles:" % QString::number(m_hcycletotal) << (m_hcyclecnt / 2.0) / (m_time.elapsed() / 1000.0) << " Hz";
+    qDebug() << s << "Half-Cycles:" % QString::number(m_hcycletotal) << (m_hcyclecnt / 2.0) / (m_elapsed.elapsed() / 1000.0) << " Hz";
     if (m_runcount <= 0)
         m_timer.stop();
 }
@@ -62,7 +62,7 @@ void ClassSimX::doRunsim(uint ticks)
         {
             m_runcount = ticks; // If the sim thread is not running, start it using the new tick counter
             m_timer.start();
-            m_time.start();
+            m_elapsed.start();
             m_hcyclecnt = 0;
             // Code in this block will run in another thread
             QFuture<void> future = QtConcurrent::run([=]()
