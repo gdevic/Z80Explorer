@@ -6,12 +6,13 @@
 #define MAX_WATCH_HISTORY  1000
 
 /*
- * Watch structure defines a net to watch. A net is a single object identified by a net number "n".
+ * Watch structure defines a net or a bus to watch. A net is a single object identified by a net number "n".
+ * A bus is a collection of nets, each one needs to be listed and watched, the bus simply aggregates their data.
  */
 struct watch
 {
     QString name;                       // The name of the net to watch
-    net_t n;                            // Net number (if nonzero)
+    net_t n;                            // Net number (if nonzero), if zero, it is a bus
 
     template <class Archive> void serialize(Archive & ar) { ar(name, n); }
 
@@ -29,9 +30,8 @@ public:
 
     bool loadWatchlist(QString name);   // Loads a watchlist
     bool saveWatchlist(QString name);   // Saves the current watchlist
-    QStringList getWatchlist();         // Returns the list of net names in the watchlist
+    QStringList getWatchlist();         // Returns the list of net and bus names in the watchlist
     void setWatchlist(QStringList);     // Sets new watchlist
-    watch *find(QString name);          // Returns the watch of a given name or nullptr
     void doReset();                     // Chip reset sequence, reset watch history buffers
 
     inline watch *getFirst(int &it)     // Iterator
@@ -39,12 +39,17 @@ public:
     inline watch *getNext(int &it)      // Iterator
         { return (it < m_watchlist.count()) ? &m_watchlist[it++] : nullptr; }
 
-    void append(watch *w, uint hcycle, net_t value); // Adds watch data to the specified cycle position
-    net_t at(watch *w, uint hcycle);    // Returns watch data at the specified cycle position
-
+    void append(watch *w, uint hcycle, net_t value); // Adds net watch data to the specified cycle position
+    bool is_bus(watch *w)               // Returns true if the watch contains a bus (as opposed to net)
+        { return !w->n; }
+    net_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
+    uint at(watch *w, uint hcycle, bool &ok); // Returns bus watch data at the specified cycle position
     uint gethstart() { return hringstart; }
 
 private:
+    watch *find(QString name);          // Returns the watch of a given name or nullptr
+    watch *find(net_t net);
+
     QVector<watch> m_watchlist;         // The list of watch items that are tracked
     uint next;                          // Next index within each watch buffer to write to
     uint hringstart;                    // Buffer start maps to this absolute cycle

@@ -1,4 +1,5 @@
 #include "ClassWatch.h"
+#include "ClassController.h"
 
 // Serialization support
 #include "cereal/archives/binary.hpp"
@@ -15,7 +16,7 @@ ClassWatch::ClassWatch()
 }
 
 /*
- * Adds watch data to the watch item's buffer
+ * Adds net watch data to the watch item's buffer
  */
 void ClassWatch::append(watch *w, uint hcycle, net_t value)
 {
@@ -25,13 +26,50 @@ void ClassWatch::append(watch *w, uint hcycle, net_t value)
     next = (next + 1) % MAX_WATCH_HISTORY;
 }
 
+/*
+ * Returns watch data at the specified cycle position. The watch structure can represent a net
+ * or a bus. For nets, we simply return the net_t bit stored for that net.
+ * For a bus, we need to aggregate all nets that comprise this bus.
+ * This function variation returns a net.
+ */
 net_t ClassWatch::at(watch *w, uint hcycle)
 {
     if ((hringstart == 0) && (hcycle >= next))
         return 3;
     if ((hcycle < hringstart) || (hcycle >= (hringstart + MAX_WATCH_HISTORY)))
         return 3;
-    return w->d[hcycle % MAX_WATCH_HISTORY];
+    if (w->n) // n is non-zero: it is a net
+        return w->d[hcycle % MAX_WATCH_HISTORY];
+    return 4; // The watch is a bus error
+}
+
+/*
+ * Returns watch data at the specified cycle position. The watch structure can represent a net
+ * or a bus. For nets, we simply return the net_t bit stored for that net.
+ * For a bus, we need to aggregate all nets that comprise this bus.
+ * This function variation returns a bus, ok is set to true if the bus, and all its nets, are valid.
+ */
+uint ClassWatch::at(watch *w, uint hcycle, bool &ok)
+{
+    ok = false;
+    if ((hringstart == 0) && (hcycle >= next))
+        return 0;
+    if ((hcycle < hringstart) || (hcycle >= (hringstart + MAX_WATCH_HISTORY)))
+        return 0;
+    if (w->n) // n is non-zero: it is a net
+        return 0;
+    uint value = 0; // The watch is a bus
+    const QVector<net_t> &nets = ::controller.getNetlist().getBus(w->name);
+    uint width = nets.count() - 1; // Buses are defined from LSB to MSB; we are filling in bits from MSB
+    for (auto n : nets)
+    {
+        value >>= 1;
+        watch *wb = find(n);
+        if (wb == nullptr)
+            return 0;
+        value |= uint(wb->d[hcycle % MAX_WATCH_HISTORY]) << width;
+    }
+    return value;
 }
 
 /*
@@ -45,6 +83,18 @@ watch *ClassWatch::find(QString name)
     return nullptr;
 }
 
+/*
+ * Returns the watch containing the given net number
+ * XXX make m_watchlist a hash
+ */
+watch *ClassWatch::find(net_t net)
+{
+    for (auto &item : m_watchlist)
+        if (item.n == net)
+            return &item;
+    return nullptr;
+}
+
 void ClassWatch::doReset()
 {
     hringstart = 0;
@@ -54,7 +104,7 @@ void ClassWatch::doReset()
 }
 
 /*
- * Returns the list of net names in the watchlist
+ * Returns the list of net and bus names in the watchlist
  */
 QStringList ClassWatch::getWatchlist()
 {
@@ -66,6 +116,7 @@ QStringList ClassWatch::getWatchlist()
 
 /*
  * Sets new watchlist
+ * XXX updateWatchlist ?
  */
 void ClassWatch::setWatchlist(QStringList list)
 {
