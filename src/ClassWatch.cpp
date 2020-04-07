@@ -12,11 +12,11 @@
 
 ClassWatch::ClassWatch()
 {
-    doReset();
+    clear();
 }
 
 /*
- * Adds net watch data to the watch item's buffer
+ * Adds net watch data to the watch item's buffer at the specified position
  */
 void ClassWatch::append(watch *w, uint hcycle, net_t value)
 {
@@ -69,6 +69,7 @@ uint ClassWatch::at(watch *w, uint hcycle, bool &ok)
             return 0;
         value |= uint(wb->d[hcycle % MAX_WATCH_HISTORY]) << width;
     }
+    ok = true;
     return value;
 }
 
@@ -95,7 +96,10 @@ watch *ClassWatch::find(net_t net)
     return nullptr;
 }
 
-void ClassWatch::doReset()
+/*
+ * Clears all watch data
+ */
+void ClassWatch::clear()
 {
     hringstart = 0;
     next = 0;
@@ -115,21 +119,21 @@ QStringList ClassWatch::getWatchlist()
 }
 
 /*
- * Sets new watchlist
- * XXX updateWatchlist ?
+ * Updates watchlist using a new list of watch names
  */
-void ClassWatch::setWatchlist(QStringList list)
+void ClassWatch::updateWatchlist(QStringList list)
 {
     QVector<watch> newlist;
-    for (auto item : list)
+    for (auto name : list)
     {
-        watch *w = find(item);
+        watch *w = find(name);
         if (w)
             newlist.append(*w);
         else
         {
             watch w {};
-            w.name = item;
+            w.name = name;
+            w.n = ::controller.getNetlist().get(name);
             newlist.append(w);
         }
     }

@@ -49,7 +49,7 @@ bool ClassController::init()
 void ClassController::doReset()
 {
     m_simx.doReset();
-    m_watch.doReset();
+    m_watch.clear();
     emit this->onRunStopped();
     qDebug() << "Chip reset";
 }

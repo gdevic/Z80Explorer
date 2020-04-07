@@ -7,7 +7,8 @@
 
 /*
  * Watch structure defines a net or a bus to watch. A net is a single object identified by a net number "n".
- * A bus is a collection of nets, each one needs to be listed and watched, the bus simply aggregates their data.
+ * A bus is a collection of nets, each of which needs to be listed and watched, the bus simply aggregates their data.
+ * When a watch structure holds a bus, net number is 0 and the list of buses needs to be fetched from the netlist.
  */
 struct watch
 {
@@ -20,7 +21,7 @@ struct watch
 };
 
 /*
- * ClassWatch holds the watchlist, the list of nets whose state is tracked during the simulation
+ * ClassWatch holds the watchlist, the list of nets and buses whose state is tracked during the simulation
  */
 class ClassWatch : public QObject
 {
@@ -31,8 +32,8 @@ public:
     bool loadWatchlist(QString name);   // Loads a watchlist
     bool saveWatchlist(QString name);   // Saves the current watchlist
     QStringList getWatchlist();         // Returns the list of net and bus names in the watchlist
-    void setWatchlist(QStringList);     // Sets new watchlist
-    void doReset();                     // Chip reset sequence, reset watch history buffers
+    void updateWatchlist(QStringList);  // Updates watchlist using a new list of watch names
+    void clear();                       // Clear watch history buffers (used on simulation reset)
 
     inline watch *getFirst(int &it)     // Iterator
         { it = 1; return (m_watchlist.count() > 0) ? m_watchlist.data() : nullptr; }
@@ -40,11 +41,11 @@ public:
         { return (it < m_watchlist.count()) ? &m_watchlist[it++] : nullptr; }
 
     void append(watch *w, uint hcycle, net_t value); // Adds net watch data to the specified cycle position
-    bool is_bus(watch *w)               // Returns true if the watch contains a bus (as opposed to net)
+    bool is_bus(watch *w)               // Returns true if the watch contains a bus (as opposed to a net)
         { return !w->n; }
     net_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
     uint at(watch *w, uint hcycle, bool &ok); // Returns bus watch data at the specified cycle position
-    uint gethstart() { return hringstart; }
+    uint gethstart() { return hringstart; } // Returns the absolute hcycle of the start of our buffers
 
 private:
     watch *find(QString name);          // Returns the watch of a given name or nullptr

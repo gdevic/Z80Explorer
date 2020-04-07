@@ -120,7 +120,7 @@ void MainWindow::onEditWatchlist()
     dlg.setNodeList(::controller.getNetlist().getNodenames());
     dlg.setWatchlist(::controller.getWatch().getWatchlist());
     if (dlg.exec()==QDialog::Accepted)
-        ::controller.getWatch().setWatchlist(dlg.getWatchlist());
+        ::controller.getWatch().updateWatchlist(dlg.getWatchlist());
 }
 
 void MainWindow::onLoadWatchlist()
