@@ -24,7 +24,7 @@ bool ClassController::init()
     settings.setValue("ChipResources", path);
 
     // Initialize all global classes using the given path to resource
-    if (!m_netlist.loadResources(path) || !m_chip.loadChipResources(path) || !m_sim.loadSimResources(path) || !m_simx.loadResources(path))
+    if (!m_simx.loadResources(path) || !m_chip.loadChipResources(path) || !m_sim.loadSimResources(path))
     {
         qCritical() << "Unable to load chip resources from" << path;
         return false;
@@ -37,6 +37,8 @@ bool ClassController::init()
     // Load the "hello world" sample executable file
     if (!m_trick.loadIntelHex(path + "/hello_world.hex"))
         qWarning() << "Unable to load example Z80 hex file";
+
+    m_simx.initChip();
 
     return true;
 }

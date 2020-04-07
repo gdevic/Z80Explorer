@@ -2,7 +2,6 @@
 #define CLASSCONTROLLER_H
 
 #include "ClassChip.h"
-#include "ClassNetlist.h"
 #include "ClassSim.h"
 #include "ClassSimX.h"
 #include "ClassTrickbox.h"
@@ -20,10 +19,10 @@ public:
 
 public: // API
     inline ClassChip    &getChip()    { return m_chip; }    // Returns a reference to the chip class
-    inline ClassNetlist &getNetlist() { return m_netlist; } // Returns a reference to the netlist class
     inline ClassSim     &getSim()     { return m_sim; }     // Returns a reference to the sim class
     inline ClassSimX    &getSimx()    { return m_simx; }    // Returns a reference to the simx class
     inline ClassWatch   &getWatch()   { return m_watch; }   // Returns a reference to the watch class
+    inline ClassNetlist &getNetlist() { return m_simx; }    // Returns a reference to the netlist class (a subclass)
 
     uint8_t readMem(uint16_t ab)            // Read environment RAM
         { return m_trick.readMem(ab); }
@@ -48,7 +47,6 @@ signals:
 
 private:
     ClassChip     m_chip;      // Global chip resource class
-    ClassNetlist  m_netlist;   // Global netlist
     ClassSimX     m_simx;      // Global simulator simx class
     ClassSim      m_sim;       // Global simulator sim class
     ClassWatch    m_watch;     // Global watchlist

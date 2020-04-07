@@ -1,22 +1,34 @@
 #include "ClassSimX.h"
 #include "ClassController.h"
-#include <algorithm>
 #include <QDebug>
-#include <QDir>
-#include <QFuture>
 #include <QStringBuilder>
-#include <QTimer>
 #include <QtConcurrent>
 
-#define MAX_TRANSDEFS 9000 // Max number of transistors stored in m_transdefs array
-#define MAX_NET 3600 // Max number of nets
-
-ClassSimX::ClassSimX():
-    m_transdefs(MAX_TRANSDEFS),
-    m_netlist(MAX_NET)
+ClassSimX::ClassSimX()
 {
     m_timer.setInterval(500);
     connect(&m_timer, &QTimer::timeout, this, &ClassSimX::onTimeout);
+}
+
+/*
+ * One-time initialization
+ */
+void ClassSimX::initChip()
+{
+    Q_ASSERT(ngnd == 1);
+    Q_ASSERT(npwr == 2);
+
+    // Initialize GND and Vcc
+    m_netlist[ngnd].state = false;
+    m_netlist[ngnd].floats = false;
+    m_netlist[npwr].state = true;
+    m_netlist[npwr].floats = false;
+
+    // Turn off all transistors
+    for (auto t : m_transdefs)
+        t.on = false;
+
+    doReset();
 }
 
 // XXX Remove this timer here and implement it somewhere else (?)
@@ -62,24 +74,6 @@ void ClassSimX::doRunsim(uint ticks)
             });
         }
     }
-}
-
-void ClassSimX::initChip()
-{
-    Q_ASSERT(ngnd == 1);
-    Q_ASSERT(npwr == 2);
-
-    // Initialize GND and Vcc
-    m_netlist[ngnd].state = false;
-    m_netlist[ngnd].floats = false;
-    m_netlist[npwr].state = true;
-    m_netlist[npwr].floats = false;
-
-    // Turn off all transistors
-    for (auto t : m_transdefs)
-        t.on = false;
-
-    doReset();
 }
 
 /*
@@ -203,9 +197,9 @@ inline void ClassSimX::setDB(uint8_t db)
  */
 void ClassSimX::set(bool on, QString name)
 {
-    if (::controller.getNetlist().get(name))
+    net_t n = get(name);
+    if (n)
     {
-        net_t n = ::controller.getNetlist().get(name);
         m_netlist[n].pullup = on;
         m_netlist[n].pulldown = !on;
         QVector<net_t> list {n}; // XXX optimize to send only 1 net
@@ -289,14 +283,14 @@ QVector<net_t> ClassSimX::allNets()
     return nets;
 }
 
-inline void ClassSimX::setTransOn(class trans &t)
+inline void ClassSimX::setTransOn(struct trans &t)
 {
     if (t.on) return;
     t.on = true;
     addRecalcNet(t.c1);
 }
 
-inline void ClassSimX::setTransOff(class trans &t)
+inline void ClassSimX::setTransOff(struct trans &t)
 {
     if (!t.on) return;
     t.on = false;
@@ -331,192 +325,6 @@ inline void ClassSimX::addNetToGroup(net_t n)
         if (other)
             addNetToGroup(other);
     }
-}
-
-/*
- * Attempts to load all required resources
- */
-bool ClassSimX::loadResources(QString dir)
-{
-    qInfo() << "Loading simX resources from" << dir;
-    ngnd = ::controller.getNetlist().get("vss");
-    npwr = ::controller.getNetlist().get("vcc");
-    if (ngnd && npwr && loadTransdefs(dir) && loadPullups(dir))
-    {
-        qInfo() << "Completed loading simX resources";
-        initChip();
-        return true;
-    }
-    else
-        qWarning() << "Loading simX resource failed";
-    return false;
-}
-
-/*
- * Loads transdefs.js
- * Creates m_transdefs with transistor connections
- * Creates m_netlist with connections to transistors
- */
-bool ClassSimX::loadTransdefs(QString dir)
-{
-    QString transdefs_file = dir + "/transdefs.js";
-    qInfo() << "Loading" << transdefs_file;
-    QFile file(transdefs_file);
-    net_t max = 0;
-    if (file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QTextStream in(&file);
-        QString line;
-        QStringList list;
-        m_transdefs.fill(trans{}); // Clear the array with the defaults
-        m_netlist.fill(net{});
-
-        while(!in.atEnd())
-        {
-            line = in.readLine();
-            if (line.startsWith('['))
-            {
-                line.replace('[', ' ').replace(']', ' '); // Make it a simple list of numbers
-                line.chop(2);
-                list = line.split(',', QString::SkipEmptyParts);
-                if (list.length()==14 && list[0].length() > 2)
-                {
-                    // ----- Add the transistor to the transistor array -----
-                    QString tnum = list[0].mid(3, list[0].length() - 4);
-                    uint i = tnum.toUInt();
-                    Q_ASSERT(i < MAX_TRANSDEFS);
-                    trans *p = &m_transdefs[i];
-
-                    p->gate = list[1].toUInt();
-                    p->c1 = list[2].toUInt();
-                    p->c2 = list[3].toUInt();
-
-                    // Fixups for pull-up and pull-down transistors
-                    if ((p->c1 == ngnd) || (p->c1 == npwr))
-                        std::swap(p->c1, p->c2);
-                    max = std::max(max, std::max(p->c1, p->c2)); // Find the max net number
-
-                    // ----- Add the transistor to the netlist -----
-                    m_netlist[p->gate].gates.append(p);
-                    m_netlist[p->c1].c1c2s.append(p);
-                    m_netlist[p->c2].c1c2s.append(p);
-                }
-                else
-                    qWarning() << "Invalid line" << list;
-            }
-            else
-                qDebug() << "Skipping" << line;
-        }
-        file.close();
-        qInfo() << "Loaded" << m_transdefs.count() << "transistor definitions";
-        qInfo() << "Max net index" << max;
-        net_t count = 0;
-        for (auto net : m_netlist)
-            count += !!(net.gates.count() || net.c1c2s.count());
-        qInfo() << "Number of nets" << count;
-        return true;
-    }
-    else
-        qWarning() << "Error opening transdefs.js";
-    return false;
-}
-
-bool ClassSimX::loadPullups(QString dir)
-{
-    QString segdefs_file = dir + "/segdefs.js";
-    qInfo() << "Loading" << segdefs_file;
-    QFile file(segdefs_file);
-    if (file.open(QFile::ReadOnly | QFile::Text))
-    {
-        QTextStream in(&file);
-        QString line;
-        QStringList list;
-        while (!in.atEnd())
-        {
-            line = in.readLine();
-            if (line.startsWith('['))
-            {
-                line = line.mid(2, line.length() - 4);
-                list = line.split(',');
-                if (list.length() > 4)
-                {
-                    uint i = list[0].toUInt();
-                    Q_ASSERT(i < MAX_NET);
-                    m_netlist[i].pullup = list[1].contains('+');
-                }
-                else
-                    qWarning() << "Invalid line" << line;
-            }
-        }
-        file.close();
-        return true;
-    }
-    else
-        qWarning() << "Error opening segdefs.js";
-    return false;
-}
-
-/*
- * Returns the value on the address bus
- */
-uint16_t ClassSimX::readAB()
-{
-    uint16_t value= 0;
-    for (int i=15; i >= 0; --i)
-    {
-        QString bit_name = "ab" % QString::number(i);
-        value <<= 1;
-        value |= readBit(bit_name);
-    }
-    return value;
-}
-
-/*
- * Returns a byte value read from the netlist for a particular net bus
- * The bus needs to be named with the last character selecting the bit, ex. ab0, ab1,...
- */
-uint ClassSimX::readByte(QString name)
-{
-    uint value = 0;
-    for (int i=7; i >= 0; --i)
-    {
-        QString bit_name = name % QString::number(i);
-        value <<= 1;
-        value |= readBit(bit_name);
-    }
-    return value;
-}
-
-/*
- * Returns a bit value read from the netlist for a particular net
- */
-inline uint ClassSimX::readBit(QString name)
-{
-    if (::controller.getNetlist().get(name))
-    {
-        net_t n = ::controller.getNetlist().get(name);
-        Q_ASSERT(n < MAX_NET);
-        return !!m_netlist[n].state;
-    }
-    qWarning() << "readBit: Invalid name" << name;
-    return 0xbadbad;
-}
-
-/*
- * Returns the pin value
- */
-pin_t ClassSimX::readPin(QString name)
-{
-    if (::controller.getNetlist().get(name))
-    {
-        net_t n = ::controller.getNetlist().get(name);
-        Q_ASSERT(n < MAX_NET);
-//        if (m_netlist[n].floats) // XXX handle floating node
-//            return 2;
-        return !!m_netlist[n].state;
-    }
-    qWarning() << "readPin: Invalid name" << name;
-    return -1;
 }
 
 /*
