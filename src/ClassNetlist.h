@@ -40,8 +40,10 @@ public:
     QStringList getNodenames();                 // Returns a list of net and bus names
     const QVector<net_t> &getBus(QString name)  // Returns nets that comprise a bus
         { return m_buses[name]; }
-    inline net_t get(QString name) { return m_netnums[name]; }
-    inline QString get(net_t n) { return m_netnames[n]; }
+    inline net_t get(QString name)              // Returns net number given its name
+        { return m_netnums.contains(name) ? m_netnums[name] : 0; }
+    inline QString get(net_t n)                 // Returns net name given its number
+        { return m_netnames[n]; }
 
     net_t getNetlistCount()                     // Returns the number of nets in the netlist
         { return m_netlist.count(); }
