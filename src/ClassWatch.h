@@ -11,11 +11,9 @@
 struct watch
 {
     QString name;                       // The name of the net to watch
-    uint x, y;                          // Coordinates of a pushpin on the chip image
     net_t n;                            // Net number (if nonzero)
-    bool enabled { true };              // Watch history is enabled
 
-    template <class Archive> void serialize(Archive & ar) { ar(name, x, y, n, enabled); }
+    template <class Archive> void serialize(Archive & ar) { ar(name, n); }
 
     net_t d[MAX_WATCH_HISTORY];         // Circular buffer of watch data (not serialized out)
 };
@@ -27,7 +25,7 @@ class ClassWatch : public QObject
 {
     Q_OBJECT
 public:
-    ClassWatch() { doReset(); };
+    ClassWatch();
 
     bool loadWatchlist(QString name);   // Loads a watchlist
     bool saveWatchlist(QString name);   // Saves the current watchlist
@@ -47,9 +45,9 @@ public:
     uint gethstart() { return hringstart; }
 
 private:
-    QVector<watch> m_watchlist {};      // The list of watch items that are tracked
-    uint next {};                       // Next index within each watch buffer to write to
-    uint hringstart {};                 // Buffer start maps to this absolute cycle
+    QVector<watch> m_watchlist;         // The list of watch items that are tracked
+    uint next;                          // Next index within each watch buffer to write to
+    uint hringstart;                    // Buffer start maps to this absolute cycle
 
     friend class WidgetWaveform;        // This is ok: the whole purpose of that widget is to draw the data contained herein
 };

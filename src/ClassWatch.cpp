@@ -9,6 +9,11 @@
 #include <QDebug>
 #include <QFile>
 
+ClassWatch::ClassWatch()
+{
+    doReset();
+}
+
 /*
  * Adds watch data to the watch item's buffer
  */

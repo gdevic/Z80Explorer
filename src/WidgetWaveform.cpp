@@ -42,8 +42,7 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
     watch *w = ::controller.getWatch().getFirst(it);
     while (w != nullptr)
     {
-        if (w->enabled)
-            drawOneSignal(painter, y, hstart, w);
+        drawOneSignal(painter, y, hstart, w);
         y += 20;
         w = ::controller.getWatch().getNext(it);
     }

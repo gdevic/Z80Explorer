@@ -146,7 +146,7 @@ inline void ClassSimX::halfCycle()
     watch *w = ::controller.getWatch().getFirst(it);
     while (w != nullptr)
     {
-        net_t bit = w->enabled ? readBit(w->name) : 3;
+        net_t bit = readBit(w->name);
         ::controller.getWatch().append(w, m_hcycletotal, bit);
 
         w = ::controller.getWatch().getNext(it);
