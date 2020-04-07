@@ -1,7 +1,8 @@
 #ifndef WIDGETWAVEFORM_H
 #define WIDGETWAVEFORM_H
 
-#include <ClassWatch.h>
+#include "ClassWatch.h"
+#include "DockWaveform.h"
 #include <QWidget>
 #include <QTimer>
 
@@ -10,12 +11,15 @@ class WidgetWaveform : public QWidget
     Q_OBJECT
 public:
     explicit WidgetWaveform(QWidget *parent = nullptr);
+    void setDock(DockWaveform *dock)    // Sets a pointer to our UI parent dock
+        { m_dock = dock; }
 
 private slots:
     void onRunStopped();                // Signal from the controller that the simulation run stopped
     void onTimeout() { update(); }      // Refresh graph when running simulation
 
 private:
+    DockWaveform *m_dock {};
     void drawOneSignal(QPainter &painter, uint y, uint hstart, watch *watch);
     qreal m_hscale;                     // Horizontal scale factor
     uint m_waveheight;                  // Wave height in pixels

@@ -40,6 +40,7 @@ public:
     inline watch *getNext(int &it)      // Iterator
         { return (it < m_watchlist.count()) ? &m_watchlist[it++] : nullptr; }
 
+    watch *find(QString name);          // Returns the watch of a given name or nullptr
     void append(watch *w, uint hcycle, net_t value); // Adds net watch data to the specified cycle position
     bool is_bus(watch *w)               // Returns true if the watch contains a bus (as opposed to a net)
         { return !w->n; }
@@ -48,8 +49,7 @@ public:
     uint gethstart() { return hringstart; } // Returns the absolute hcycle of the start of our buffers
 
 private:
-    watch *find(QString name);          // Returns the watch of a given name or nullptr
-    watch *find(net_t net);
+    watch *find(net_t net);             // Returns a watch containing a given net number or nullptr
 
     QVector<watch> m_watchlist;         // The list of watch items that are tracked
     uint next;                          // Next index within each watch buffer to write to

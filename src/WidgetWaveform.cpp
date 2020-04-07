@@ -1,5 +1,6 @@
 #include "WidgetWaveform.h"
 #include "ClassController.h"
+#include "DockWaveform.h"
 #include <QPainter>
 #include <QPaintEvent>
 
@@ -39,12 +40,13 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
     uint hstart = ::controller.getWatch().gethstart();
     uint y = 10;
     int it;
-    watch *w = ::controller.getWatch().getFirst(it);
-    while (w != nullptr)
+    viewitem *vi = m_dock->getFirst(it);
+    while (vi != nullptr)
     {
+        watch *w = ::controller.getWatch().find(vi->name);
         drawOneSignal(painter, y, hstart, w);
         y += 20;
-        w = ::controller.getWatch().getNext(it);
+        vi = m_dock->getNext(it);
     }
     drawCursors(painter, r, hstart);
 }

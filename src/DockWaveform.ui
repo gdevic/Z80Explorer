@@ -37,6 +37,74 @@
      <widget class="WidgetToolbar" name="widget" native="true"/>
     </item>
     <item>
+     <widget class="QFrame" name="frameMenu">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QToolButton" name="btFile">
+         <property name="text">
+          <string>File   </string>
+         </property>
+         <property name="popupMode">
+          <enum>QToolButton::MenuButtonPopup</enum>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonFollowStyle</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btEdit">
+         <property name="text">
+          <string>Edit   </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btUp">
+         <property name="text">
+          <string>Up</string>
+         </property>
+         <property name="arrowType">
+          <enum>Qt::UpArrow</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btDown">
+         <property name="text">
+          <string>Down</string>
+         </property>
+         <property name="arrowType">
+          <enum>Qt::DownArrow</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="QFrame" name="frame">
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -52,7 +120,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QTreeWidget" name="tree">
+        <widget class="QListWidget" name="list">
          <property name="minimumSize">
           <size>
            <width>151</width>
@@ -69,30 +137,6 @@
           <string notr="true">background-color: rgb(75, 75, 75);
 color: rgb(255, 255, 255);</string>
          </property>
-         <attribute name="headerVisible">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="headerDefaultSectionSize">
-          <number>100</number>
-         </attribute>
-         <column>
-          <property name="text">
-           <string>Name</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Value</string>
-          </property>
-         </column>
-         <item>
-          <property name="text">
-           <string>clk</string>
-          </property>
-          <property name="text">
-           <string>0</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item>
@@ -106,13 +150,13 @@ color: rgb(255, 255, 255);</string>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
-         <widget class="WidgetWaveform" name="scrollAreaWidgetContents">
+         <widget class="WidgetWaveform" name="widgetWaveform">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
             <width>604</width>
-            <height>478</height>
+            <height>445</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="layoutScroll">
@@ -136,8 +180,6 @@ color: rgb(255, 255, 255);</string>
         </widget>
        </item>
       </layout>
-      <zorder>scrollArea</zorder>
-      <zorder>tree</zorder>
      </widget>
     </item>
    </layout>
