@@ -8,7 +8,6 @@
 #include "DockMonitor.h"
 #include "DockLog.h"
 
-#include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
@@ -97,7 +96,8 @@ void MainWindow::onExit()
  */
 void MainWindow::onNewImageView()
 {
-    DockImageView *w = new DockImageView(this);
+    DockImageView *w = new DockImageView(this, ++m_lastImageWndId);
+    ui->menuWindow->addAction(w->toggleViewAction());
     w->setFloating(true);
     w->resize(800, 800);
     w->show();
@@ -108,7 +108,8 @@ void MainWindow::onNewImageView()
  */
 void MainWindow::onNewWaveformView()
 {
-    DockWaveform *w = new DockWaveform(this);
+    DockWaveform *w = new DockWaveform(this, ++m_lastWaveWndId);
+    ui->menuWindow->addAction(w->toggleViewAction());
     w->setFloating(true);
     w->resize(1000, 500);
     w->show();

@@ -18,7 +18,7 @@ class DockWaveform : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit DockWaveform(QWidget *parent = nullptr);
+    explicit DockWaveform(QWidget *parent, uint id);
     ~DockWaveform();
 
     inline viewitem *getFirst(int &it)  // Iterator

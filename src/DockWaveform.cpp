@@ -15,10 +15,11 @@
 #include "cereal/types/QVector.hpp"
 #include <fstream>
 
-DockWaveform::DockWaveform(QWidget *parent) : QDockWidget(parent),
+DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     ui(new Ui::DockWaveform)
 {
     ui->setupUi(this);
+    setWindowTitle("Waveform-" + QString::number(id));
     ui->widgetWaveform->setDock(this);
 
     // Build the menus for this widget

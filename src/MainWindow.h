@@ -37,6 +37,8 @@ private:
     DockMonitor *m_monitor;             // Z80 environment monitor window
     QMenu *m_menuView;                  // Pointer to the "View" menu pull-down
     QMenu *m_menuWindow;                // Pointer to the "Window" menu pull-down
+    uint m_lastImageWndId {};           // Last Image view window id number
+    uint m_lastWaveWndId {};            // Last Waveform window id number
 };
 
 #endif // MAINWINDOW_H

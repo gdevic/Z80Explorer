@@ -13,7 +13,7 @@ class DockImageView : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit DockImageView(QWidget *parent);
+    explicit DockImageView(QWidget *parent, uint id);
     ~DockImageView();
 
 private:
