@@ -42,10 +42,8 @@ public:
 
     watch *find(QString name);          // Returns the watch of a given name or nullptr
     void append(watch *w, uint hcycle, net_t value); // Adds net watch data to the specified cycle position
-    bool is_bus(watch *w)               // Returns true if the watch contains a bus (as opposed to a net)
-        { return !w->n; }
     net_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
-    uint at(watch *w, uint hcycle, bool &ok); // Returns bus watch data at the specified cycle position
+    uint at(watch *w, uint hcycle, uint &ok); // Returns bus watch data at the specified cycle position
     uint gethstart() { return hringstart; } // Returns the absolute hcycle of the start of our buffers
 
 private:

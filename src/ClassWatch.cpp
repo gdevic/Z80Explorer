@@ -47,11 +47,13 @@ net_t ClassWatch::at(watch *w, uint hcycle)
  * Returns watch data at the specified cycle position. The watch structure can represent a net
  * or a bus. For nets, we simply return the net_t bit stored for that net.
  * For a bus, we need to aggregate all nets that comprise this bus.
- * This function variation returns a bus, ok is set to true if the bus, and all its nets, are valid.
+ *
+ * This function variation returns the aggregate value of a bus; ok is set to the bus width if
+ * all of the bus nets are valid, or to zero if the bus value could not be read.
  */
-uint ClassWatch::at(watch *w, uint hcycle, bool &ok)
+uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
 {
-    ok = false;
+    ok = 0;
     if ((hringstart == 0) && (hcycle >= next))
         return 0;
     if ((hcycle < hringstart) || (hcycle >= (hringstart + MAX_WATCH_HISTORY)))
@@ -60,16 +62,16 @@ uint ClassWatch::at(watch *w, uint hcycle, bool &ok)
         return 0;
     uint value = 0; // The watch is a bus
     const QVector<net_t> &nets = ::controller.getNetlist().getBus(w->name);
-    uint width = nets.count() - 1; // Buses are defined from LSB to MSB; we are filling in bits from MSB
+    uint width = nets.count(); // Buses are defined from LSB to MSB; we are filling in bits from MSB
     for (auto n : nets)
     {
         value >>= 1;
         watch *wb = find(n);
         if (wb == nullptr)
             return 0;
-        value |= uint(wb->d[hcycle % MAX_WATCH_HISTORY]) << width;
+        value |= uint(wb->d[hcycle % MAX_WATCH_HISTORY]) << (width - 1);
     }
-    ok = true;
+    ok = width;
     return value;
 }
 
@@ -120,24 +122,49 @@ QStringList ClassWatch::getWatchlist()
 
 /*
  * Updates watchlist using a new list of watch names
+ * XXX There is a catch: If a bus is added, we need to explicitly add all nets comprising that bus
+ *     This will show only the next time the Watch dialog is opened
  */
 void ClassWatch::updateWatchlist(QStringList list)
 {
-    QVector<watch> newlist;
+    QVector<QString> buses; // List of buses to process later
+    QVector<watch> newlist; // New list that we are building
     for (auto name : list)
     {
         watch *w = find(name);
         if (w)
+        {
             newlist.append(*w);
+            if (w->n == 0) // A bus. queue it to process it later
+                buses.append(w->name);
+        }
         else
         {
             watch w {};
             w.name = name;
             w.n = ::controller.getNetlist().get(name);
+            if (w.n == 0) // A bus. queue it to process it later
+                buses.append(name);
             newlist.append(w);
         }
     }
     m_watchlist = newlist;
+
+    // Make sure all nets, that belong to buses we added, are also included
+    for (auto name : buses)
+    {
+        QVector<net_t> nets = ::controller.getNetlist().getBus(name);
+        for (auto net : nets)
+        {
+            if (!find(net)) // If this net is not already part of our m_watchlist...
+            {
+                watch w {};
+                w.name = ::controller.getNetlist().get(net);
+                w.n = net;
+                m_watchlist.append(w);
+            }
+        }
+    }
 }
 
 /*
