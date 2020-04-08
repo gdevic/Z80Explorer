@@ -48,7 +48,8 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
 DockWaveform::~DockWaveform()
 {
     Q_ASSERT(!m_fileViewlist.isEmpty());
-    save(m_fileViewlist);
+    if (m_view.count()) // Save the view only if it is not empty
+        save(m_fileViewlist);
     delete ui;
 }
 
