@@ -6,6 +6,8 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QStringBuilder>
+#include <QTableWidgetItem>
 
 // Serialization support
 #include "cereal/archives/binary.hpp"
@@ -29,6 +31,7 @@ DockWaveform::DockWaveform(QWidget *parent) : QDockWidget(parent),
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
     connect(ui->btUp, &QToolButton::clicked, this, &DockWaveform::onUp);
     connect(ui->btDown, &QToolButton::clicked, this, &DockWaveform::onDown);
+    connect(ui->widgetWaveform, SIGNAL(cursorChanged(uint)), this, SLOT(cursorChanged(uint)));
 
     rebuildList();
 }
@@ -165,9 +168,52 @@ void DockWaveform::updateViewitems(QStringList items)
             add(name);
 }
 
+/*
+ * Cleans and rebuilds the list of view items based on the current, presumably updated, m_view
+ */
 void DockWaveform::rebuildList()
 {
-    ui->list->clear();
-    ui->list->addItems(getNames());
+    QTableWidget *tv = ui->list;
+    tv->clearContents();
+    tv->setRowCount(m_view.count());
+    tv->setColumnCount(2);
+    for (int row=0; row < m_view.count(); row++)
+    {
+        QTableWidgetItem *tvi = new QTableWidgetItem(m_view[row].name);
+        tv->setItem(row, 0, tvi);
+        tvi = new QTableWidgetItem("()");
+        tv->setItem(row, 1, tvi);
+    }
     ui->frame->update();
+}
+
+/*
+ * Cursor on the right page changed position and we need to update net and bus values
+ */
+void DockWaveform::cursorChanged(uint hcycle)
+{
+    if (m_lastcursor == hcycle)
+        return;
+    m_lastcursor = hcycle;
+
+    QTableWidget *tv = ui->list;
+    for (int row=0; row < m_view.count(); row++)
+    {
+        watch *w = ::controller.getWatch().find(m_view[row].name);
+        pin_t data_cur = ::controller.getWatch().at(w, hcycle);
+
+        QString display = QString::number(data_cur);
+        if (data_cur == 4) // Bus
+        {
+            uint width;
+            uint bus = ::controller.getWatch().at(w, hcycle, width);
+            if (width)
+                display = QString::number(width) % "'h" % QString::number(bus, 16);
+            else
+                display = "?";
+        }
+
+        QTableWidgetItem *tvi = tv->item(row, 1);
+        tvi->setText(display);
+    }
 }

@@ -1,23 +1,23 @@
 #include "WidgetWaveform.h"
 #include "ClassController.h"
 #include "DockWaveform.h"
+#include <QtGlobal>
 #include <QPainter>
 #include <QPaintEvent>
+#include <QStringBuilder>
 
 WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent),
     m_hscale(10),
-    m_waveheight(10)
+    m_waveheight(15)
 {
     m_timer.setInterval(500);
     connect(&m_timer, &QTimer::timeout, this, &WidgetWaveform::onTimeout);
 
     connect(&::controller, SIGNAL(onRunStopped()), this, SLOT(onRunStopped()));
 
-    // Set up few dummy cursors
+    // Set up two initial cursors
     m_cursors2x.append(1);
     m_cursors2x.append(10);
-    // Select the second cursor
-    m_cursor = 1;
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     setMouseTracking(true);
@@ -36,25 +36,43 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
 {
     const QRect &r = pe->rect();
     QPainter painter(this);
-    painter.setPen(QPen(QColor(0, 255, 0), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+
+    // Set up font to draw bus values
+    QFont font = painter.font();
+    font.setPixelSize(12);
+    painter.setFont(font);
+
+    // Draw a faint gray background grid
+    painter.setPen(QPen(Qt::gray));
+    const uint min_dist = 50;
+    uint delta = 1 + qreal(min_dist) / m_hscale;
+    for (int i = 0; i <= MAX_WATCH_HISTORY; i += delta)
+    {
+        uint x = i * m_hscale;
+        painter.drawLine(x, 0, x, r.bottom());
+    }
+
     uint hstart = ::controller.getWatch().gethstart();
-    uint y = 10;
+    uint y = 16; // Starting Y coordinate, the bottom of the first net
     int it;
     viewitem *vi = m_dock->getFirst(it);
     while (vi != nullptr)
     {
         watch *w = ::controller.getWatch().find(vi->name);
-        drawOneSignal(painter, y, hstart, w);
-        y += 20;
+        if (w->n)
+            drawOneSignal_Net(painter, y, hstart, w);
+        else
+            drawOneSignal_Bus(painter, y, hstart, w);
+        y += 20; // Advance to the next Y coordinate, this is the height of each net
         vi = m_dock->getNext(it);
     }
     drawCursors(painter, r, hstart);
 }
 
-void WidgetWaveform::drawOneSignal(QPainter &painter, uint y, uint hstart, watch *w)
+void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *w)
 {
-    net_t data_prev = ::controller.getWatch().at(w, hstart);
-    pin_t data_cur;
+    painter.setPen(QPen(Qt::green));
+    net_t data_cur, data_prev = ::controller.getWatch().at(w, hstart);
     for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
     {
         data_cur = ::controller.getWatch().at(w, hstart + i);
@@ -67,13 +85,59 @@ void WidgetWaveform::drawOneSignal(QPainter &painter, uint y, uint hstart, watch
         {
             uint y1 = data_prev ? m_waveheight : 0;
             painter.drawLine(x1, y - y1, x1, y - y2);
+            painter.drawLine(x1, y - y2, x2, y - y2);
         }
         painter.drawLine(x1, y - y2, x2, y - y2);
     }
 }
 
+void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w)
+{
+    painter.setPen(QPen(Qt::green));
+    uint width;
+    uint data_cur, data_prev = ::controller.getWatch().at(w, hstart, width);
+    uint last_data_x = 0; // X coordinate of the last bus data change
+    QString text; // Text value of the last bus data
+    for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
+    {
+        data_cur = ::controller.getWatch().at(w, hstart + i, width);
+        if (width == 0) // If the data is undef or incomplete at this cycle, skip drawing it
+            continue;
+        uint x1 = i * m_hscale;
+        uint x2 = (i + 1) * m_hscale;
+        uint y1 = y;
+        uint y2 = y - m_waveheight;
+        if (data_prev != data_cur) // Bus data is changing, draw crossed lines
+        {
+            // Check if there is enough space (in pixels) to write out last bus data value
+            QRect bb = painter.fontMetrics().boundingRect(text);
+            if (bb.width() < int(x1 - last_data_x))
+            {
+                painter.setPen(QPen(Qt::white));
+                painter.drawText(last_data_x + 3, y1 - 2, text);
+                painter.setPen(QPen(Qt::green));
+            }
+
+            painter.drawLine(x1, y1, x1+3, y2);
+            painter.drawLine(x1, y2, x1+3, y1);
+            painter.drawLine(x1+3, y1, x2, y1);
+            painter.drawLine(x1+3, y2, x2, y2);
+
+            last_data_x = x1;
+            // Format the text of the new bus data value
+            text = QString::number(width) % "'h" % QString::number(data_cur, 16);
+        }
+        else // Bus data is the same, continue drawing two parallel horizontal lines
+        {
+            painter.drawLine(x1, y1, x2, y1);
+            painter.drawLine(x1, y2, x2, y2);
+        }
+    }
+}
+
 void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
 {
+    // Set up font to draw cursor values
     QFont font = painter.font();
     font.setPixelSize(14);
     painter.setFont(font);
@@ -85,7 +149,7 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
 
     for (int i=0; i<m_cursors2x.count(); i++)
     {
-        uint cursorX = m_cursors2x[i];
+        uint cursorX = m_cursors2x.at(i);
         uint x = cursorX * m_hscale / 2.0;
         uint y = r.bottom() - i * m_fontheight;
         painter.drawLine(x, r.top(), x, y);
@@ -104,8 +168,10 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
         pen.setWidth(3);
         painter.setPen(pen);
         uint i = m_cursor;
-        uint x = m_cursors2x.at(m_cursor) * m_hscale / 2.0;
+        uint x = m_cursors2x[i] * m_hscale / 2.0;
         painter.drawLine(x, r.top(), x, r.bottom() - i * m_fontheight + 1);
+
+        emit cursorChanged(m_cursors2x[m_cursor] / 2 + hstart);
     }
 }
 
@@ -178,6 +244,7 @@ void WidgetWaveform::wheelEvent(QWheelEvent *event)
         m_hscale *= 1.2;
     else
         m_hscale /= 1.2;
+    m_hscale = qBound(1.0, m_hscale, 100.0);
     updateGeometry();
 }
 

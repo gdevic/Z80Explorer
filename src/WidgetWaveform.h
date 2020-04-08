@@ -14,15 +14,19 @@ public:
     void setDock(DockWaveform *dock)    // Sets a pointer to our UI parent dock
         { m_dock = dock; }
 
+signals:
+    void cursorChanged(uint hcycle);    // Cursor selected a new hcycle
+
 private slots:
     void onRunStopped();                // Signal from the controller that the simulation run stopped
     void onTimeout() { update(); }      // Refresh graph when running simulation
 
 private:
     DockWaveform *m_dock {};
-    void drawOneSignal(QPainter &painter, uint y, uint hstart, watch *watch);
+    void drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *watch);
+    void drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *watch);
     qreal m_hscale;                     // Horizontal scale factor
-    uint m_waveheight;                  // Wave height in pixels
+    const uint m_waveheight;            // Wave height in pixels
 
     void drawCursors(QPainter &painter, const QRect &r, uint hstart);
     QVector<uint> m_cursors2x {};       // Cursors' locations, index into the data (times 2)
