@@ -72,7 +72,6 @@ private:
     QHash<QString, net_t> m_netnums {};         // Hash of net names to their net numbers; key is the net name string
     bool m_netoverrides[MAX_NET] {};            // Net names that are overriden or new
     QHash<QString, QVector<net_t>> m_buses {};  // Hash of bus names to their list (vector) of nets
-    QString m_resDir;                           // Directory with the resources XXX keep this here?
 };
 
 #endif // CLASSNETLIST_H

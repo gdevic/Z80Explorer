@@ -1,6 +1,7 @@
 #include "ClassNetlist.h"
 #include <QDebug>
 #include <QFile>
+#include <QSettings>
 #include <QStringBuilder>
 
 ClassNetlist::ClassNetlist():
@@ -11,18 +12,17 @@ ClassNetlist::ClassNetlist():
 
 ClassNetlist::~ClassNetlist()
 {
-    if (!m_resDir.isEmpty())
-        saveNetNames(m_resDir + "/netnames.js");
+    QSettings settings;
+    QString path = settings.value("ResourceDir").toString();
+    Q_ASSERT(!path.isEmpty());
+    saveNetNames(path + "/netnames.js");
 }
 
 bool ClassNetlist::loadResources(QString dir)
 {
     qInfo() << "Loading netlist resources from" << dir;
-
     if (loadNetNames(dir + "/nodenames.js", false))
     {
-        m_resDir = dir;
-
         // Load (optional) custom net names file
         loadNetNames(dir + "/netnames.js", true);
 

@@ -30,8 +30,9 @@ bool ClassController::init()
         return false;
     }
 
-    // Load the optional watchlist file
-    QString fileWatchlist = settings.value("WatchlistFile", "").toString();
+    // Load the watchlist file: use default or the last recently loaded/saved file
+    QString fileWatchlist = settings.value("WatchlistFile", path + "/watchlist.wl").toString();
+    settings.setValue("WatchlistFile", fileWatchlist); // Make sure the settings contains a valid entry
     m_watch.loadWatchlist(fileWatchlist);
 
     // Load the "hello world" sample executable file

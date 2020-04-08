@@ -50,7 +50,6 @@ public slots:
 private:
     QVector<QImage> m_img;              // Chip layer images
     uint m_last_image {};               // Index of the last image requested by getImage() call
-    QString m_dir;                      // Directory containing chip resources (set by loadChipResources)
 
     QVector<QPolygon> m_poly;
     QHash<uint, segdef> m_segdefs;      // Hash of segment definitions, key is the segment node number

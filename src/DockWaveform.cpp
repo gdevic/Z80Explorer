@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QSettings>
 #include <QStringBuilder>
 #include <QTableWidgetItem>
 
@@ -34,11 +35,20 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     connect(ui->btDown, &QToolButton::clicked, this, &DockWaveform::onDown);
     connect(ui->widgetWaveform, SIGNAL(cursorChanged(uint)), this, SLOT(cursorChanged(uint)));
 
+    // Load default viewlist for this window id
+    QSettings settings;
+    QString resDir = settings.value("ResourceDir").toString();
+    Q_ASSERT(!resDir.isEmpty());
+    m_fileViewlist = settings.value("ViewlistFile-" + QString::number(id), resDir + "/viewlist-" + QString::number(id) + ".vl").toString();
+    load(m_fileViewlist);
+
     rebuildList();
 }
 
 DockWaveform::~DockWaveform()
 {
+    Q_ASSERT(!m_fileViewlist.isEmpty());
+    save(m_fileViewlist);
     delete ui;
 }
 
@@ -75,12 +85,10 @@ bool DockWaveform::save(QString fileName)
 void DockWaveform::onLoad()
 {
     // Prompts the user to select which viewlist file to load
-    QString fileName = QFileDialog::getOpenFileName(this, "Select a viewlist file to load", m_defName, "viewlist (*.vl);;All files (*.*)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a viewlist file to load", "", "viewlist (*.vl);;All files (*.*)");
     if (!fileName.isEmpty())
     {
-        if (load(fileName))
-            m_defName = fileName;
-        else
+        if (!load(fileName))
             QMessageBox::critical(this, "Error", "Selected file is not a valid viewlist file");
         rebuildList();
     }
@@ -89,22 +97,19 @@ void DockWaveform::onLoad()
 void DockWaveform::onSaveAs()
 {
     // Prompts the user to select the viewlist file to save to
-    QString fileName = QFileDialog::getSaveFileName(this, "Save viewlist to a file", m_defName, "viewlist (*.vl);;All files (*.*)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save viewlist to a file", "", "viewlist (*.vl);;All files (*.*)");
     if (!fileName.isEmpty())
     {
-        if (save(fileName))
-            m_defName = fileName;
-        else
+        if (!save(fileName))
             QMessageBox::critical(this, "Error", "Unable to save viewlist to " + fileName);
     }
 }
 
 void DockWaveform::onSave()
 {
-    if (m_defName.isEmpty())
-        return onSaveAs();
-    if (!save(m_defName))
-        QMessageBox::critical(this, "Error", "Unable to save viewlist to " + m_defName);
+    Q_ASSERT(!m_fileViewlist.isEmpty());
+    if (!save(m_fileViewlist))
+        QMessageBox::critical(this, "Error", "Unable to save viewlist to " + m_fileViewlist);
 }
 
 /*

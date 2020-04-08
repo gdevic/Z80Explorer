@@ -51,7 +51,7 @@ private:
     QVector<viewitem> m_view;           // A collection of view items
 
     uint m_lastcursor;                  // Last cursor cycle value
-    QString m_defName {"viewlist.vl"};  // Default or last file name used for this viewlist XXX ??
+    QString m_fileViewlist;             // This window's default viewlist file name
 };
 
 #endif // DOCKWAVE_H

@@ -30,7 +30,6 @@ bool ClassChip::loadChipResources(QString dir)
     {
         buildLayerMap(); // XXX
 
-        m_dir = dir;
         qInfo() << "Completed loading chip resources";
         emit refresh();
         return true;
