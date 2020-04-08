@@ -9,7 +9,7 @@ bool ClassController::init()
     connect(&m_simx, SIGNAL(runStopped()), this, SIGNAL(onRunStopped()));
 
     QSettings settings;
-    QString path = settings.value("ChipResources", QDir::currentPath()).toString();
+    QString path = settings.value("ResourceDir", QDir::currentPath()).toString();
 
     // Check if the current resource path contains some of the resources
     while (!QFile::exists(path + "/nodenames.js"))
@@ -21,7 +21,7 @@ bool ClassController::init()
         else
             return false;
     }
-    settings.setValue("ChipResources", path);
+    settings.setValue("ResourceDir", path);
 
     // Initialize all global classes using the given path to resource
     if (!m_simx.loadResources(path) || !m_chip.loadChipResources(path) || !m_sim.loadSimResources(path))
