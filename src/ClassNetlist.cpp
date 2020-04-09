@@ -60,8 +60,10 @@ bool ClassNetlist::saveNetNames(QString fileName)
             if (m_netoverrides[i])
                 out << m_netnames[i] << ": " << QString::number(i) << ",\n";
         }        
-        out << "// Buses:\n"; // Write out the buses
-        for (auto i : m_buses.keys())
+        out << "// Buses:\n"; // Write out the buses, sorted alphabetically
+        QStringList buses = m_buses.keys();
+        buses.sort();
+        for (auto i : buses)
         {
             QString line = QString("%1: [").arg(i);
             for (auto net : m_buses[i])
