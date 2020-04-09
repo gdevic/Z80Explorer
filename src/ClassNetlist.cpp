@@ -52,7 +52,8 @@ bool ClassNetlist::saveNetNames(QString fileName)
     if (file.open(QFile::WriteOnly | QFile::Text))
     {
         QTextStream out(&file);
-        out << "// This file contains custom net names and overrides of the names defined in nodenames.js\n";
+        out << "// This file contains custom net names, overrides of the names defined in nodenames.js\n";
+        out << "// and definitions of buses (collections of nets). Modify by hand only when the app is not running.\n";
         out << "var nodenames_override = {\n";
         for (int i=0; i<MAX_NET; i++)
         {
