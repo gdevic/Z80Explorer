@@ -23,6 +23,7 @@ public:
 private slots:
     void onNewImageView();              // Open a new view to the chip data
     void onNewWaveformView();           // Open a new view to the waveforms
+    void onEditBuses();                 // Edits nets and buses
     void onEditWatchlist();             // Edits watchlist
     void onLoadWatchlist();             // Loads watchlist
     void onSaveWatchlistAs();           // Saves watchlist as

@@ -259,13 +259,25 @@ bool ClassNetlist::loadPullups(QString dir)
 }
 
 /*
- * Returns a list of net and bus names
+ * Returns a list of net and bus names concatenated
  */
 QStringList ClassNetlist::getNodenames()
 {
     QStringList nodes = m_netnums.keys();
     QStringList buses = m_buses.keys();
     return nodes + buses;
+}
+
+/*
+ * Adds bus by name and a set of nets listed by their name
+ */
+void ClassNetlist::addBus(QString name, QStringList netslist)
+{
+    // Replace net names with net numbers
+    QVector<net_t> nets;
+    for (auto name : netslist)
+        nets.append(get(name));
+    m_buses[name] = nets;
 }
 
 /*

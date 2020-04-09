@@ -37,9 +37,9 @@ public:
     ~ClassNetlist();
 
     bool loadResources(QString dir);
-    QStringList getNodenames();                 // Returns a list of net and bus names
+    QStringList getNodenames();                 // Returns a list of net and bus names concatenated
     const QVector<net_t> &getBus(QString name)  // Returns nets that comprise a bus
-        { return m_buses[name]; }
+        { static const QVector<net_t>x {}; return m_buses.contains(name) ? m_buses[name] : x; }
     inline net_t get(QString name)              // Returns net number given its name
         { return m_netnums.contains(name) ? m_netnums[name] : 0; }
     inline QString get(net_t n)                 // Returns net name given its number
@@ -49,6 +49,9 @@ public:
         { return m_netlist.count(); }
     bool getNetState(net_t i)                   // Returns the net logic state
         { return m_netlist[i].state; }
+
+    void addBus(QString name, QStringList);     // Adds bus by name and a set of nets listed by their name
+    void clearBuses() { m_buses.clear(); }      // Clear all buses, used only by the DialogEditBuses
 
 protected:
     QVector<trans> m_transdefs;                 // Array of transistors, indexed by the transistor number

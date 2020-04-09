@@ -28,6 +28,7 @@ SOURCES += \
     src/ClassSimX.cpp \
     src/ClassTrickbox.cpp \
     src/ClassWatch.cpp \
+    src/DialogEditBuses.cpp \
     src/DialogEditWatchlist.cpp \
     src/DockCommand.cpp \
     src/DockImageView.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     src/ClassSingleton.h \
     src/ClassTrickbox.h \
     src/ClassWatch.h \
+    src/DialogEditBuses.h \
     src/DialogEditWatchlist.h \
     src/DockCommand.h \
     src/DockImageView.h \
@@ -68,6 +70,7 @@ HEADERS += \
     src/z80state.h
 
 FORMS += \
+    src/DialogEditBuses.ui \
     src/DialogEditWatchlist.ui \
     src/DockCommand.ui \
     src/DockImageView.ui \

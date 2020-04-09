@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "ClassController.h"
+#include "DialogEditBuses.h"
 #include "DialogEditWatchlist.h"
 #include "DockWaveform.h"
 #include "DockCommand.h"
@@ -63,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     connect(ui->actionLoadWatchlist, SIGNAL(triggered()), this, SLOT(onLoadWatchlist()));
     connect(ui->actionSaveWatchlistAs, SIGNAL(triggered()), this, SLOT(onSaveWatchlistAs()));
     connect(ui->actionSaveWatchlist, SIGNAL(triggered()), this, SLOT(onSaveWatchlist()));
+    connect(ui->actionEditBuses, SIGNAL(triggered()), this, SLOT(onEditBuses()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
 }
 
@@ -113,6 +115,15 @@ void MainWindow::onNewWaveformView()
     w->setFloating(true);
     w->resize(1000, 500);
     w->show();
+}
+
+/*
+ * Handle menu item to edit nets and buses
+ */
+void MainWindow::onEditBuses()
+{
+    DialogEditBuses dlg(this);
+    dlg.exec();
 }
 
 void MainWindow::onEditWatchlist()

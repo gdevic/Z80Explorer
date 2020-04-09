@@ -81,8 +81,15 @@
     <addaction name="actionSaveWatchlistAs"/>
     <addaction name="actionSaveWatchlist"/>
    </widget>
+   <widget class="QMenu" name="menuNets">
+    <property name="title">
+     <string>Nets</string>
+    </property>
+    <addaction name="actionEditBuses"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuNets"/>
    <addaction name="menuWatch"/>
    <addaction name="menuWindow"/>
   </widget>
@@ -164,6 +171,17 @@
    </property>
    <property name="shortcut">
     <string>F4</string>
+   </property>
+  </action>
+  <action name="actionEditBuses">
+   <property name="text">
+    <string>Edit Buses...</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit nets and buses</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
    </property>
   </action>
  </widget>
