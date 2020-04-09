@@ -6,6 +6,7 @@ DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
     ui(new Ui::DialogEditWatchlist)
 {
     ui->setupUi(this);
+    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
 
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditWatchlist::onAdd);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditWatchlist::onRemove);

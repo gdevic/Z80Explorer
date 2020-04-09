@@ -8,6 +8,7 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
     ui(new Ui::DialogEditBuses)
 {
     ui->setupUi(this);
+    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
 
     // Read all nets and buses and separate nets from buses
     ClassNetlist &Net = ::controller.getNetlist();
