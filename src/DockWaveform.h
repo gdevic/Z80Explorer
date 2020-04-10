@@ -8,11 +8,11 @@ namespace Ui { class DockWaveform; }
 // Defines one view item
 struct viewitem
 {
-    QString name;       // Net or bus name
-    uint format;        // Format to use to display values, 0 for global format
-    QColor color;       // Color override to use to display waveform
+    QString name;               // Net or bus name
+    uint format { 0 };          // Format to use to display values, 0 for global format
+    QColor color { Qt::green }; // Color override to use to display waveform
 
-    template <class Archive> void serialize(Archive & ar) { ar(name); }
+    template <class Archive> void serialize(Archive & ar) { ar(name, format, color); }
 
     viewitem(const QString n): name(n) {}
     viewitem(){};

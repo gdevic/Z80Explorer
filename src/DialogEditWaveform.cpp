@@ -1,6 +1,7 @@
 #include "DialogEditWaveform.h"
 #include "ui_DialogEditWaveform.h"
 #include "ClassController.h"
+#include <QColorDialog>
 
 DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) :
     QDialog(parent),
@@ -18,6 +19,7 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditWaveform::onRemove);
     connect(ui->btUp, &QPushButton::clicked, this, &DialogEditWaveform::onUp);
     connect(ui->btDown, &QPushButton::clicked, this, &DialogEditWaveform::onDown);
+    connect(ui->btColor, &QPushButton::clicked, this, &DialogEditWaveform::onColor);
 }
 
 DialogEditWaveform::~DialogEditWaveform()
@@ -53,13 +55,15 @@ void DialogEditWaveform::viewSelChanged()
     ui->btColor->setEnabled(sel.size());
 }
 
-// XXX There must be a way to simply use m_view.contains(name) !
-bool DialogEditWaveform::contains(QString name)
+/*
+ * Returns a pointer to the named viewitem, nullptr otherwise
+ */
+viewitem *DialogEditWaveform::find(QString name)
 {
-    for (auto i : m_view)
+    for (auto &i : m_view)
         if (i.name == name)
-            return true;
-    return false;
+            return &i;
+    return nullptr;
 }
 
 /*
@@ -71,7 +75,7 @@ void DialogEditWaveform::onAdd()
     for (auto i : sel)
     {
         const QString name = i->text();
-        if (!contains(name))
+        if (find(name) == nullptr)
         {
             ui->listView->addItem(name);
             m_view.append(name);
@@ -132,5 +136,27 @@ void DialogEditWaveform::onDown()
         QListWidgetItem *i = ui->listView->takeItem(row);
         ui->listView->insertItem(row + 1, i);
         ui->listView->setCurrentRow(row + 1);
+    }
+}
+
+/*
+ * Change signal's waveform color
+ */
+void DialogEditWaveform::onColor()
+{
+    QList<QListWidgetItem *> sel = ui->listView->selectedItems();
+    QStringList selected;
+    for (auto i : sel)
+        selected.append(i->text());
+    QColor col = find(selected[0])->color;
+    col = QColorDialog::getColor(col);
+    if (col.isValid())
+    {
+        for (auto &i : m_view)
+        {
+            if (selected.contains(i.name))
+                i.color = col;
+        }
+
     }
 }

@@ -59,19 +59,22 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
     while (vi != nullptr)
     {
         watch *w = ::controller.getWatch().find(vi->name);
-        if (w->n)
-            drawOneSignal_Net(painter, y, hstart, w);
-        else
-            drawOneSignal_Bus(painter, y, hstart, w);
+        if (w) // Check that the view item is actually being watched
+        {
+            if (w->n)
+                drawOneSignal_Net(painter, y, hstart, w, vi);
+            else
+                drawOneSignal_Bus(painter, y, hstart, w, vi);
+        }
         y += 20; // Advance to the next Y coordinate, this is the height of each net
         vi = m_dock->getNext(it);
     }
     drawCursors(painter, r, hstart);
 }
 
-void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *w)
+void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
-    painter.setPen(QPen(Qt::green));
+    painter.setPen(viewitem->color);
     net_t data_cur, data_prev = ::controller.getWatch().at(w, hstart);
     for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
     {
@@ -91,9 +94,9 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
     }
 }
 
-void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w)
+void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
-    painter.setPen(QPen(Qt::green));
+    painter.setPen(viewitem->color);
     uint width;
     uint data_cur, data_prev = ::controller.getWatch().at(w, hstart, width);
     uint last_data_x = 0; // X coordinate of the last bus data change
@@ -115,7 +118,7 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
             {
                 painter.setPen(QPen(Qt::white));
                 painter.drawText(last_data_x + 3, y1 - 2, text);
-                painter.setPen(QPen(Qt::green));
+                painter.setPen(viewitem->color);
             }
 
             painter.drawLine(x1, y1, x1+3, y2);

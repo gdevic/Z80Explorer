@@ -23,8 +23,8 @@ private slots:
 
 private:
     DockWaveform *m_dock {};
-    void drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *watch);
-    void drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *watch);
+    void drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem);
+    void drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem);
     qreal m_hscale;                     // Horizontal scale factor
     const uint m_waveheight;            // Wave height in pixels
 

@@ -12,6 +12,7 @@
 #include "cereal/archives/binary.hpp"
 #include "cereal/types/QString.hpp"
 #include "cereal/types/QVector.hpp"
+#include "cereal/types/QColor.hpp"
 #include <fstream>
 
 DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
@@ -195,6 +196,9 @@ void DockWaveform::cursorChanged(uint hcycle)
         pin_t data_cur = ::controller.getWatch().at(w, hcycle);
 
         QString display = QString::number(data_cur);
+        if (data_cur == 3)
+            display = "no-data";
+        else
         if (data_cur == 4) // Bus
         {
             uint width;
@@ -202,7 +206,7 @@ void DockWaveform::cursorChanged(uint hcycle)
             if (width)
                 display = QString::number(width) % "'h" % QString::number(bus, 16);
             else
-                display = "?";
+                display = "no-data";
         }
 
         QTableWidgetItem *tvi = tv->item(row, 1);

@@ -26,12 +26,13 @@ private slots:
     void onRemove();
     void onUp();
     void onDown();
+    void onColor();
     void allSelChanged();
     void viewSelChanged();
     void showEvent(QShowEvent *) override;
 
 private:
-    bool contains(QString name);
+    viewitem *find(QString name);
 
 private:
     Ui::DialogEditWaveform *ui;
