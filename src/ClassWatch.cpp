@@ -34,7 +34,7 @@ void ClassWatch::append(watch *w, uint hcycle, net_t value)
  */
 net_t ClassWatch::at(watch *w, uint hcycle)
 {
-    if ((hringstart == 0) && (hcycle >= next))
+    if ((w == nullptr) || ((hringstart == 0) && (hcycle >= next)))
         return 3;
     if ((hcycle < hringstart) || (hcycle >= (hringstart + MAX_WATCH_HISTORY)))
         return 3;
@@ -54,7 +54,7 @@ net_t ClassWatch::at(watch *w, uint hcycle)
 uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
 {
     ok = 0;
-    if ((hringstart == 0) && (hcycle >= next))
+    if ((w == nullptr) || ((hringstart == 0) && (hcycle >= next)))
         return 0;
     if ((hcycle < hringstart) || (hcycle >= (hringstart + MAX_WATCH_HISTORY)))
         return 0;
