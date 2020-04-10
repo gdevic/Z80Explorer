@@ -51,10 +51,10 @@
        <item>
         <widget class="QToolButton" name="btFile">
          <property name="text">
-          <string>File   </string>
+          <string>File      </string>
          </property>
          <property name="popupMode">
-          <enum>QToolButton::MenuButtonPopup</enum>
+          <enum>QToolButton::InstantPopup</enum>
          </property>
          <property name="toolButtonStyle">
           <enum>Qt::ToolButtonFollowStyle</enum>
@@ -64,27 +64,7 @@
        <item>
         <widget class="QToolButton" name="btEdit">
          <property name="text">
-          <string>Edit   </string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="btUp">
-         <property name="text">
-          <string>Up</string>
-         </property>
-         <property name="arrowType">
-          <enum>Qt::UpArrow</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="btDown">
-         <property name="text">
-          <string>Down</string>
-         </property>
-         <property name="arrowType">
-          <enum>Qt::DownArrow</enum>
+          <string>Edit...   </string>
          </property>
         </widget>
        </item>
@@ -146,6 +126,9 @@ color: rgb(255, 255, 255);</string>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::NoSelection</enum>
+         </property>
          <property name="horizontalScrollMode">
           <enum>QAbstractItemView::ScrollPerPixel</enum>
          </property>
@@ -193,7 +176,7 @@ color: rgb(255, 255, 255);</string>
             <x>0</x>
             <y>0</y>
             <width>604</width>
-            <height>445</height>
+            <height>447</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="layoutScroll">
@@ -224,15 +207,15 @@ color: rgb(255, 255, 255);</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>WidgetWaveform</class>
-   <extends>QWidget</extends>
-   <header>WidgetWaveform.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>WidgetToolbar</class>
    <extends>QWidget</extends>
    <header>WidgetToolbar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WidgetWaveform</class>
+   <extends>QWidget</extends>
+   <header>WidgetWaveform.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

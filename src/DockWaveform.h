@@ -8,9 +8,15 @@ namespace Ui { class DockWaveform; }
 // Defines one view item
 struct viewitem
 {
-    QString name; // Net or bus name
+    QString name;       // Net or bus name
+    uint format;        // Format to use to display values, 0 for global format
+    QColor color;       // Color override to use to display waveform
 
     template <class Archive> void serialize(Archive & ar) { ar(name); }
+
+    viewitem(const QString n): name(n) {}
+    viewitem(){};
+    bool operator==(const viewitem &b) { return name == b.name; }
 };
 
 class DockWaveform : public QDockWidget
@@ -31,8 +37,6 @@ private slots:
     void onSaveAs();                    // Save current set of view items with a new file name
     void onSave();                      // Save current set of view items
     void onEdit();                      // Edit current set of view items
-    void onUp();
-    void onDown();
     void cursorChanged(uint hcycle);    // Cursor moved, need to update values that are shown
 
 private:
@@ -49,6 +53,7 @@ private:
     void updateViewitems(QStringList);  // Update view items based on the new list of nets/buses
 
     QVector<viewitem> m_view;           // A collection of view items
+    uint m_format;                      // Global format to display values
 
     uint m_lastcursor;                  // Last cursor cycle value
     QString m_fileViewlist;             // This window's default viewlist file name

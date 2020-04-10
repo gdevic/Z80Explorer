@@ -1,14 +1,12 @@
 #include "DockWaveform.h"
 #include "ui_DockWaveform.h"
 #include "ClassController.h"
-#include "DialogEditWatchlist.h"
-#include <QDebug>
+#include "DialogEditWaveform.h"
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSettings>
 #include <QStringBuilder>
-#include <QTableWidgetItem>
 
 // Serialization support
 #include "cereal/archives/binary.hpp"
@@ -31,8 +29,6 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     ui->btFile->setMenu(menu);
 
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
-    connect(ui->btUp, &QToolButton::clicked, this, &DockWaveform::onUp);
-    connect(ui->btDown, &QToolButton::clicked, this, &DockWaveform::onDown);
     connect(ui->widgetWaveform, SIGNAL(cursorChanged(uint)), this, SLOT(cursorChanged(uint)));
 
     // Load default viewlist for this window id
@@ -118,23 +114,12 @@ void DockWaveform::onSave()
  */
 void DockWaveform::onEdit()
 {
-    // Let the user pick and select which nets are to be part of this view
-    DialogEditWatchlist dlg(this);
-    dlg.setNodeList(::controller.getWatch().getWatchlist());
-    dlg.setWatchlist(getNames());
+    DialogEditWaveform dlg(this, m_view);
     if (dlg.exec()==QDialog::Accepted)
     {
-        updateViewitems(dlg.getWatchlist());
+        m_view = dlg.get();
         rebuildList();
     }
-}
-
-void DockWaveform::onUp()
-{
-}
-
-void DockWaveform::onDown()
-{
 }
 
 QStringList DockWaveform::getNames()
