@@ -214,7 +214,7 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
     if(m_mousePressed && m_cursormoving)
     {
         uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
-        if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= MAX_WATCH_HISTORY * 2))
+        if ((mouse_in_dataX >= 0) && (mouse_in_dataX < MAX_WATCH_HISTORY * 2))
             m_cursors2x[m_cursor] = mouse_in_dataX;
         update();
     }
