@@ -46,37 +46,6 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     rebuildList();
 }
 
-/*
- * User moved the view using a mouse, scroll it
- */
-void DockWaveform::scroll(int deltaX)
-{
-    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
-    qreal new_pos = sb->sliderPosition() + deltaX;
-    sb->setSliderPosition(new_pos);
-}
-
-/*
- * User changed the scaling on the waveform and that caused a range change
- */
-void DockWaveform::onScrollBarRangeChanged(int, int max)
-{
-    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
-    qreal new_pos = m_rel * max;
-    sb->setSliderPosition(new_pos);
-}
-
-/*
- * User managed the horizontal scroll bar on the waveform pane
- */
-void DockWaveform::onScrollBarActionTriggered(int)
-{
-    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
-    uint range = sb->maximum();
-    uint pos = sb->sliderPosition();
-    m_rel = qreal(pos) / range;
-}
-
 DockWaveform::~DockWaveform()
 {
     Q_ASSERT(!m_fileViewlist.isEmpty());
@@ -247,4 +216,35 @@ void DockWaveform::cursorChanged(uint hcycle)
         QTableWidgetItem *tvi = tv->item(row, 1);
         tvi->setText(display);
     }
+}
+
+/*
+ * User moved the view using a mouse, scroll it
+ */
+void DockWaveform::scroll(int deltaX)
+{
+    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
+    qreal new_pos = sb->sliderPosition() + deltaX;
+    sb->setSliderPosition(new_pos);
+}
+
+/*
+ * User changed the scaling on the waveform and that caused a range change
+ */
+void DockWaveform::onScrollBarRangeChanged(int, int max)
+{
+    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
+    qreal new_pos = m_rel * max;
+    sb->setSliderPosition(new_pos);
+}
+
+/*
+ * User managed the horizontal scroll bar on the waveform pane
+ */
+void DockWaveform::onScrollBarActionTriggered(int)
+{
+    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
+    uint range = sb->maximum();
+    uint pos = sb->sliderPosition();
+    m_rel = qreal(pos) / range;
 }
