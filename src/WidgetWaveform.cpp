@@ -96,23 +96,40 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
 
 void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
+    // A lot of complexity in this function is to get the text format output at somewhat reasonamble placess
     painter.setPen(viewitem->color);
     uint width;
-    uint data_cur, data_prev = ::controller.getWatch().at(w, hstart, width);
+    uint data_prev = ::controller.getWatch().at(w, hstart, width);
+    uint data_cur = UINT_MAX; // Simply make sure they differ so we do the initial text print
     uint last_data_x = 0; // X coordinate of the last bus data change
-    QString text; // Text value of the last bus data
-    for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
+    bool width0text = true; // Not too elegant way to ensure we print only once on a stream of undef values
+    // Get the text of the initial bus data value
+    QString text = QString::number(width) % "'h" % QString::number(data_prev, 16);
+    // MAX_WATCH_HISTORY + 1 is to force undef case (width == 0) and flush the text at the line ends
+    for (int i = 0; i < MAX_WATCH_HISTORY + 1; i++, data_prev = data_cur)
     {
-        data_cur = ::controller.getWatch().at(w, hstart + i, width);
-        if (width == 0) // If the data is undef or incomplete at this cycle, skip drawing it
-            continue;
         uint x1 = i * m_hscale;
         uint x2 = (i + 1) * m_hscale;
         uint y1 = y;
         uint y2 = y - m_waveheight;
+
+        data_cur = ::controller.getWatch().at(w, hstart + i, width);
+        if (width == 0) // If the data is undef or incomplete at this cycle, skip drawing it
+        {
+            if (width0text) // Print the text only on the first undef data to flush out previous value
+            {
+                painter.setPen(QPen(Qt::white));
+                painter.drawText(last_data_x + 3, y1 - 2, text);
+                painter.setPen(viewitem->color);
+                last_data_x = x1;
+                width0text = false; // Do not print text next time in the undef case
+            }
+            continue;
+        }
+        width0text = true; // If we are here, we had a valid data, so enable printing text on undef next time
         if (data_prev != data_cur) // Bus data is changing, draw crossed lines
         {
-            // Check if there is enough space (in pixels) to write out last bus data value
+            // Check if there is enough space (in pixels) to write out the last text
             QRect bb = painter.fontMetrics().boundingRect(text);
             if (bb.width() < int(x1 - last_data_x))
             {
@@ -120,13 +137,13 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
                 painter.drawText(last_data_x + 3, y1 - 2, text);
                 painter.setPen(viewitem->color);
             }
+            last_data_x = x1;
 
             painter.drawLine(x1, y1, x1+3, y2);
             painter.drawLine(x1, y2, x1+3, y1);
             painter.drawLine(x1+3, y1, x2, y1);
             painter.drawLine(x1+3, y2, x2, y2);
 
-            last_data_x = x1;
             // Format the text of the new bus data value
             text = QString::number(width) % "'h" % QString::number(data_cur, 16);
         }
