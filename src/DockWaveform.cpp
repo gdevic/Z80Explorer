@@ -32,6 +32,7 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
 
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
     connect(ui->widgetWaveform, SIGNAL(cursorChanged(uint)), this, SLOT(cursorChanged(uint)));
+    connect(ui->widgetWaveform, SIGNAL(scroll(int)), this, SLOT(scroll(int)));
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::actionTriggered, this, &DockWaveform::onScrollBarActionTriggered);
 
@@ -43,6 +44,16 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     load(m_fileViewlist);
 
     rebuildList();
+}
+
+/*
+ * User moved the view using a mouse, scroll it
+ */
+void DockWaveform::scroll(int deltaX)
+{
+    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
+    qreal new_pos = sb->sliderPosition() + deltaX;
+    sb->setSliderPosition(new_pos);
 }
 
 /*

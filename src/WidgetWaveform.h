@@ -16,6 +16,7 @@ public:
 
 signals:
     void cursorChanged(uint hcycle);    // Cursor selected a new hcycle
+    void scroll(int deltaX);            // User moved the view, request to scroll it
 
 private slots:
     void onRunStopped();                // Signal from the controller that the simulation run stopped

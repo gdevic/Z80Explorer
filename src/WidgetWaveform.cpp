@@ -210,13 +210,21 @@ QSize WidgetWaveform::sizeHint() const
 void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
 {
     m_mousePos = event->pos();
-
-    if(m_mousePressed && m_cursormoving)
+    if (!m_mousePressed)
+        return;
+    if(m_cursormoving) // User is moving the cursor
     {
         uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
         if ((mouse_in_dataX >= 0) && (mouse_in_dataX < MAX_WATCH_HISTORY * 2))
             m_cursors2x[m_cursor] = mouse_in_dataX;
+        setCursor(Qt::SizeHorCursor);
         update();
+    }
+    else // User is moving the pane and it needs to be scrolled
+    {
+        int deltaX = m_pinMousePos.x() - event->x();
+        setCursor(Qt::ClosedHandCursor);
+        emit scroll(deltaX);
     }
 }
 
@@ -233,27 +241,37 @@ void WidgetWaveform::mousePressEvent(QMouseEvent *event)
         // If the mouse is on the bottom row (where the cursors' flags are), use the corresponding cursor
         QRect r = geometry();
         if (m_mousePos.y() > (r.bottom() - m_cursors2x.count() * m_fontheight))
+        {
             m_cursor = (r.bottom() - m_mousePos.y()) / m_fontheight;
+            m_cursormoving = true;
+        }
         else
         // Next, try to find the cursor that is close to the mouse pointer (off by a few pixels)
-        // If found, make that cursor active and ready to move it. If not, move the currently active cursor
-        // to the mouse position and have it ready to move.
+        // If found, make that cursor active and ready to move it.
         for (int i=0; i<m_cursors2x.count(); i++)
         {
             int data_to_screenX = m_cursors2x.at(i) * (m_hscale / 2);
             if (abs(m_mousePos.x() - data_to_screenX) < 10)
+            {
                 m_cursor = i;
+                m_cursormoving = true;
+            }
         }
-        uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
-        if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= MAX_WATCH_HISTORY * 2))
-            m_cursors2x[m_cursor] = mouse_in_dataX;
-        m_cursormoving = true;
-        update();
+        if (m_cursormoving)
+        {
+            // If we identified a cursor, set it's new X coordiate
+            uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
+            if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= MAX_WATCH_HISTORY * 2))
+                m_cursors2x[m_cursor] = mouse_in_dataX;
+        }
     }
+    setCursor(m_cursormoving ? Qt::SizeHorCursor : Qt::OpenHandCursor);
+    update();
 }
 
 void WidgetWaveform::mouseReleaseEvent (QMouseEvent *)
 {
+    setCursor(Qt::ArrowCursor);
     m_mousePressed = false;
     m_cursormoving = false;
 }
@@ -270,11 +288,11 @@ void WidgetWaveform::wheelEvent(QWheelEvent *event)
 
 void WidgetWaveform::leaveEvent(QEvent *)
 {
+    setCursor(Qt::ArrowCursor);
     m_mousePressed = false;
     m_cursormoving = false;
 }
 
-void WidgetWaveform::keyPressEvent(QKeyEvent *event)
+void WidgetWaveform::keyPressEvent(QKeyEvent *)
 {
-    Q_UNUSED(event);
 }

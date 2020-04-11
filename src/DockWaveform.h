@@ -37,6 +37,7 @@ private slots:
     void onSaveAs();                    // Save current set of view items with a new file name
     void onSave();                      // Save current set of view items
     void onEdit();                      // Edit current set of view items
+    void scroll(int deltaX);            // User moved the view, scroll it
     void cursorChanged(uint hcycle);    // Cursor moved, need to update values that are shown
     void onScrollBarActionTriggered(int);
     void onScrollBarRangeChanged(int,int);
