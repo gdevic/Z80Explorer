@@ -235,6 +235,12 @@
       </item>
       <item>
        <widget class="QFrame" name="frame_4">
+        <property name="minimumSize">
+         <size>
+          <width>170</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -253,6 +259,9 @@
           <widget class="QComboBox" name="comboFormat">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
            </property>
           </widget>
          </item>

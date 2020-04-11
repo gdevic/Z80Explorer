@@ -205,10 +205,9 @@ void DockWaveform::cursorChanged(uint hcycle)
         else
         if (data_cur == 4) // Bus
         {
-            uint width;
-            uint bus = ::controller.getWatch().at(w, hcycle, width);
+            uint width, value = ::controller.getWatch().at(w, hcycle, width);
             if (width)
-                display = QString::number(width) % "'h" % QString::number(bus, 16);
+                display = ::controller.formatBus(find(w->name)->format, value, width);
             else
                 display = "no-data";
         }

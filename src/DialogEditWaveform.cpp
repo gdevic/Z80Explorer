@@ -20,6 +20,7 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     connect(ui->btUp, &QPushButton::clicked, this, &DialogEditWaveform::onUp);
     connect(ui->btDown, &QPushButton::clicked, this, &DialogEditWaveform::onDown);
     connect(ui->btColor, &QPushButton::clicked, this, &DialogEditWaveform::onColor);
+    connect(ui->comboFormat, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogEditWaveform::onFormatIndexChanged);
 }
 
 DialogEditWaveform::~DialogEditWaveform()
@@ -51,8 +52,32 @@ void DialogEditWaveform::viewSelChanged()
     ui->btRemove->setEnabled(sel.size());
     ui->btUp->setEnabled(sel.size());
     ui->btDown->setEnabled(sel.size());
-    ui->comboFormat->setEnabled(sel.size());
     ui->btColor->setEnabled(sel.size());
+    // We can modify only one format at a time
+    ui->comboFormat->setEnabled(sel.size()==1);
+    ui->comboFormat->clear();
+    if (sel.size()==1)
+    {
+        QString name = sel[0]->text();
+        viewitem *i = find(name);
+        // Store the i->format since addItems will call IndexChanged and reset the format value
+        uint format = i->format;
+        ui->comboFormat->addItems(::controller.getFormats(name));
+        ui->comboFormat->setCurrentIndex(format);
+    }
+}
+
+void DialogEditWaveform::onFormatIndexChanged(int index)
+{
+    if (index >= 0)
+    {
+        QList<QListWidgetItem *> sel = ui->listView->selectedItems();
+        Q_ASSERT(sel.size() == 1);
+        QString name = sel[0]->text();
+        viewitem *i = find(name);
+        Q_ASSERT(i);
+        i->format = index;
+    }
 }
 
 /*

@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QSettings>
+#include <QStringBuilder>
 
 bool ClassController::init()
 {
@@ -62,4 +63,36 @@ void ClassController::doRunsim(uint ticks)
 {
     emit m_simx.doRunsim(ticks);
     qDebug() << "Chip run for" << ticks << "half-clocks";
+}
+
+/*
+ * Returns a list of formats applicable to the signal name (a net or a bus)
+ */
+const QStringList ClassController::getFormats(QString name)
+{
+    static const QStringList formats[2] = {
+        { "Logic", "Transition Up", "Transition Down", "Transition Any" },
+        { "Hexadecimal", "Binary", "Octal", "Decimal", "ASCII" }
+    };
+    // If the name represents a bus, get() will return 0 for the net number, selecting formats[!0]
+    return formats[!getNetlist().get(name)];
+}
+
+/*
+ * Returns the formatted string for a bus type value
+ */
+const QString ClassController::formatBus(uint fmt, uint value, uint width)
+{
+    QString s = QString::number(width) % "'h" % QString::number(value, 16); // Print hex by default
+    // Handle a special case where asked to print ASCII, but a value is not a prinable character: return its hex value
+    if ((fmt == FormatBus::Ascii) && !QChar::isPrint(value))
+        return s;
+    switch (fmt)
+    {
+        case FormatBus::Bin: s = QString::number(width) % "'b" % QString::number(value, 2); break;
+        case FormatBus::Oct: s = QString::number(width) % "'o" % QString::number(value, 8); break;
+        case FormatBus::Dec: s = QString::number(width) % "'d" % QString::number(value, 10); break;
+        case FormatBus::Ascii: s = QString(QString::number(width) % "'" % QChar(value) % "'"); break;
+    }
+    return s;
 }

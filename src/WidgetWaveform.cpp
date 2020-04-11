@@ -83,20 +83,42 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
             continue;
         uint x1 = i * m_hscale;
         uint x2 = (i + 1) * m_hscale;
+        uint y1 = data_prev ? m_waveheight : 0;
         uint y2 = data_cur ? m_waveheight : 0;
-        if (data_prev != data_cur)
+
+        if (viewitem->format == ClassController::FormatNet::Logic) // Draw simple logic diagram
         {
-            uint y1 = data_prev ? m_waveheight : 0;
-            painter.drawLine(x1, y - y1, x1, y - y2);
+            if (data_prev != data_cur)
+            {
+                painter.drawLine(x1, y - y1, x1, y - y2);
+                painter.drawLine(x1, y - y2, x2, y - y2);
+            }
             painter.drawLine(x1, y - y2, x2, y - y2);
         }
-        painter.drawLine(x1, y - y2, x2, y - y2);
+        else if (data_prev != data_cur) // Draw transition triangles
+        {
+            bool is_up = data_prev < data_cur;
+            uint d = 1 + m_hscale / 5; // Stretch triangles as the scale moves up
+            QBrush brush = painter.brush();
+            painter.setBrush(QBrush(viewitem->color));
+            if (!is_up && (viewitem->format != ClassController::FormatNet::TransUp)) // TransDown or TransAny
+            {
+                QPoint shape[3] = { QPoint(x1-d,y-y1), QPoint(x1,y), QPoint(x1+d,y-y1) };
+                painter.drawPolygon(shape, 3);
+            }
+            if (is_up && (viewitem->format != ClassController::FormatNet::TransDown)) // TransUp or TransAny
+            {
+                QPoint shape[3] = { QPoint(x1-d,y), QPoint(x1,y-y2), QPoint(x1+d,y) };
+                painter.drawPolygon(shape, 3);
+            }
+            painter.setBrush(brush);
+        }
     }
 }
 
 void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
-    // A lot of complexity in this function is to get the text format output at somewhat reasonamble placess
+    // A lot of complexity in this function is to get the text format output at somewhat reasonable points
     painter.setPen(viewitem->color);
     uint width;
     uint data_prev = ::controller.getWatch().at(w, hstart, width);
@@ -104,7 +126,7 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
     uint last_data_x = 0; // X coordinate of the last bus data change
     bool width0text = true; // Not too elegant way to ensure we print only once on a stream of undef values
     // Get the text of the initial bus data value
-    QString text = QString::number(width) % "'h" % QString::number(data_prev, 16);
+    QString text = ::controller.formatBus(viewitem->format, data_prev, width);
     // MAX_WATCH_HISTORY + 1 is to force undef case (width == 0) and flush the text at the line ends
     for (int i = 0; i < MAX_WATCH_HISTORY + 1; i++, data_prev = data_cur)
     {
@@ -145,7 +167,7 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
             painter.drawLine(x1+3, y2, x2, y2);
 
             // Format the text of the new bus data value
-            text = QString::number(width) % "'h" % QString::number(data_cur, 16);
+            text = ::controller.formatBus(viewitem->format, data_cur, width);
         }
         else // Bus data is the same, continue drawing two parallel horizontal lines
         {

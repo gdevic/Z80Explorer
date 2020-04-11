@@ -29,6 +29,7 @@ private slots:
     void onColor();
     void allSelChanged();
     void viewSelChanged();
+    void onFormatIndexChanged(int);
     void showEvent(QShowEvent *) override;
 
 private:
