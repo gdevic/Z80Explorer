@@ -298,6 +298,20 @@ void WidgetWaveform::mouseReleaseEvent (QMouseEvent *)
     m_cursormoving = false;
 }
 
+/*
+ * Double clicking the mouse on the pane brings the current cursor to that point
+ */
+void WidgetWaveform::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (m_cursors2x.count())
+    {
+        uint mouse_in_dataX = event->x() / (m_hscale / 2);
+        if ((mouse_in_dataX >= 0) && (mouse_in_dataX < MAX_WATCH_HISTORY * 2))
+            m_cursors2x[m_cursor] = mouse_in_dataX;
+        update();
+    }
+}
+
 void WidgetWaveform::wheelEvent(QWheelEvent *event)
 {
     if (event->delta() > 0)
