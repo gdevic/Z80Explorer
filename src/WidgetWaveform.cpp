@@ -197,8 +197,8 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
 
 QSize WidgetWaveform::sizeHint() const
 {
-    // The total data size plus some (~12%), to give space on the right end
-    uint extra = MAX_WATCH_HISTORY >> 3;
+    // The total data size plus some, to give some extra space on the right end
+    uint extra = MAX_WATCH_HISTORY >> 4;
     QSize size((MAX_WATCH_HISTORY + extra) * m_hscale, 0);
     return size;
 }

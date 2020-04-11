@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <QSettings>
 #include <QStringBuilder>
 
@@ -31,6 +32,8 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
 
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
     connect(ui->widgetWaveform, SIGNAL(cursorChanged(uint)), this, SLOT(cursorChanged(uint)));
+    connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
+    connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::actionTriggered, this, &DockWaveform::onScrollBarActionTriggered);
 
     // Load default viewlist for this window id
     QSettings settings;
@@ -40,6 +43,27 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     load(m_fileViewlist);
 
     rebuildList();
+}
+
+/*
+ * User changed the scaling on the waveform and that caused a range change
+ */
+void DockWaveform::onScrollBarRangeChanged(int, int max)
+{
+    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
+    qreal new_pos = m_rel * max;
+    sb->setSliderPosition(new_pos);
+}
+
+/*
+ * User managed the horizontal scroll bar on the waveform pane
+ */
+void DockWaveform::onScrollBarActionTriggered(int)
+{
+    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
+    uint range = sb->maximum();
+    uint pos = sb->sliderPosition();
+    m_rel = qreal(pos) / range;
 }
 
 DockWaveform::~DockWaveform()

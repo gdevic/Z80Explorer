@@ -38,6 +38,8 @@ private slots:
     void onSave();                      // Save current set of view items
     void onEdit();                      // Edit current set of view items
     void cursorChanged(uint hcycle);    // Cursor moved, need to update values that are shown
+    void onScrollBarActionTriggered(int);
+    void onScrollBarRangeChanged(int,int);
 
 private:
     bool load(QString fileName);
@@ -57,6 +59,7 @@ private:
 
     uint m_lastcursor;                  // Last cursor cycle value
     QString m_fileViewlist;             // This window's default viewlist file name
+    qreal m_rel {0};                    // Waveform scroll relative slider position
 };
 
 #endif // DOCKWAVE_H
