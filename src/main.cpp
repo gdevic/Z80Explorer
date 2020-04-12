@@ -141,8 +141,11 @@ int main(int argc, char *argv[])
             mainWindow->restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
             mainWindow->restoreState(settings.value("MainWindow/State").toByteArray());
 
-            // Show the main window
-            mainWindow->show();
+            // Show the main window maximized if run for the first time, otherwise keep the last user's setting
+            if (settings.value("MainWindow/State").toByteArray().size() == 0)
+                mainWindow->showMaximized();
+            else
+                mainWindow->show();
 
             // Run the application main code loop
             retCode = a.exec();
