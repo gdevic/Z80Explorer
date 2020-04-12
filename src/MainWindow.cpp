@@ -110,11 +110,16 @@ void MainWindow::onNewImageView()
  */
 void MainWindow::onNewWaveformView()
 {
-    DockWaveform *w = new DockWaveform(this, ++m_lastWaveWndId);
-    ui->menuWindow->addAction(w->toggleViewAction());
-    w->setFloating(true);
-    w->resize(1000, 500);
-    w->show();
+    if (m_lastWaveWndId < 4)
+    {
+        DockWaveform *w = new DockWaveform(this, ++m_lastWaveWndId);
+        ui->menuWindow->addAction(w->toggleViewAction());
+        w->setFloating(true);
+        w->resize(1000, 500);
+        w->show();
+    }
+    else
+        QMessageBox::critical(this, "New Waveform", "You can create up to 4 waveform views. Please switch to one of those that are already created.");
 }
 
 /*
