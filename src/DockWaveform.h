@@ -49,6 +49,7 @@ private:
 
 private:
     Ui::DockWaveform *ui;
+    uint m_id;                          // This dock ID value
 
     QStringList getNames();             // Returns a list of all view item names
     viewitem *find(QString name);       // Find a view item with the given name or nullptr

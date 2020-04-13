@@ -17,11 +17,14 @@
 #include <fstream>
 
 DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
-    ui(new Ui::DockWaveform)
+    ui(new Ui::DockWaveform),
+    m_id(id)
 {
     ui->setupUi(this);
-    setWindowTitle("Waveform-" + QString::number(id));
+    setWindowTitle("Waveform-" + QString::number(m_id));
     ui->widgetWaveform->setDock(this);
+    QSettings settings;
+    restoreGeometry(settings.value("dockWaveformGeometry-" + QString::number(m_id)).toByteArray());
 
     // Build the menus for this widget
     QMenu* menu = new QMenu(this);
@@ -37,10 +40,9 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::actionTriggered, this, &DockWaveform::onScrollBarActionTriggered);
 
     // Load default viewlist for this window id
-    QSettings settings;
     QString resDir = settings.value("ResourceDir").toString();
     Q_ASSERT(!resDir.isEmpty());
-    m_fileViewlist = settings.value("ViewlistFile-" + QString::number(id), resDir + "/viewlist-" + QString::number(id) + ".vl").toString();
+    m_fileViewlist = settings.value("ViewlistFile-" + QString::number(m_id), resDir + "/viewlist-" + QString::number(id) + ".vl").toString();
     load(m_fileViewlist);
 
     rebuildList();
@@ -51,6 +53,10 @@ DockWaveform::~DockWaveform()
     Q_ASSERT(!m_fileViewlist.isEmpty());
     if (m_view.count()) // Save the view only if it is not empty
         save(m_fileViewlist);
+
+    QSettings settings;
+    settings.setValue("dockWaveformGeometry-" + QString::number(m_id), saveGeometry());
+
     delete ui;
 }
 

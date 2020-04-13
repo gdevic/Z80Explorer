@@ -18,6 +18,7 @@ public:
 
 private:
     Ui::DockImageView *ui;
+    uint m_id;                          // This dock ID value
 };
 
 #endif // DOCKIMAGEVIEW_H

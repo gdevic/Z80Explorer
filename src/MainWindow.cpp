@@ -98,11 +98,14 @@ void MainWindow::onExit()
  */
 void MainWindow::onNewImageView()
 {
-    DockImageView *w = new DockImageView(this, ++m_lastImageWndId);
-    ui->menuWindow->addAction(w->toggleViewAction());
-    w->setFloating(true);
-    w->resize(800, 800);
-    w->show();
+    if (m_lastImageWndId < 4)
+    {
+        DockImageView *w = new DockImageView(this, ++m_lastImageWndId);
+        ui->menuWindow->addAction(w->toggleViewAction());
+        w->show();
+    }
+    else
+        QMessageBox::critical(this, "New Image View", "You can create up to 4 image views. Please switch to one of those that are already created.");
 }
 
 /*
@@ -114,8 +117,6 @@ void MainWindow::onNewWaveformView()
     {
         DockWaveform *w = new DockWaveform(this, ++m_lastWaveWndId);
         ui->menuWindow->addAction(w->toggleViewAction());
-        w->setFloating(true);
-        w->resize(1000, 500);
         w->show();
     }
     else
