@@ -1,5 +1,6 @@
 #include "DialogEditWatchlist.h"
 #include "ui_DialogEditWatchlist.h"
+#include <QSettings>
 
 DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
     QDialog(parent),
@@ -7,6 +8,8 @@ DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+    QSettings settings;
+    restoreGeometry(settings.value("editWatchlistGeometry").toByteArray());
 
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditWatchlist::onAdd);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditWatchlist::onRemove);
@@ -14,6 +17,9 @@ DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
 
 DialogEditWatchlist::~DialogEditWatchlist()
 {
+    QSettings settings;
+    settings.setValue("editWatchlistGeometry", saveGeometry());
+
     delete ui;
 }
 

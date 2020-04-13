@@ -2,6 +2,7 @@
 #include "ui_DialogEditBuses.h"
 #include "ClassController.h"
 #include <QInputDialog>
+#include <QSettings>
 
 DialogEditBuses::DialogEditBuses(QWidget *parent) :
     QDialog(parent),
@@ -9,6 +10,8 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+    QSettings settings;
+    restoreGeometry(settings.value("editBusesGeometry").toByteArray());
 
     // Read all nets and buses and separate nets from buses
     ClassNetlist &Net = ::controller.getNetlist();
@@ -34,6 +37,9 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
 
 DialogEditBuses::~DialogEditBuses()
 {
+    QSettings settings;
+    settings.setValue("editBusesGeometry", saveGeometry());
+
     delete ui;
 }
 

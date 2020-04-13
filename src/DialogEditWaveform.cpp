@@ -2,6 +2,7 @@
 #include "ui_DialogEditWaveform.h"
 #include "ClassController.h"
 #include <QColorDialog>
+#include <QSettings>
 
 DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) :
     QDialog(parent),
@@ -10,6 +11,8 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
 {
     ui->setupUi(this);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+    QSettings settings;
+    restoreGeometry(settings.value("editWaveformGeometry").toByteArray());
 
     ui->listAll->addItems(::controller.getWatch().getWatchlist());
 
@@ -25,6 +28,9 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
 
 DialogEditWaveform::~DialogEditWaveform()
 {
+    QSettings settings;
+    settings.setValue("editWaveformGeometry", saveGeometry());
+
     delete ui;
 }
 
