@@ -101,6 +101,7 @@ viewitem *DialogEditWaveform::find(QString name)
 
 /*
  * Adds selected signals from the available to our view list
+ * Allow multiple instances of a signal to be added
  */
 void DialogEditWaveform::onAdd()
 {
@@ -108,11 +109,8 @@ void DialogEditWaveform::onAdd()
     for (auto i : sel)
     {
         const QString name = i->text();
-        if (find(name) == nullptr)
-        {
-            ui->listView->addItem(name);
-            m_view.append(name);
-        }
+        ui->listView->addItem(name);
+        m_view.append(name);
     }
 }
 
