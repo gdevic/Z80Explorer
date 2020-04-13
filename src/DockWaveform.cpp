@@ -21,7 +21,7 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     m_id(id)
 {
     ui->setupUi(this);
-    setWindowTitle("Waveform-" + QString::number(m_id));
+    setWindowTitle("Waveform " + QString::number(m_id));
     ui->widgetWaveform->setDock(this);
     QSettings settings;
     restoreGeometry(settings.value("dockWaveformGeometry-" + QString::number(m_id)).toByteArray());
