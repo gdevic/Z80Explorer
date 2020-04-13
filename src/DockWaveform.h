@@ -18,6 +18,7 @@ struct viewitem
     viewitem(){};
     bool operator==(const viewitem &b) { return name == b.name; }
 };
+Q_DECLARE_METATYPE(viewitem);
 
 class DockWaveform : public QDockWidget
 {

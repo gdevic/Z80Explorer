@@ -4,6 +4,7 @@
 #include "DockWaveform.h"
 #include <QDebug>
 #include <QDialog>
+#include <QListWidgetItem>
 
 namespace Ui { class DialogEditWaveform; }
 
@@ -18,8 +19,7 @@ public:
     explicit DialogEditWaveform(QWidget *parent, QVector<viewitem> list);
     ~DialogEditWaveform();
 
-    QVector<viewitem> &get()            // Return the edited list of view items
-        { return m_view; }
+    void getList(QVector<viewitem> &list); // Returns (by setting "list") the edited list of view items
 
 private slots:
     void onAdd();
@@ -30,15 +30,15 @@ private slots:
     void allSelChanged();
     void viewSelChanged();
     void onFormatIndexChanged(int);
-    void showEvent(QShowEvent *) override;
 
 private:
-    viewitem *find(QString name);
+    // current working viewitem data is kept in each list widget item as a QVariant field data()
+    viewitem get(QListWidgetItem *item);
+    void set(QListWidgetItem *item, viewitem &view);
+    void append(viewitem &view);
 
 private:
     Ui::DialogEditWaveform *ui;
-
-    QVector<viewitem> m_view;           // A (local) collection of view items we are editing
 };
 
 #endif // DIALOGEDITWAVEFORM_H

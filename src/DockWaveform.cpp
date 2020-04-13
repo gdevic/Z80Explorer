@@ -128,7 +128,7 @@ void DockWaveform::onEdit()
     DialogEditWaveform dlg(this, m_view);
     if (dlg.exec()==QDialog::Accepted)
     {
-        m_view = dlg.get();
+        dlg.getList(m_view);
         rebuildList();
     }
 }
@@ -213,7 +213,7 @@ void DockWaveform::cursorChanged(uint hcycle)
         {
             uint width, value = ::controller.getWatch().at(w, hcycle, width);
             if (width)
-                display = ::controller.formatBus(find(w->name)->format, value, width);
+                display = ::controller.formatBus(m_view[row].format, value, width);
             else
                 display = "no-data";
         }

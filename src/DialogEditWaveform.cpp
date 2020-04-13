@@ -6,8 +6,7 @@
 
 DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) :
     QDialog(parent),
-    ui(new Ui::DialogEditWaveform),
-    m_view(list)
+    ui(new Ui::DialogEditWaveform)
 {
     ui->setupUi(this);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
@@ -26,6 +25,10 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     connect(ui->btDown, &QPushButton::clicked, this, &DialogEditWaveform::onDown);
     connect(ui->btColor, &QPushButton::clicked, this, &DialogEditWaveform::onColor);
     connect(ui->comboFormat, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogEditWaveform::onFormatIndexChanged);
+
+    // Populate the view list widget with the given list of view items
+    for (auto &i : list)
+        append(i);
 }
 
 DialogEditWaveform::~DialogEditWaveform()
@@ -36,10 +39,37 @@ DialogEditWaveform::~DialogEditWaveform()
     delete ui;
 }
 
-void DialogEditWaveform::showEvent(QShowEvent *)
+/*
+ * Returns (by setting "list") the edited list of view items
+ */
+void DialogEditWaveform::getList(QVector<viewitem> &list)
 {
-    for (auto i : m_view)
-        ui->listView->addItem(i.name);
+    list.clear();
+    for (int i=0; i < ui->listView->count(); i++)
+    {
+        QListWidgetItem *item = ui->listView->item(i);
+        viewitem view = get(item);
+        list.append(view);
+    }
+}
+
+viewitem DialogEditWaveform::get(QListWidgetItem *item)
+{
+    QVariant data = item->data(Qt::UserRole);
+    return data.value<viewitem>();
+}
+
+void DialogEditWaveform::set(QListWidgetItem *item, viewitem &view)
+{
+    item->setData(Qt::UserRole, QVariant::fromValue(view));
+    item->setText(view.name);
+}
+
+void DialogEditWaveform::append(viewitem &view)
+{
+    QListWidgetItem *item = new QListWidgetItem(ui->listView);
+    set(item, view);
+    ui->listView->addItem(item);
 }
 
 /*
@@ -52,7 +82,7 @@ void DialogEditWaveform::allSelChanged()
 }
 
 /*
- * Use selection changed signal to enable or disable buttons pertaining our view list
+ * Use selection changed signal to enable or disable buttons based on their function
  */
 void DialogEditWaveform::viewSelChanged()
 {
@@ -66,11 +96,10 @@ void DialogEditWaveform::viewSelChanged()
     ui->comboFormat->clear();
     if (sel.size()==1)
     {
-        QString name = sel[0]->text();
-        viewitem *i = find(name);
-        // Store the i->format since addItems will call IndexChanged and reset the format value
-        uint format = i->format;
-        ui->comboFormat->addItems(::controller.getFormats(name));
+        viewitem view = get(sel[0]);
+        // Store the format value since addItems will call IndexChanged and reset it in the widget
+        uint format = view.format;
+        ui->comboFormat->addItems(::controller.getFormats(view.name));
         ui->comboFormat->setCurrentIndex(format);
     }
 }
@@ -82,21 +111,10 @@ void DialogEditWaveform::onFormatIndexChanged(int index)
         QList<QListWidgetItem *> sel = ui->listView->selectedItems();
         Q_ASSERT(sel.size() == 1);
         QString name = sel[0]->text();
-        viewitem *i = find(name);
-        Q_ASSERT(i);
-        i->format = index;
+        viewitem view = get(sel[0]);
+        view.format = index;
+        set(sel[0], view);
     }
-}
-
-/*
- * Returns a pointer to the named viewitem, nullptr otherwise
- */
-viewitem *DialogEditWaveform::find(QString name)
-{
-    for (auto &i : m_view)
-        if (i.name == name)
-            return &i;
-    return nullptr;
 }
 
 /*
@@ -108,9 +126,8 @@ void DialogEditWaveform::onAdd()
     QList<QListWidgetItem *> sel = ui->listAll->selectedItems();
     for (auto i : sel)
     {
-        const QString name = i->text();
-        ui->listView->addItem(name);
-        m_view.append(name);
+        viewitem view(i->text());
+        append(view);
     }
 }
 
@@ -122,10 +139,7 @@ void DialogEditWaveform::onRemove()
     QList<QListWidgetItem *> sel = ui->listView->selectedItems();
     Q_ASSERT(sel.size() > 0);
     for (auto i : sel)
-    {
-        m_view.removeOne(viewitem(i->text()));
         delete ui->listView->takeItem(ui->listView->row(i));
-    }
 }
 
 /*
@@ -142,7 +156,6 @@ void DialogEditWaveform::onUp()
     {
         if (row == 0)
             return;
-        m_view.swapItemsAt(row, row - 1);
         QListWidgetItem *i = ui->listView->takeItem(row);
         ui->listView->insertItem(row - 1, i);
         ui->listView->setCurrentRow(row - 1);
@@ -163,7 +176,6 @@ void DialogEditWaveform::onDown()
     {
         if (row == (ui->listView->count() - 1))
             return;
-        m_view.swapItemsAt(row, row+1);
         QListWidgetItem *i = ui->listView->takeItem(row);
         ui->listView->insertItem(row + 1, i);
         ui->listView->setCurrentRow(row + 1);
@@ -179,15 +191,16 @@ void DialogEditWaveform::onColor()
     QStringList selected;
     for (auto i : sel)
         selected.append(i->text());
-    QColor col = find(selected[0])->color;
-    col = QColorDialog::getColor(col);
+    viewitem view = get(sel[0]);
+    QColor col = view.color;
+    col = QColorDialog::getColor(col); // Opens a dialog to let the user chose a color
     if (col.isValid())
     {
-        for (auto &i : m_view)
+        for (auto i : sel)
         {
-            if (selected.contains(i.name))
-                i.color = col;
+            viewitem view = get(i);
+            view.color = col;
+            set(i, view);
         }
-
     }
 }
