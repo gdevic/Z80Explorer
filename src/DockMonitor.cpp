@@ -44,6 +44,7 @@ void DockMonitor::onEcho(char c)
  */
 void DockMonitor::onRunStopped(uint hcycle)
 {
+    Q_UNUSED(hcycle);
     z80state z80; // Get and display the chip state
     ::controller.readState(z80);
     QString s = z80state::dumpState(z80);
