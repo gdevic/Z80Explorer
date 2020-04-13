@@ -2,6 +2,7 @@
 #include "ui_DialogEditBuses.h"
 #include "ClassController.h"
 #include <QInputDialog>
+#include <QMessageBox>
 #include <QSettings>
 
 DialogEditBuses::DialogEditBuses(QWidget *parent) :
@@ -101,7 +102,15 @@ void DialogEditBuses::onCreate()
         name = name.trimmed().toUpper(); // Bus names are always upper-cased
         name = name.replace(' ', '_'); // YYY Should we be doing more checks on valid characters?
         if (ui->listBuses->findItems(name, Qt::MatchExactly).count() == 0) // Don't add it if a bus name already exists
+        {
             add(name, nets);
+            if (QMessageBox::question(this, "Add bus", "Would you like to add the new bus to the active watch list?") == QMessageBox::Yes)
+            {
+                QStringList watches = ::controller.getWatch().getWatchlist();
+                watches.append(name);
+                ::controller.getWatch().updateWatchlist(watches);
+            }
+        }
     }
 }
 
