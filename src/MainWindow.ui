@@ -121,7 +121,7 @@
     <string>Image</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+N</string>
+    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="actionNewWaveformView">
