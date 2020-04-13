@@ -14,7 +14,9 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     QSettings settings;
     restoreGeometry(settings.value("editWaveformGeometry").toByteArray());
 
-    ui->listAll->addItems(::controller.getWatch().getWatchlist());
+    QStringList watches = ::controller.getWatch().getWatchlist();
+    watches.sort();
+    ui->listAll->addItems(watches);
 
     connect(ui->listAll, SIGNAL(itemSelectionChanged()), this, SLOT(allSelChanged()));
     connect(ui->listView, SIGNAL(itemSelectionChanged()), this, SLOT(viewSelChanged()));

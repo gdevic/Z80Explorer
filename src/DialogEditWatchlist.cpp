@@ -25,6 +25,7 @@ DialogEditWatchlist::~DialogEditWatchlist()
 
 void DialogEditWatchlist::setNodeList(QStringList nodeList)
 {
+    nodeList.sort();
     ui->listAll->addItems(nodeList);
 }
 
