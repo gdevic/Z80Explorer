@@ -19,11 +19,37 @@
   <property name="windowTitle">
    <string>Image View</string>
   </property>
-  <widget class="WidgetImageView" name="pane">
-   <layout class="QGridLayout" name="layoutImage"/>
+  <widget class="QWidget" name="content">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="WidgetToolbar" name="toolbar" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="WidgetImageView" name="pane" native="true"/>
+    </item>
+   </layout>
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>WidgetToolbar</class>
+   <extends>QWidget</extends>
+   <header>WidgetToolbar.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>WidgetImageView</class>
    <extends>QWidget</extends>
