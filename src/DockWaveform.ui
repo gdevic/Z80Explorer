@@ -13,6 +13,9 @@
   <property name="floating">
    <bool>true</bool>
   </property>
+  <property name="allowedAreas">
+   <set>Qt::NoDockWidgetArea</set>
+  </property>
   <property name="windowTitle">
    <string>Waveform</string>
   </property>

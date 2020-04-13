@@ -10,6 +10,12 @@
     <height>579</height>
    </rect>
   </property>
+  <property name="floating">
+   <bool>true</bool>
+  </property>
+  <property name="allowedAreas">
+   <set>Qt::NoDockWidgetArea</set>
+  </property>
   <property name="windowTitle">
    <string>Image View</string>
   </property>
