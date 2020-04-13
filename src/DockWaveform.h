@@ -37,6 +37,7 @@ private slots:
     void onLoad();                      // Load view items from a file
     void onSaveAs();                    // Save current set of view items with a new file name
     void onSave();                      // Save current set of view items
+    void onPng();                       // Exports window view as a PNG image file
     void onEdit();                      // Edit current set of view items
     void scroll(int deltaX);            // User moved the view, scroll it
     void cursorChanged(uint hcycle);    // Cursor moved, need to update values that are shown

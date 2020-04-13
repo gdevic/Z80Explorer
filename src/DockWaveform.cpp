@@ -31,6 +31,7 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     menu->addAction("Load View...", this, SLOT(onLoad()));
     menu->addAction("Save View As...", this, SLOT(onSaveAs()));
     menu->addAction("Save View", this, SLOT(onSave()));
+    menu->addAction("Export PNG...", this, SLOT(onPng()));
     ui->btFile->setMenu(menu);
 
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
@@ -118,6 +119,15 @@ void DockWaveform::onSave()
     Q_ASSERT(!m_fileViewlist.isEmpty());
     if (!save(m_fileViewlist))
         QMessageBox::critical(this, "Error", "Unable to save viewlist to " + m_fileViewlist);
+}
+
+void DockWaveform::onPng()
+{
+    QPixmap pixmap = this->grab(QRect(QPoint(0, 0), this->size()));
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Save window content", "image.png", "png file (*.png);;All files (*.*)");
+    if (!fileName.isEmpty() && !pixmap.toImage().save(fileName))
+        QMessageBox::critical(this, "Error", "Unable to save image file " + fileName);
 }
 
 /*
