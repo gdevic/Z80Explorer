@@ -55,7 +55,7 @@ void ClassSimX::doRunsim(uint ticks)
         {
             while (ticks--)
                 halfCycle();
-            emit runStopped();
+            emit runStopped(m_hcycletotal);
             onTimeout(); // XXX Can we get rid of this chain?
         }
         else
@@ -70,7 +70,7 @@ void ClassSimX::doRunsim(uint ticks)
                 while (--m_runcount >= 0)
                     halfCycle();
                 m_runcount = 0;
-                emit runStopped();
+                emit runStopped(m_hcycletotal);
             });
         }
     }
@@ -103,7 +103,7 @@ void ClassSimX::doReset()
     m_hcycletotal = 0; // XXX For now we will not pay attention to this reset sequence
 
     set(1, "_reset");
-    emit runStopped();
+    emit runStopped(m_hcycletotal);
 }
 
 /*
@@ -153,7 +153,7 @@ inline void ClassSimX::halfCycle()
     }
 
     m_hcyclecnt++; // Half-cycle count for this single simulation run
-    m_hcycletotal++; // Total cycle count since the chip reset
+    m_hcycletotal++; // Total half-cycle count since the chip reset
 }
 
 inline void ClassSimX::handleMemRead(uint16_t ab)

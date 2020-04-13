@@ -48,7 +48,7 @@ public slots:
 
 signals:
     void echo(char e);                      // Echo a character onto the virtual console
-    void onRunStopped();                    // Called by the sim when run stops
+    void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
 
 private:
     ClassChip     m_chip;      // Global chip resource class

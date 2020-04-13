@@ -13,7 +13,7 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent),
     m_timer.setInterval(500);
     connect(&m_timer, &QTimer::timeout, this, &WidgetWaveform::onTimeout);
 
-    connect(&::controller, SIGNAL(onRunStopped()), this, SLOT(onRunStopped()));
+    connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
 
     // Set up two initial cursors
     m_cursors2x.append(1);
@@ -27,8 +27,9 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent),
 /*
  * Controller signals us that the current simulation run completed
  */
-void WidgetWaveform::onRunStopped()
+void WidgetWaveform::onRunStopped(uint hcycle)
 {
+    Q_UNUSED(hcycle);
     update(); // Repaint the view
 }
 

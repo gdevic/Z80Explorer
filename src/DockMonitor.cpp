@@ -11,7 +11,7 @@ DockMonitor::DockMonitor(QWidget *parent) :
     ui->setupUi(this);
 
     connect(&::controller, SIGNAL(echo(char)), this, SLOT(onEcho(char)));
-    connect(&::controller, SIGNAL(onRunStopped()), this, SLOT(onRunStopped()));
+    connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
 }
 
 DockMonitor::~DockMonitor()
@@ -42,7 +42,7 @@ void DockMonitor::onEcho(char c)
 /*
  * Controller signals us that the current simulation run completed
  */
-void DockMonitor::onRunStopped()
+void DockMonitor::onRunStopped(uint hcycle)
 {
     z80state z80; // Get and display the chip state
     ::controller.readState(z80);

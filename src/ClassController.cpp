@@ -7,7 +7,7 @@
 bool ClassController::init()
 {
     connect(&m_trick, SIGNAL(echo(char)), this, SIGNAL(echo(char)));
-    connect(&m_simx, SIGNAL(runStopped()), this, SIGNAL(onRunStopped()));
+    connect(&m_simx, SIGNAL(runStopped(uint)), this, SIGNAL(onRunStopped(uint)));
 
     QSettings settings;
     QString path = settings.value("ResourceDir", QDir::currentPath()).toString();
@@ -52,7 +52,7 @@ void ClassController::doReset()
 {
     m_simx.doReset();
     m_watch.clear();
-    emit this->onRunStopped();
+    emit this->onRunStopped(0);
     qDebug() << "Chip reset";
 }
 

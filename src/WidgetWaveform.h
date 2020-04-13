@@ -19,7 +19,7 @@ signals:
     void scroll(int deltaX);            // User moved the view, request to scroll it
 
 private slots:
-    void onRunStopped();                // Signal from the controller that the simulation run stopped
+    void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
     void onTimeout() { update(); }      // Refresh graph when running simulation
 
 private:

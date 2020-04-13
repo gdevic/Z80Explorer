@@ -19,7 +19,7 @@ public:
 private slots:
     void on_btLoadHex_clicked();        // Button pressed to load a hex file into memory
     void onEcho(char c);                // Signal from the controller that a new virtual character is ready
-    void onRunStopped();                // Signal from the controller that the simulation run stopped
+    void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
 
 private:
     Ui::DockMonitor *ui;

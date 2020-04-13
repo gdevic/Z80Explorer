@@ -17,7 +17,7 @@ public:
     void readState(z80state &z);        // Reads chip state into a state structure
 
 signals:
-    void runStopped();                  // Current simulation run completed
+    void runStopped(uint hcycle);       // Current simulation run completed at a given half-cycle
 
 public slots:
     void doReset();                     // Run chip reset sequence

@@ -16,6 +16,9 @@ public:
     explicit WidgetToolbar(QWidget *parent = nullptr);
     ~WidgetToolbar();
 
+public slots:
+    void onRunStopped(uint); // Called by the sim when the current run stops at a given half-cycle
+
 private:
     Ui::WidgetToolbar *ui;
 };
