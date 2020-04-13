@@ -162,7 +162,6 @@ void MainWindow::onLoadWatchlist()
 
 void MainWindow::onSaveWatchlistAs()
 {
-    // Prompts the user to select the watches file to load
     QString fileName = QFileDialog::getSaveFileName(this, "Save watchlist file", "", "watchlist (*.wl);;All files (*.*)");
     if (!fileName.isEmpty())
     {
