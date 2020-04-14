@@ -16,27 +16,30 @@ ClassWatch::ClassWatch()
 }
 
 /*
- * Adds net watch data to the watch item's buffer at the specified position
+ * Adds net watch data to the watch item's buffer at a specified cycle time
  */
 void ClassWatch::append(watch *w, uint hcycle, net_t value)
 {
-    hringstart = (hcycle > MAX_WATCH_HISTORY) ? (hcycle - MAX_WATCH_HISTORY) : 0;
-    next = hcycle % MAX_WATCH_HISTORY;
-    w->d[next] = value;
-    next = (next + 1) % MAX_WATCH_HISTORY;
+    m_hcycle_last = hcycle + 1;
+    uint i = hcycle % MAX_WATCH_HISTORY;
+    w->d[i] = value;
+
+    if (hcycle >= MAX_WATCH_HISTORY)
+        m_hring_start = hcycle - MAX_WATCH_HISTORY + 1;
+    else
+        m_hring_start = 0;
 }
 
 /*
  * Returns watch data at the specified cycle position. The watch structure can represent a net
  * or a bus. For nets, we simply return the net_t bit stored for that net.
  * For a bus, we need to aggregate all nets that comprise this bus.
+ *
  * This function variation returns a net.
  */
 net_t ClassWatch::at(watch *w, uint hcycle)
 {
-    if ((w == nullptr) || ((hringstart == 0) && (hcycle >= next)))
-        return 3;
-    if ((hcycle < hringstart) || (hcycle >= (hringstart + MAX_WATCH_HISTORY)))
+    if (!w || !m_hcycle_last || (hcycle < m_hring_start) || (hcycle >= m_hcycle_last))
         return 3;
     if (w->n) // n is non-zero: it is a net
         return w->d[hcycle % MAX_WATCH_HISTORY];
@@ -50,13 +53,13 @@ net_t ClassWatch::at(watch *w, uint hcycle)
  *
  * This function variation returns the aggregate value of a bus; ok is set to the bus width if
  * all of the bus nets are valid, or to zero if the bus value could not be read.
+ *
+ * This function variation returns a bus.
  */
 uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
 {
     ok = 0;
-    if ((w == nullptr) || ((hringstart == 0) && (hcycle >= next)))
-        return 0;
-    if ((hcycle < hringstart) || (hcycle >= (hringstart + MAX_WATCH_HISTORY)))
+    if (!w || !m_hcycle_last || (hcycle < m_hring_start) || (hcycle >= m_hcycle_last))
         return 0;
     if (w->n) // n is non-zero: it is a net
         return 0;
@@ -69,7 +72,10 @@ uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
         watch *wb = find(n);
         if (wb == nullptr)
             return 0;
-        value |= uint(wb->d[hcycle % MAX_WATCH_HISTORY]) << (width - 1);
+        pin_t pin = wb->d[hcycle % MAX_WATCH_HISTORY];
+        if (pin > 1)
+            return 0;
+        value |= uint(pin) << (width - 1);
     }
     ok = width;
     return value;
@@ -103,8 +109,8 @@ watch *ClassWatch::find(net_t net)
  */
 void ClassWatch::clear()
 {
-    hringstart = 0;
-    next = 0;
+    m_hring_start = 0;
+    m_hcycle_last = 0;
     for (auto &watch : m_watchlist)
         memset(watch.d, 3, sizeof(watch.d));
 }

@@ -97,10 +97,12 @@ void ClassSimX::doReset()
     set(1, "wait");
     recalcNetlist(allNets());
 
+    // Start the cycle count from the begining of a reset sequence
+    m_hcycletotal = 0;
+
     // Propagate the reset before deasserting it
     for (int i=0; i < 8; i++)
         halfCycle();
-    m_hcycletotal = 0; // XXX For now we will not pay attention to this reset sequence
 
     set(1, "_reset");
     emit runStopped(m_hcycletotal);

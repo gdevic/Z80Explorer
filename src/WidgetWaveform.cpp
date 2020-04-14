@@ -119,17 +119,13 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
 
 void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
-    // A lot of complexity in this function is to get the text format output at somewhat reasonable points
     painter.setPen(viewitem->color);
-    uint width;
-    uint data_prev = ::controller.getWatch().at(w, hstart, width);
-    uint data_cur = UINT_MAX; // Simply make sure they differ so we do the initial text print
+    uint width, data_cur, data_prev = ::controller.getWatch().at(w, hstart, width);
     uint last_data_x = 0; // X coordinate of the last bus data change
     bool width0text = true; // Not too elegant way to ensure we print only once on a stream of undef values
     // Get the text of the initial bus data value
     QString text = ::controller.formatBus(viewitem->format, data_prev, width);
-    // MAX_WATCH_HISTORY + 1 is to force undef case (width == 0) and flush the text at the line ends
-    for (int i = 0; i < MAX_WATCH_HISTORY + 1; i++, data_prev = data_cur)
+    for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
     {
         uint x1 = i * m_hscale;
         uint x2 = (i + 1) * m_hscale;
@@ -150,6 +146,7 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
             continue;
         }
         width0text = true; // If we are here, we had a valid data, so enable printing text on undef next time
+
         if (data_prev != data_cur) // Bus data is changing, draw crossed lines
         {
             // Check if there is enough space (in pixels) to write out the last text
@@ -175,6 +172,14 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
             painter.drawLine(x1, y1, x2, y1);
             painter.drawLine(x1, y2, x2, y2);
         }
+
+        // At the end of the graph, write out last bus values
+        if (i == (MAX_WATCH_HISTORY - 1))
+        {
+            last_data_x = m_hscale * (MAX_WATCH_HISTORY + 1);
+            painter.setPen(QPen(Qt::white));
+            painter.drawText(last_data_x, y1 - 2, text);
+        }
     }
 }
 
@@ -197,7 +202,7 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
         uint y = r.bottom() - i * m_fontheight;
         painter.drawLine(x, r.top(), x, y);
 
-        QString text = QString::number((cursorX + hstart) / 2);
+        QString text = QString::number(cursorX / 2 + hstart);
         QRect bb = painter.fontMetrics().boundingRect(text);
         bb.adjust(x, y, x, y);
 

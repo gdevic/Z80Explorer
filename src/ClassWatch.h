@@ -17,7 +17,8 @@ struct watch
 
     template <class Archive> void serialize(Archive & ar) { ar(name, n); }
 
-    net_t d[MAX_WATCH_HISTORY];         // Circular buffer of watch data (not serialized out)
+    pin_t d[MAX_WATCH_HISTORY];         // Circular buffer of watch data (not serialized out)
+    watch() { memset(d, 3, sizeof(d)); }
 };
 
 /*
@@ -44,16 +45,14 @@ public:
     void append(watch *w, uint hcycle, net_t value); // Adds net watch data to the specified cycle position
     net_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
     uint at(watch *w, uint hcycle, uint &ok); // Returns bus watch data at the specified cycle position
-    uint gethstart() { return hringstart; } // Returns the absolute hcycle of the start of our buffers
+    uint gethstart() { return m_hring_start; } // Returns the absolute hcycle of the start of our buffers
 
 private:
     watch *find(net_t net);             // Returns a watch containing a given net number or nullptr
 
     QVector<watch> m_watchlist;         // The list of watch items that are tracked
-    uint next;                          // Next index within each watch buffer to write to
-    uint hringstart;                    // Buffer start maps to this absolute cycle
-
-    friend class WidgetWaveform;        // This is ok: the whole purpose of that widget is to draw the data contained herein
+    uint m_hcycle_last {};              // Last cycle number for which we got data stored
+    uint m_hring_start {};              // Buffer start maps to this absolute cycle
 };
 
 #endif // CLASSWATCH_H
