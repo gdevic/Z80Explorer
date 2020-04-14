@@ -15,13 +15,11 @@ public:
     explicit ClassSimX();
     void initChip();                    // One-time initialization
     void readState(z80state &z);        // Reads chip state into a state structure
+    uint doReset();                     // Run chip reset sequence
+    void doRunsim(uint ticks);          // Run the simulation for the given number of cloks
 
 signals:
     void runStopped(uint hcycle);       // Current simulation run completed at a given half-cycle
-
-public slots:
-    void doReset();                     // Run chip reset sequence
-    void doRunsim(uint ticks);          // Controls the simulation
 
 private slots:
     void onTimeout();                   // Dump z80 state every 500ms when running the simulation

@@ -19,6 +19,9 @@ public:
 public slots:
     void onRunStopped(uint); // Called by the sim when the current run stops at a given half-cycle
 
+private slots:
+    void doRestart();
+
 private:
     Ui::WidgetToolbar *ui;
 };

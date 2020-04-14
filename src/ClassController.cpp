@@ -42,25 +42,29 @@ bool ClassController::init()
 
     m_simx.initChip();
 
+    doReset();
+
     return true;
 }
 
 /*
- * Runs chip reset sequence
+ * Run the chip reset sequence, returns the number of clocks thet reset took
  */
-void ClassController::doReset()
+uint ClassController::doReset()
 {
     qDebug() << "Chip reset";
     m_watch.clear(); // Clear watch signal history
-    m_simx.doReset(); // simx will emit onRunStopped(hcycle)
+    uint hcycle = m_simx.doReset();
+    emit onRunStopped(hcycle);
+    return hcycle;
 }
 
 /*
- * Controls the simulation
+ * Runs the simulation for the given number of clocks
  */
 void ClassController::doRunsim(uint ticks)
 {
-    emit m_simx.doRunsim(ticks);
+    m_simx.doRunsim(ticks);
     qDebug() << "Chip run for" << ticks << "half-clocks";
 }
 

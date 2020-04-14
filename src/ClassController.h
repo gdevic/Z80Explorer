@@ -43,12 +43,12 @@ public: // API
     const QString formatBus(uint fmt, uint value, uint width); // Returns the formatted string for a bus type value
 
 public slots:
-    void doReset();                         // Run chip reset sequence
-    void doRunsim(uint ticks);              // Controls the simulation
+    uint doReset();                         // Run the chip reset sequence, returns the number of clocks thet reset took
+    void doRunsim(uint ticks);              // Runs the simulation for the given number of clocks
 
 signals:
     void echo(char e);                      // Echo a character onto the virtual console
-    void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
+    uint onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
 
 private:
     ClassChip     m_chip;      // Global chip resource class

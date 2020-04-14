@@ -27,8 +27,6 @@ void ClassSimX::initChip()
     // Turn off all transistors
     for (auto t : m_transdefs)
         t.on = false;
-
-    doReset();
 }
 
 // XXX Remove this timer here and implement it somewhere else (?)
@@ -43,6 +41,9 @@ void ClassSimX::onTimeout()
         m_timer.stop();
 }
 
+/*
+ * Run the simulation for the given number of clocks. Zero stops the simulation.
+ */
 void ClassSimX::doRunsim(uint ticks)
 {
     if (!m_runcount && !ticks) // For Stop signal (ticks=0), do nothing if the sim thread is not running
@@ -77,15 +78,15 @@ void ClassSimX::doRunsim(uint ticks)
 }
 
 /*
- * Run chip reset sequence
+ * Run chip reset sequence, returns the total number of cycles the reset took
  */
-void ClassSimX::doReset()
+uint ClassSimX::doReset()
 {
     // If the chip is running, stop it instead
     if (m_runcount)
     {
         m_runcount = 0; // XXX This is not enough since the runnig thread may continue for a cycle or two
-        return;
+        return 0;
     }
 
     // Initialize control pins
@@ -105,7 +106,8 @@ void ClassSimX::doReset()
         halfCycle();
 
     set(1, "_reset");
-    emit runStopped(m_hcycletotal);
+
+    return m_hcycletotal;
 }
 
 /*
