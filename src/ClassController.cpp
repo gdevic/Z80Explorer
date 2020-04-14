@@ -42,8 +42,6 @@ bool ClassController::init()
 
     m_simx.initChip();
 
-    doReset();
-
     return true;
 }
 

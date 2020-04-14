@@ -66,6 +66,9 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     connect(ui->actionSaveWatchlist, SIGNAL(triggered()), this, SLOT(onSaveWatchlist()));
     connect(ui->actionEditBuses, SIGNAL(triggered()), this, SLOT(onEditBuses()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
+
+    // Do the initial simulated chip reset so that we wake up the app in some useful state
+    ::controller.doReset();
 }
 
 /*
