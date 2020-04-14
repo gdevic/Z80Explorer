@@ -96,7 +96,12 @@ void DialogEditBuses::onCreate()
     QStringList nets;
     for (auto net : ui->listNets->selectedItems())
         nets.append(net->text());
-    QString name = QInputDialog::getText(this, "Define a bus", "Enter the bus name for a group of these nets:\n" + nets.join(','), QLineEdit::Normal);
+    if (nets.count() > int(sizeof(uint) * 8))
+    {
+        QMessageBox::critical(this, "Create a bus", "A bus cannot be wider than " + QString::number(sizeof(uint) * 8) + " nets!");
+        return;
+    }
+    QString name = QInputDialog::getText(this, "Create a bus", "Enter the bus name for a group of these nets:\n" + nets.join(','), QLineEdit::Normal);
     if (!name.isNull() && name.trimmed().length() > 0)
     {
         name = name.trimmed().toUpper(); // Bus names are always upper-cased
