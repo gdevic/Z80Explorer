@@ -167,7 +167,7 @@ bool ClassChip::loadTransdefs(QString dir)
                     t.drainnode = list[3].toUInt();
                     // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
                     // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
-                    t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt(), y - list[6].toInt()));
+                    t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt() - 1, y - list[6].toInt() - 1));
 
                     m_transdefs.append(t);
                 }
@@ -287,8 +287,8 @@ bool ClassChip::addTransistorsLayer()
 void ClassChip::drawTransistors(QImage &img)
 {
     QPainter painter(&img);
-    painter.setBrush(QColor(255,255,255));
-    painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setBrush(Qt::darkGray);
+    painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
     painter.setOpacity(0.5);
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
     for (auto s : m_transdefs)
