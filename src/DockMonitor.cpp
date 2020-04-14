@@ -3,6 +3,7 @@
 #include "ClassController.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QStringBuilder>
 
 DockMonitor::DockMonitor(QWidget *parent) :
     QDockWidget(parent),
@@ -44,9 +45,9 @@ void DockMonitor::onEcho(char c)
  */
 void DockMonitor::onRunStopped(uint hcycle)
 {
-    Q_UNUSED(hcycle);
     z80state z80; // Get and display the chip state
     ::controller.readState(z80);
     QString s = z80state::dumpState(z80);
+    s += QString("\nCurrent hcycle:%1\n").arg(hcycle);
     ui->textStatus->setPlainText(s);
 }
