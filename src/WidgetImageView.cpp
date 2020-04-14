@@ -25,8 +25,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     setFocusPolicy(Qt::ClickFocus);
     setCursor(QCursor(Qt::CrossCursor));
 
-    // Connect the view's internal intent to move its image (for example,
-    // when the user drags it with a mouse)
+    // Connect the view's internal intent to move its image (for example, when the user drags it with a mouse)
     connect(this, SIGNAL(imageMoved(QPointF)), this, SLOT(moveBy(QPointF)));
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
 
@@ -46,6 +45,8 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
+
+    connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
 }
 
 void WidgetImageView::init()
@@ -67,6 +68,15 @@ void WidgetImageView::onTimeout()
     if (m_timer_tick)
         m_timer_tick--;
     update();
+}
+
+/*
+ * Controller signals us that the current simulation run completed
+ */
+void WidgetImageView::onRunStopped(uint hcycle)
+{
+    Q_UNUSED(hcycle);
+    update(); // Repaint the view
 }
 
 //============================================================================
@@ -239,16 +249,15 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     // Draw two selected features on top of the image: box (a transistor) and
     // a segment (a signal), both of which are selected with the "Find" dialog
     //------------------------------------------------------------------------
+    painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
     if (m_timer_tick & 1)
     {
         painter.setBrush(QColor(255,255,0));
-        painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
         painter.setCompositionMode(QPainter::CompositionMode_Clear);
     }
     else
     {
         painter.setBrush(QColor(255,255,255));
-        painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
         painter.setCompositionMode(QPainter::CompositionMode_Plus);
     }
     if (m_highlight_box)
@@ -262,19 +271,20 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     //------------------------------------------------------------------------
     // Draw active nets from the simx class
     //------------------------------------------------------------------------
-    painter.setBrush(QColor(155, 0, 0)); // Only for the Vcc
-    painter.setPen(QPen(QColor(255,0,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-    painter.setCompositionMode(QPainter::CompositionMode_Plus);
-
-    for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+    if (m_drawActiveNets)
     {
-        if (i==3) // After painting Vcc, this is the default brush
-            painter.setBrush(QColor(255, 0, 255));
+        painter.setBrush(QColor(155, 0, 0)); // Only for the Vcc
+        painter.setCompositionMode(QPainter::CompositionMode_Plus);
 
-        if (::controller.getSimx().getNetState(i))
+        for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
         {
-            for (auto path : ::controller.getChip().getSegment(i)->paths)
-                painter.drawPath(path);
+            if (::controller.getSimx().getNetState(i))
+            {
+                for (auto path : ::controller.getChip().getSegment(i)->paths)
+                    painter.drawPath(path);
+            }
+            if (i==3) // After painting clk net, this is the default brush
+                painter.setBrush(QColor(255, 0, 255));
         }
     }
 }
@@ -401,6 +411,8 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
             case Value: setZoomMode(Fit); break;
         }
     }
+    else if (event->key() == Qt::Key_Space)
+        m_drawActiveNets = !m_drawActiveNets;
     if (i >= 0)
     {
         if (alt) // Compositing multiple images view
@@ -415,8 +427,8 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
             m_image = ::controller.getChip().getImage(i); // Creates a shallow image copy
             m_ov->setText(3, m_image.text("name"));
         }
-        update();
     }
+    update();
 }
 
 void WidgetImageView::contextMenuRequested(const QPoint& localWhere)

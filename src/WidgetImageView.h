@@ -57,6 +57,7 @@ public slots:
 private slots:
     void onFind(QString text);          // Search for the named feature
     void onTimeout();                   // Timer timeout handler
+    void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
 
 private:
     Ui::WidgetImageView *ui;
@@ -66,6 +67,7 @@ private:
     QPointF m_tex;                      // Texture coordinate to map to view center (normalized)
     qreal   m_scale;                    // Scaling value
     ZoomType m_view_mode;               // Current zoom mode
+    bool    m_drawActiveNets { true };  // Draw active nets
 
     QPoint  m_mousePos;                 // Current mouse position
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
