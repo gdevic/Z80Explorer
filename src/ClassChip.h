@@ -32,7 +32,7 @@ class ClassChip: public QObject
 public:
     ClassChip() {};
 
-    bool loadChipResources(QString dir);// Attempts to load all expected chip resources
+    bool loadChipResources(QString dir, bool fullSet);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
     QList<int> getNodesAt(int x, int y);
@@ -56,7 +56,7 @@ private:
     QVector<transdef> m_transdefs;      // Array of transistor definitions
 
 private:
-    bool loadImages(QString dir);       // Loads chip images
+    bool loadImages(QString dir, bool); // Loads chip images
     bool loadSegdefs(QString dir);      // Loads segdefs.js
     bool loadTransdefs(QString dir);    // Loads transdefs.js
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
@@ -64,6 +64,7 @@ private:
     bool convertToGrayscale();          // Converts loaded images to grayscale format
     QImage &getImageByName(QString name, bool &ok);
     void buildLayerMap();               // Builds a layer map data
+    void buildLayerImage();             // Builds a layer image only
 };
 
 #endif // CLASSCHIP_H
