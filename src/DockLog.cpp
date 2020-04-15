@@ -15,7 +15,6 @@ DockLog::DockLog(QWidget *parent) :
     ui(new Ui::DockLog)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     // Set the maximum number of lines (blocks) for the text widget to hold.
     // This should prevent reported faults when the buffer gets very large.

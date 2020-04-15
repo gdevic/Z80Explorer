@@ -32,17 +32,17 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     setDockOptions(AllowNestedDocks | AnimatedDocks | AllowTabbedDocks);
 
     // Log window has been created by the main.cpp and here we simply re-parent it
-    m_logWindow = logWindow;
-    addDockWidget(Qt::BottomDockWidgetArea, m_logWindow);
-    QAction *actionLog = m_logWindow->toggleViewAction();
+    m_log = logWindow;
+    addDockWidget(Qt::BottomDockWidgetArea, m_log);
+    QAction *actionLog = m_log->toggleViewAction();
     actionLog->setShortcut(QKeySequence("F2"));
     actionLog->setStatusTip("Show or hide the application log window");
     m_menuView->addAction(actionLog);
 
     // Create and dock the cmd window
-    m_cmdWindow = new DockCommand(this);
-    addDockWidget(Qt::BottomDockWidgetArea, m_cmdWindow);
-    QAction *actionCmd = m_cmdWindow->toggleViewAction();
+    m_cmd = new DockCommand(this);
+    addDockWidget(Qt::BottomDockWidgetArea, m_cmd);
+    QAction *actionCmd = m_cmd->toggleViewAction();
     actionCmd->setShortcut(QKeySequence("F12"));
     actionCmd->setStatusTip("Show or hide the command window");
     m_menuView->addAction(actionCmd);
@@ -50,12 +50,19 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     // Create and dock the monitor window
     m_monitor = new DockMonitor(this);
     addDockWidget(Qt::RightDockWidgetArea, m_monitor);
+    QAction *actionMonitor = m_monitor->toggleViewAction();
+    actionMonitor->setShortcut(QKeySequence("F11"));
+    actionMonitor->setStatusTip("Show or hide the monitor window");
+    m_menuView->addAction(actionMonitor);
 
+    // Load and set main window location and size
+    // Include also all docking windows location, size and docking status
+    QSettings settings;
+    restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
+    restoreState(settings.value("MainWindow/State").toByteArray());
     // Let the log and command windows use the same space on the bottom
-    tabifyDockWidget(m_logWindow, m_cmdWindow);
-    m_logWindow->show();
-    m_cmdWindow->hide();
-    m_monitor->show();
+    tabifyDockWidget(m_log, m_cmd);
+    m_cmd->hide(); // Start with command window hidden for now
 
     // Connect the rest of the menu actions...
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
@@ -76,6 +83,12 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
  */
 MainWindow::~MainWindow()
 {
+    // Save window configuration after the main application finished executing
+    // Include also all docking windows location, size and docking status
+    QSettings settings;
+    settings.setValue("MainWindow/Geometry", saveGeometry());
+    settings.setValue("MainWindow/State", saveState());
+
     delete ui;
 }
 

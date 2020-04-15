@@ -11,7 +11,6 @@ DockCommand::DockCommand(QWidget *parent) :
     ui(new Ui::DockCommand)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     // Set the shortucut to the text widget for simplicity
     m_edit = ui->textEdit;
