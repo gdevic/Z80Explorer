@@ -257,7 +257,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     }
     else
     {
-        painter.setBrush(QColor(255,255,255));
+        painter.setBrush(QColor(100,200,200));
         painter.setCompositionMode(QPainter::CompositionMode_Plus);
     }
     if (m_highlight_box)
