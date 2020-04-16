@@ -2,6 +2,7 @@
 #define CLASSCONTROLLER_H
 
 #include "ClassChip.h"
+#include "ClassScript.h"
 #include "ClassSim.h"
 #include "ClassSimX.h"
 #include "ClassTrickbox.h"
@@ -19,6 +20,7 @@ public:
 
 public: // API
     inline ClassChip    &getChip()    { return m_chip; }    // Returns a reference to the chip class
+    inline ClassScript  &getScript()  { return m_script; }  // Returns a reference to the script class
     inline ClassSim     &getSim()     { return m_sim; }     // Returns a reference to the sim class
     inline ClassSimX    &getSimx()    { return m_simx; }    // Returns a reference to the simx class
     inline ClassWatch   &getWatch()   { return m_watch; }   // Returns a reference to the watch class
@@ -52,6 +54,7 @@ signals:
 
 private:
     ClassChip     m_chip;      // Global chip resource class
+    ClassScript   m_script;    // Global scripting support
     ClassSimX     m_simx;      // Global simulator simx class
     ClassSim      m_sim;       // Global simulator sim class
     ClassWatch    m_watch;     // Global watchlist

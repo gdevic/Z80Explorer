@@ -22,13 +22,12 @@ public:
 signals:
     void run(QString);
 
-public slots:
+private slots:
     void appendText(QString);
 
 private:
     bool eventFilter(QObject *, QEvent *);
 
-private:
     Ui::DockCommand *ui;
     QPlainTextEdit *m_edit;
 };

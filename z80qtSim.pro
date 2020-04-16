@@ -1,4 +1,4 @@
-QT += core gui widgets xml concurrent
+QT += core gui widgets xml concurrent script
 
 CONFIG += c++11
 
@@ -26,6 +26,7 @@ SOURCES += \
     src/ClassChip.cpp \
     src/ClassController.cpp \
     src/ClassNetlist.cpp \
+    src/ClassScript.cpp \
     src/ClassSim.cpp \
     src/ClassSimX.cpp \
     src/ClassTrickbox.cpp \
@@ -52,6 +53,7 @@ HEADERS += \
     src/ClassController.h \
     src/ClassException.h \
     src/ClassNetlist.h \
+    src/ClassScript.h \
     src/ClassSim.h \
     src/ClassSimX.h \
     src/ClassSingleton.h \

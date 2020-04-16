@@ -1,5 +1,7 @@
 #include "DockCommand.h"
 #include "ui_DockCommand.h"
+#include "ClassController.h"
+#include "ClassScript.h"
 
 #include <QtGui>
 
@@ -23,6 +25,9 @@ DockCommand::DockCommand(QWidget *parent) :
     // Install the event filter to capture Return key
     // This method avoids the need to subclass QTextEdit
     m_edit->installEventFilter(this);
+
+    connect(this, SIGNAL(run(QString)), &::controller.getScript(), SLOT(run(QString)));
+    connect(&::controller.getScript(), SIGNAL(response(QString)), this, SLOT(appendText(QString)));
 }
 
 /*
