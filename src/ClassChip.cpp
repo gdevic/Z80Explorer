@@ -328,17 +328,15 @@ void ClassChip::drawSegdefs()
     for (auto s : m_segdefs)
     {
         QPainter painter(&img);
-
-        QColor c;
+        QPen pen { QColor(Qt::white) };
+        pen.setCosmetic(true);
+        painter.setPen(pen);
         if (s.nodenum == 1) // GND
-            painter.setBrush(QColor(0,255,0)), c = QColor(50,255,50);
+            painter.setBrush(QColor(0,255,0));
         else if (s.nodenum == 2) // VCC
-            painter.setBrush(QColor(255,0,0)), c = QColor(255,50,50);
-        else if (s.nodenum == 2) // CLK
-            painter.setBrush(QColor(255,255,255)), c = QColor(255,255,255);
+            painter.setBrush(QColor(255,0,0));
         else
-            painter.setBrush(QColor(128,255,0)), c = QColor(255,255,50);
-        painter.setPen(QPen(QColor(255,255,255), 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+            painter.setBrush(QColor(128,255,0));
 
         painter.setOpacity(0.5);
         painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
@@ -358,7 +356,7 @@ void ClassChip::drawSegdefs()
     qDebug() << "Finished drawing segdefs";
 }
 
-// Set any bits, but these provide a compelling layer image when viewed:
+// We can use any bits, but these make the map looking good when simply viewed it as an image
 #define DIFF_SHIFT       6
 #define POLY_SHIFT       5
 #define METAL_SHIFT      4
