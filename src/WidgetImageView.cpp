@@ -395,14 +395,20 @@ void WidgetImageView::leaveEvent(QEvent *)
 
 void WidgetImageView::keyPressEvent(QKeyEvent *event)
 {
+    // Approximate image move offsets in the texture space
+    qreal dx = qreal(m_image.width()) / (m_viewPort.width() * m_scale * 100);
+    qreal dy = qreal(m_image.height()) / (m_viewPort.height() * m_scale * 200);
     bool alt = event->modifiers() & Qt::AltModifier;
     int i = -1;
+
     if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_9)
         i = event->key() - Qt::Key_1;
     else if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_Z)
         i = event->key() - Qt::Key_A + 9;
-    else if (event->key() == Qt::Key_F1)
+    else
+    switch (event->key())
     {
+    case Qt::Key_F1:
         switch(m_view_mode)
         {
             case Fit: setZoomMode(Fill); break;
@@ -410,9 +416,16 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
             case Identity: setZoomMode(Fit); break;
             case Value: setZoomMode(Fit); break;
         }
+        break;
+    case Qt::Key_Space: m_drawActiveNets = !m_drawActiveNets; break;
+    case Qt::Key_Left: m_tex += QPointF(-dx,0); break;
+    case Qt::Key_Right: m_tex += QPointF(dx,0); break;
+    case Qt::Key_Up: m_tex += QPointF(0,-dy); break;
+    case Qt::Key_Down: m_tex += QPointF(0,dy); break;
+    case Qt::Key_PageUp: setZoom(m_scale * 1.2); break;
+    case Qt::Key_PageDown: setZoom(m_scale / 1.2); break;
     }
-    else if (event->key() == Qt::Key_Space)
-        m_drawActiveNets = !m_drawActiveNets;
+
     if (i >= 0)
     {
         if (alt) // Compositing multiple images view
