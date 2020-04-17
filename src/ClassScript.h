@@ -20,6 +20,11 @@ public slots:
     void run(QString cmd);      // Evaluates and runs command
 
 private:
+    static QScriptValue onRun(QScriptContext *ctx, QScriptEngine *eng);
+    static QScriptValue onStop(QScriptContext *ctx, QScriptEngine *eng);
+    static QScriptValue onReset(QScriptContext *ctx, QScriptEngine *eng);
+
+private:
     QScriptEngine *m_engine;
 };
 
