@@ -1,9 +1,13 @@
 #include "ClassScript.h"
-#include <QtScript/QScriptEngine>
 #include <QDebug>
 
 ClassScript::ClassScript(QObject *parent) : QObject(parent)
 {
+}
+
+void ClassScript::init(QScriptEngine *sc)
+{
+    m_engine = sc;
 }
 
 /*
@@ -11,6 +15,5 @@ ClassScript::ClassScript(QObject *parent) : QObject(parent)
  */
 void ClassScript::run(QString cmd)
 {
-    QScriptEngine engine;
-    emit response(engine.evaluate(cmd).toString());
+    emit response(m_engine->evaluate(cmd).toString());
 }

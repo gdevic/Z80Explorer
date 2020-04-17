@@ -4,8 +4,10 @@
 #include <QSettings>
 #include <QStringBuilder>
 
-bool ClassController::init()
+bool ClassController::init(QScriptEngine *sc)
 {
+    m_script.init(sc);
+
     connect(&m_trick, SIGNAL(echo(char)), this, SIGNAL(echo(char)));
     connect(&m_simx, SIGNAL(runStopped(uint)), this, SIGNAL(onRunStopped(uint)));
 

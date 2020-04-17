@@ -16,7 +16,7 @@ class ClassController : public QObject
     Q_OBJECT
 public:
     explicit ClassController() {};
-    bool init();            // Initialize controller classes and variables
+    bool init(QScriptEngine *); // Initialize controller classes and variables
 
 public: // API
     inline ClassChip    &getChip()    { return m_chip; }    // Returns a reference to the chip class

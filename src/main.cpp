@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QVBoxLayout>
+#include <QtScript>
 
 // Global objects
 MainWindow *mainWindow = nullptr; // Window: main window class
@@ -100,6 +101,7 @@ int main(int argc, char *argv[])
 {
     int retCode = -1;
     QApplication a(argc, argv);
+    QScriptEngine scriptEngine;
 
     // Wrap the application code with an exception handler
     try
@@ -127,7 +129,7 @@ int main(int argc, char *argv[])
         wndInit->show();
 
         // Initialize the controller object outside the constructor
-        if (::controller.init())
+        if (::controller.init(&scriptEngine))
         {
             wndInit->hide(); // Hide the initialization log window
 
