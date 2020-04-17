@@ -412,14 +412,14 @@ void ClassChip::buildLayerMap()
     }
 
     // Get the pointer to the first byte in each image data
-    uchar *p_diff = img_diff.bits();
-    uchar *p_poly = img_poly.bits();
-    uchar *p_metl = img_metl.bits();
-    uchar *p_buri = img_buri.bits();
-    uchar *p_vias = img_vias.bits();
-    //uchar *p_ions = img_ions.bits();
+    const uchar *p_diff = img_diff.bits();
+    const uchar *p_poly = img_poly.bits();
+    const uchar *p_metl = img_metl.bits();
+    const uchar *p_buri = img_buri.bits();
+    const uchar *p_vias = img_vias.bits();
+    //const uchar *p_ions = img_ions.bits();
     // ...and of the destination buffer
-    uchar *p_dest = layermap.bits();
+    uchar *p_dest = layermap.scanLine(0);
 
     for (uint i=0; i < sy*sx; i++)
     {
@@ -510,11 +510,11 @@ void ClassChip::buildLayerImage()
     }
 
     // Get the pointer to the first byte in each image data
-    uchar *p_diff = img_diff.bits();
-    uchar *p_poly = img_poly.bits();
-    uchar *p_metl = img_metl.bits();
+    const uchar *p_diff = img_diff.bits();
+    const uchar *p_poly = img_poly.bits();
+    const uchar *p_metl = img_metl.bits();
     // ...and of the destination buffer
-    uchar *p_dest = layermap.bits();
+    uchar *p_dest = layermap.scanLine(0);
 
     for (uint i=0; i < sy*sx; i++)
     {
