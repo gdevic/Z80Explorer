@@ -405,25 +405,17 @@ void ClassChip::buildLayerMap()
     QImage layermap(sx, sy, QImage::Format_Grayscale8);
 
     bool ok = true;
-    QImage img_diff(getImage("bw.diffusion", ok));
-    QImage img_poly(getImage("bw.polysilicon", ok));
-    QImage img_metl(getImage("bw.metal", ok));
-    QImage img_buri(getImage("bw.buried", ok));
-    QImage img_vias(getImage("bw.vias", ok));
-    //QImage img_ions(getImageByName("bw.ions", ok));
+    // Get a pointer to the first byte of each image data
+    const uchar *p_diff = getImage("bw.diffusion", ok).bits();
+    const uchar *p_poly = getImage("bw.polysilicon", ok).bits();
+    const uchar *p_metl = getImage("bw.metal", ok).bits();
+    const uchar *p_buri = getImage("bw.buried", ok).bits();
+    const uchar *p_vias = getImage("bw.vias", ok).bits();
     if (!ok)
     {
         qWarning() << "Unable to load bw.* image";
         return;
     }
-
-    // Get the pointer to the first byte in each image data
-    const uchar *p_diff = img_diff.bits();
-    const uchar *p_poly = img_poly.bits();
-    const uchar *p_metl = img_metl.bits();
-    const uchar *p_buri = img_buri.bits();
-    const uchar *p_vias = img_vias.bits();
-    //const uchar *p_ions = img_ions.bits();
     // ...and of the destination buffer
     uchar *p_dest = layermap.scanLine(0);
 
@@ -555,19 +547,15 @@ void ClassChip::buildLayerImage()
     QImage layermap(sx, sy, QImage::Format_Grayscale8);
 
     bool ok = true;
-    QImage img_diff(getImage("bw.diffusion", ok));
-    QImage img_poly(getImage("bw.polysilicon", ok));
-    QImage img_metl(getImage("bw.metal", ok));
+    // Get a pointer to the first byte of each image data
+    const uchar *p_diff = getImage("bw.diffusion", ok).bits();
+    const uchar *p_poly = getImage("bw.polysilicon", ok).bits();
+    const uchar *p_metl = getImage("bw.metal", ok).bits();
     if (!ok)
     {
         qWarning() << "Unable to load bw.* image";
         return;
     }
-
-    // Get the pointer to the first byte in each image data
-    const uchar *p_diff = img_diff.bits();
-    const uchar *p_poly = img_poly.bits();
-    const uchar *p_metl = img_metl.bits();
     // ...and of the destination buffer
     uchar *p_dest = layermap.scanLine(0);
 
