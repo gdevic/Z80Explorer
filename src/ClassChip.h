@@ -46,6 +46,7 @@ signals:
 
 public slots:
     void drawSegdefs();                 // Draws segments and transistors onto the last image (returned by getImage())
+    void drawExperimental();            // Experiments...
 
 private:
     QVector<QImage> m_img;              // Chip layer images

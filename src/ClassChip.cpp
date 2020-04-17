@@ -536,3 +536,12 @@ void ClassChip::buildLayerImage()
     layermap.setText("name", "bw.layermap");
     m_img.prepend(layermap);
 }
+
+/******************************************************************************
+ * Experimental code
+ ******************************************************************************/
+
+void ClassChip::drawExperimental()
+{
+    qDebug() << "Experimental code";
+}
