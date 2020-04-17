@@ -20,6 +20,23 @@ static const QStringList files =
     { "vias_vcc_gnd" },
 };
 
+// We can use any bits, but these make the map looking good when simply viewed it as an image
+#define DIFF_SHIFT       6
+#define POLY_SHIFT       5
+#define METAL_SHIFT      4
+#define BURIED_SHIFT     3
+#define VIA_DIFF_SHIFT   2
+#define VIA_POLY_SHIFT   1
+#define TRANSISTOR_SHIFT 7
+
+#define DIFF       (1 << DIFF_SHIFT)
+#define POLY       (1 << POLY_SHIFT)
+#define METAL      (1 << METAL_SHIFT)
+#define BURIED     (1 << BURIED_SHIFT)
+#define VIA_DIFF   (1 << VIA_DIFF_SHIFT)
+#define VIA_POLY   (1 << VIA_POLY_SHIFT)
+#define TRANSISTOR (1 << TRANSISTOR_SHIFT)
+
 /*
  * Attempts to load all chip resource that we expect to have
  * We can load the full set or only a smaller subset of images
@@ -191,7 +208,8 @@ bool ClassChip::loadTransdefs(QString dir)
 }
 
 /*
- * Returns the reference to the image by the image index
+ * Returns the reference to the image by the image index.
+ * Returns last image if the index is outside the stored images count
  */
 QImage &ClassChip::getImage(uint i)
 {
@@ -201,6 +219,20 @@ QImage &ClassChip::getImage(uint i)
         return m_img[i];
     }
     return getLastImage();
+}
+
+/*
+ * Returns the reference to the image by the image (embedded) name
+ * ok is set to false if the image cannot be found. It is not modified on success
+ */
+QImage &ClassChip::getImage(QString name, bool &ok)
+{
+    static QImage img_empty;
+    for (auto &i : m_img)
+        if (i.text("name") == name)
+            return i;
+    ok = false;
+    return img_empty;
 }
 
 /*
@@ -356,36 +388,6 @@ void ClassChip::drawSegdefs()
     qDebug() << "Finished drawing segdefs";
 }
 
-// We can use any bits, but these make the map looking good when simply viewed it as an image
-#define DIFF_SHIFT       6
-#define POLY_SHIFT       5
-#define METAL_SHIFT      4
-#define BURIED_SHIFT     3
-#define VIA_DIFF_SHIFT   2
-#define VIA_POLY_SHIFT   1
-#define TRANSISTOR_SHIFT 7
-
-#define DIFF       (1 << DIFF_SHIFT)
-#define POLY       (1 << POLY_SHIFT)
-#define METAL      (1 << METAL_SHIFT)
-#define BURIED     (1 << BURIED_SHIFT)
-#define VIA_DIFF   (1 << VIA_DIFF_SHIFT)
-#define VIA_POLY   (1 << VIA_POLY_SHIFT)
-#define TRANSISTOR (1 << TRANSISTOR_SHIFT)
-
-QImage &ClassChip::getImageByName(QString name, bool &ok)
-{
-    static QImage img_empty;
-    ok = true;
-    for (int i=0; i<m_img.count(); i++)
-    {
-        if (m_img[i].text("name")==name)
-            return m_img[i];
-    }
-    ok = false;
-    return img_empty;
-}
-
 /*
  * Builds a layer map data
  */
@@ -397,11 +399,11 @@ void ClassChip::buildLayerMap()
     QImage layermap(sx, sy, QImage::Format_Grayscale8);
 
     bool ok = true;
-    QImage img_diff(getImageByName("bw.diffusion", ok));
-    QImage img_poly(getImageByName("bw.polysilicon", ok));
-    QImage img_metl(getImageByName("bw.metal", ok));
-    QImage img_buri(getImageByName("bw.buried", ok));
-    QImage img_vias(getImageByName("bw.vias", ok));
+    QImage img_diff(getImage("bw.diffusion", ok));
+    QImage img_poly(getImage("bw.polysilicon", ok));
+    QImage img_metl(getImage("bw.metal", ok));
+    QImage img_buri(getImage("bw.buried", ok));
+    QImage img_vias(getImage("bw.vias", ok));
     //QImage img_ions(getImageByName("bw.ions", ok));
     if (!ok)
     {
@@ -498,9 +500,9 @@ void ClassChip::buildLayerImage()
     QImage layermap(sx, sy, QImage::Format_Grayscale8);
 
     bool ok = true;
-    QImage img_diff(getImageByName("bw.diffusion", ok));
-    QImage img_poly(getImageByName("bw.polysilicon", ok));
-    QImage img_metl(getImageByName("bw.metal", ok));
+    QImage img_diff(getImage("bw.diffusion", ok));
+    QImage img_poly(getImage("bw.polysilicon", ok));
+    QImage img_metl(getImage("bw.metal", ok));
     if (!ok)
     {
         qWarning() << "Unable to load bw.* image";

@@ -34,6 +34,7 @@ public:
 
     bool loadChipResources(QString dir, bool fullSet);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
+    QImage &getImage(QString name, bool &ok); // Returns the reference to the image by the image (embedded) name
     QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
     QList<int> getNodesAt(int x, int y);
     const QStringList getTransistorsAt(int x, int y);
@@ -63,7 +64,6 @@ private:
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
     void drawTransistors(QImage &img);  // Draws transistors on the given image surface
     bool convertToGrayscale();          // Converts loaded images to grayscale format
-    QImage &getImageByName(QString name, bool &ok);
     void buildLayerMap();               // Builds a layer map data
     void buildLayerImage();             // Builds a layer image only
 };
