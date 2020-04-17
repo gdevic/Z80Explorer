@@ -18,6 +18,8 @@ void ClassScript::init(QScriptEngine *sc)
     m_engine->globalObject().setProperty("stop", funStop);
     QScriptValue funReset = m_engine->newFunction(&ClassScript::onReset);
     m_engine->globalObject().setProperty("reset", funReset);
+    QScriptValue funExperimental = m_engine->newFunction(&ClassScript::onExperimental);
+    m_engine->globalObject().setProperty("ex", funExperimental);
 }
 
 void ClassScript::run(QString cmd)
@@ -52,5 +54,12 @@ QScriptValue ClassScript::onStop(QScriptContext *, QScriptEngine *)
 QScriptValue ClassScript::onReset(QScriptContext *, QScriptEngine *)
 {
     emit ::controller.doReset();
+    return "OK";
+}
+
+QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
+{
+    uint n = ctx->argument(0).toNumber();
+    qDebug() << n;
     return "OK";
 }
