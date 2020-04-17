@@ -47,7 +47,13 @@ bool ClassChip::loadChipResources(QString dir, bool fullSet)
     if (loadImages(dir, fullSet) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         // Build a layer image; either the complete map or just the image if we don't have the full data set
-        fullSet ? buildLayerMap() : buildLayerImage();
+        if (fullSet)
+        {
+            buildLayerMap();
+            shrinkVias("bw.layermap");
+        }
+        else // Build a simple layer image (not suitable to extract features)
+            buildLayerImage();
 
         qInfo() << "Completed loading chip resources";
         emit refresh();
@@ -487,6 +493,55 @@ void ClassChip::buildLayerMap()
     }
     layermap.setText("name", "bw.layermap");
     m_img.prepend(layermap);
+}
+
+/*
+ * Shrink each via to only 1x1 representative pixel
+ * Assumptions:
+ *  1. There are no vias to nowhere: all vias are valid and are connecting two layers
+ *  2. Vias are square in shape
+ * Given #1, top-left pixel on each via block is chosen as a reprenentative
+ * There are features on the vias' images that are not square, but those are not functional vias
+ */
+void ClassChip::shrinkVias(QString name)
+{
+    qInfo() << "Shrinking the via map" << name;
+    bool ok = true;
+    // Shallow copy constructor, will create a new image once data buffer is written to
+    QImage img(getImage(name, ok));
+    Q_ASSERT(ok);
+
+    uint sx = img.width();
+    uint sy = img.height();
+    const uchar vias[3] = { BURIED, VIA_DIFF, VIA_POLY };
+    uchar *p = img.bits();
+
+    for (uint i = 0; i < 3; i++)
+    {
+        const uchar via = vias[i];
+        uint offset = 0;
+        while (offset < (sx - 1) * sy)
+        {
+            if (p[offset] & via)
+            {
+                // Reduce a square via to a single point
+                uint line = offset;
+                while(true)
+                {
+                    uint pix = line;
+                    while (p[pix] & via)
+                        p[pix] = p[pix] & ~via, pix++;
+                    line += sx; // The next pixel below
+                    if (! (p[line] & via))
+                        break;
+                }
+                p[offset] |= via; // Bring back the top-leftmost via
+            }
+            offset++;
+        }
+    }
+    img.setText("name", "bw.layermap2");
+    m_img.append(img);
 }
 
 /*
