@@ -10,6 +10,8 @@ void ClassScript::init(QScriptEngine *sc)
 {
     m_engine = sc;
 
+    QScriptValue funHelp = m_engine->newFunction(&ClassScript::onHelp);
+    m_engine->globalObject().setProperty("help", funHelp);
     QScriptValue funRun = m_engine->newFunction(&ClassScript::onRun);
     m_engine->globalObject().setProperty("run", funRun);
     QScriptValue funStop = m_engine->newFunction(&ClassScript::onStop);
@@ -18,12 +20,20 @@ void ClassScript::init(QScriptEngine *sc)
     m_engine->globalObject().setProperty("reset", funReset);
 }
 
-/*
- * Evaluates and runs command
- */
 void ClassScript::run(QString cmd)
 {
     emit response(m_engine->evaluate(cmd).toString());
+}
+
+QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
+{
+    QString s;
+    QTextStream text(&s);
+    text << "run(cycles)   - Runs the simulation for the given number of clocks\n";
+    text << "stop()        - Stops the running simulation\n";
+    text << "reset()       - Resets the simulation state\n";
+    emit ::controller.getScript().response(s);
+    return "OK";
 }
 
 QScriptValue ClassScript::onRun(QScriptContext *ctx, QScriptEngine *)

@@ -28,6 +28,8 @@ DockCommand::DockCommand(QWidget *parent) :
 
     connect(this, SIGNAL(run(QString)), &::controller.getScript(), SLOT(run(QString)));
     connect(&::controller.getScript(), SIGNAL(response(QString)), this, SLOT(appendText(QString)));
+
+    m_edit->appendPlainText("Type help() to list available commands\n");
 }
 
 /*
