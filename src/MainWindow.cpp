@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
     restoreState(settings.value("MainWindow/State").toByteArray());
     // Let the log and command windows use the same space on the bottom
-    tabifyDockWidget(m_cmd, m_log);
+    //tabifyDockWidget(m_cmd, m_log);
 
     // Connect the rest of the menu actions...
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
