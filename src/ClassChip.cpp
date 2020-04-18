@@ -610,8 +610,9 @@ struct xyl
 
 /*
  * Creates 3 layers' fill of data surfaces based on the map data
+ * The destination layers map is this class' p3
  */
-void ClassChip::fill(uint16_t *p3[3], uint sx, const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id)
+void ClassChip::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id)
 {
     const uchar layerMasks[3] = { DIFF, POLY, METAL };
 
@@ -631,7 +632,7 @@ void ClassChip::fill(uint16_t *p3[3], uint sx, const uchar *p_map, uint16_t x, u
         {
             xy pos = listSeed.at(listSeed.count() - 1);
             listSeed.removeLast();
-            uint offset = pos.x + pos.y * sx;
+            uint offset = pos.x + pos.y * m_sx;
             uchar c = p_map[offset];
             if ((c & layerMask) && !p3[posl.layer][offset])
             {
@@ -686,7 +687,7 @@ void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
     QElapsedTimer timer;
     timer.start();
 
-    fill(p3, m_sx, p_map, x, y, layer, id);
+    fill(p_map, x, y, layer, id);
 
     qDebug() << "Feature build operation took" << timer.elapsed() << "milliseconds";
 }
