@@ -47,6 +47,14 @@ bool ClassChip::loadChipResources(QString dir, bool fullSet)
     qInfo() << "Loading chip resources from" << dir;
     if (loadImages(dir, fullSet) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
+        // Allocate buffers for layers map
+        uint sx = m_img[0].width();
+        uint sy = m_img[0].height();
+
+        p3[0] = new uint16_t[sy * sx] {};
+        p3[1] = new uint16_t[sy * sx] {};
+        p3[2] = new uint16_t[sy * sx] {};
+
         // Build a layer image; either the complete map or just the image if we don't have the full data set
         if (fullSet)
         {
@@ -683,11 +691,6 @@ void ClassChip::drawFeature(QString name, uint16_t x, uint16_t y, uint layer, ui
     // Get a pointer to the first byte of the layer map data
     const uchar *p_map = getImage("bw.layermap2", ok).constBits();
     Q_ASSERT(ok);
-    // ...and of the destination buffers         // XXX These buffers need to be in the class def
-    uint16_t *p0 = new uint16_t[sy * sx] {};
-    uint16_t *p1 = new uint16_t[sy * sx] {};
-    uint16_t *p2 = new uint16_t[sy * sx] {};
-    uint16_t *p3[3] = { p0, p1, p2 };
 
     QElapsedTimer timer;
     timer.start();
@@ -700,7 +703,7 @@ void ClassChip::drawFeature(QString name, uint16_t x, uint16_t y, uint layer, ui
     QImage imgFinal(sx, sy, QImage::Format_Grayscale8);
     uchar *p_final = imgFinal.bits();
     for (uint i = 0; i < sx * sy; i++)
-        p_final[i] = (p0[i] | p1[i] | p2[i]) ? 0xFF : 0;
+        p_final[i] = (p3[0][i] | p3[1][i] | p3[2][i]) ? 0xFF : 0;
 
     imgFinal.setText("name", name);
     m_img.append(imgFinal);
@@ -717,6 +720,4 @@ void ClassChip::drawExperimental()
     drawFeature("bw.vss", 100,100, 2, 1); // vss
     drawFeature("bw.vcc", 4456,2512, 2, 2); // vcc
     drawFeature("bw.clk", 4476,4769, 2, 3); // clk
-
-    emit refresh();
 }

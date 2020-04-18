@@ -57,6 +57,8 @@ private:
     QHash<uint, segdef> m_segdefs;      // Hash of segment definitions, key is the segment node number
     QVector<transdef> m_transdefs;      // Array of transistor definitions
 
+    uint16_t *p3[3] {};                 // Layers map: [0] diffusion, [1] poly, [2] metal
+
 private:
     bool loadImages(QString dir, bool); // Loads chip images
     bool loadSegdefs(QString dir);      // Loads segdefs.js
