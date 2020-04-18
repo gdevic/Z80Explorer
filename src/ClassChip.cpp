@@ -48,9 +48,9 @@ bool ClassChip::loadChipResources(QString dir, bool fullSet)
     if (loadImages(dir, fullSet) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         // Allocate buffers for layers map
-        p3[0] = new uint16_t[m_sy * m_sx] {};
-        p3[1] = new uint16_t[m_sy * m_sx] {};
-        p3[2] = new uint16_t[m_sy * m_sx] {};
+        m_p3[0] = new uint16_t[m_sy * m_sx] {};
+        m_p3[1] = new uint16_t[m_sy * m_sx] {};
+        m_p3[2] = new uint16_t[m_sy * m_sx] {};
 
         // Build a layer image; either the complete map or just the image if we don't have the full data set
         if (fullSet)
@@ -610,7 +610,7 @@ struct xyl
 
 /*
  * Creates 3 layers' fill of data surfaces based on the map data
- * The destination layers map is this class' p3
+ * The destination layers map is this class' m_p3
  */
 void ClassChip::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id)
 {
@@ -634,9 +634,9 @@ void ClassChip::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uin
             listSeed.removeLast();
             uint offset = pos.x + pos.y * m_sx;
             uchar c = p_map[offset];
-            if ((c & layerMask) && !p3[posl.layer][offset])
+            if ((c & layerMask) && !m_p3[posl.layer][offset])
             {
-                p3[posl.layer][offset] = id;
+                m_p3[posl.layer][offset] = id;
 
                 listSeed.append(xy {pos.x, uint16_t(pos.y - 1)});
                 listSeed.append(xy {pos.x, uint16_t(pos.y + 1)});
@@ -669,7 +669,7 @@ void ClassChip::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uin
                     else Q_ASSERT(0);
                     Q_ASSERT(layer < 3);
 
-                    if (p3[layer])
+                    if (m_p3[layer])
                         listLayers.append(xyl {pos.x, pos.y, layer});
                 }
             }
@@ -709,7 +709,7 @@ void ClassChip::drawExperimental()
 
     for (uint i = 0; i < m_sx * m_sy; i++)
     {
-        uint16_t net[3] { p3[0][i], p3[1][i], p3[2][i] };
+        uint16_t net[3] { m_p3[0][i], m_p3[1][i], m_p3[2][i] };
         uint16_t c = 0;
         if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = 0x0FC0; // vss green
         if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = 0xF800; // vcc red

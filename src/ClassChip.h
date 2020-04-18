@@ -59,7 +59,7 @@ private:
 
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps
-    uint16_t *p3[3] {};                 // Layers map: [0] diffusion, [1] poly, [2] metal
+    uint16_t *m_p3[3] {};               // Layers map: [0] diffusion, [1] poly, [2] metal
 
 private:
     bool loadImages(QString dir, bool); // Loads chip images
