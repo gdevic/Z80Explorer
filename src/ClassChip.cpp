@@ -720,4 +720,25 @@ void ClassChip::drawExperimental()
     drawFeature("bw.vss", 100,100, 2, 1); // vss
     drawFeature("bw.vcc", 4456,2512, 2, 2); // vcc
     drawFeature("bw.clk", 4476,4769, 2, 3); // clk
+
+    // Create a color image with those 3 networks
+    // Out of 3 layers, compose one visual image that we'd like to see
+    uint sx = m_img[0].width();
+    uint sy = m_img[0].height();
+    uint16_t *p = new uint16_t[sy * sx];
+
+    for (uint i = 0; i < sx * sy; i++)
+    {
+        uint16_t net[3] { p3[0][i], p3[1][i], p3[2][i] };
+        uint16_t c = 0;
+        if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = 0x0FC0; // vss green
+        if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = 0xF800; // vcc red
+        if ((net[0] == 3) || (net[1] == 3) || (net[2] == 3)) c = 0xFFFF; // clk white
+        p[i] = c;
+    }
+
+    QImage imgMainNets((uchar *)p, sx, sy, sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
+    imgMainNets.setText("name", "vss.vcc.clk");
+    m_img.append(imgMainNets);
+    qDebug() << "Created image map" << "vss.vcc.clk";
 }
