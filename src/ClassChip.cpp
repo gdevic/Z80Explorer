@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QEventLoop>
 #include <QImage>
 #include <QPainter>
@@ -406,18 +407,18 @@ void ClassChip::buildLayerMap()
 
     bool ok = true;
     // Get a pointer to the first byte of each image data
-    const uchar *p_diff = getImage("bw.diffusion", ok).bits();
-    const uchar *p_poly = getImage("bw.polysilicon", ok).bits();
-    const uchar *p_metl = getImage("bw.metal", ok).bits();
-    const uchar *p_buri = getImage("bw.buried", ok).bits();
-    const uchar *p_vias = getImage("bw.vias", ok).bits();
+    const uchar *p_diff = getImage("bw.diffusion", ok).constBits();
+    const uchar *p_poly = getImage("bw.polysilicon", ok).constBits();
+    const uchar *p_metl = getImage("bw.metal", ok).constBits();
+    const uchar *p_buri = getImage("bw.buried", ok).constBits();
+    const uchar *p_vias = getImage("bw.vias", ok).constBits();
     if (!ok)
     {
         qWarning() << "Unable to load bw.* image";
         return;
     }
     // ...and of the destination buffer
-    uchar *p_dest = layermap.scanLine(0);
+    uchar *p_dest = layermap.bits();
 
     for (uint i=0; i < sy*sx; i++)
     {
@@ -508,6 +509,12 @@ void ClassChip::shrinkVias(QString name)
     const uchar vias[3] = { BURIED, VIA_DIFF, VIA_POLY };
     uchar *p = img.bits();
 
+    // Trim 1 pixel from each edge
+    memset(p, 0, sx);
+    memset(p + (sy - 1) * sx, 0, sx);
+    for (uint y = 1; y < sy; y++)
+        *(uint16_t *)(p + y * sx - 1) = 0;
+
     for (uint i = 0; i < 3; i++)
     {
         const uchar via = vias[i];
@@ -548,9 +555,9 @@ void ClassChip::buildLayerImage()
 
     bool ok = true;
     // Get a pointer to the first byte of each image data
-    const uchar *p_diff = getImage("bw.diffusion", ok).bits();
-    const uchar *p_poly = getImage("bw.polysilicon", ok).bits();
-    const uchar *p_metl = getImage("bw.metal", ok).bits();
+    const uchar *p_diff = getImage("bw.diffusion", ok).constBits();
+    const uchar *p_poly = getImage("bw.polysilicon", ok).constBits();
+    const uchar *p_metl = getImage("bw.metal", ok).constBits();
     if (!ok)
     {
         qWarning() << "Unable to load bw.* image";
@@ -586,7 +593,135 @@ void ClassChip::buildLayerImage()
  * Experimental code
  ******************************************************************************/
 
+struct xy
+{
+    uint16_t x;
+    uint16_t y;
+};
+
+struct xyl
+{
+    uint16_t x;
+    uint16_t y;
+    uint layer;
+};
+
+/*
+ * Creates 3 layers' fill of data surfaces based on the map data
+ */
+void ClassChip::fill(uint16_t *p3[3], uint sx, const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id)
+{
+    const uchar layerMasks[3] = { DIFF, POLY, METAL };
+
+    QVector<xyl> listLayers;
+    listLayers.append(xyl {x,y,layer});
+
+    while (!listLayers.isEmpty())
+    {
+        xyl posl = listLayers.at(listLayers.count() - 1);
+        listLayers.removeLast();
+        const uchar layerMask = layerMasks[posl.layer];
+
+        QVector<xy> listSeed;
+        listSeed.append(xy {posl.x, posl.y});
+
+        while (!listSeed.isEmpty())
+        {
+            xy pos = listSeed.at(listSeed.count() - 1);
+            listSeed.removeLast();
+            uint offset = pos.x + pos.y * sx;
+            uchar c = p_map[offset];
+            if ((c & layerMask) && !p3[posl.layer][offset])
+            {
+                p3[posl.layer][offset] = id;
+
+                listSeed.append(xy {uint16_t(pos.x + 1), pos.y});
+                listSeed.append(xy {pos.x, uint16_t(pos.y + 1)});
+                listSeed.append(xy {uint16_t(pos.x - 1), pos.y});
+                listSeed.append(xy {pos.x, uint16_t(pos.y - 1)});
+
+                // Do we have a via to jump to another layer?
+                if (c & (BURIED | VIA_DIFF | VIA_POLY))
+                {
+                    uchar c2 = c & ~layerMask;
+                    uint layer = 3;
+                    if (posl.layer == 0)
+                    {
+                        if (c2 & BURIED) layer = 1;
+                        else if (c2 & VIA_DIFF) layer = 2;
+                        else Q_ASSERT(0);
+                    }
+                    else if (posl.layer == 1)
+                    {
+                        if (c2 & BURIED) layer = 0;
+                        else if (c2 & VIA_POLY) layer = 2;
+                        else Q_ASSERT(0);
+                    }
+                    else if (posl.layer == 2)
+                    {
+                        if (c2 & VIA_DIFF) layer = 0;
+                        else if (c2 & VIA_POLY) layer = 1;
+                        else continue; // ok, buried via is out of reach for metal layer
+                    }
+                    else Q_ASSERT(0);
+                    Q_ASSERT(layer < 3);
+
+                    if (p3[layer])
+                        listLayers.append(xyl {pos.x, pos.y, layer});
+                }
+            }
+        }
+    }
+}
+
+void ClassChip::drawFeature(QString name, uint16_t x, uint16_t y, uint layer, uint16_t id)
+{
+    uint sx = m_img[0].width();
+    uint sy = m_img[0].height();
+
+    bool ok = true;
+    // Get a pointer to the first byte of the layer map data
+    const uchar *p_map = getImage("bw.layermap2", ok).constBits();
+    Q_ASSERT(ok);
+    // ...and of the destination buffers         // XXX These buffers need to be in the class def
+    uint16_t *p0 = new uint16_t[sy * sx] {};
+    uint16_t *p1 = new uint16_t[sy * sx] {};
+    uint16_t *p2 = new uint16_t[sy * sx] {};
+    uint16_t *p3[3] = { p0, p1, p2 };
+    int stride = sx * sizeof(uint16_t);
+
+    QImage img0((uchar *)p0, sx, sy, stride, QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p0);
+    QImage img1((uchar *)p1, sx, sy, stride, QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p1);
+    QImage img2((uchar *)p2, sx, sy, stride, QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p2);
+
+    QElapsedTimer timer;
+    timer.start();
+
+    fill(p3, sx, p_map, x, y, layer, id);
+
+    qDebug() << "Feature build operation took" << timer.elapsed() << "milliseconds";
+
+    // Out of 3 layers, compose one visual image that we'd like to see
+    QImage imgFinal(sx, sy, QImage::Format_Grayscale8);
+    uchar *p_final = imgFinal.bits();
+    for (uint i = 0; i < sx * sy; i++)
+        p_final[i] = (p0[i] | p1[i] | p2[i]) ? 0xFF : 0;
+
+    imgFinal.setText("name", name);
+    m_img.append(imgFinal);
+    qDebug() << "Created image map" << name;
+}
+
+/*
+ * Run with the command "ex(1)"
+ */
 void ClassChip::drawExperimental()
 {
-    qDebug() << "Experimental code";
+    qDebug() << "Experimental drawing";
+
+    drawFeature("bw.vss", 100,100, 2, 1); // vss
+    drawFeature("bw.vcc", 4456,2512, 2, 2); // vcc
+    drawFeature("bw.clk", 4476,4769, 2, 3); // clk
+
+    emit refresh();
 }
