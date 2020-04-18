@@ -635,10 +635,10 @@ void ClassChip::fill(uint16_t *p3[3], uint sx, const uchar *p_map, uint16_t x, u
             {
                 p3[posl.layer][offset] = id;
 
-                listSeed.append(xy {uint16_t(pos.x + 1), pos.y});
+                listSeed.append(xy {pos.x, uint16_t(pos.y - 1)});
                 listSeed.append(xy {pos.x, uint16_t(pos.y + 1)});
                 listSeed.append(xy {uint16_t(pos.x - 1), pos.y});
-                listSeed.append(xy {pos.x, uint16_t(pos.y - 1)});
+                listSeed.append(xy {uint16_t(pos.x + 1), pos.y});
 
                 // Do we have a via to jump to another layer?
                 if (c & (BURIED | VIA_DIFF | VIA_POLY))
