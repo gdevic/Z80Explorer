@@ -688,11 +688,6 @@ void ClassChip::drawFeature(QString name, uint16_t x, uint16_t y, uint layer, ui
     uint16_t *p1 = new uint16_t[sy * sx] {};
     uint16_t *p2 = new uint16_t[sy * sx] {};
     uint16_t *p3[3] = { p0, p1, p2 };
-    int stride = sx * sizeof(uint16_t);
-
-    QImage img0((uchar *)p0, sx, sy, stride, QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p0);
-    QImage img1((uchar *)p1, sx, sy, stride, QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p1);
-    QImage img2((uchar *)p2, sx, sy, stride, QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p2);
 
     QElapsedTimer timer;
     timer.start();
