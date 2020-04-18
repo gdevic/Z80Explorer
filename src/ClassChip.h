@@ -57,6 +57,8 @@ private:
     QHash<uint, segdef> m_segdefs;      // Hash of segment definitions, key is the segment node number
     QVector<transdef> m_transdefs;      // Array of transistor definitions
 
+    uint m_sx {};                       // X size of all images and maps
+    uint m_sy {};                       // Y size of all images and maps
     uint16_t *p3[3] {};                 // Layers map: [0] diffusion, [1] poly, [2] metal
 
 private:

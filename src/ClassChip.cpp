@@ -48,12 +48,9 @@ bool ClassChip::loadChipResources(QString dir, bool fullSet)
     if (loadImages(dir, fullSet) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         // Allocate buffers for layers map
-        uint sx = m_img[0].width();
-        uint sy = m_img[0].height();
-
-        p3[0] = new uint16_t[sy * sx] {};
-        p3[1] = new uint16_t[sy * sx] {};
-        p3[2] = new uint16_t[sy * sx] {};
+        p3[0] = new uint16_t[m_sy * m_sx] {};
+        p3[1] = new uint16_t[m_sy * m_sx] {};
+        p3[2] = new uint16_t[m_sy * m_sx] {};
 
         // Build a layer image; either the complete map or just the image if we don't have the full data set
         if (fullSet)
@@ -104,6 +101,9 @@ bool ClassChip::loadImages(QString dir, bool fullSet)
             return false;
         }
     }
+    m_sx = m_img[0].width();
+    m_sy = m_img[0].height();
+
     qInfo() << "Loaded" << m_img.count() << "images";
     return true;
 }
@@ -325,7 +325,7 @@ const transdef *ClassChip::getTrans(QString name)
  */
 bool ClassChip::addTransistorsLayer()
 {
-    QImage trans(m_img[0].width(), m_img[0].height(), QImage::Format_ARGB32);
+    QImage trans(m_sx, m_sy, QImage::Format_ARGB32);
     drawTransistors(trans);
     trans.setText("name", "transistors");
     m_img.append(trans);
@@ -409,9 +409,7 @@ void ClassChip::drawSegdefs()
 void ClassChip::buildLayerMap()
 {
     qInfo() << "Building the layer map";
-    uint sx = m_img[0].width();
-    uint sy = m_img[0].height();
-    QImage layermap(sx, sy, QImage::Format_Grayscale8);
+    QImage layermap(m_sx, m_sy, QImage::Format_Grayscale8);
 
     bool ok = true;
     // Get a pointer to the first byte of each image data
@@ -428,7 +426,7 @@ void ClassChip::buildLayerMap()
     // ...and of the destination buffer
     uchar *p_dest = layermap.bits();
 
-    for (uint i=0; i < sy*sx; i++)
+    for (uint i=0; i < m_sx * m_sy; i++)
     {
         uchar diff = !!p_diff[i] << DIFF_SHIFT;
         uchar poly = !!p_poly[i] << POLY_SHIFT;
@@ -443,13 +441,13 @@ void ClassChip::buildLayerMap()
         {
             // Check that the vias are actually connected to either poly or metal
             if (!diff && !poly)
-                qDebug() << "Via to nowhere at:" << i%sx << i/sx;
+                qDebug() << "Via to nowhere at:" << i % m_sx << i / m_sx;
             else if (!metl)
-                qDebug() << "Via without metal at:" << i%sx << i/sx;
+                qDebug() << "Via without metal at:" << i % m_sx << i / m_sx;
             else if (metl && poly && diff)
-                qDebug() << "Via both to polysilicon and diffusion at:" << i%sx << i/sx;
+                qDebug() << "Via both to polysilicon and diffusion at:" << i % m_sx << i / m_sx;
             else if (buri)
-                qDebug() << "Buried under via at:" << i%sx << i/sx;
+                qDebug() << "Buried under via at:" << i % m_sx << i / m_sx;
         }
 
         uchar c = diff | poly | metl | buri | viad | viap;
@@ -512,22 +510,20 @@ void ClassChip::shrinkVias(QString name)
     QImage img(getImage(name, ok));
     Q_ASSERT(ok);
 
-    uint sx = img.width();
-    uint sy = img.height();
     const uchar vias[3] = { BURIED, VIA_DIFF, VIA_POLY };
     uchar *p = img.bits();
 
     // Trim 1 pixel from each edge
-    memset(p, 0, sx);
-    memset(p + (sy - 1) * sx, 0, sx);
-    for (uint y = 1; y < sy; y++)
-        *(uint16_t *)(p + y * sx - 1) = 0;
+    memset(p, 0, m_sx);
+    memset(p + (m_sy - 1) * m_sx, 0, m_sx);
+    for (uint y = 1; y < m_sy; y++)
+        *(uint16_t *)(p + y * m_sx - 1) = 0;
 
     for (uint i = 0; i < 3; i++)
     {
         const uchar via = vias[i];
         uint offset = 0;
-        while (offset < (sx - 1) * sy)
+        while (offset < (m_sx - 1) * m_sy)
         {
             if (p[offset] & via)
             {
@@ -538,7 +534,7 @@ void ClassChip::shrinkVias(QString name)
                     uint pix = line;
                     while (p[pix] & via)
                         p[pix] = p[pix] & ~via, pix++;
-                    line += sx; // The next pixel below
+                    line += m_sx; // The next pixel below
                     if (! (p[line] & via))
                         break;
                 }
@@ -557,9 +553,7 @@ void ClassChip::shrinkVias(QString name)
 void ClassChip::buildLayerImage()
 {
     qInfo() << "Building the layer map";
-    uint sx = m_img[0].width();
-    uint sy = m_img[0].height();
-    QImage layermap(sx, sy, QImage::Format_Grayscale8);
+    QImage layermap(m_sx, m_sy, QImage::Format_Grayscale8);
 
     bool ok = true;
     // Get a pointer to the first byte of each image data
@@ -574,7 +568,7 @@ void ClassChip::buildLayerImage()
     // ...and of the destination buffer
     uchar *p_dest = layermap.scanLine(0);
 
-    for (uint i=0; i < sy*sx; i++)
+    for (uint i=0; i < m_sy * m_sx; i++)
     {
         uchar diff = !!p_diff[i] << DIFF_SHIFT;
         uchar poly = !!p_poly[i] << POLY_SHIFT;
@@ -684,8 +678,6 @@ void ClassChip::fill(uint16_t *p3[3], uint sx, const uchar *p_map, uint16_t x, u
 
 void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
 {
-    uint sx = m_img[0].width();
-
     bool ok = true;
     // Get a pointer to the first byte of the layer map data
     const uchar *p_map = getImage("bw.layermap2", ok).constBits();
@@ -694,7 +686,7 @@ void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
     QElapsedTimer timer;
     timer.start();
 
-    fill(p3, sx, p_map, x, y, layer, id);
+    fill(p3, m_sx, p_map, x, y, layer, id);
 
     qDebug() << "Feature build operation took" << timer.elapsed() << "milliseconds";
 }
@@ -712,11 +704,9 @@ void ClassChip::drawExperimental()
 
     // Create a color image with those 3 networks
     // Out of 3 layers, compose one visual image that we'd like to see
-    uint sx = m_img[0].width();
-    uint sy = m_img[0].height();
-    uint16_t *p = new uint16_t[sy * sx];
+    uint16_t *p = new uint16_t[m_sy * m_sx];
 
-    for (uint i = 0; i < sx * sy; i++)
+    for (uint i = 0; i < m_sx * m_sy; i++)
     {
         uint16_t net[3] { p3[0][i], p3[1][i], p3[2][i] };
         uint16_t c = 0;
@@ -726,7 +716,7 @@ void ClassChip::drawExperimental()
         p[i] = c;
     }
 
-    QImage imgMainNets((uchar *)p, sx, sy, sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
+    QImage imgMainNets((uchar *)p, m_sx, m_sy, m_sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
     imgMainNets.setText("name", "vss.vcc.clk");
     m_img.append(imgMainNets);
     qDebug() << "Created image map" << "vss.vcc.clk";
