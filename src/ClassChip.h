@@ -71,7 +71,7 @@ private:
     void buildLayerImage();             // Builds a layer image only
     // Experimental code
     void fill(uint16_t *p3[3], uint sx, const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
-    void drawFeature(QString name, uint16_t x, uint16_t y, uint layer, uint16_t id);
+    void drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id);
 };
 
 #endif // CLASSCHIP_H

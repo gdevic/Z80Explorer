@@ -682,10 +682,9 @@ void ClassChip::fill(uint16_t *p3[3], uint sx, const uchar *p_map, uint16_t x, u
     }
 }
 
-void ClassChip::drawFeature(QString name, uint16_t x, uint16_t y, uint layer, uint16_t id)
+void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
 {
     uint sx = m_img[0].width();
-    uint sy = m_img[0].height();
 
     bool ok = true;
     // Get a pointer to the first byte of the layer map data
@@ -698,16 +697,6 @@ void ClassChip::drawFeature(QString name, uint16_t x, uint16_t y, uint layer, ui
     fill(p3, sx, p_map, x, y, layer, id);
 
     qDebug() << "Feature build operation took" << timer.elapsed() << "milliseconds";
-
-    // Out of 3 layers, compose one visual image that we'd like to see
-    QImage imgFinal(sx, sy, QImage::Format_Grayscale8);
-    uchar *p_final = imgFinal.bits();
-    for (uint i = 0; i < sx * sy; i++)
-        p_final[i] = (p3[0][i] | p3[1][i] | p3[2][i]) ? 0xFF : 0;
-
-    imgFinal.setText("name", name);
-    m_img.append(imgFinal);
-    qDebug() << "Created image map" << name;
 }
 
 /*
@@ -717,9 +706,9 @@ void ClassChip::drawExperimental()
 {
     qDebug() << "Experimental drawing";
 
-    drawFeature("bw.vss", 100,100, 2, 1); // vss
-    drawFeature("bw.vcc", 4456,2512, 2, 2); // vcc
-    drawFeature("bw.clk", 4476,4769, 2, 3); // clk
+    drawFeature(100,100, 2, 1); // vss
+    drawFeature(4456,2512, 2, 2); // vcc
+    drawFeature(4476,4769, 2, 3); // clk
 
     // Create a color image with those 3 networks
     // Out of 3 layers, compose one visual image that we'd like to see
