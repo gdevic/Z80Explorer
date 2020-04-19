@@ -22,6 +22,7 @@ static const QStringList files =
     { "vias_vcc_gnd" },
 };
 
+// --- Feature map bits ---
 // We can use any bits, but these make the map looking good when simply viewed it as an image
 #define DIFF_SHIFT       6
 #define POLY_SHIFT       5
@@ -59,7 +60,7 @@ bool ClassChip::loadChipResources(QString dir)
         }
 
         buildFeatureMap();
-        shrinkVias("bw.layermap");
+        shrinkVias("bw.featuremap");
 
         qInfo() << "Completed loading chip resources";
         emit refresh();
@@ -514,7 +515,7 @@ void ClassChip::buildFeatureMap()
 
         p_dest[i] = c;
     }
-    featuremap.setText("name", "bw.layermap");
+    featuremap.setText("name", "bw.featuremap");
     m_img.prepend(featuremap);
 }
 
@@ -567,7 +568,7 @@ void ClassChip::shrinkVias(QString name)
             offset++;
         }
     }
-    img.setText("name", "bw.layermap2");
+    img.setText("name", "bw.featuremap2");
     m_img.append(img);
 }
 
@@ -660,8 +661,8 @@ void ClassChip::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uin
 void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
 {
     bool ok = true;
-    // Get a pointer to the first byte of the layer map data
-    const uchar *p_map = getImage("bw.layermap2", ok).constBits();
+    // Get a pointer to the first byte of the feature map data
+    const uchar *p_map = getImage("bw.featuremap2", ok).constBits();
     Q_ASSERT(ok);
 
     QElapsedTimer timer;
