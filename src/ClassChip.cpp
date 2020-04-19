@@ -41,33 +41,36 @@ static const QStringList files =
 #define TRANSISTOR (1 << TRANSISTOR_SHIFT)
 
 /*
- * Attempts to load all chip resource that we expect to have
+ * Attempts to load and generate all chip resource that we expect to have
  */
 bool ClassChip::loadChipResources(QString dir)
 {
     qInfo() << "Loading chip resources from" << dir;
+    // Step 1: Load images and resources sourced from the Visual 6502 project
     if (loadImages(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
-        // Allocate buffers for layer map
+        // Step 2: Generate internal maps and/or load previously generated maps (to speed up the startup time)
+
+        buildFeatureMap(); // Builds the feature map from individual layer images of a die
+        shrinkVias("bw.featuremap");
+
+        // Allocate buffers for, and load the layer map
         m_p3[0] = new uint16_t[m_sy * m_sx] {};
         m_p3[1] = new uint16_t[m_sy * m_sx] {};
         m_p3[2] = new uint16_t[m_sy * m_sx] {};
 
-        // XXX If we cannot load the layer map, we need to create it (and then save it)
+        // The layer map is large (chip map size X * Y * 2 bytes) times 3 layers
+        // If we cannot load the layer map, we need to create it (and then save it)
         if (!loadLayerMap(dir))
         {
-            qDebug() << "TODO: Create layer map";
+            drawExperimental_1(); // Generates a layer map
+            drawExperimental_2(); // Saves layer map to file to be loaded next time
         }
 
-        buildFeatureMap();
-        shrinkVias("bw.featuremap");
-
         qInfo() << "Completed loading chip resources";
-        emit refresh();
         return true;
     }
-    else
-        qWarning() << "Loading chip resource failed";
+    qWarning() << "Loading chip resource failed";
     return false;
 }
 
@@ -429,7 +432,7 @@ bool ClassChip::loadLayerMap(QString dir)
 }
 
 /*
- * Builds the feature map
+ * Builds the feature map from individual layer images of a die
  */
 void ClassChip::buildFeatureMap()
 {
@@ -678,7 +681,7 @@ void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
  */
 void ClassChip::drawExperimental_1()
 {
-    qDebug() << "Experimental: 3D fill layer map with vss,vcc,clk";
+    qInfo() << "Experimental: 3D fill layer map with vss,vcc,clk";
 
     drawFeature(100,100, 2, 1); // vss
     drawFeature(4456,2512, 2, 2); // vcc
@@ -701,7 +704,7 @@ void ClassChip::drawExperimental_1()
     QImage imgMainNets((uchar *)p, m_sx, m_sy, m_sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
     imgMainNets.setText("name", "vss.vcc.clk");
     m_img.append(imgMainNets);
-    qDebug() << "Created image map" << "vss.vcc.clk";
+    qInfo() << "Created image map" << "vss.vcc.clk";
 }
 
 /******************************************************************************
@@ -710,7 +713,7 @@ void ClassChip::drawExperimental_1()
 
 void ClassChip::drawExperimental_2()
 {
-    qDebug() << "Experimental: save layer map to file";
+    qInfo() << "Experimental: save layer map to file";
 
     QSettings settings;
     QString fileName = settings.value("ResourceDir").toString() + "/layermap.bin";
@@ -727,7 +730,7 @@ void ClassChip::drawExperimental_2()
                 return;
             }
         }
-        qDebug() << "Layer map saved to file" << fileName;
+        qInfo() << "Layer map saved to file" << fileName;
     }
     else
         qWarning() << "Unable to open" << fileName << "for writing!";

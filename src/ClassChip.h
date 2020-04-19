@@ -70,7 +70,7 @@ private:
     void drawTransistors(QImage &img);  // Draws transistors on the given image surface
     bool convertToGrayscale();          // Converts loaded images to grayscale format
     bool loadLayerMap(QString dir);     // Loads layer map
-    void buildFeatureMap();             // Builds the feature map
+    void buildFeatureMap();             // Builds the feature map from individual layer images of a die
     void shrinkVias(QString name);      // Creates a via layer with 1x1 vias
     // Experimental code
     void fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
