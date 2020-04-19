@@ -69,6 +69,7 @@ private:
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
     void drawTransistors(QImage &img);  // Draws transistors on the given image surface
     bool convertToGrayscale();          // Converts loaded images to grayscale format
+    bool loadLayerMap(QString dir);     // Loads layer map
     void buildLayerMap();               // Builds a layer map data
     void shrinkVias(QString name);      // Creates a via layer with 1x1 vias
     void buildLayerImage();             // Builds a layer image only

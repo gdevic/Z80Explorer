@@ -6,6 +6,7 @@
 #include <QEventLoop>
 #include <QImage>
 #include <QPainter>
+#include <QSettings>
 
 // List of z80 chip resource images / layers. "Z80_" and ".png" are appended only when loading the files.
 static const QStringList files =
@@ -47,10 +48,16 @@ bool ClassChip::loadChipResources(QString dir, bool fullSet)
     qInfo() << "Loading chip resources from" << dir;
     if (loadImages(dir, fullSet) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
-        // Allocate buffers for layers map
+        // Allocate buffers for layer map
         m_p3[0] = new uint16_t[m_sy * m_sx] {};
         m_p3[1] = new uint16_t[m_sy * m_sx] {};
         m_p3[2] = new uint16_t[m_sy * m_sx] {};
+
+        // XXX If we cannot load the layer map, we need to create it (and then save it)
+        if (!loadLayerMap(dir))
+        {
+            qDebug() << "TODO: Create layer map";
+        }
 
         // Build a layer image; either the complete map or just the image if we don't have the full data set
         if (fullSet)
@@ -404,6 +411,32 @@ void ClassChip::drawSegdefs()
 }
 
 /*
+ * Loads layer map
+ */
+bool ClassChip::loadLayerMap(QString dir)
+{
+    QString fileName = dir + "/layermap.bin";
+    qInfo() << "Loading" << fileName;
+    QFile file(fileName);
+    if (file.open(QFile::ReadOnly))
+    {
+        int64_t size = m_sx * m_sy * sizeof(uint16_t); // Size of one layer
+        for (uint i = 0; i < 3; i++)
+        {
+            int64_t read = file.read((char *) m_p3[i], size);
+            if (read != size)
+            {
+                qWarning() << "Error reading" << fileName << "layer" << QString::number(i);
+                return false;
+            }
+        }
+        return true;
+    }
+    qWarning() << "Error opening" << fileName;
+    return false;
+}
+
+/*
  * Builds a layer map data
  */
 void ClassChip::buildLayerMap()
@@ -697,7 +730,7 @@ void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
  */
 void ClassChip::drawExperimental_1()
 {
-    qDebug() << "Experimental: 3D fill with vss,vcc,clk";
+    qDebug() << "Experimental: 3D fill layer map with vss,vcc,clk";
 
     drawFeature(100,100, 2, 1); // vss
     drawFeature(4456,2512, 2, 2); // vcc
@@ -729,5 +762,25 @@ void ClassChip::drawExperimental_1()
 
 void ClassChip::drawExperimental_2()
 {
-    qDebug() << "Experimental";
+    qDebug() << "Experimental: save layer map to file";
+
+    QSettings settings;
+    QString fileName = settings.value("ResourceDir").toString() + "/layermap.bin";
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        int64_t size = m_sx * m_sy * sizeof(uint16_t); // Size of one layer
+        for (uint i = 0; i < 3; i++)
+        {
+            int64_t written = file.write((const char *) m_p3[i], size);
+            if (written != size)
+            {
+                qWarning() << "Error writing" << fileName << "layer" << QString::number(i);
+                return;
+            }
+        }
+        qDebug() << "Layer map saved to file" << fileName;
+    }
+    else
+        qWarning() << "Unable to open" << fileName << "for writing!";
 }
