@@ -695,9 +695,9 @@ void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
 /*
  * Run with the command "ex(1)"
  */
-void ClassChip::drawExperimental()
+void ClassChip::drawExperimental_1()
 {
-    qDebug() << "Experimental drawing";
+    qDebug() << "Experimental: 3D fill with vss,vcc,clk";
 
     drawFeature(100,100, 2, 1); // vss
     drawFeature(4456,2512, 2, 2); // vcc
@@ -721,4 +721,13 @@ void ClassChip::drawExperimental()
     imgMainNets.setText("name", "vss.vcc.clk");
     m_img.append(imgMainNets);
     qDebug() << "Created image map" << "vss.vcc.clk";
+}
+
+/******************************************************************************
+ * Experimental code
+ ******************************************************************************/
+
+void ClassChip::drawExperimental_2()
+{
+    qDebug() << "Experimental";
 }

@@ -61,6 +61,7 @@ QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
 {
     uint n = ctx->argument(0).toNumber();
     qDebug() << n;
-    if (n == 1) emit ::controller.getChip().drawExperimental();
+    if (n == 1) emit ::controller.getChip().drawExperimental_1();
+    if (n == 2) emit ::controller.getChip().drawExperimental_2();
     return "OK";
 }
