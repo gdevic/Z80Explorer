@@ -15,7 +15,7 @@ static const QStringList files =
     { "polysilicon" },
     { "metal" },
     { "pads" },
-    { "buried" }, // If not loading the full set, stop at this one
+    { "buried" },
     { "vias" },
     { "ions" },
     { "metal_vcc_gnd" },
@@ -41,12 +41,11 @@ static const QStringList files =
 
 /*
  * Attempts to load all chip resource that we expect to have
- * We can load the full set or only a smaller subset of images
  */
-bool ClassChip::loadChipResources(QString dir, bool fullSet)
+bool ClassChip::loadChipResources(QString dir)
 {
     qInfo() << "Loading chip resources from" << dir;
-    if (loadImages(dir, fullSet) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
+    if (loadImages(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
         // Allocate buffers for layer map
         m_p3[0] = new uint16_t[m_sy * m_sx] {};
@@ -59,14 +58,8 @@ bool ClassChip::loadChipResources(QString dir, bool fullSet)
             qDebug() << "TODO: Create layer map";
         }
 
-        // Build a layer image; either the complete map or just the image if we don't have the full data set
-        if (fullSet)
-        {
-            buildLayerMap();
-            shrinkVias("bw.layermap");
-        }
-        else // Build a simple layer image (not suitable to extract features)
-            buildLayerImage();
+        buildLayerMap();
+        shrinkVias("bw.layermap");
 
         qInfo() << "Completed loading chip resources";
         emit refresh();
@@ -80,15 +73,13 @@ bool ClassChip::loadChipResources(QString dir, bool fullSet)
 /*
  * Load chip images
  */
-bool ClassChip::loadImages(QString dir, bool fullSet)
+bool ClassChip::loadImages(QString dir)
 {
     QEventLoop e; // Don't freeze the GUI
     QImage img;
     m_img.clear();
     for (auto image : files)
     {
-        if (!fullSet && (image == "buried"))
-            return true;
         QString png_file = dir + "/z80_" + image + ".png";
         qInfo() << "Loading" + png_file;
         e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
@@ -578,50 +569,6 @@ void ClassChip::shrinkVias(QString name)
     }
     img.setText("name", "bw.layermap2");
     m_img.append(img);
-}
-
-/*
- * Builds a layer image only, used for instances were we only loaded a subset of images
- */
-void ClassChip::buildLayerImage()
-{
-    qInfo() << "Building the layer map";
-    QImage layermap(m_sx, m_sy, QImage::Format_Grayscale8);
-
-    bool ok = true;
-    // Get a pointer to the first byte of each image data
-    const uchar *p_diff = getImage("bw.diffusion", ok).constBits();
-    const uchar *p_poly = getImage("bw.polysilicon", ok).constBits();
-    const uchar *p_metl = getImage("bw.metal", ok).constBits();
-    if (!ok)
-    {
-        qWarning() << "Unable to load bw.* image";
-        return;
-    }
-    // ...and of the destination buffer
-    uchar *p_dest = layermap.scanLine(0);
-
-    for (uint i=0; i < m_sy * m_sx; i++)
-    {
-        uchar diff = !!p_diff[i] << DIFF_SHIFT;
-        uchar poly = !!p_poly[i] << POLY_SHIFT;
-        uchar metl = !!p_metl[i] << METAL_SHIFT;
-
-        uchar c = diff | poly | metl;
-
-        // Mark a transistor area (poly over diffusion without a buried contact)
-        // Transistor path also splits the diffusion area into two, so we remove DIFF over these traces
-        if ((c & (DIFF | POLY | BURIED)) == (DIFF | POLY)) c = (c & ~DIFF) | TRANSISTOR;
-
-        // Enhance bw image ... Not an exact science, experiment...
-        (c & METAL) ? c |= 0x0F : 0; // Metal layer is the faintest, lift it up a bit
-        (c & TRANSISTOR) ? c |= 0xF0 : 0; // Transistors should be the most obvious features
-        c <<= 1; // Make everything a little bit brighter
-
-        p_dest[i] = c;
-    }
-    layermap.setText("name", "bw.layermap");
-    m_img.prepend(layermap);
 }
 
 /******************************************************************************

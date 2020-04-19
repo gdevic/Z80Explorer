@@ -32,7 +32,7 @@ class ClassChip: public QObject
 public:
     ClassChip() {};
 
-    bool loadChipResources(QString dir, bool fullSet);// Attempts to load all expected chip resources
+    bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getImage(QString name, bool &ok); // Returns the reference to the image by the image (embedded) name
     QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
@@ -63,7 +63,7 @@ private:
     uint16_t *m_p3[3] {};               // Layers map: [0] diffusion, [1] poly, [2] metal
 
 private:
-    bool loadImages(QString dir, bool); // Loads chip images
+    bool loadImages(QString dir);       // Loads chip images
     bool loadSegdefs(QString dir);      // Loads segdefs.js
     bool loadTransdefs(QString dir);    // Loads transdefs.js
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
@@ -72,7 +72,6 @@ private:
     bool loadLayerMap(QString dir);     // Loads layer map
     void buildLayerMap();               // Builds a layer map data
     void shrinkVias(QString name);      // Creates a via layer with 1x1 vias
-    void buildLayerImage();             // Builds a layer image only
     // Experimental code
     void fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
     void drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id);
