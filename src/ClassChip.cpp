@@ -58,7 +58,7 @@ bool ClassChip::loadChipResources(QString dir)
             qDebug() << "TODO: Create layer map";
         }
 
-        buildLayerMap();
+        buildFeatureMap();
         shrinkVias("bw.layermap");
 
         qInfo() << "Completed loading chip resources";
@@ -428,12 +428,12 @@ bool ClassChip::loadLayerMap(QString dir)
 }
 
 /*
- * Builds a layer map data
+ * Builds the feature map
  */
-void ClassChip::buildLayerMap()
+void ClassChip::buildFeatureMap()
 {
-    qInfo() << "Building the layer map";
-    QImage layermap(m_sx, m_sy, QImage::Format_Grayscale8);
+    qInfo() << "Building the feature map";
+    QImage featuremap(m_sx, m_sy, QImage::Format_Grayscale8);
 
     bool ok = true;
     // Get a pointer to the first byte of each image data
@@ -448,7 +448,7 @@ void ClassChip::buildLayerMap()
         return;
     }
     // ...and of the destination buffer
-    uchar *p_dest = layermap.bits();
+    uchar *p_dest = featuremap.bits();
 
     for (uint i=0; i < m_sx * m_sy; i++)
     {
@@ -461,7 +461,7 @@ void ClassChip::buildLayerMap()
         //uchar ions = (!!(*p_ions++)) << VIA_DIFF_SHIFT;  XXX how to process ions?
 
         // Vias are connections from metal to (poly or diffusion) layer
-        if (false && p_vias[i]) // XXX I am tired of watching this warning all the time...
+        if (false && p_vias[i]) // XXX Temporarily remove one warning
         {
             // Check that the vias are actually connected to either poly or metal
             if (!diff && !poly)
@@ -476,7 +476,7 @@ void ClassChip::buildLayerMap()
 
         uchar c = diff | poly | metl | buri | viad | viap;
 
-        // Check valid combinations of layers and correct them
+        // Check valid combinations of features and correct them
         if (1)
         {
             // These combinations appear in the Z80 layers, many are valid but some are non-functional:
@@ -502,7 +502,7 @@ void ClassChip::buildLayerMap()
             case (DIFF|     METAL|       VIA_DIFF         ): c = DIFF|     METAL|       VIA_DIFF         ; break; // - Metal connected to diffusion
             case (     POLY|METAL|                VIA_POLY): c =      POLY|METAL|                VIA_POLY; break; // - Metal connected to poly
             default:
-                qWarning() << "Unexpected layer combination:" << c;
+                qWarning() << "Unexpected feature combination:" << c;
             }
             // Reassign bits based on the correction
             viad = c & VIA_DIFF;
@@ -514,8 +514,8 @@ void ClassChip::buildLayerMap()
 
         p_dest[i] = c;
     }
-    layermap.setText("name", "bw.layermap");
-    m_img.prepend(layermap);
+    featuremap.setText("name", "bw.layermap");
+    m_img.prepend(featuremap);
 }
 
 /*
