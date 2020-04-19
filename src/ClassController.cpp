@@ -6,6 +6,7 @@
 
 bool ClassController::init(QScriptEngine *sc)
 {
+    qInfo() <<  "App init...";
     m_script.init(sc);
 
     connect(&m_trick, SIGNAL(echo(char)), this, SIGNAL(echo(char)));

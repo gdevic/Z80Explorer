@@ -90,7 +90,7 @@ void DockLog::onMaxLines()
     bool ok;
     // Get and change the number of lines that we keep in the log buffer
     QSettings settings;
-    int lines = settings.value("AppLogLines", 100).toInt();
+    int lines = settings.value("AppLogLines", 1000).toInt();
 
     lines = QInputDialog::getInt(this, "Set log buffer size", "Enter the number of lines of text to keep in the log buffer [100-5000]:", lines, 100, 5000, 100, &ok);
     if (ok)
