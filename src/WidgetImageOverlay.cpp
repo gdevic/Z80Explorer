@@ -32,13 +32,10 @@ void WidgetImageOverlay::setLayerNames(QStringList layers)
 }
 
 /*
- * Shows the coordinate and color pointed to by a mouse location
+ * Shows the coordinate pointed to by a mouse location
  */
-void WidgetImageOverlay::onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b)
+void WidgetImageOverlay::onPointerData(int x, int y)
 {
-    QString rgb = QString("RGB(%1,%2,%3)").arg(r).arg(g).arg(b);
-    setText(1,rgb);
-
     QString coords = QString("%1,%2").arg(x).arg(y);
     ui->btCoords->setText(coords);
 }

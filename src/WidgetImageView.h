@@ -29,18 +29,11 @@ public:
 signals:
     void imageMoved(QPointF);           // Image is moved by this control to new coordinates
     void imageZoomed(int);              // Image is zoomed by specified number of steps (+/-)
+    void pointerData(int x, int y);     // Send the XY coordinates of the pointer (in image coordinates)
+    void clearPointerData();            // Indicate that the pointer is not currently over the image
 
-    // Send the XY coordinates of the pointer (in image coordinates)
-    // and the color of the pixel under the pointer
-    void pointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b);
-
-    // Indicate that the pointer is not currently over the image
-    void clearPointerData();
-
-    // contextMenuRequestedAt() is sent when the user presses
-    // the right mouse button over the widget. The signal includes
-    // a reference to this widget, and the global position of the
-    // click.
+    // contextMenuRequestedAt() is sent when the user presses the right mouse button over the widget.
+    // The signal includes a reference to this widget, and the global position of the click.
     void contextMenuRequestedAt(WidgetImageView* widget, const QPoint& where);
 
 public slots:

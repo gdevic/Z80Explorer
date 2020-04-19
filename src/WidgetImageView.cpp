@@ -41,7 +41,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
     m_timer->start();
 
-    connect(this, SIGNAL(pointerData(int,int,uint8_t,uint8_t,uint8_t)), m_ov, SLOT(onPointerData(int,int,uint8_t,uint8_t,uint8_t)));
+    connect(this, SIGNAL(pointerData(int,int)), m_ov, SLOT(onPointerData(int,int)));
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
@@ -334,8 +334,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         QPoint imageCoords = m_invtx.map(event->pos());
         if (m_image.valid(imageCoords.x(), imageCoords.y()))
         {
-            QRgb imageColor = m_image.pixel(imageCoords);
-            emit pointerData(imageCoords.x(), imageCoords.y(), qRed(imageColor), qGreen(imageColor), qBlue(imageColor));
+            emit pointerData(imageCoords.x(), imageCoords.y());
 
             QList<int> nodes = ::controller.getChip().getNodesAt(imageCoords.x(), imageCoords.y());
             QString s;

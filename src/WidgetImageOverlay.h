@@ -24,7 +24,7 @@ signals:
     void actionFind(QString text);      // New text entered in the "Find" edit box
 
 public slots:
-    void onPointerData(int x, int y, uint8_t r, uint8_t g, uint8_t b);
+    void onPointerData(int x, int y);
     void onClearPointerData();
     void setText(int index, QString text);
 
