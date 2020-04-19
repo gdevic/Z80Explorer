@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <QInputDialog>
+#include <QMenu>
 #include <QPainter>
 #include <QRegularExpression>
 #include <QResizeEvent>
@@ -15,7 +16,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     QWidget(parent),
     m_image(QImage()),
     m_view_mode(Fill),
-    m_mousePressed(false),
     m_highlight_segment(nullptr),
     m_highlight_box(nullptr)
 {
@@ -27,7 +27,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
 
     // Connect the view's internal intent to move its image (for example, when the user drags it with a mouse)
     connect(this, SIGNAL(imageMoved(QPointF)), this, SLOT(moveBy(QPointF)));
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenuRequested(const QPoint&)));
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
 
     // Create and set the image overlay widget
     m_ov = new WidgetImageOverlay(this);
@@ -325,6 +325,16 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         }
         painter.restore();
     }
+    //------------------------------------------------------------------------
+    // Draw the mouse selected area
+    //------------------------------------------------------------------------
+    if (m_drawSelection)
+    {
+        painter.save();
+        painter.setPen(QPen(Qt::white, 3.0 / m_scale, Qt::DashLine));
+        painter.drawRect(m_areaRect);
+        painter.restore();
+    }
 }
 
 void WidgetImageView::calcTransform()
@@ -353,7 +363,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
 {
     m_mousePos = event->pos();
 
-    if(m_mousePressed)
+    if(m_mouseLeftPressed) // With a left mouse button pressed: pan (move) the image
     {
         // This is beautiful.
         double dX = m_mousePos.x() - m_pinMousePos.x();
@@ -364,6 +374,15 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         dY = dY / m_image.height();
 
         emit imageMoved(QPointF(dX/m_scale, dY/m_scale));
+    }
+    else if (m_mouseRightPressed) // With a right mouse button pressed: define the selection area
+    {
+        QPoint pos1 = m_invtx.map(m_pinMousePos);
+        QPoint pos2 = m_invtx.map(event->pos());
+        m_areaRect.setTopLeft(pos1);
+        m_areaRect.setBottomRight(pos2);
+
+        update();
     }
     else
     {
@@ -402,18 +421,22 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+/*
+ * User pressed a mouse button; the right button context menu is handled via customContextMenuRequested() signal
+ */
 void WidgetImageView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton)
-        return; // handled via customContextMenuRequested() signal
-
     m_pinMousePos = event->pos();
-    m_mousePressed = true;
+    m_mouseLeftPressed = event->button() == Qt::LeftButton;
+    m_mouseRightPressed = event->button() == Qt::RightButton;
+    m_drawSelection = m_mouseRightPressed;
 }
 
-void WidgetImageView::mouseReleaseEvent (QMouseEvent *)
+void WidgetImageView::mouseReleaseEvent (QMouseEvent *event)
 {
-    m_mousePressed = false;
+    m_mouseLeftPressed = false;
+    m_mouseRightPressed = false;
+    m_drawSelection = event->button() == Qt::RightButton;
 }
 
 void WidgetImageView::wheelEvent(QWheelEvent *event)
@@ -481,9 +504,21 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     update();
 }
 
-void WidgetImageView::contextMenuRequested(const QPoint& localWhere)
+/*
+ * Context menu handler, called when the user right-clicks somewhere on the image view
+ */
+void WidgetImageView::contextMenu(const QPoint& pos)
 {
-    emit contextMenuRequestedAt(this, mapToGlobal(localWhere));
+    QPoint imageCoords = m_invtx.map(pos);
+    qDebug() << "imageCoords:" << imageCoords;
+
+    QMenu contextMenu(this);
+
+    QAction actionAddAnnotation("Add annotation...", this);
+    connect(&actionAddAnnotation, SIGNAL(triggered()), this, SLOT(addAnnotation()));
+    contextMenu.addAction(&actionAddAnnotation);
+
+    contextMenu.exec(mapToGlobal(pos));
 }
 
 /*

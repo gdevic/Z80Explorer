@@ -32,10 +32,6 @@ signals:
     void pointerData(int x, int y);     // Send the XY coordinates of the pointer (in image coordinates)
     void clearPointerData();            // Indicate that the pointer is not currently over the image
 
-    // contextMenuRequestedAt() is sent when the user presses the right mouse button over the widget.
-    // The signal includes a reference to this widget, and the global position of the click.
-    void contextMenuRequestedAt(WidgetImageView* widget, const QPoint& where);
-
 public slots:
     void onRefresh();                   // Called when class chip changes image
     void setImage(const QImage &);      // Makes a copy of the image and sets it as current
@@ -51,6 +47,7 @@ private slots:
     void onFind(QString text);          // Search for the named feature
     void onTimeout();                   // Timer timeout handler
     void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
+    void contextMenu(const QPoint &pos);// Mouse context menu handler
 
 private:
     Ui::WidgetImageView *ui;
@@ -64,7 +61,10 @@ private:
 
     QPoint  m_mousePos;                 // Current mouse position
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
-    bool    m_mousePressed;             // Mouse button is pressed
+    bool    m_mouseLeftPressed {};      // Mouse left button is pressed
+    bool    m_mouseRightPressed {};     // Mouse right button is pressed
+    bool    m_drawSelection {};         // Draw the mouse selected area
+    QRect   m_areaRect;                 // Area rectangle to draw during the mouse selection
 
     QTransform m_tx;                    // Transformation matrix from normalized image to screen space
     QTransform m_invtx;                 // Transformation matrix from screen to normalized image space
@@ -88,9 +88,6 @@ private:
     void calcTransform();
     void clampImageCoords(QPointF &);
     void createLayout();
-
-private slots:
-    void contextMenuRequested(const QPoint& localWhere);
 };
 
 #endif // WIDGETIMAGEVIEW_H
