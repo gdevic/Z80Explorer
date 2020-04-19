@@ -54,13 +54,12 @@ private:
     QVector<QImage> m_img;              // Chip layer images
     uint m_last_image {};               // Index of the last image requested by getImage() call
 
-    QVector<QPolygon> m_poly;
     QHash<uint, segdef> m_segdefs;      // Hash of segment definitions, key is the segment node number
     QVector<transdef> m_transdefs;      // Array of transistor definitions
 
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps
-    uint16_t *m_p3[3] {};               // Layers map: [0] diffusion, [1] poly, [2] metal
+    uint16_t *m_p3[3] {};               // Layer map: [0] diffusion, [1] poly, [2] metal
 
 private:
     bool loadImages(QString dir);       // Loads chip images
