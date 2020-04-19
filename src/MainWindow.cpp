@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     connect(ui->actionSaveWatchlist, SIGNAL(triggered()), this, SLOT(onSaveWatchlist()));
     connect(ui->actionEditBuses, SIGNAL(triggered()), this, SLOT(onEditBuses()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
+    connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
 
     // Do the initial simulated chip reset so that we wake up the app in some useful state
     ::controller.doReset();
@@ -197,4 +198,9 @@ void MainWindow::onSaveWatchlist()
     Q_ASSERT(!fileName.isEmpty());
     if (!::controller.getWatch().saveWatchlist(fileName))
         QMessageBox::critical(this, "Error", "Unable to save watchlist file " + fileName);
+}
+
+void MainWindow::onAbout()
+{
+    QMessageBox::about(this, "Z80 Explorer", "<a href='https://baltazarstudios.com'>https://baltazarstudios.com</a><br>by Goran Devic");
 }

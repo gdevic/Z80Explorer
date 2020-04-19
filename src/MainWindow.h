@@ -28,6 +28,7 @@ private slots:
     void onLoadWatchlist();             // Loads watchlist
     void onSaveWatchlistAs();           // Saves watchlist as
     void onSaveWatchlist();             // Saves current watchlist
+    void onAbout();                     // Shows the About dialog
     void onExit();                      // Exit the application
     void closeEvent(QCloseEvent *event);// Called on application close event
 
