@@ -7,8 +7,8 @@
 // Contains visual definition of a segment (wire at the same voltage level)
 struct segdef
 {
-    uint nodenum;                // Node (segment) number
-    QVector<QPainterPath> paths; // Visual QPainter class' list of paths (patches) describing the area
+    uint nodenum {};                // A non-zero node (segment) number
+    QVector<QPainterPath> paths {}; // Visual QPainter class' list of paths (patches) describing the area
 };
 
 // Contains individual transistor definition
@@ -39,7 +39,7 @@ public:
     QList<int> getNodesAt(int x, int y);
     const QStringList getTransistorsAt(int x, int y);
     const QStringList getLayerNames();  // Returns a list of layer / image names
-    const segdef *getSegment(uint nodenum); // Returns the segdef given its node number, nullptr if not found
+    const segdef *getSegment(uint nodenum); // Returns the segdef given its node number, zero-nodenum segment if not found
     const transdef *getTrans(QString name); // Returns transistor definition given its name, nullptr if not found
 
 signals:
@@ -71,6 +71,7 @@ private:
     bool loadLayerMap(QString dir);     // Loads layer map
     void buildFeatureMap();             // Builds the feature map from individual layer images of a die
     void shrinkVias(QString name);      // Creates a via layer with 1x1 vias
+    void createLayerMapImage(QString name); // Creates a color image from the layer map data
     // Experimental code
     void fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
     void drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id);

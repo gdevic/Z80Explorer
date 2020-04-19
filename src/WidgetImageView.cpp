@@ -245,36 +245,15 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
     painter.drawImage(size, m_image, size);
 
-    //------------------------------------------------------------------------
-    // Draw two selected features on top of the image: box (a transistor) and
-    // a segment (a signal), both of which are selected with the "Find" dialog
-    //------------------------------------------------------------------------
-    painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
-    if (m_timer_tick & 1)
-    {
-        painter.setBrush(QColor(255,255,0));
-        painter.setCompositionMode(QPainter::CompositionMode_Clear);
-    }
-    else
-    {
-        painter.setBrush(QColor(100,200,200));
-        painter.setCompositionMode(QPainter::CompositionMode_Plus);
-    }
-    if (m_highlight_box)
-        painter.drawRect(*m_highlight_box);
-    if (m_highlight_segment)
-    {
-        for (auto path : m_highlight_segment->paths)
-            painter.drawPath(path);
-    }
-
+#if 0
     //------------------------------------------------------------------------
     // Draw active nets from the simx class
     //------------------------------------------------------------------------
     if (m_drawActiveNets)
     {
         painter.setBrush(QColor(155, 0, 0)); // Only for the Vcc
-        painter.setCompositionMode(QPainter::CompositionMode_Plus);
+        painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
         for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
         {
@@ -286,6 +265,65 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             if (i==3) // After painting clk net, this is the default brush
                 painter.setBrush(QColor(255, 0, 255));
         }
+    }
+#endif
+#if 1
+    //------------------------------------------------------------------------
+    // Draw all nets and highlight those that are "high"
+    //------------------------------------------------------------------------
+    if (m_drawActiveNets)
+    {
+        painter.save();
+        painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
+        painter.setBrush(QColor(128, 0, 128));
+        for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+        {
+            if (::controller.getSimx().getNetState(i) == 0)
+            {
+                for (auto path : ::controller.getChip().getSegment(i)->paths)
+                    painter.drawPath(path);
+            }
+        }
+
+        painter.setBrush(QColor(255, 0, 255));
+        for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+        {
+            if (::controller.getSimx().getNetState(i) == 1)
+            {
+                for (auto path : ::controller.getChip().getSegment(i)->paths)
+                    painter.drawPath(path);
+            }
+        }
+        painter.restore();
+    }
+#endif
+    //------------------------------------------------------------------------
+    // Draw two selected features on top of the image: box (a transistor) and
+    // a segment (a signal), both of which are selected with the "Find" dialog
+    //------------------------------------------------------------------------
+    {
+        painter.save();
+        painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
+        if (m_timer_tick & 1)
+        {
+            painter.setBrush(QColor(255,255,0));
+            painter.setCompositionMode(QPainter::CompositionMode_Clear);
+        }
+        else
+        {
+            painter.setBrush(QColor(100,200,200));
+            painter.setCompositionMode(QPainter::CompositionMode_Plus);
+        }
+        if (m_highlight_box)
+            painter.drawRect(*m_highlight_box);
+        if (m_highlight_segment)
+        {
+            for (auto path : m_highlight_segment->paths)
+                painter.drawPath(path);
+        }
+        painter.restore();
     }
 }
 
@@ -495,7 +533,7 @@ void WidgetImageView::onFind(QString text)
         if (ok)
         {
             const segdef *seg = ::controller.getChip().getSegment(nodenum);
-            if (seg)
+            if (seg->nodenum)
             {
                 m_highlight_segment = seg;
                 qDebug() << "Found segment" << text;

@@ -66,6 +66,7 @@ bool ClassChip::loadChipResources(QString dir)
             drawExperimental_1(); // Generates a layer map
             drawExperimental_2(); // Saves layer map to file to be loaded next time
         }
+        createLayerMapImage("vss.vcc");
 
         qInfo() << "Completed loading chip resources";
         return true;
@@ -300,13 +301,14 @@ const QStringList ClassChip::getTransistorsAt(int x, int y)
 }
 
 /*
- * Returns the segdef given its node number, nullptr if not found
+ * Returns segdef given its node number, zero-nodenum segment if not found
  */
 const segdef *ClassChip::getSegment(uint nodenum)
 {
+    static const segdef empty;
     if (m_segdefs.contains(nodenum))
         return &m_segdefs[nodenum];
-    return nullptr;
+    return &empty;
 }
 
 /*
@@ -519,7 +521,7 @@ void ClassChip::buildFeatureMap()
         p_dest[i] = c;
     }
     featuremap.setText("name", "bw.featuremap");
-    m_img.prepend(featuremap);
+    m_img.append(featuremap);
 }
 
 /*
@@ -573,6 +575,29 @@ void ClassChip::shrinkVias(QString name)
     }
     img.setText("name", "bw.featuremap2");
     m_img.append(img);
+}
+
+/*
+ * Creates a color image from the layer map data
+ */
+void ClassChip::createLayerMapImage(QString name)
+{
+    // Out of 3 layers, compose one visual image that we'd like to see
+    uint16_t *p = new uint16_t[m_sy * m_sx];
+
+    for (uint i = 0; i < m_sx * m_sy; i++)
+    {
+        uint16_t net[3] { m_p3[0][i], m_p3[1][i], m_p3[2][i] };
+        uint16_t c = 0;
+        if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = 0x03C0; // vss dark green
+        if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = 0xF800; // vcc red
+        p[i] = c;
+    }
+
+    QImage image((uchar *)p, m_sx, m_sy, m_sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
+    image.setText("name", name);
+    m_img.prepend(image);
+    qInfo() << "Created layer map image" << name;
 }
 
 /******************************************************************************
@@ -681,30 +706,10 @@ void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
  */
 void ClassChip::drawExperimental_1()
 {
-    qInfo() << "Experimental: 3D fill layer map with vss,vcc,clk";
+    qInfo() << "Experimental: 3D fill layer map with vss and vcc";
 
     drawFeature(100,100, 2, 1); // vss
     drawFeature(4456,2512, 2, 2); // vcc
-    drawFeature(4476,4769, 2, 3); // clk
-
-    // Create a color image with those 3 networks
-    // Out of 3 layers, compose one visual image that we'd like to see
-    uint16_t *p = new uint16_t[m_sy * m_sx];
-
-    for (uint i = 0; i < m_sx * m_sy; i++)
-    {
-        uint16_t net[3] { m_p3[0][i], m_p3[1][i], m_p3[2][i] };
-        uint16_t c = 0;
-        if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = 0x0FC0; // vss green
-        if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = 0xF800; // vcc red
-        if ((net[0] == 3) || (net[1] == 3) || (net[2] == 3)) c = 0xFFFF; // clk white
-        p[i] = c;
-    }
-
-    QImage imgMainNets((uchar *)p, m_sx, m_sy, m_sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
-    imgMainNets.setText("name", "vss.vcc.clk");
-    m_img.append(imgMainNets);
-    qInfo() << "Created image map" << "vss.vcc.clk";
 }
 
 /******************************************************************************
