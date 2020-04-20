@@ -20,6 +20,8 @@ struct transdef
     uint sourcenode;    // Node (segment) connected to its source
     uint drainnode;     // Node (segment) connected to its drain
     QRect box;          // Visual rectangle where it is (roughly) located
+    //------------ experimental (3) //------------
+    QPainterPath path;
 };
 
 /*
@@ -50,6 +52,7 @@ signals:
 public slots:
     void drawSegdefs();                 // Draws segments and transistors onto the last image (returned by getImage())
     void experimental(int n);           // Runs experimental function number n
+    void expDrawTransistors(QPainter &painter);
 
 private:
     QVector<QImage> m_img;              // Chip layer images
@@ -79,6 +82,9 @@ private:
     void experimental_1();              // 3D fill layer map with vss and vcc
     void experimental_2();              // Save layer map to file
     void experimental_3();
+    bool scanForTransistor(uchar const *p, QRect t, uint &x, uint &y);
+    void edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y);
+    uint edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir);
 };
 
 #endif // CLASSCHIP_H

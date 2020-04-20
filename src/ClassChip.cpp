@@ -1,4 +1,5 @@
 #include "ClassChip.h"
+#include "ClassController.h"
 
 #include <QDebug>
 #include <QDir>
@@ -760,9 +761,102 @@ void ClassChip::experimental_2()
  * Experimental code
  ******************************************************************************/
 
+bool ClassChip::scanForTransistor(uchar const *p, QRect t, uint &x, uint &y)
+{
+    // Find the top-left corner of a transistor within the bounding box
+    for (y = t.top(); y < uint(t.bottom() - 1); y++)
+    {
+        for (x = t.left(); x < uint(t.right() - 1); x++)
+            if (p[x + y * m_sx] & TRANSISTOR)
+                return true;
+    }
+    return false;
+}
+
+#define OFFSET(dx,dy) (x+(dx) + (y+(dy)) * m_sx)
+uint ClassChip::edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir)
+{
+    static const int dx[8] = { 0, 1, 1, 1, 0,-1,-1,-1 };
+    static const int dy[8] = {-1,-1, 0, 1, 1, 1, 0,-1 };
+    for (int i = 0; i < 8; i++)
+    {
+        uint dir = (i + startDir) & 7;
+        if (p[ OFFSET(dx[dir], dy[dir]) ] & TRANSISTOR) return dir;
+    }
+    Q_ASSERT(0);
+    return 0;
+}
+#undef OFFSET
+
+/*
+ * Walk the feature (TRANSISTOR) edge and append to the painter path
+ */
+void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
+{
+    static const int dx[8] = { 0, 1, 1, 1, 0,-1,-1,-1 };
+    static const int dy[8] = {-1,-1, 0, 1, 1, 1, 0,-1 };
+    uint startx = x, starty = y;
+    uint nextdir, dir = edgeWalkFindDir(p, x, y, 2); // Initial dir is 2 (->) since we start with its top-leftmost corner
+    while (true)
+    {
+        do
+        {
+            x += dx[dir];
+            y += dy[dir];
+            if ((x == startx) && (y == starty))
+                return;
+            nextdir = edgeWalkFindDir(p, x, y, dir - 3);
+        } while(dir == nextdir);
+        path.lineTo(x, y);
+        dir = nextdir;
+    }
+}
+
 /*
  * Run with the command "ex(3)"
  */
 void ClassChip::experimental_3()
 {
+    qInfo() << "Experimental: create transistor paths";
+    QEventLoop e; // Don't freeze the GUI
+    int c = 0;
+
+    bool ok = true;
+    QImage img(getImage("bw.featuremap", ok));
+    Q_ASSERT(ok);
+
+    uint x, y;
+    uchar const *p = img.constBits();
+
+    // Known problem: We have a valid transistor bounding box, but few transistors overlap
+    for (auto &t : m_transdefs)
+    {
+        // Find the top-leftmost edge of a transistor
+        if (!scanForTransistor(p, t.box, x, y)) // There are few trans in Visual 6502 transdefs.js that are...not (?)
+        {
+            qWarning() << "Unable to scan transistor" << t.name << t.box << "Is it a trap?";
+            continue;
+        }
+        // Build the path around the transistor
+        t.path = QPainterPath(QPointF(x, y));
+        edgeWalk(p, t.path, x, y);
+
+        if ((c++ % 100) == 0) e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
+    }
+}
+
+void ClassChip::expDrawTransistors(QPainter &painter)
+{
+    painter.setBrush(Qt::yellow);
+    painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
+
+    for (auto &t : m_transdefs)
+    {
+        if (::controller.getSimx().getNetState(t.gatenode) == 0)
+            painter.setBrush(Qt::gray);
+        else
+            painter.setBrush(Qt::yellow);
+
+        painter.drawPath(t.path);
+    }
 }

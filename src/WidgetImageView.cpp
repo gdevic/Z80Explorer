@@ -334,6 +334,14 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
+    // Draw transistors
+    //------------------------------------------------------------------------
+    {
+        painter.save();
+        ::controller.getChip().expDrawTransistors(painter);
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
     // Draw custom image annotations
     //------------------------------------------------------------------------
     {
