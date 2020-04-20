@@ -255,29 +255,8 @@ void WidgetImageView::paintEvent(QPaintEvent *)
 
 #if 0
     //------------------------------------------------------------------------
-    // Draw active nets from the simx class
-    //------------------------------------------------------------------------
-    if (m_drawActiveNets)
-    {
-        painter.setBrush(QColor(155, 0, 0)); // Only for the Vcc
-        painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-
-        for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
-        {
-            if (::controller.getSimx().getNetState(i))
-            {
-                for (auto path : ::controller.getChip().getSegment(i)->paths)
-                    painter.drawPath(path);
-            }
-            if (i==3) // After painting clk net, this is the default brush
-                painter.setBrush(QColor(255, 0, 255));
-        }
-    }
-#endif
-#if 1
-    //------------------------------------------------------------------------
     // Draw all nets and highlight those that are "high"
+    // This method is the slowest since we always draw all nets
     //------------------------------------------------------------------------
     if (m_drawActiveNets)
     {
@@ -285,6 +264,8 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
+        // Draw inactive buses first, followed by active buses
+        // That is also slightly faster than using a single loop
         painter.setBrush(QColor(128, 0, 128));
         for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
         {
@@ -294,6 +275,30 @@ void WidgetImageView::paintEvent(QPaintEvent *)
                     painter.drawPath(path);
             }
         }
+
+        painter.setBrush(QColor(255, 0, 255));
+        for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+        {
+            if (::controller.getSimx().getNetState(i) == 1)
+            {
+                for (auto path : ::controller.getChip().getSegment(i)->paths)
+                    painter.drawPath(path);
+            }
+        }
+        painter.restore();
+    }
+#endif
+#if 1
+    //------------------------------------------------------------------------
+    // Base image is "vss.vcc.nets" with all nets drawn as inactive
+    // This method is much faster since we only draw active nets (over the base
+    // image that already has all the nets pre-drawn as inactive)
+    //------------------------------------------------------------------------
+    if (m_drawActiveNets)
+    {
+        painter.save();
+        painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
         painter.setBrush(QColor(255, 0, 255));
         for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)

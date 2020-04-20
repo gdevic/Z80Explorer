@@ -68,6 +68,9 @@ bool ClassChip::loadChipResources(QString dir)
             experimental_2(); // Saves layer map to file to be loaded next time
         }
         createLayerMapImage("vss.vcc");
+        drawAllNetsAsInactive("vss.vcc.nets", "vss.vcc");
+
+        setFirstImage("vss.vcc.nets");
 
         annotate.load(dir); // Load custom annotations
 
@@ -265,6 +268,21 @@ QImage &ClassChip::getLastImage()
     if (m_last_image < uint(m_img.count()))
         return m_img[m_last_image];
     return img_empty;
+}
+
+/*
+ * Sets the given image to be the first one in m_img vector
+ */
+void ClassChip::setFirstImage(QString name)
+{
+    for (int i=1; i < m_img.count(); i++)
+    {
+        if (m_img[i].text("name") == name)
+        {
+            m_img.move(i, 0);
+            return;
+        }
+    }
 }
 
 /*
@@ -599,8 +617,35 @@ void ClassChip::createLayerMapImage(QString name)
 
     QImage image((uchar *)p, m_sx, m_sy, m_sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
     image.setText("name", name);
-    m_img.prepend(image);
+
+    m_img.append(image);
     qInfo() << "Created layer map image" << name;
+}
+
+/*
+ * Draws all nets as inactive into the given image
+ */
+void ClassChip::drawAllNetsAsInactive(QString name, QString nameSourceImage)
+{
+    qInfo() << "Drawing all nets as inactive on top of" << nameSourceImage;
+    bool ok = true;
+    // Shallow copy constructor, will create a new image once data buffer is written to
+    QImage img(getImage(nameSourceImage, ok));
+    Q_ASSERT(ok);
+
+    QPainter painter(&img);
+    painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
+    painter.setBrush(QColor(128, 0, 128));
+    for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+    {
+        for (auto path : ::controller.getChip().getSegment(i)->paths)
+            painter.drawPath(path);
+    }
+
+    img.setText("name", name);
+    m_img.append(img);
 }
 
 /******************************************************************************

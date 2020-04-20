@@ -69,6 +69,7 @@ private:
     bool loadImages(QString dir);       // Loads chip images
     bool loadSegdefs(QString dir);      // Loads segdefs.js
     bool loadTransdefs(QString dir);    // Loads transdefs.js
+    void setFirstImage(QString name);   // Sets the given image to be the first one in m_img vector
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
     void drawTransistors(QImage &img);  // Draws transistors on the given image surface
     bool convertToGrayscale();          // Converts loaded images to grayscale format
@@ -79,6 +80,7 @@ private:
     // Experimental code
     void fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
     void drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id);
+    void drawAllNetsAsInactive(QString name, QString nameSourceImage);
     void experimental_1();              // 3D fill layer map with vss and vcc
     void experimental_2();              // Save layer map to file
     void experimental_3();
