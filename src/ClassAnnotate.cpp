@@ -9,8 +9,6 @@
 
 ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 {
-    m_annot.append(Annotation{"TEST", QPoint(100,100), 36});
-    m_annot.append(Annotation{"PLA1", QPoint(100,500), 300});
 }
 
 /*
