@@ -68,6 +68,8 @@ bool ClassChip::loadChipResources(QString dir)
         }
         createLayerMapImage("vss.vcc");
 
+        annotate.load(dir); // Load custom annotations
+
         qInfo() << "Completed loading chip resources";
         return true;
     }

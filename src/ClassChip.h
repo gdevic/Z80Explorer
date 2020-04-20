@@ -1,6 +1,7 @@
 #ifndef CLASSCHIP_H
 #define CLASSCHIP_H
 
+#include "ClassAnnotate.h"
 #include <QImage>
 #include <QHash>
 
@@ -31,6 +32,7 @@ class ClassChip: public QObject
 
 public:
     ClassChip() {};
+    ClassAnnotate annotate;             // ClassChip "has-a" ClassAnnotate
 
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index

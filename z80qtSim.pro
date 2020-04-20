@@ -22,6 +22,7 @@ DEFINES += _CRT_SECURE_NO_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/ClassAnnotate.cpp \
     src/ClassApplog.cpp \
     src/ClassChip.cpp \
     src/ClassController.cpp \
@@ -48,6 +49,7 @@ SOURCES += \
     src/main.cpp
 
 HEADERS += \
+    src/ClassAnnotate.h \
     src/ClassApplog.h \
     src/ClassChip.h \
     src/ClassController.h \
