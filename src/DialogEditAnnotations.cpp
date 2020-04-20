@@ -22,7 +22,9 @@ DialogEditAnnotations::DialogEditAnnotations(QWidget *parent) :
     connect(ui->spinSize, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onSizeChanged);
     connect(ui->spinX, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onXChanged);
     connect(ui->spinY, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onYChanged);
+    connect(ui->btApply, &QPushButton::clicked, this, &DialogEditAnnotations::onApply);
 
+    m_orig = ::controller.getChip().annotate.get();
     // Populate the main list widget with the given list of annotation items
     for (auto &i : ::controller.getChip().annotate.get())
         append(i);
@@ -37,9 +39,9 @@ DialogEditAnnotations::~DialogEditAnnotations()
 }
 
 /*
- * We are processing our own accept signal, sent when user clicks on the OK button
+ * User clicked on the Apply button
  */
-void DialogEditAnnotations::accept()
+void DialogEditAnnotations::onApply()
 {
     // Rebuild the list of annotations
     QVector<annotation> list;
@@ -47,8 +49,24 @@ void DialogEditAnnotations::accept()
         list.append(get(ui->listAll->item(i)));
 
     ::controller.getChip().annotate.set(list);
+}
 
+/*
+ * We are processing our own accept signal, sent when user clicks on the OK button
+ */
+void DialogEditAnnotations::accept()
+{
+    onApply();
     QDialog::done(QDialog::Accepted);
+}
+
+/*
+ * In the case of reject (user clicked the Cancel button), revert to the original list
+ */
+void DialogEditAnnotations::reject()
+{
+    ::controller.getChip().annotate.set(m_orig);
+    QDialog::done(QDialog::Rejected);
 }
 
 annotation DialogEditAnnotations::get(QListWidgetItem *item)

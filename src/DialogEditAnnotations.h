@@ -29,14 +29,18 @@ private slots:
     void onSizeChanged();
     void onXChanged();
     void onYChanged();
+    void onApply();
     void accept() override;
+    void reject() override;
 
 private:
     Ui::DialogEditAnnotations *ui;
 
 private:
-    // current working annotation data is kept in each list widget item as a QVariant field data()
+    // Current working annotation data is kept in each list widget item as a QVariant field data()
     annotation get(QListWidgetItem *item);
+    // Original annotation list that is injected if a user clicks on the Cancel button
+    QVector<annotation> m_orig;
     void set(QListWidgetItem *item, annotation &annot);
     void append(annotation &annot);
 };
