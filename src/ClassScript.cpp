@@ -34,6 +34,7 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "run(cycles)   - Runs the simulation for the given number of clocks\n";
     text << "stop()        - Stops the running simulation\n";
     text << "reset()       - Resets the simulation state\n";
+    text << "ex(n)         - Runs experimental function 'n'\n";
     emit ::controller.getScript().response(s);
     return "OK";
 }
@@ -61,7 +62,6 @@ QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
 {
     uint n = ctx->argument(0).toNumber();
     qDebug() << n;
-    if (n == 1) emit ::controller.getChip().drawExperimental_1();
-    if (n == 2) emit ::controller.getChip().drawExperimental_2();
+    emit ::controller.getChip().experimental(n);
     return "OK";
 }

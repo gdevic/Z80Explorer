@@ -63,8 +63,8 @@ bool ClassChip::loadChipResources(QString dir)
         // If we cannot load the layer map, we need to create it (and then save it)
         if (!loadLayerMap(dir))
         {
-            drawExperimental_1(); // Generates a layer map
-            drawExperimental_2(); // Saves layer map to file to be loaded next time
+            experimental_1(); // Generates a layer map
+            experimental_2(); // Saves layer map to file to be loaded next time
         }
         createLayerMapImage("vss.vcc");
 
@@ -605,6 +605,16 @@ void ClassChip::createLayerMapImage(QString name)
 /******************************************************************************
  * Experimental code
  ******************************************************************************/
+/*
+ * Runs experimental function number n
+ */
+void ClassChip::experimental(int n)
+{
+    if (n==1) return experimental_1();
+    if (n==2) return experimental_2();
+    if (n==3) return experimental_3();
+    qWarning() << "Invalid experimental function index" << n;
+}
 
 struct xy
 {
@@ -706,7 +716,7 @@ void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
 /*
  * Run with the command "ex(1)"
  */
-void ClassChip::drawExperimental_1()
+void ClassChip::experimental_1()
 {
     qInfo() << "Experimental: 3D fill layer map with vss and vcc";
 
@@ -721,7 +731,7 @@ void ClassChip::drawExperimental_1()
 /*
  * Run with the command "ex(2)"
  */
-void ClassChip::drawExperimental_2()
+void ClassChip::experimental_2()
 {
     qInfo() << "Experimental: save layer map to file";
 
@@ -744,4 +754,15 @@ void ClassChip::drawExperimental_2()
     }
     else
         qWarning() << "Unable to open" << fileName << "for writing!";
+}
+
+/******************************************************************************
+ * Experimental code
+ ******************************************************************************/
+
+/*
+ * Run with the command "ex(3)"
+ */
+void ClassChip::experimental_3()
+{
 }

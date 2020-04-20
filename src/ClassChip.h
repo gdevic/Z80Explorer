@@ -49,8 +49,7 @@ signals:
 
 public slots:
     void drawSegdefs();                 // Draws segments and transistors onto the last image (returned by getImage())
-    void drawExperimental_1();          // Experiments...
-    void drawExperimental_2();          // Experiments...
+    void experimental(int n);           // Runs experimental function number n
 
 private:
     QVector<QImage> m_img;              // Chip layer images
@@ -77,6 +76,9 @@ private:
     // Experimental code
     void fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
     void drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id);
+    void experimental_1();              // 3D fill layer map with vss and vcc
+    void experimental_2();              // Save layer map to file
+    void experimental_3();
 };
 
 #endif // CLASSCHIP_H
