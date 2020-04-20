@@ -2,12 +2,14 @@
 #define CLASSANNOTATE_H
 
 #include <QObject>
+#include <QPainter>
 
 // Contains individual annotation object
 struct Annotation
 {
     QString text;       // Annotation text
-    QPoint pos;         // Coordinates in the texture space
+    QPoint pos;         // Coordinates of the text in the texture space
+    int pts;            // Text size in points
 };
 
 /*
@@ -20,6 +22,7 @@ public:
     explicit ClassAnnotate(QObject *parent = nullptr);
     ~ClassAnnotate();
 
+    void draw(QPainter &painter, QRectF imageView, qreal scale);
     bool load(QString dir);         // Loads user annotations
     bool save(QString dir);         // Saves user annotations
 

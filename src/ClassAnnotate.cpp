@@ -9,6 +9,29 @@
 
 ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 {
+    m_annot.append(Annotation{"TEST", QPoint(100,100), 36});
+    m_annot.append(Annotation{"PLA1", QPoint(100,500), 300});
+}
+
+/*
+ * Draws annotations
+ * imageView defines the current viewport in the image space, used to clip
+ * scale is the current image scaling value, used to selectively draw different text sizes
+ */
+void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
+{
+    Q_UNUSED(imageView);
+    Q_UNUSED(scale);
+//    qDebug() << imageView << scale;
+    painter.setPen(Qt::white);
+    QFont font = painter.font();
+    for (auto a : m_annot)
+    {
+        font.setPointSize(a.pts);
+        painter.setFont(font);
+
+        painter.drawText(a.pos, a.text);
+    }
 }
 
 ClassAnnotate::~ClassAnnotate()
@@ -57,6 +80,8 @@ void ClassAnnotate::read(const QJsonObject &json)
                 a.pos.setX(obj["x"].toInt());
             if (obj.contains("y") && obj["y"].isDouble())
                 a.pos.setY(obj["y"].toInt());
+            if (obj.contains("pts") && obj["pts"].isDouble())
+                a.pts = obj["pts"].toInt();
             m_annot.append(a);
         }
     }
@@ -92,6 +117,7 @@ void ClassAnnotate::write(QJsonObject &json) const
         obj["text"] = a.text;
         obj["x"] = a.pos.x();
         obj["y"] = a.pos.y();
+        obj["pts"] = a.pts;
         jsonArray.append(obj);
     }
     json["annotations"] = jsonArray;

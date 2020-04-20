@@ -199,12 +199,13 @@ void WidgetImageView::onRefresh()
 }
 
 // Clamp the image coordinates into the range [0,1]
-void WidgetImageView::clampImageCoords(QPointF &tex)
+void WidgetImageView::clampImageCoords(QPointF &tex, qreal xmax, qreal ymax)
 {
-    tex.setX(qBound(0.0, tex.x(), 1.0));
-    tex.setY(qBound(0.0, tex.y(), 1.0));
+    tex.setX(qBound(0.0, tex.x(), xmax));
+    tex.setY(qBound(0.0, tex.y(), ymax));
 }
 
+#if 0
 // Return the coordinates within the image that the view is clipped at, given
 // its position and zoom ratio. This rectangle corresponds to what the user sees.
 QRectF WidgetImageView::getImageView()
@@ -223,10 +224,9 @@ QRectF WidgetImageView::getImageView()
     clampImageCoords(t0);
     clampImageCoords(t1);
 
-    m_imageView = QRectF(t0, t1);
-
-    return m_imageView;
+    return QRectF(t0, t1);
 }
+#endif
 
 //============================================================================
 // Callbacks
@@ -236,6 +236,14 @@ void WidgetImageView::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     m_viewPort = painter.viewport();
+
+    // Point 0 is at the top-left corner; point 1 is at the bottom-right corner of the view.
+    // Do the inverse map to get to the coordinates in the texture space.
+    QPointF t0 = m_invtx.map(QPoint(0,0));
+    QPointF t1 = m_invtx.map(QPoint(m_viewPort.right(), m_viewPort.bottom()));
+    clampImageCoords(t0, m_image.width() - 1, m_image.height() - 1);
+    clampImageCoords(t1, m_image.width() - 1, m_image.height() - 1);
+    m_imageView = QRectF(t0, t1);
 
     // Transformation allows us to simply draw as if the source and target are the same size
     calcTransform();
@@ -323,6 +331,14 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             for (auto path : m_highlight_segment->paths)
                 painter.drawPath(path);
         }
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
+    // Draw custom image annotations
+    //------------------------------------------------------------------------
+    {
+        painter.save();
+        ::controller.getChip().annotate.draw(painter, m_imageView, m_scale);
         painter.restore();
     }
     //------------------------------------------------------------------------

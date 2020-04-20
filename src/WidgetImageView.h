@@ -69,7 +69,7 @@ private:
     QTransform m_tx;                    // Transformation matrix from normalized image to screen space
     QTransform m_invtx;                 // Transformation matrix from screen to normalized image space
     QRect      m_viewPort;              // Bounding rectangle of the current screen view
-    QRectF     m_imageView;             // Helper variable for getImageView()
+    QRectF     m_imageView;             // Bounding rectangle in the texture space of the current screen viewport
     WidgetImageOverlay *m_ov;           // Image overlay class
     QTimer     *m_timer;                // Image refresh timer
     uint       m_timer_tick;            // Timer timeout tick counter
@@ -86,7 +86,7 @@ private:
     void keyPressEvent(QKeyEvent *e);
 
     void calcTransform();
-    void clampImageCoords(QPointF &);
+    void clampImageCoords(QPointF &tex, qreal xmax = 1.0, qreal ymax = 1.0);
     void createLayout();
 };
 
