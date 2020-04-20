@@ -32,6 +32,7 @@ SOURCES += \
     src/ClassSimX.cpp \
     src/ClassTrickbox.cpp \
     src/ClassWatch.cpp \
+    src/DialogEditAnnotations.cpp \
     src/DialogEditBuses.cpp \
     src/DialogEditWatchlist.cpp \
     src/DialogEditWaveform.cpp \
@@ -61,6 +62,7 @@ HEADERS += \
     src/ClassSingleton.h \
     src/ClassTrickbox.h \
     src/ClassWatch.h \
+    src/DialogEditAnnotations.h \
     src/DialogEditBuses.h \
     src/DialogEditWatchlist.h \
     src/DialogEditWaveform.h \
@@ -78,6 +80,7 @@ HEADERS += \
     src/z80state.h
 
 FORMS += \
+    src/DialogEditAnnotations.ui \
     src/DialogEditBuses.ui \
     src/DialogEditWatchlist.ui \
     src/DialogEditWaveform.ui \

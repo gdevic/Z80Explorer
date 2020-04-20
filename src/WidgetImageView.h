@@ -48,6 +48,7 @@ private slots:
     void onTimeout();                   // Timer timeout handler
     void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
     void contextMenu(const QPoint &pos);// Mouse context menu handler
+    void editAnnotations();             // Opens dialog to edit annotations
 
 private:
     Ui::WidgetImageView *ui;

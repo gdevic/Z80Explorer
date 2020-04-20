@@ -2,6 +2,7 @@
 #include "ClassChip.h"
 #include "ClassController.h"
 #include "ClassSimX.h"
+#include "DialogEditAnnotations.h"
 #include "WidgetImageOverlay.h"
 
 #include <QDebug>
@@ -547,7 +548,23 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     connect(&actionAddAnnotation, SIGNAL(triggered()), this, SLOT(addAnnotation()));
     contextMenu.addAction(&actionAddAnnotation);
 
+    QAction actionEditAnnotation("Edit annotations...", this);
+    connect(&actionEditAnnotation, SIGNAL(triggered()), this, SLOT(editAnnotations()));
+    contextMenu.addAction(&actionEditAnnotation);
+
     contextMenu.exec(mapToGlobal(pos));
+}
+
+/*
+ * Opens dialog to edit annotations
+ */
+void WidgetImageView::editAnnotations()
+{
+    DialogEditAnnotations dlg(this);
+    if (dlg.exec()==QDialog::Accepted)
+    {
+        qDebug() << "Accepted";
+    }
 }
 
 /*
