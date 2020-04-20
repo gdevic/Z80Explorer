@@ -70,7 +70,7 @@ void ClassAnnotate::read(const QJsonObject &json)
 
         for (int i = 0; i < array.size(); i++)
         {
-            Annotation a;
+            annotation a;
             QJsonObject obj = array[i].toObject();
             if (obj.contains("text") && obj["text"].isString())
                 a.text = obj["text"].toString();
@@ -109,7 +109,7 @@ bool ClassAnnotate::save(QString dir)
 void ClassAnnotate::write(QJsonObject &json) const
 {
     QJsonArray jsonArray;
-    for (const Annotation &a : m_annot)
+    for (const annotation &a : m_annot)
     {
         QJsonObject obj;
         obj["text"] = a.text;
