@@ -718,6 +718,9 @@ void ClassChip::drawExperimental_1()
  * Experimental code
  ******************************************************************************/
 
+/*
+ * Run with the command "ex(2)"
+ */
 void ClassChip::drawExperimental_2()
 {
     qInfo() << "Experimental: save layer map to file";
