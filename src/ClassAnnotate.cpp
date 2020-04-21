@@ -60,6 +60,11 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
     painter.setPen(Qt::white);
     for (auto a : m_annot)
     {
+        // Selective rendering hides annotations that are too large or too small for the given scale
+        qreal apparent = a.pix * scale;
+        if (apparent > 200 || apparent < 8)
+            continue;
+
         // drawStaticText() anchor is at the top-left point (drawText() is on the bottom-left)
         m_fixedFont.setPixelSize(a.pix); // Base all text on the same font family; set the size
         painter.setFont(m_fixedFont);
