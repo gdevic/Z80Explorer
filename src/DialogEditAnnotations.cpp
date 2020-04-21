@@ -169,8 +169,12 @@ void DialogEditAnnotations::selChanged()
     if (sel.count() > 0)
     {
         annotation annot = get(sel[0]);
-        if (sel.count() == 1) // Set the text field only if a single annotation has been selected
-            ui->textEdit->setPlainText(annot.text.text());
+        if (sel.count() == 1) // Set these fields only if a single annotation has been selected
+        {
+            ui->textEdit->setPlainText(annot.text.text()); // Show the text
+            ui->spinX->setSingleStep(annot.pix / 4); // Set the X,Y location steps to a fraction of pix
+            ui->spinY->setSingleStep(annot.pix / 4);
+        }
         ui->spinSize->setValue(annot.pix);
         ui->spinX->setValue(annot.pos.x());
         ui->spinY->setValue(annot.pos.y());
