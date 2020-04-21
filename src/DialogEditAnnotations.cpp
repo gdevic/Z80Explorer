@@ -140,6 +140,7 @@ void DialogEditAnnotations::onDuplicate()
     QList<QListWidgetItem *> sel = ui->listAll->selectedItems();
     Q_ASSERT(sel.count() == 1);
     annotation a = get(sel[0]);
+    a.pos += QPoint(a.pix / 2, a.pix / 2);
     append(a);
 }
 
