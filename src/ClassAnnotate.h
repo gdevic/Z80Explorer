@@ -10,7 +10,7 @@ struct annotation
 {
     QStaticText text;   // Annotation text, supports subset of HTML
     QPoint pos;         // Coordinates of the text in the texture space
-    uint pts;           // Text size in points
+    uint pix;           // Text size in pixels
     int angle;          // Text rotation angle
 
     annotation(const QString t): text(t) {}
@@ -31,13 +31,14 @@ public:
     bool init();
     QVector<annotation> &get() { return m_annot; }
     void set(QVector<annotation> &list) { m_annot = list; }
+    void add(QString text, QRect box);  // Adds annotation to the list
 
     void draw(QPainter &painter, QRectF imageView, qreal scale);
-    bool load(QString dir);         // Loads user annotations
-    bool save(QString dir);         // Saves user annotations
+    bool load(QString dir);             // Loads user annotations
+    bool save(QString dir);             // Saves user annotations
 
 private:
-    QVector<annotation> m_annot;    // List of annotations
+    QVector<annotation> m_annot;        // List of annotations
     QFont m_fixedFont;
 
     void read(const QJsonObject &json);

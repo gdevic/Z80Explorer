@@ -11,11 +11,33 @@ ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 {
 }
 
+ClassAnnotate::~ClassAnnotate()
+{
+    QSettings settings;
+    QString path = settings.value("ResourceDir").toString();
+    Q_ASSERT(!path.isEmpty());
+    save(path);
+}
+
 bool ClassAnnotate::init()
 {
     m_fixedFont = QFont("Consolas");
 
     return true;
+}
+
+/*
+ * Adds annotation to the list
+ */
+void ClassAnnotate::add(QString text, QRect box)
+{
+    annotation a(text);
+
+    a.pix = box.width() / text.length();
+    a.angle = 0;
+    a.pos = box.bottomLeft();
+
+    m_annot.append(a);
 }
 
 /*
@@ -27,13 +49,12 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
 {
     Q_UNUSED(imageView);
     Q_UNUSED(scale);
-//    qDebug() << imageView << scale;
 
     painter.setPen(Qt::white);
     for (auto a : m_annot)
     {
         painter.save(); // Save and restore painter state since each text has its own translation/size
-        m_fixedFont.setPixelSize(a.pts); // Base all text on the same font family; set the size
+        m_fixedFont.setPixelSize(a.pix); // Base all text on the same font family; set the size
         painter.setFont(m_fixedFont);
         QSizeF size = a.text.size();
         painter.translate(a.pos); // Read this sequence in the reverse order... Finally, translate to the required image coordinates
@@ -43,14 +64,6 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
         size = a.text.size();
         painter.restore();
     }
-}
-
-ClassAnnotate::~ClassAnnotate()
-{
-    QSettings settings;
-    QString path = settings.value("ResourceDir").toString();
-    Q_ASSERT(!path.isEmpty());
-    save(path);
 }
 
 /*
@@ -91,8 +104,8 @@ void ClassAnnotate::read(const QJsonObject &json)
                 a.pos.setX(obj["x"].toInt());
             if (obj.contains("y") && obj["y"].isDouble())
                 a.pos.setY(obj["y"].toInt());
-            if (obj.contains("pts") && obj["pts"].isDouble())
-                a.pts = obj["pts"].toInt();
+            if (obj.contains("pix") && obj["pix"].isDouble())
+                a.pix = obj["pix"].toInt();
             if (obj.contains("angle") && obj["angle"].isDouble())
                 a.angle = obj["angle"].toInt();
             m_annot.append(a);
@@ -130,7 +143,7 @@ void ClassAnnotate::write(QJsonObject &json) const
         obj["text"] = a.text.text();
         obj["x"] = a.pos.x();
         obj["y"] = a.pos.y();
-        obj["pts"] = int(a.pts);
+        obj["pix"] = int(a.pix);
         obj["angle"] = a.angle;
         jsonArray.append(obj);
     }

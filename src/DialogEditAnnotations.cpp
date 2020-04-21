@@ -172,7 +172,7 @@ void DialogEditAnnotations::selChanged()
         annotation annot = get(sel[0]);
         if (sel.count() == 1) // Set the text field only if a single annotation has been selected
             ui->textEdit->setPlainText(annot.text.text());
-        ui->spinSize->setValue(annot.pts);
+        ui->spinSize->setValue(annot.pix);
         ui->spinX->setValue(annot.pos.x());
         ui->spinY->setValue(annot.pos.y());
         ui->spinAngle->setValue(annot.angle);
@@ -200,7 +200,7 @@ void DialogEditAnnotations::onSizeChanged()
     for (auto i : sel)
     {
         annotation a = get(i);
-        a.pts = value;
+        a.pix = value;
         set(i, a);
     }
 }

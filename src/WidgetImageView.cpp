@@ -539,32 +539,46 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
  */
 void WidgetImageView::contextMenu(const QPoint& pos)
 {
-    QPoint imageCoords = m_invtx.map(pos);
-    qDebug() << "imageCoords:" << imageCoords;
-
     QMenu contextMenu(this);
 
+    // "Add annotation" option only if the selection area has some width to it
     QAction actionAddAnnotation("Add annotation...", this);
     connect(&actionAddAnnotation, SIGNAL(triggered()), this, SLOT(addAnnotation()));
-    contextMenu.addAction(&actionAddAnnotation);
+    if (m_drawSelection && m_areaRect.width())
+        contextMenu.addAction(&actionAddAnnotation);
 
     QAction actionEditAnnotation("Edit annotations...", this);
     connect(&actionEditAnnotation, SIGNAL(triggered()), this, SLOT(editAnnotations()));
     contextMenu.addAction(&actionEditAnnotation);
 
     contextMenu.exec(mapToGlobal(pos));
+
+    m_drawSelection = false;
+    m_pinMousePos = QPoint();
+    m_areaRect.setRect(0,0,0,0);
 }
 
+/*
+ * // Adds a new annotation within the selected box and opens dialog to edit it
+ */
+void WidgetImageView::addAnnotation()
+{   
+    bool ok;
+    QString text = QInputDialog::getText(this, "Add annotation", "Annotation text:", QLineEdit::Normal, "", &ok);
+    if (ok && !text.isEmpty())
+    {
+        ::controller.getChip().annotate.add(text, m_areaRect);
+        DialogEditAnnotations dlg(this);
+        dlg.exec();
+    }
+}
 /*
  * Opens dialog to edit annotations
  */
 void WidgetImageView::editAnnotations()
 {
     DialogEditAnnotations dlg(this);
-    if (dlg.exec()==QDialog::Accepted)
-    {
-        qDebug() << "Accepted";
-    }
+    dlg.exec();
 }
 
 /*
