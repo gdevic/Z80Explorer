@@ -39,7 +39,8 @@ public:
 
 private:
     QVector<annotation> m_annot;        // List of annotations
-    QFont m_fixedFont;
+    QFont m_fixedFont;                  // Font used to render annotations
+    const qreal m_someXFactor = 1.8;    // Depending on a font, we need to stretch its rendering
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;

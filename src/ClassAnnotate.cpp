@@ -22,7 +22,6 @@ ClassAnnotate::~ClassAnnotate()
 bool ClassAnnotate::init()
 {
     m_fixedFont = QFont("Consolas");
-
     return true;
 }
 
@@ -33,8 +32,7 @@ void ClassAnnotate::add(QString text, QRect box)
 {
     annotation a(text);
 
-    const qreal someXFactor = 1.8; // Depending on a font, we need to stretch its rendering
-    qreal pixX = qreal(box.width()) / (text.length() / someXFactor);
+    qreal pixX = qreal(box.width()) / (text.length() / m_someXFactor);
     qreal pixY = box.height();
     qreal pix = qMin(pixX, pixY);
 
@@ -73,8 +71,7 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
             qreal thickness = a.pix / 10.0;
             pen.setWidthF(thickness);
             painter.setPen(pen);
-            const qreal someXFactor = 1.8; // Depending on a font, we need to stretch its rendering
-            int dx = a.pix * a.text.text().length() / someXFactor;
+            qreal dx = a.pix * a.text.text().length() / m_someXFactor;
             painter.drawLine(a.pos + QPoint(thickness, thickness), a.pos + QPoint(dx - thickness, thickness));
         }
 
