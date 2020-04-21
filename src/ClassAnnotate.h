@@ -10,7 +10,8 @@ struct annotation
 {
     QStaticText text;   // Annotation text, supports subset of HTML
     QPoint pos;         // Coordinates of the text in the texture space
-    int pts;            // Text size in points
+    uint pts;           // Text size in points
+    int angle;          // Text rotation angle
 
     annotation(const QString t): text(t) {}
     annotation() {};

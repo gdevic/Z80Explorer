@@ -53,34 +53,22 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item row="1" column="0">
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
           <widget class="QLabel" name="label_text">
            <property name="text">
-            <string>Text:</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Text:&lt;/p&gt;&lt;p&gt;(can be HTML)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_size">
-           <property name="text">
-            <string>Text size (pts):</string>
+         <item row="0" column="1">
+          <widget class="QPlainTextEdit" name="textEdit">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="3" column="1">
           <widget class="QSpinBox" name="spinSize">
            <property name="enabled">
             <bool>false</bool>
@@ -99,21 +87,37 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QPlainTextEdit" name="textEdit">
-           <property name="enabled">
-            <bool>false</bool>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_angle">
+           <property name="text">
+            <string>Angle (deg):</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="spinAngle">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimum">
+            <number>-90</number>
+           </property>
+           <property name="maximum">
+            <number>90</number>
+           </property>
+           <property name="singleStep">
+            <number>45</number>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
           <widget class="QLabel" name="label_location">
            <property name="text">
             <string>Location (x,y):</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="6" column="1">
           <widget class="QFrame" name="frame_location">
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -163,7 +167,7 @@
            </layout>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="8" column="1">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -175,6 +179,13 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_size">
+           <property name="text">
+            <string>Text size (pts):</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

@@ -23,6 +23,7 @@ DialogEditAnnotations::DialogEditAnnotations(QWidget *parent) :
     connect(ui->spinSize, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onSizeChanged);
     connect(ui->spinX, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onXChanged);
     connect(ui->spinY, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onYChanged);
+    connect(ui->spinAngle, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onAngleChanged);
     connect(ui->btApply, &QPushButton::clicked, this, &DialogEditAnnotations::onApply);
 
     m_orig = ::controller.getChip().annotate.get();
@@ -161,6 +162,7 @@ void DialogEditAnnotations::selChanged()
     ui->spinSize->setEnabled(sel.count() > 0);
     ui->spinX->setEnabled(sel.count() > 0);
     ui->spinY->setEnabled(sel.count() > 0);
+    ui->spinAngle->setEnabled(sel.count() > 0);
     ui->btUp->setEnabled(sel.count() > 0);
     ui->btDown->setEnabled(sel.count() > 0);
     ui->btDuplicate->setEnabled(sel.count() == 1);
@@ -168,10 +170,12 @@ void DialogEditAnnotations::selChanged()
     if (sel.count() > 0)
     {
         annotation annot = get(sel[0]);
-        ui->textEdit->setPlainText(annot.text.text());
+        if (sel.count() == 1) // Set the text field only if a single annotation has been selected
+            ui->textEdit->setPlainText(annot.text.text());
         ui->spinSize->setValue(annot.pts);
         ui->spinX->setValue(annot.pos.x());
         ui->spinY->setValue(annot.pos.y());
+        ui->spinAngle->setValue(annot.angle);
     }
 }
 
@@ -221,6 +225,18 @@ void DialogEditAnnotations::onYChanged()
     {
         annotation a = get(i);
         a.pos.setY(value);
+        set(i, a);
+    }
+}
+
+void DialogEditAnnotations::onAngleChanged()
+{
+    QList<QListWidgetItem *> sel = ui->listAll->selectedItems();
+    int value = ui->spinAngle->value();
+    for (auto i : sel)
+    {
+        annotation a = get(i);
+        a.angle = value;
         set(i, a);
     }
 }

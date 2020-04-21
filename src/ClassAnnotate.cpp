@@ -21,14 +21,19 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
     Q_UNUSED(imageView);
     Q_UNUSED(scale);
 //    qDebug() << imageView << scale;
+
     painter.setPen(Qt::white);
-    QFont font = painter.font();
     for (auto a : m_annot)
     {
-        font.setPointSize(a.pts);
-        painter.setFont(font);
-
-        painter.drawStaticText(a.pos, a.text);
+        painter.save(); // Save and restore painter state since each text has its own translation/size
+        painter.setFont(QFont("Arial", a.pts)); // Base all text on the same font family + set the size
+        QSizeF size = a.text.size();
+        painter.translate(a.pos); // Read this sequence in the reverse order... Finally, translate to the required image coordinates
+        painter.rotate(a.angle); // Rotate text by a angle
+        painter.translate(0, -size.height()); // Translate up by the text height so the anchor is at the bottom left
+        painter.drawStaticText(0, 0, a.text);
+        size = a.text.size();
+        painter.restore();
     }
 }
 
@@ -80,6 +85,8 @@ void ClassAnnotate::read(const QJsonObject &json)
                 a.pos.setY(obj["y"].toInt());
             if (obj.contains("pts") && obj["pts"].isDouble())
                 a.pts = obj["pts"].toInt();
+            if (obj.contains("angle") && obj["angle"].isDouble())
+                a.angle = obj["angle"].toInt();
             m_annot.append(a);
         }
     }
@@ -115,7 +122,8 @@ void ClassAnnotate::write(QJsonObject &json) const
         obj["text"] = a.text.text();
         obj["x"] = a.pos.x();
         obj["y"] = a.pos.y();
-        obj["pts"] = a.pts;
+        obj["pts"] = int(a.pts);
+        obj["angle"] = a.angle;
         jsonArray.append(obj);
     }
     json["annotations"] = jsonArray;
