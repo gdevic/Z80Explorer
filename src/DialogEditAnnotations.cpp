@@ -2,6 +2,7 @@
 #include "ui_DialogEditAnnotations.h"
 #include "ClassController.h"
 #include <QSettings>
+#include <QStaticText>
 
 DialogEditAnnotations::DialogEditAnnotations(QWidget *parent) :
     QDialog(parent),
@@ -78,7 +79,7 @@ annotation DialogEditAnnotations::get(QListWidgetItem *item)
 void DialogEditAnnotations::set(QListWidgetItem *item, annotation &annot)
 {
     item->setData(Qt::UserRole, QVariant::fromValue(annot));
-    item->setText(annot.text);
+    item->setText(annot.text.text());
 }
 
 void DialogEditAnnotations::append(annotation &annot)
@@ -167,7 +168,7 @@ void DialogEditAnnotations::selChanged()
     if (sel.count() > 0)
     {
         annotation annot = get(sel[0]);
-        ui->textEdit->setPlainText(annot.text);
+        ui->textEdit->setPlainText(annot.text.text());
         ui->spinSize->setValue(annot.pts);
         ui->spinX->setValue(annot.pos.x());
         ui->spinY->setValue(annot.pos.y());
@@ -184,7 +185,7 @@ void DialogEditAnnotations::onTextChanged()
     Q_ASSERT(sel.count() == 1);
     sel[0]->setText(ui->textEdit->toPlainText());
     annotation a = get(sel[0]);
-    a.text = ui->textEdit->toPlainText();
+    a.text.setText(ui->textEdit->toPlainText());
     set(sel[0], a);
 }
 

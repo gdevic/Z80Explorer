@@ -28,7 +28,7 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
         font.setPointSize(a.pts);
         painter.setFont(font);
 
-        painter.drawText(a.pos, a.text);
+        painter.drawStaticText(a.pos, a.text);
     }
 }
 
@@ -73,7 +73,7 @@ void ClassAnnotate::read(const QJsonObject &json)
             annotation a;
             QJsonObject obj = array[i].toObject();
             if (obj.contains("text") && obj["text"].isString())
-                a.text = obj["text"].toString();
+                a.text.setText(obj["text"].toString());
             if (obj.contains("x") && obj["x"].isDouble())
                 a.pos.setX(obj["x"].toInt());
             if (obj.contains("y") && obj["y"].isDouble())
@@ -112,7 +112,7 @@ void ClassAnnotate::write(QJsonObject &json) const
     for (const annotation &a : m_annot)
     {
         QJsonObject obj;
-        obj["text"] = a.text;
+        obj["text"] = a.text.text();
         obj["x"] = a.pos.x();
         obj["y"] = a.pos.y();
         obj["pts"] = a.pts;

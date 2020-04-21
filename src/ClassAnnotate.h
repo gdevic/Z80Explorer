@@ -3,11 +3,12 @@
 
 #include <QObject>
 #include <QPainter>
+#include <QStaticText>
 
 // Contains individual annotation object
 struct annotation
 {
-    QString text;       // Annotation text
+    QStaticText text;   // Annotation text, supports subset of HTML
     QPoint pos;         // Coordinates of the text in the texture space
     int pts;            // Text size in points
 
