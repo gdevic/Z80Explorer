@@ -48,14 +48,10 @@ void ClassAnnotate::add(QString text, QRect box)
 
 /*
  * Draws annotations
- * imageView defines the current viewport in the image space, used to clip
  * scale is the current image scaling value, used to selectively draw different text sizes
  */
-void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
+void ClassAnnotate::draw(QPainter &painter, qreal scale)
 {
-    Q_UNUSED(imageView);
-    Q_UNUSED(scale);
-
     QPen pen(Qt::white);
     painter.setPen(pen);
     for (auto a : m_annot)
@@ -94,7 +90,6 @@ bool ClassAnnotate::load(QString dir)
         QByteArray data = loadFile.readAll();
         QJsonDocument loadDoc(QJsonDocument::fromJson(data));
         read(loadDoc.object());
-
         return true;
     }
     else
@@ -142,7 +137,6 @@ bool ClassAnnotate::save(QString dir)
         write(data);
         QJsonDocument saveDoc(data);
         saveFile.write(saveDoc.toJson());
-
         return true;
     }
     else

@@ -33,7 +33,7 @@ public:
     void set(QVector<annotation> &list) { m_annot = list; }
     void add(QString text, QRect box);  // Adds annotation to the list
 
-    void draw(QPainter &painter, QRectF imageView, qreal scale);
+    void draw(QPainter &painter, qreal scale);
     bool load(QString dir);             // Loads user annotations
     bool save(QString dir);             // Saves user annotations
 

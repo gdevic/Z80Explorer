@@ -353,7 +353,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawAnnotations)
     {
         painter.save();
-        ::controller.getChip().annotate.draw(painter, m_imageView, m_scale);
+        ::controller.getChip().annotate.draw(painter, m_scale);
         painter.restore();
     }
     //------------------------------------------------------------------------
