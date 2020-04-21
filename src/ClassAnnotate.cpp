@@ -33,9 +33,16 @@ void ClassAnnotate::add(QString text, QRect box)
 {
     annotation a(text);
 
-    a.pix = box.width() / text.length();
-    a.angle = 0;
-    a.pos = box.bottomLeft();
+    const qreal someXFactor = 1.8; // Depending on a font, we need to stretch its rendering
+    qreal pixX = qreal(box.width()) / (text.length() / someXFactor);
+    qreal pixY = box.height();
+    qreal pix = qMin(pixX, pixY);
+
+    a.pix = pix;
+    a.pos = box.topLeft();
+
+    if (pixX < pixY) // Center the text vertically
+        a.pos += QPoint(0, (pixY - pixX) / 2);
 
     m_annot.append(a);
 }
@@ -53,16 +60,10 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
     painter.setPen(Qt::white);
     for (auto a : m_annot)
     {
-        painter.save(); // Save and restore painter state since each text has its own translation/size
+        // drawStaticText() anchor is at the top-left point (drawText() is on the bottom-left)
         m_fixedFont.setPixelSize(a.pix); // Base all text on the same font family; set the size
         painter.setFont(m_fixedFont);
-        QSizeF size = a.text.size();
-        painter.translate(a.pos); // Read this sequence in the reverse order... Finally, translate to the required image coordinates
-        painter.rotate(a.angle); // Rotate text by a angle
-        painter.translate(0, -size.height()); // Translate up by the text height so the anchor is at the bottom left
-        painter.drawStaticText(0, 0, a.text);
-        size = a.text.size();
-        painter.restore();
+        painter.drawStaticText(a.pos, a.text);
     }
 }
 
@@ -106,8 +107,6 @@ void ClassAnnotate::read(const QJsonObject &json)
                 a.pos.setY(obj["y"].toInt());
             if (obj.contains("pix") && obj["pix"].isDouble())
                 a.pix = obj["pix"].toInt();
-            if (obj.contains("angle") && obj["angle"].isDouble())
-                a.angle = obj["angle"].toInt();
             m_annot.append(a);
         }
     }
@@ -144,7 +143,6 @@ void ClassAnnotate::write(QJsonObject &json) const
         obj["x"] = a.pos.x();
         obj["y"] = a.pos.y();
         obj["pix"] = int(a.pix);
-        obj["angle"] = a.angle;
         jsonArray.append(obj);
     }
     json["annotations"] = jsonArray;
