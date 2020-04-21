@@ -348,8 +348,9 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
-    // Draw custom image annotations
+    // Draw text annotations
     //------------------------------------------------------------------------
+    if (m_drawAnnotations)
     {
         painter.save();
         ::controller.getChip().annotate.draw(painter, m_imageView, m_scale);
@@ -508,6 +509,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         }
         break;
     case Qt::Key_Space: m_drawActiveNets = !m_drawActiveNets; break;
+    case Qt::Key_Comma: m_drawAnnotations = !m_drawAnnotations; break;
     case Qt::Key_Left: m_tex += QPointF(-dx,0); break;
     case Qt::Key_Right: m_tex += QPointF(dx,0); break;
     case Qt::Key_Up: m_tex += QPointF(0,-dy); break;

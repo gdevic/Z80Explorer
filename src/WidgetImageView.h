@@ -77,6 +77,7 @@ private:
     uint       m_timer_tick;            // Timer timeout tick counter
     const segdef *m_highlight_segment;  // Segment to highlight in the current image
     const QRect *m_highlight_box;       // Box to highlight in the current image
+    bool m_drawAnnotations { true };    // Draw image annotations
 
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
