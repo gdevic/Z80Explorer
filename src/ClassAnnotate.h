@@ -28,6 +28,7 @@ class ClassAnnotate : public QObject
 public:
     explicit ClassAnnotate(QObject *parent = nullptr);
     ~ClassAnnotate();
+    bool init();
     QVector<annotation> &get() { return m_annot; }
     void set(QVector<annotation> &list) { m_annot = list; }
 
@@ -37,6 +38,7 @@ public:
 
 private:
     QVector<annotation> m_annot;    // List of annotations
+    QFont m_fixedFont;
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;

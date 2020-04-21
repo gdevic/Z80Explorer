@@ -11,6 +11,13 @@ ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 {
 }
 
+bool ClassAnnotate::init()
+{
+    m_fixedFont = QFont("Consolas");
+
+    return true;
+}
+
 /*
  * Draws annotations
  * imageView defines the current viewport in the image space, used to clip
@@ -26,7 +33,8 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
     for (auto a : m_annot)
     {
         painter.save(); // Save and restore painter state since each text has its own translation/size
-        painter.setFont(QFont("Arial", a.pts)); // Base all text on the same font family + set the size
+        m_fixedFont.setPixelSize(a.pts); // Base all text on the same font family; set the size
+        painter.setFont(m_fixedFont);
         QSizeF size = a.text.size();
         painter.translate(a.pos); // Read this sequence in the reverse order... Finally, translate to the required image coordinates
         painter.rotate(a.angle); // Rotate text by a angle

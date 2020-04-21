@@ -40,6 +40,9 @@
       </property>
       <item>
        <widget class="QListWidget" name="listAll">
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
@@ -80,10 +83,10 @@
             <number>500</number>
            </property>
            <property name="singleStep">
-            <number>8</number>
+            <number>10</number>
            </property>
            <property name="value">
-            <number>24</number>
+            <number>20</number>
            </property>
           </widget>
          </item>
@@ -183,7 +186,7 @@
          <item row="3" column="0">
           <widget class="QLabel" name="label_size">
            <property name="text">
-            <string>Text size (pts):</string>
+            <string>Text size (px):</string>
            </property>
           </widget>
          </item>
