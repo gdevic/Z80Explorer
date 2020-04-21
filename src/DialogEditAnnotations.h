@@ -29,6 +29,7 @@ private slots:
     void onSizeChanged();
     void onXChanged();
     void onYChanged();
+    void onBarChanged();
     void onApply();
     void accept() override;
     void reject() override;

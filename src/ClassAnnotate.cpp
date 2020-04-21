@@ -40,6 +40,7 @@ void ClassAnnotate::add(QString text, QRect box)
 
     a.pix = pix;
     a.pos = box.topLeft();
+    a.overline = false;
 
     if (pixX < pixY) // Center the text vertically
         a.pos += QPoint(0, (pixY - pixX) / 2);
@@ -57,13 +58,25 @@ void ClassAnnotate::draw(QPainter &painter, QRectF imageView, qreal scale)
     Q_UNUSED(imageView);
     Q_UNUSED(scale);
 
-    painter.setPen(Qt::white);
+    QPen pen(Qt::white);
+    painter.setPen(pen);
     for (auto a : m_annot)
     {
         // Selective rendering hides annotations that are too large or too small for the given scale
         qreal apparent = a.pix * scale;
         if (apparent > 200 || apparent < 8)
             continue;
+
+        // Draw the overline (bar) if needed
+        if (a.overline)
+        {
+            qreal thickness = a.pix / 10.0;
+            pen.setWidthF(thickness);
+            painter.setPen(pen);
+            const qreal someXFactor = 1.8; // Depending on a font, we need to stretch its rendering
+            int dx = a.pix * a.text.text().length() / someXFactor;
+            painter.drawLine(a.pos + QPoint(thickness, thickness), a.pos + QPoint(dx - thickness, thickness));
+        }
 
         // drawStaticText() anchor is at the top-left point (drawText() is on the bottom-left)
         m_fixedFont.setPixelSize(a.pix); // Base all text on the same font family; set the size
@@ -112,6 +125,8 @@ void ClassAnnotate::read(const QJsonObject &json)
                 a.pos.setY(obj["y"].toInt());
             if (obj.contains("pix") && obj["pix"].isDouble())
                 a.pix = obj["pix"].toInt();
+            if (obj.contains("bar") && obj["bar"].isBool())
+                a.overline = obj["bar"].toBool();
             m_annot.append(a);
         }
     }
@@ -148,6 +163,7 @@ void ClassAnnotate::write(QJsonObject &json) const
         obj["x"] = a.pos.x();
         obj["y"] = a.pos.y();
         obj["pix"] = int(a.pix);
+        obj["bar"] = a.overline;
         jsonArray.append(obj);
     }
     json["annotations"] = jsonArray;
