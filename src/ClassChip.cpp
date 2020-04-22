@@ -798,7 +798,12 @@ void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
                 return;
             nextdir = edgeWalkFindDir(p, x, y, dir - 3);
         } while (dir == nextdir);
-        path.lineTo(x, y);
+        // Optionally, add dx,dy to make the transistor shape fit better onto the existing segments
+        // The segdefs that we use as background have extra pixel on the right and bottom edges
+        uint dx = (nextdir==3 || nextdir==4 || nextdir==5 || nextdir==6);
+        uint dy = (nextdir==5 || nextdir==6 || nextdir==7 || nextdir==0);
+        path.lineTo(x + dx, y + dy);
+
         dir = nextdir;
     }
 }
