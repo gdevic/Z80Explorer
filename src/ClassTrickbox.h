@@ -12,7 +12,7 @@ class ClassTrickbox : public QObject
 public:
     explicit ClassTrickbox(QObject *parent = nullptr);
 
-    bool loadIntelHex(QString fileName);    // Loads RAM memory with the content of an Intel HEX file
+    bool loadIntelHex(const QString fileName); // Loads RAM memory with the content of an Intel HEX file
 
     uint8_t readMem(uint16_t ab);           // Read environment RAM
     void writeMem(uint16_t ab, uint8_t db); // Write environment RAM

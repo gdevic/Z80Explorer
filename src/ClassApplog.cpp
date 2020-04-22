@@ -74,10 +74,10 @@ void CAppLogHandler::SetLogOptions(int logoption)
  */
 void CAppLogHandler::SetNewLogFile(char* filepath, char* filename, int maxlogfilesize)
 {
-    if (filepath != NULL)
+    if (filepath != nullptr)
         m_log_file_path = filepath;
 
-    if (filename != NULL)
+    if (filename != nullptr)
         m_log_file_name = filename;
 
     m_max_log_file_size = maxlogfilesize;
@@ -127,13 +127,13 @@ void CAppLogHandler::InitLogFile()
 
 QString CAppLogHandler::GetCurrentTimeString()
 {
-    QDateTime dateTime = dateTime.currentDateTime();
+    QDateTime dateTime = QDateTime::currentDateTime();
     return dateTime.toString("yyyy-MM-dd hh:mm:ss");
 }
 
 QString CAppLogHandler::GetCurrentTimeFileString()
 {
-    QDateTime dateTime = dateTime.currentDateTime();
+    QDateTime dateTime = QDateTime::currentDateTime();
     return dateTime.toString("yyyy-MM-dd hh-mm-ss");
 }
 

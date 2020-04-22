@@ -36,11 +36,11 @@ public:
     ClassNetlist();
     ~ClassNetlist();
 
-    bool loadResources(QString dir);
+    bool loadResources(const QString dir);
     QStringList getNodenames();                 // Returns a list of net and bus names concatenated
-    const QVector<net_t> &getBus(QString name)  // Returns nets that comprise a bus
+    const QVector<net_t> &getBus(QString &name) // Returns nets that comprise a bus
         { static const QVector<net_t>x {}; return m_buses.contains(name) ? m_buses[name] : x; }
-    inline net_t get(QString name)              // Returns net number given its name
+    inline net_t get(const QString &name)       // Returns net number given its name
         { return m_netnums.contains(name) ? m_netnums[name] : 0; }
     inline QString get(net_t n)                 // Returns net name given its number
         { return m_netnames[n]; }
@@ -50,7 +50,7 @@ public:
     bool getNetState(net_t i)                   // Returns the net logic state
         { return m_netlist[i].state; }
 
-    void addBus(QString name, QStringList);     // Adds bus by name and a set of nets listed by their name
+    void addBus(const QString &name, const QStringList &netlist); // Adds bus by name and a set of nets listed by their name
     void clearBuses() { m_buses.clear(); }      // Clear all buses, used only by the DialogEditBuses
 
 protected:
@@ -58,17 +58,17 @@ protected:
     QVector<net> m_netlist;                     // Array of nets, indexed by the net number
     net_t ngnd {}, npwr {};                     // 'vss' and 'vcc' nets (expected values: 1 and 2)
 
-    uint readByte(QString name);                // Returns a byte value read from the netlist for a particular net bus
-    inline uint readBit(QString name)           // Returns a bit value read from the netlist for a particular net
+    uint readByte(const QString &name);         // Returns a byte value read from the netlist for a particular net bus
+    inline uint readBit(const QString &name)    // Returns a bit value read from the netlist for a particular net
         { return !!m_netlist[get(name)].state; }// (Performance-critical function)
-    pin_t readPin(QString name);                // Returns the pin value
+    pin_t readPin(const QString &name);         // Returns the pin value
     uint16_t readAB();                          // Returns the value on the address bus
 
 private:
-    bool loadNetNames(QString dir, bool);
-    bool loadTransdefs(QString dir);
-    bool loadPullups(QString dir);
-    bool saveNetNames(QString fileName);
+    bool loadNetNames(const QString fileName, bool);
+    bool loadTransdefs(const QString dir);
+    bool loadPullups(const QString dir);
+    bool saveNetNames(const QString fileName);
 
     // The lookup between net names and their numbers is performance critical, so we keep two ways to access them:
     QString m_netnames[MAX_NET] {};             // List of net names, directly indexed by the net number

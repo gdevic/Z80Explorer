@@ -7,7 +7,7 @@
 /*
  * Loads sim resources (netlist)
  */
-bool ClassSim::loadSimResources(QString dir)
+bool ClassSim::loadSimResources(const QString dir)
 {
     qInfo() << "Loading netlist from" << dir;
     QString file = dir + "/z80.netlist";
@@ -18,8 +18,7 @@ bool ClassSim::loadSimResources(QString dir)
         qInfo() << "Completed loading netlist";
         return true;
     }
-    else
-        qWarning() << "Unable to load \"z80.netlist\" file";
+    qWarning() << "Unable to load \"z80.netlist\" file";
     return false;
 }
 

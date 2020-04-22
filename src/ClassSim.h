@@ -12,7 +12,7 @@ class ClassSim : public QObject
     Q_OBJECT
 public:
     ClassSim() {};
-    bool loadSimResources(QString dir); // Loads sim resources (netlist)
+    bool loadSimResources(const QString dir); // Loads sim resources (netlist)
 
 public slots:
     void onRun();                       // Run Z80 netlist simulator

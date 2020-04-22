@@ -18,7 +18,7 @@ ClassNetlist::~ClassNetlist()
     saveNetNames(path + "/netnames.js");
 }
 
-bool ClassNetlist::loadResources(QString dir)
+bool ClassNetlist::loadResources(const QString dir)
 {
     qInfo() << "Loading netlist resources from" << dir;
     if (loadNetNames(dir + "/nodenames.js", false))
@@ -34,8 +34,7 @@ bool ClassNetlist::loadResources(QString dir)
             qInfo() << "Completed loading netlist resources";
             return true;
         }
-        else
-            qWarning() << "Loading transistor resource failed";
+        qWarning() << "Loading transistor resource failed";
     }
     else
         qWarning() << "Loading netlist resource failed";
@@ -45,7 +44,7 @@ bool ClassNetlist::loadResources(QString dir)
 /*
  * Saves custom net names (all new names and overrides of the names defined in nodenames.js file)
  */
-bool ClassNetlist::saveNetNames(QString fileName)
+bool ClassNetlist::saveNetNames(const QString fileName)
 {
     //qInfo() << "Saving net names" << fileName; // XXX We are calling from a destructor, can't use this
     QFile file(fileName);
@@ -63,7 +62,7 @@ bool ClassNetlist::saveNetNames(QString fileName)
         out << "// Buses:\n"; // Write out the buses, sorted alphabetically
         QStringList buses = m_buses.keys();
         buses.sort();
-        for (auto i : buses)
+        for (const auto &i : buses)
         {
             QString line = QString("%1: [").arg(i);
             for (auto net : m_buses[i])
@@ -85,7 +84,7 @@ bool ClassNetlist::saveNetNames(QString fileName)
  *                   in which case we keep only the last name found.
  * 2. netnames.js : this is our custom set of net names, it overrides nodenames.js
  */
-bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
+bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
 {
     qInfo() << "Loading" << fileName;
     QFile file(fileName);
@@ -114,7 +113,7 @@ bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
                         if (buslist.count() > 1)
                         {
                             QVector<net_t> nets;
-                            for (auto n : buslist)
+                            for (const auto &n : buslist)
                                 nets.append(n.toUInt());
                             m_buses[name] = nets;
                         }
@@ -149,8 +148,7 @@ bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
         file.close();
         return true;
     }
-    else
-        qWarning() << "Error opening" << fileName;
+    qWarning() << "Error opening" << fileName;
     return false;
 }
 
@@ -159,7 +157,7 @@ bool ClassNetlist::loadNetNames(QString fileName, bool loadCustom)
  * Creates m_transdefs with transistor connections
  * Creates m_netlist with connections to transistors
  */
-bool ClassNetlist::loadTransdefs(QString dir)
+bool ClassNetlist::loadTransdefs(const QString dir)
 {
     QString transdefs_file = dir + "/transdefs.js";
     qInfo() << "Loading" << transdefs_file;
@@ -213,20 +211,19 @@ bool ClassNetlist::loadTransdefs(QString dir)
         qInfo() << "Loaded" << m_transdefs.count() << "transistor definitions";
         qInfo() << "Max net index" << max;
         net_t count = 0;
-        for (auto net : m_netlist)
+        for (const auto &net : m_netlist)
             count += !!(net.gates.count() || net.c1c2s.count());
         qInfo() << "Number of nets" << count;
         return true;
     }
-    else
-        qWarning() << "Error opening transdefs.js";
+    qWarning() << "Error opening transdefs.js";
     return false;
 }
 
 /*
  * Pullups are defined in the segdefs.js file
  */
-bool ClassNetlist::loadPullups(QString dir)
+bool ClassNetlist::loadPullups(const QString dir)
 {
     QString segdefs_file = dir + "/segdefs.js";
     qInfo() << "Loading" << segdefs_file;
@@ -256,8 +253,7 @@ bool ClassNetlist::loadPullups(QString dir)
         file.close();
         return true;
     }
-    else
-        qWarning() << "Error opening segdefs.js";
+    qWarning() << "Error opening segdefs.js";
     return false;
 }
 
@@ -274,11 +270,11 @@ QStringList ClassNetlist::getNodenames()
 /*
  * Adds bus by name and a set of nets listed by their name
  */
-void ClassNetlist::addBus(QString name, QStringList netslist)
+void ClassNetlist::addBus(const QString &name, const QStringList &netslist)
 {
     // Replace net names with net numbers
     QVector<net_t> nets;
-    for (auto name : netslist)
+    for (const auto &name : netslist)
         nets.append(get(name));
     m_buses[name] = nets;
 }
@@ -301,7 +297,7 @@ uint16_t ClassNetlist::readAB()
  * Returns a byte value read from the netlist for a particular net bus
  * The bus needs to be named with the last character selecting the bit, ex. ab0, ab1,...
  */
-uint ClassNetlist::readByte(QString name)
+uint ClassNetlist::readByte(const QString &name)
 {
     uint value = 0;
     for (int i=7; i >= 0; --i)
@@ -330,7 +326,7 @@ uint ClassNetlist::readByte(QString name)
 /*
  * Returns the pin value
  */
-pin_t ClassNetlist::readPin(QString name)
+pin_t ClassNetlist::readPin(const QString &name)
 {
     net_t n = get(name);
     if (n)

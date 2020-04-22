@@ -32,7 +32,7 @@ void ClassTrickbox::writeIO(uint16_t ab, uint8_t db)
 }
 
 // https://en.wikipedia.org/wiki/Intel_HEX
-bool ClassTrickbox::loadIntelHex(QString fileName)
+bool ClassTrickbox::loadIntelHex(const QString fileName)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
