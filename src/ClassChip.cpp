@@ -19,8 +19,6 @@ static const QStringList files =
     { "buried" },
     { "vias" },
     { "ions" },
-    { "metal_vcc_gnd" },
-    { "vias_vcc_gnd" },
 };
 
 // --- Feature map bits ---
