@@ -109,11 +109,11 @@ int main(int argc, char *argv[])
         // Initialize core application attributes
         QCoreApplication::setOrganizationDomain("BaltazarStudios.com");
         QCoreApplication::setOrganizationName("Baltazar Studios, LLC");
-        QCoreApplication::setApplicationName("Z80qtSim");
+        QCoreApplication::setApplicationName("Z80Explorer");
 
         // Initialize logging subsystem and register our handler
         applog = &Singleton<CAppLogHandler>::Instance();
-        char logName[] = "z80qtSim";
+        char logName[] = "z80explorer";
         applog->SetLogName(logName);
         applog->SetLogOptions(applog->GetLogOptions() | LogOptions_Signal);
 
