@@ -61,16 +61,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="btTraces">
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="text">
-      <string>Traces</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QPushButton" name="btCoords">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>

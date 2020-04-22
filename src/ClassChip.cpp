@@ -389,43 +389,6 @@ bool ClassChip::convertToGrayscale()
     return true;
 }
 
-void ClassChip::drawSegdefs()
-{
-    QEventLoop e; // Don't freeze the GUI
-    QImage &img = getLastImage();
-
-    int count = 0;
-    for (auto s : m_segdefs)
-    {
-        QPainter painter(&img);
-        QPen pen { QColor(Qt::white) };
-        pen.setCosmetic(true);
-        painter.setPen(pen);
-        if (s.nodenum == 1) // GND
-            painter.setBrush(QColor(0,255,0));
-        else if (s.nodenum == 2) // VCC
-            painter.setBrush(QColor(255,0,0));
-        else
-            painter.setBrush(QColor(128,255,0));
-
-        painter.setOpacity(0.5);
-        painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
-
-        for (auto path : s.paths)
-            painter.drawPath(path);
-
-        count++;
-        if (!(count % 400))
-        {
-            emit refresh();
-            e.processEvents(QEventLoop::AllEvents);
-        }
-    }
-    drawTransistors(img);
-    emit refresh();
-    qDebug() << "Finished drawing segdefs";
-}
-
 /*
  * Loads layer map
  */

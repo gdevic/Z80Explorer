@@ -50,7 +50,6 @@ signals:
     void refresh();                     // One of the images has changed
 
 public slots:
-    void drawSegdefs();                 // Draws segments and transistors onto the last image (returned by getImage())
     void experimental(int n);           // Runs experimental function number n
     void expDrawTransistors(QPainter &painter);
 

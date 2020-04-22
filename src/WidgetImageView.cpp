@@ -53,7 +53,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
 void WidgetImageView::init()
 {
     connect(&::controller.getChip(), SIGNAL(refresh()), this, SLOT(onRefresh()));
-    connect(m_ov, SIGNAL(actionTraces()), &::controller.getChip(), SLOT(drawSegdefs()));
     onRefresh();
 }
 

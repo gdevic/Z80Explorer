@@ -45,11 +45,6 @@ void WidgetImageOverlay::onClearPointerData()
     ui->label1->setText(QString());
 }
 
-void WidgetImageOverlay::on_btTraces_clicked()
-{
-    emit actionTraces();
-}
-
 void WidgetImageOverlay::on_btCoords_clicked()
 {
     emit actionCoords();

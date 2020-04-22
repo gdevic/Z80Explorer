@@ -19,7 +19,6 @@ public:
     void setLayerNames(QStringList layers);
 
 signals:
-    void actionTraces();
     void actionCoords();
     void actionFind(QString text);      // New text entered in the "Find" edit box
 
@@ -29,7 +28,6 @@ public slots:
     void setText(int index, QString text);
 
 private slots:
-    void on_btTraces_clicked();
     void on_btCoords_clicked();
     void onFind();                      // Called by the editFind edit widget when the user presses the Enter key
 
