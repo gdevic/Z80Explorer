@@ -15,7 +15,6 @@ static const QStringList files =
     { "diffusion" },
     { "polysilicon" },
     { "metal" },
-    { "pads" },
     { "buried" },
     { "vias" },
     { "ions" },
