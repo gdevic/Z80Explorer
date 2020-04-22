@@ -261,6 +261,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     //------------------------------------------------------------------------
     // Draw transistors
     //------------------------------------------------------------------------
+    if (m_drawTransistors)
     {
         painter.save();
         ::controller.getChip().expDrawTransistors(painter);
@@ -429,6 +430,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Space: m_drawActiveNets = !m_drawActiveNets; break;
     case Qt::Key_Comma: m_drawAnnotations = !m_drawAnnotations; break;
+    case Qt::Key_Period: m_drawTransistors = !m_drawTransistors; break;
     case Qt::Key_Left: m_tex += QPointF(-dx,0); break;
     case Qt::Key_Right: m_tex += QPointF(dx,0); break;
     case Qt::Key_Up: m_tex += QPointF(0,-dy); break;
