@@ -765,11 +765,12 @@ bool ClassChip::scanForTransistor(uchar const *p, QRect t, uint &x, uint &y)
     return false;
 }
 
+static const int dx[8] = { 0, 1, 1, 1, 0,-1,-1,-1 };
+static const int dy[8] = {-1,-1, 0, 1, 1, 1, 0,-1 };
+
 #define OFFSET(dx,dy) (x+(dx) + (y+(dy)) * m_sx)
 uint ClassChip::edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir)
 {
-    static const int dx[8] = { 0, 1, 1, 1, 0,-1,-1,-1 };
-    static const int dy[8] = {-1,-1, 0, 1, 1, 1, 0,-1 };
     for (int i = 0; i < 8; i++)
     {
         uint dir = (i + startDir) & 7;
@@ -785,10 +786,8 @@ uint ClassChip::edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir)
  */
 void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
 {
-    static const int dx[8] = { 0, 1, 1, 1, 0,-1,-1,-1 };
-    static const int dy[8] = {-1,-1, 0, 1, 1, 1, 0,-1 };
     uint startx = x, starty = y;
-    uint nextdir, dir = edgeWalkFindDir(p, x, y, 2); // Initial dir is 2 (->) since we start with its top-leftmost corner
+    uint nextdir, dir = edgeWalkFindDir(p, x, y, 2); // Initial dir is 2 (->) since we start at its top-leftmost corner
     while (true)
     {
         do
@@ -798,7 +797,7 @@ void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
             if ((x == startx) && (y == starty))
                 return;
             nextdir = edgeWalkFindDir(p, x, y, dir - 3);
-        } while(dir == nextdir);
+        } while (dir == nextdir);
         path.lineTo(x, y);
         dir = nextdir;
     }
