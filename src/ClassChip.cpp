@@ -624,8 +624,7 @@ struct xyl
 };
 
 /*
- * Creates 3 layers' fill of data surfaces based on the map data
- * The destination layers map is this class' m_p3
+ * Fills layer map (this class' m_p3) from the feature bitmap (p_map)
  */
 void ClassChip::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id)
 {
