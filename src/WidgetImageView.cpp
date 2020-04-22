@@ -16,7 +16,6 @@
 WidgetImageView::WidgetImageView(QWidget *parent) :
     QWidget(parent),
     m_image(QImage()),
-    m_view_mode(Fill),
     m_highlight_segment(nullptr),
     m_highlight_box(nullptr)
 {
@@ -50,14 +49,16 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
 }
 
+/*
+ * Init function called after all the images have been loaded so we can prepare the initial view
+ */
 void WidgetImageView::init()
 {
-    connect(&::controller.getChip(), SIGNAL(refresh()), this, SLOT(onRefresh()));
-    onRefresh();
-}
-
-WidgetImageView::~WidgetImageView()
-{
+    m_image = ::controller.getChip().getImage(0);
+    m_ov->setText(3, m_image.text("name"));
+    m_ov->setLayerNames(::controller.getChip().getLayerNames());
+    m_scale = 0.19; // Arbitrary initial scaling.. looks perfect on my monitor ;-)
+    setZoomMode(Value);
 }
 
 /*
@@ -73,26 +74,9 @@ void WidgetImageView::onTimeout()
 /*
  * Controller signals us that the current simulation run completed
  */
-void WidgetImageView::onRunStopped(uint hcycle)
+void WidgetImageView::onRunStopped(uint)
 {
-    Q_UNUSED(hcycle);
-    update(); // Repaint the view
-}
-
-//============================================================================
-// Public Methods
-//============================================================================
-
-void WidgetImageView::setImage(const QImage &img)
-{
-    m_image = img;
-    m_ov->setText(3, m_image.text("name"));
     update();
-}
-
-const QImage& WidgetImageView::getImage()
-{
-    return m_image;
 }
 
 void WidgetImageView::setZoomMode(ZoomType mode)
@@ -151,18 +135,6 @@ void WidgetImageView::moveTo(QPointF pos)
     update();
 }
 
-void WidgetImageView::imageCenterH()
-{
-    m_tex.setX(0.5);
-    update();
-}
-
-void WidgetImageView::imageCenterV()
-{
-    m_tex.setY(0.5);
-    update();
-}
-
 /*
  * Open coordinate dialog and center image on user input coordinates
  */
@@ -180,21 +152,6 @@ void WidgetImageView::onCoords()
             int y = match.captured(2).toInt();
             moveTo(QPointF(qreal(x) / m_image.width(), qreal(y) / m_image.height()));
         }
-    }
-}
-
-// Called when class chip changes image
-void WidgetImageView::onRefresh()
-{
-    bool is_init = m_image.isNull(); // The very first image after init
-    m_image = ::controller.getChip().getLastImage();
-    m_ov->setText(3, m_image.text("name"));
-    update();
-    if (is_init)
-    {
-        m_ov->setLayerNames(::controller.getChip().getLayerNames());
-        m_scale = 0.2;
-        setZoomMode(Value);
     }
 }
 
@@ -253,46 +210,10 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
     painter.drawImage(size, m_image, size);
 
-#if 0
     //------------------------------------------------------------------------
-    // Draw all nets and highlight those that are "high"
-    // This method is the slowest since we always draw all nets
-    //------------------------------------------------------------------------
-    if (m_drawActiveNets)
-    {
-        painter.save();
-        painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-
-        // Draw inactive buses first, followed by active buses
-        // That is also slightly faster than using a single loop
-        painter.setBrush(QColor(128, 0, 128));
-        for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
-        {
-            if (::controller.getSimx().getNetState(i) == 0)
-            {
-                for (auto path : ::controller.getChip().getSegment(i)->paths)
-                    painter.drawPath(path);
-            }
-        }
-
-        painter.setBrush(QColor(255, 0, 255));
-        for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
-        {
-            if (::controller.getSimx().getNetState(i) == 1)
-            {
-                for (auto path : ::controller.getChip().getSegment(i)->paths)
-                    painter.drawPath(path);
-            }
-        }
-        painter.restore();
-    }
-#endif
-#if 1
-    //------------------------------------------------------------------------
-    // Base image is "vss.vcc.nets" with all nets drawn as inactive
-    // This method is much faster since we only draw active nets (over the base
-    // image that already has all the nets pre-drawn as inactive)
+    // Base image is "vss.vcc.nets" with all the nets drawn as inactive
+    // This method is faster since we only draw active nets (over the base
+    // image which already has all the nets pre-drawn as inactive)
     //------------------------------------------------------------------------
     if (m_drawActiveNets)
     {
@@ -311,10 +232,9 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         }
         painter.restore();
     }
-#endif
     //------------------------------------------------------------------------
-    // Draw two selected features on top of the image: box (a transistor) and
-    // a segment (a signal), both of which are selected with the "Find" dialog
+    // Draw two optional features on top of the image: a box (a transistor) and
+    // a segment (a signal), both of which were selected via the "Find" dialog
     //------------------------------------------------------------------------
     {
         painter.save();
@@ -386,7 +306,7 @@ void WidgetImageView::resizeEvent(QResizeEvent * event)
 }
 
 //============================================================================
-// Mouse tracking
+// Mouse tracking and keyboard input
 //============================================================================
 
 void WidgetImageView::mouseMoveEvent(QMouseEvent *event)

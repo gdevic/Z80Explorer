@@ -18,32 +18,23 @@ class WidgetImageView : public QWidget
 
 public:
     explicit WidgetImageView(QWidget *parent = nullptr);
-    ~WidgetImageView();
-
     void init();
-    const QImage& getImage();           // Returns the current QImage; is never NULL
-    QRectF getImageView();              // Return the normalized viewport in the image space
     enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes
     Q_ENUM(ZoomType);                   // Register enum names inside a QMetaObject
 
 signals:
     void imageMoved(QPointF);           // Image is moved by this control to new coordinates
-    void imageZoomed(int);              // Image is zoomed by specified number of steps (+/-)
     void pointerData(int x, int y);     // Send the XY coordinates of the pointer (in image coordinates)
     void clearPointerData();            // Indicate that the pointer is not currently over the image
 
 public slots:
-    void onRefresh();                   // Called when class chip changes image
-    void setImage(const QImage &);      // Makes a copy of the image and sets it as current
-    void setZoomMode(ZoomType);         // Set the view mode
-    void setZoom(double);               // Set the zoom value
-    void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
-    void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
-    void imageCenterH();                // Centers the image horizontally
-    void imageCenterV();                // Centers the image vertically
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
 
 private slots:
+    void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
+    void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
+    void setZoomMode(ZoomType);         // Set the view mode
+    void setZoom(double);               // Set the zoom value
     void onFind(QString text);          // Search for the named feature
     void onTimeout();                   // Timer timeout handler
     void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
@@ -70,11 +61,11 @@ private:
 
     QTransform m_tx;                    // Transformation matrix from normalized image to screen space
     QTransform m_invtx;                 // Transformation matrix from screen to normalized image space
-    QRect      m_viewPort;              // Bounding rectangle of the current screen view
-    QRectF     m_imageView;             // Bounding rectangle in the texture space of the current screen viewport
+    QRect   m_viewPort;                 // Bounding rectangle of the current screen view
+    QRectF  m_imageView;                // Bounding rectangle in the texture space of the current screen viewport
     WidgetImageOverlay *m_ov;           // Image overlay class
-    QTimer     *m_timer;                // Image refresh timer
-    uint       m_timer_tick;            // Timer timeout tick counter
+    QTimer *m_timer;                    // Image refresh timer
+    uint    m_timer_tick;               // Timer timeout tick counter
     const segdef *m_highlight_segment;  // Segment to highlight in the current image
     const QRect *m_highlight_box;       // Box to highlight in the current image
     bool m_drawAnnotations { true };    // Draw image annotations
@@ -85,8 +76,8 @@ private:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *);
-    void leaveEvent(QEvent* event);
-    void keyPressEvent(QKeyEvent *e);
+    void leaveEvent(QEvent *);
+    void keyPressEvent(QKeyEvent *);
 
     void calcTransform();
     void clampImageCoords(QPointF &tex, qreal xmax = 1.0, qreal ymax = 1.0);

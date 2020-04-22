@@ -39,27 +39,20 @@ public:
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getImage(QString name, bool &ok); // Returns the reference to the image by the image (embedded) name
-    QImage &getLastImage();             // Returns the reference to the last image returned by getImage()
     QList<int> getNodesAt(int x, int y);
     const QStringList getTransistorsAt(int x, int y);
     const QStringList getLayerNames();  // Returns a list of layer / image names
     const segdef *getSegment(uint nodenum); // Returns the segdef given its node number, zero-nodenum segment if not found
     const transdef *getTrans(QString name); // Returns transistor definition given its name, nullptr if not found
 
-signals:
-    void refresh();                     // One of the images has changed
-
 public slots:
     void experimental(int n);           // Runs experimental function number n
     void expDrawTransistors(QPainter &painter);
 
 private:
-    QVector<QImage> m_img;              // Chip layer images
-    uint m_last_image {};               // Index of the last image requested by getImage() call
-
     QHash<uint, segdef> m_segdefs;      // Hash of segment definitions, key is the segment node number
     QVector<transdef> m_transdefs;      // Array of transistor definitions
-
+    QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps
     uint16_t *m_p3[3] {};               // Layer map: [0] diffusion, [1] poly, [2] metal

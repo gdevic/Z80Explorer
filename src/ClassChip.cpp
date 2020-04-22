@@ -231,16 +231,13 @@ bool ClassChip::loadTransdefs(QString dir)
 
 /*
  * Returns the reference to the image by the image index.
- * Returns last image if the index is outside the stored images count
+ * Returns the very first image if the index is outside the stored images count
  */
 QImage &ClassChip::getImage(uint i)
 {
     if (i < uint(m_img.count()))
-    {
-        m_last_image = i;
         return m_img[i];
-    }
-    return getLastImage();
+    return m_img[0];
 }
 
 /*
@@ -254,17 +251,6 @@ QImage &ClassChip::getImage(QString name, bool &ok)
         if (i.text("name") == name)
             return i;
     ok = false;
-    return img_empty;
-}
-
-/*
- * Returns the reference to the last image returned by getImage()
- */
-QImage &ClassChip::getLastImage()
-{
-    static QImage img_empty;
-    if (m_last_image < uint(m_img.count()))
-        return m_img[m_last_image];
     return img_empty;
 }
 
