@@ -66,6 +66,7 @@ bool ClassChip::loadChipResources(QString dir)
         }
         createLayerMapImage("vss.vcc");
         drawAllNetsAsInactive("vss.vcc.nets", "vss.vcc");
+        experimental_3(); // Create transistor paths
 
         setFirstImage("vss.vcc.nets");
 
