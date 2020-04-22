@@ -568,7 +568,7 @@ void WidgetImageView::addAnnotation()
     QString text = QInputDialog::getText(this, "Add annotation", "Annotation text:", QLineEdit::Normal, "", &ok);
     if (ok && !text.isEmpty())
     {
-        ::controller.getChip().annotate.add(text, m_areaRect);
+        ::controller.getChip().annotate.add(text, m_areaRect.normalized());
         DialogEditAnnotations dlg(this);
         dlg.exec();
     }
