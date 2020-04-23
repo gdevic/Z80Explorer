@@ -42,7 +42,7 @@ public:
         { static const QVector<net_t>x {}; return m_buses.contains(name) ? m_buses[name] : x; }
     inline net_t get(const QString &name)       // Returns net number given its name
         { return m_netnums.contains(name) ? m_netnums[name] : 0; }
-    inline QString get(net_t n)                 // Returns net name given its number
+    inline const QString &get(net_t n)          // Returns net name given its number
         { return m_netnames[n]; }
 
     net_t getNetlistCount()                     // Returns the number of nets in the netlist

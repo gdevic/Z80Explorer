@@ -430,7 +430,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Space: m_drawActiveNets = !m_drawActiveNets; break;
     case Qt::Key_Comma: m_drawAnnotations = !m_drawAnnotations; break;
-    case Qt::Key_Period: m_drawActiveTransistors = !m_drawActiveTransistors; break;
+    case Qt::Key_Period: m_drawActiveTransistors = !m_drawActiveTransistors, m_drawAllTransistors = false; break;
     case Qt::Key_Greater: m_drawAllTransistors = !m_drawAllTransistors; break;
     case Qt::Key_Left: moveBy(QPointF(dx,0)); break;
     case Qt::Key_Right: moveBy(QPointF(-dx,0)); break;

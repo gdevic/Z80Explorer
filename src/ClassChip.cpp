@@ -584,9 +584,9 @@ void ClassChip::drawAllNetsAsInactive(QString name, QString nameSourceImage)
 
     QPainter painter(&img);
     painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+    painter.setBrush(QColor(128, 0, 128));
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    painter.setBrush(QColor(128, 0, 128));
     for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
     {
         for (auto path : ::controller.getChip().getSegment(i)->paths)
