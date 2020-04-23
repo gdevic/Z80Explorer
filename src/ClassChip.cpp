@@ -50,7 +50,7 @@ bool ClassChip::loadChipResources(QString dir)
         // Step 2: Generate internal maps and/or load previously generated maps (to speed up the startup time)
 
         buildFeatureMap(); // Builds the feature map from individual layer images of a die
-        shrinkVias("bw.featuremap");
+        shrinkVias("bw.featuremap", "bw.featuremap2");
 
         // Allocate buffers for, and load the layer map
         m_p3[0] = new uint16_t[m_mapsize] {};
@@ -65,9 +65,11 @@ bool ClassChip::loadChipResources(QString dir)
             experimental_2(); // Saves layer map to file to be loaded next time
         }
         createLayerMapImage("vss.vcc");
-        drawAllNetsAsInactive("vss.vcc.nets", "vss.vcc");
+        drawAllNetsAsInactive("vss.vcc", "vss.vcc.nets");
+        redrawNetsColorize("vss.vcc", "vss.vcc.nets.col");
         experimental_4(); // Create transistor paths
 
+        setFirstImage("vss.vcc.nets.col");
         setFirstImage("vss.vcc.nets");
 
         annotate.init();
@@ -502,12 +504,12 @@ void ClassChip::buildFeatureMap()
  * Given #1, top-left pixel on each via block is chosen as a reprenentative
  * There are features on the vias' images that are not square, but those are not functional vias
  */
-void ClassChip::shrinkVias(QString name)
+void ClassChip::shrinkVias(QString source, QString dest)
 {
-    qInfo() << "Shrinking the via map" << name;
+    qInfo() << "Shrinking the via map" << source << "into" << dest;
     bool ok = true;
     // Shallow copy constructor, will create a new image once data buffer is written to
-    QImage img(getImage(name, ok));
+    QImage img(getImage(source, ok));
     Q_ASSERT(ok);
 
     const uchar vias[3] = { BURIED, VIA_DIFF, VIA_POLY };
@@ -543,7 +545,7 @@ void ClassChip::shrinkVias(QString name)
             offset++;
         }
     }
-    img.setText("name", "bw.featuremap2");
+    img.setText("name", dest);
     m_img.append(img);
 }
 
@@ -574,12 +576,12 @@ void ClassChip::createLayerMapImage(QString name)
 /*
  * Draws all nets as inactive into the given image
  */
-void ClassChip::drawAllNetsAsInactive(QString name, QString nameSourceImage)
+void ClassChip::drawAllNetsAsInactive(QString source, QString dest)
 {
-    qInfo() << "Drawing all nets as inactive on top of" << nameSourceImage;
+    qInfo() << "Drawing all nets as inactive on top of" << source << "into" << dest;
     bool ok = true;
     // Shallow copy constructor, will create a new image once data buffer is written to
-    QImage img(getImage(nameSourceImage, ok));
+    QImage img(getImage(source, ok));
     Q_ASSERT(ok);
 
     QPainter painter(&img);
@@ -593,7 +595,45 @@ void ClassChip::drawAllNetsAsInactive(QString name, QString nameSourceImage)
             painter.drawPath(path);
     }
 
-    img.setText("name", name);
+    img.setText("name", dest);
+    m_img.append(img);
+}
+
+/*
+ * Redraws all nets using the color assigned to each net
+ */
+void ClassChip::redrawNetsColorize(QString source, QString dest)
+{
+    qInfo() << "Redrawing all nets/colorize" << source << "into" << dest;
+    bool ok = true;
+    // Shallow copy constructor, will create a new image once data buffer is written to
+    QImage img(getImage(source, ok));
+    Q_ASSERT(ok);
+
+    QPainter painter(&img);
+    painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+    painter.setBrush(QColor(128, 0, 128));
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
+    for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+    {
+        QString name = ::controller.getNetlist().get(i);
+        if (name.startsWith("clk"))
+            painter.setBrush(QColor(200, 200, 200));
+        else if (name.startsWith("m"))
+            painter.setBrush(QColor(128, 192, 128));
+        else if (name.startsWith("t"))
+            painter.setBrush(QColor(128, 128, 192));
+        else if (name.startsWith("pla"))
+            painter.setBrush(QColor(128, 192, 192));
+        else
+            painter.setBrush(QColor(128, 0, 128));
+
+        for (auto path : ::controller.getChip().getSegment(i)->paths)
+            painter.drawPath(path);
+    }
+
+    img.setText("name", dest);
     m_img.append(img);
 }
 

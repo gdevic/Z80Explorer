@@ -68,12 +68,13 @@ private:
     bool convertToGrayscale();          // Converts loaded images to grayscale format
     bool loadLayerMap(QString dir);     // Loads layer map
     void buildFeatureMap();             // Builds the feature map from individual layer images of a die
-    void shrinkVias(QString name);      // Creates a via layer with 1x1 vias
+    void shrinkVias(QString source, QString dest); // Creates a via layer with 1x1 vias
     void createLayerMapImage(QString name); // Creates a color image from the layer map data
     // Experimental code
     void fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
     void drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id);
-    void drawAllNetsAsInactive(QString name, QString nameSourceImage);
+    void drawAllNetsAsInactive(QString source, QString dest);
+    void redrawNetsColorize(QString source, QString dest);
     void experimental_1();              // 3D fill layer map with vss and vcc
     void experimental_2();              // Save layer map to file
     void experimental_3();              // Creates transistors paths hinted by transdef bounding boxes
