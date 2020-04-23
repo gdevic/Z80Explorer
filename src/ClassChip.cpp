@@ -559,8 +559,8 @@ void ClassChip::createLayerMapImage(QString name)
     {
         uint16_t net[3] { m_p3[0][i], m_p3[1][i], m_p3[2][i] };
         uint16_t c = 0;
-        if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = 0x03C0; // vss dark green
-        if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = 0xF800; // vcc red
+        if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = ::controller.getColors().get16(1); // vss
+        if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = ::controller.getColors().get16(2); // vcc
         p[i] = c;
     }
 

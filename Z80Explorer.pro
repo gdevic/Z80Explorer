@@ -25,6 +25,7 @@ SOURCES += \
     src/ClassAnnotate.cpp \
     src/ClassApplog.cpp \
     src/ClassChip.cpp \
+    src/ClassColors.cpp \
     src/ClassController.cpp \
     src/ClassNetlist.cpp \
     src/ClassScript.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     src/ClassAnnotate.h \
     src/ClassApplog.h \
     src/ClassChip.h \
+    src/ClassColors.h \
     src/ClassController.h \
     src/ClassException.h \
     src/ClassNetlist.h \

@@ -2,6 +2,7 @@
 #define CLASSCONTROLLER_H
 
 #include "ClassChip.h"
+#include "ClassColors.h"
 #include "ClassScript.h"
 #include "ClassSim.h"
 #include "ClassSimX.h"
@@ -20,6 +21,7 @@ public:
 
 public: // API
     inline ClassChip    &getChip()    { return m_chip; }    // Returns a reference to the chip class
+    inline ClassColors  &getColors()  { return m_colors; }  // Returns a reference to the colors class
     inline ClassScript  &getScript()  { return m_script; }  // Returns a reference to the script class
     inline ClassSim     &getSim()     { return m_sim; }     // Returns a reference to the sim class
     inline ClassSimX    &getSimx()    { return m_simx; }    // Returns a reference to the simx class
@@ -53,12 +55,13 @@ signals:
     uint onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
 
 private:
-    ClassChip     m_chip;      // Global chip resource class
-    ClassScript   m_script;    // Global scripting support
-    ClassSimX     m_simx;      // Global simulator simx class
-    ClassSim      m_sim;       // Global simulator sim class
-    ClassWatch    m_watch;     // Global watchlist
-    ClassTrickbox m_trick;     // Global trickbox supporting environment
+    ClassChip     m_chip;       // Global chip resource class
+    ClassColors   m_colors;     // Global application colors
+    ClassScript   m_script;     // Global scripting support
+    ClassSimX     m_simx;       // Global simulator simx class
+    ClassSim      m_sim;        // Global simulator sim class
+    ClassWatch    m_watch;      // Global watchlist
+    ClassTrickbox m_trick;      // Global trickbox supporting environment
 };
 
 extern ClassController controller;
