@@ -367,7 +367,7 @@ bool ClassChip::convertToGrayscale()
     QVector<QImage> new_images;
     for (auto image : m_img)
     {
-        qInfo() << "Processing image" << image;
+        qInfo() << "Processing image" << image << image.text("name");
         e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
         QImage new_image = image.convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
         new_image.setText("name", "bw." + image.text("name"));
