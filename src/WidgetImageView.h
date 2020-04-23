@@ -69,7 +69,8 @@ private:
     const segdef *m_highlight_segment;  // Segment to highlight in the current image
     const QRect *m_highlight_box;       // Box to highlight in the current image
     bool m_drawAnnotations { true };    // Draw image annotations
-    bool m_drawTransistors { false };   // Draw transistors
+    bool m_drawActiveTransistors { false };// Draw currently active transistors
+    bool m_drawAllTransistors { false };// Draw all transistors (irrespective of their state)
 
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
