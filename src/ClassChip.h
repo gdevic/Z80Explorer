@@ -21,7 +21,7 @@ struct transdef
     uint drainnode;     // Node (segment) connected to its drain
     QRect box;          // Visual rectangle where it is (roughly) located
     //------------ experimental (3) //------------
-    QPainterPath path;
+    QPainterPath path;  // Outline scan of a transistor feature
 };
 
 /*
@@ -55,6 +55,7 @@ private:
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps
+    uint m_mapsize;                     // Map size in bytes, equals to (m_sx * m_sy)
     uint16_t *m_p3[3] {};               // Layer map: [0] diffusion, [1] poly, [2] metal
 
 private:
@@ -75,10 +76,12 @@ private:
     void drawAllNetsAsInactive(QString name, QString nameSourceImage);
     void experimental_1();              // 3D fill layer map with vss and vcc
     void experimental_2();              // Save layer map to file
-    void experimental_3();
+    void experimental_3();              // Creates transistors paths hinted by transdef bounding boxes
+    void experimental_4();              // Creates transistors paths based on our feature bitmap
     bool scanForTransistor(uchar const *p, QRect t, uint &x, uint &y);
     void edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y);
     uint edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir);
+    bool scanForTransistor_4(uchar const *p, uint &offset);
 };
 
 #endif // CLASSCHIP_H

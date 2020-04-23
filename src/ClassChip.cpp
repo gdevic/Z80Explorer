@@ -53,9 +53,9 @@ bool ClassChip::loadChipResources(QString dir)
         shrinkVias("bw.featuremap");
 
         // Allocate buffers for, and load the layer map
-        m_p3[0] = new uint16_t[m_sy * m_sx] {};
-        m_p3[1] = new uint16_t[m_sy * m_sx] {};
-        m_p3[2] = new uint16_t[m_sy * m_sx] {};
+        m_p3[0] = new uint16_t[m_mapsize] {};
+        m_p3[1] = new uint16_t[m_mapsize] {};
+        m_p3[2] = new uint16_t[m_mapsize] {};
 
         // The layer map is large (chip map size X * Y * 2 bytes) times 3 layers
         // If we cannot load the layer map, we need to create it (and then save it)
@@ -66,7 +66,7 @@ bool ClassChip::loadChipResources(QString dir)
         }
         createLayerMapImage("vss.vcc");
         drawAllNetsAsInactive("vss.vcc.nets", "vss.vcc");
-        experimental_3(); // Create transistor paths
+        experimental_4(); // Create transistor paths
 
         setFirstImage("vss.vcc.nets");
 
@@ -111,6 +111,7 @@ bool ClassChip::loadImages(QString dir)
     }
     m_sx = m_img[0].width();
     m_sy = m_img[0].height();
+    m_mapsize = m_sx * m_sy;
 
     qInfo() << "Loaded" << m_img.count() << "images";
     return true;
@@ -386,7 +387,7 @@ bool ClassChip::loadLayerMap(QString dir)
     QFile file(fileName);
     if (file.open(QFile::ReadOnly))
     {
-        int64_t size = m_sx * m_sy * sizeof(uint16_t); // Size of one layer
+        int64_t size = m_mapsize * sizeof(uint16_t); // Size of one layer
         for (uint i = 0; i < 3; i++)
         {
             int64_t read = file.read((char *) m_p3[i], size);
@@ -425,7 +426,7 @@ void ClassChip::buildFeatureMap()
     // ...and of the destination buffer
     uchar *p_dest = featuremap.bits();
 
-    for (uint i=0; i < m_sx * m_sy; i++)
+    for (uint i=0; i < m_mapsize; i++)
     {
         uchar diff = !!p_diff[i] << DIFF_SHIFT;
         uchar poly = !!p_poly[i] << POLY_SHIFT;
@@ -552,9 +553,9 @@ void ClassChip::shrinkVias(QString name)
 void ClassChip::createLayerMapImage(QString name)
 {
     // Out of 3 layers, compose one visual image that we'd like to see
-    uint16_t *p = new uint16_t[m_sy * m_sx];
+    uint16_t *p = new uint16_t[m_mapsize];
 
-    for (uint i = 0; i < m_sx * m_sy; i++)
+    for (uint i = 0; i < m_mapsize; i++)
     {
         uint16_t net[3] { m_p3[0][i], m_p3[1][i], m_p3[2][i] };
         uint16_t c = 0;
@@ -607,6 +608,7 @@ void ClassChip::experimental(int n)
     if (n==1) return experimental_1();
     if (n==2) return experimental_2();
     if (n==3) return experimental_3();
+    if (n==4) return experimental_4();
     qWarning() << "Invalid experimental function index" << n;
 }
 
@@ -733,7 +735,7 @@ void ClassChip::experimental_2()
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly))
     {
-        int64_t size = m_sx * m_sy * sizeof(uint16_t); // Size of one layer
+        int64_t size = m_mapsize * sizeof(uint16_t); // Size of one layer
         for (uint i = 0; i < 3; i++)
         {
             int64_t written = file.write((const char *) m_p3[i], size);
@@ -799,7 +801,7 @@ void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
             nextdir = edgeWalkFindDir(p, x, y, dir - 3);
         } while (dir == nextdir);
         // Optionally, add dx,dy to make the transistor shape fit better onto the existing segments
-        // The segdefs that we use as background have extra pixel on the right and bottom edges
+        // The segdefs that we use as a background have extra pixel on the right and bottom edges
         uint dx = (nextdir==3 || nextdir==4 || nextdir==5 || nextdir==6);
         uint dy = (nextdir==5 || nextdir==6 || nextdir==7 || nextdir==0);
         path.lineTo(x + dx, y + dy);
@@ -810,10 +812,14 @@ void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
 
 /*
  * Run with the command "ex(3)"
+ * Creates transistors paths based on our feature bitmap and located at coords taken from each transistor
+ * netlist data bounding boxes. The problem with this implementation is that some transistors are meandering
+ * close to each other and their bounding boxes overlap. This function is sometimes not able to detect the
+ * second overlapping transistor, so it fails to create the outline in a couple of cases.
  */
 void ClassChip::experimental_3()
 {
-    qInfo() << "Experimental: create transistor paths";
+    qInfo() << "Experimental: create transistor paths; transistors' locations hinted by transdef";
     QEventLoop e; // Don't freeze the GUI
     int c = 0;
 
@@ -855,4 +861,95 @@ void ClassChip::expDrawTransistors(QPainter &painter)
 
         painter.drawPath(t.path);
     }
+}
+
+/******************************************************************************
+ * Experimental code
+ ******************************************************************************/
+
+/*
+ * Scan a feature bitmap for the next transistor area, return false when we traverse the complete map
+ */
+bool ClassChip::scanForTransistor_4(uchar const *p, uint &offset)
+{
+    // If we land on a transistor bit, skip the transistor by its width
+    while (p[offset] & TRANSISTOR)
+        offset++;
+    // Clean start on a not-a-transistor bit, find the next transistor or the end of the map
+    while (!(p[offset] & TRANSISTOR) && (offset < m_mapsize))
+        offset++;
+    return offset < m_mapsize;
+}
+
+/*
+ * Run with the command "ex(4)"
+ * Creates transistors paths based on our feature bitmap.
+ * There are many more (technically) transistors which are removed from the netlist because they are
+ * either pull-ups or otherwise non-functional transistors. This function will detect all of them and mark
+ * them on a bitmap created.
+ * The last part of this function simply refers to the transdef's transistor data (their bounding boxes) to
+ * assign the transistor outline paths to each.
+ */
+void ClassChip::experimental_4()
+{
+    qInfo() << "Experimental: create transistor paths; transistors' locations scanned from feature bitmap";
+    QEventLoop e; // Don't freeze the GUI
+    int c = 0;
+
+    bool ok = true;
+    // Shallow copy constructor, will create a new image once data buffer is written to
+    QImage img(getImage("bw.featuremap", ok));
+    Q_ASSERT(ok);
+
+    // Render our transistors (paths) into an image we can see
+    QPainter painter(&img);
+    painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
+    painter.setBrush(QColor(255, 255, 255)); // 0xFFFFFFFF  Set this color so we can skip already detected transistors
+
+    QVector<QPainterPath> paths;
+
+    uchar const *p = img.constBits();
+    uint offset = 0;
+    while (scanForTransistor_4(p, offset))
+    {
+        uint x = offset % m_sx;
+        uint y = offset / m_sx;
+
+        // Skip already detected and rendered transistor
+        if (img.pixel(x,y) == 0xFFFFFFFF)
+            continue;
+
+        // Build the path around a transistor
+        paths.append(QPainterPath(QPointF(x, y)));
+        edgeWalk(p, paths.last(), x, y);
+
+        // Render that transistor into our image
+        painter.drawPath(paths.last());
+
+        if ((++c % 1000) == 0)
+        {
+            qDebug() << "Transistors:" << paths.count() << " x:" << x << "y:" << y;
+            e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
+        }
+    }
+    qDebug() << "Transistors mapped:" << paths.count();
+
+    //-----------------------------------------------------------------------------------------
+    // Assign our outline paths into m_transdefs transistors for which the bounding box matches
+    //-----------------------------------------------------------------------------------------
+    for (const auto &path : paths)
+    {
+        for (auto &t : m_transdefs)
+        {
+            if (path.boundingRect() == t.box)
+            {
+                t.path = path;
+                break;
+            }
+        }
+    }
+    qDebug() << "Finished";
+
+    img.setText("name", "bw.transistors4");
+    m_img.append(img);
 }
