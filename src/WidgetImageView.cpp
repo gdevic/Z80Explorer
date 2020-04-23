@@ -432,10 +432,10 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Comma: m_drawAnnotations = !m_drawAnnotations; break;
     case Qt::Key_Period: m_drawActiveTransistors = !m_drawActiveTransistors; break;
     case Qt::Key_Greater: m_drawAllTransistors = !m_drawAllTransistors; break;
-    case Qt::Key_Left: m_tex += QPointF(-dx,0); break;
-    case Qt::Key_Right: m_tex += QPointF(dx,0); break;
-    case Qt::Key_Up: m_tex += QPointF(0,-dy); break;
-    case Qt::Key_Down: m_tex += QPointF(0,dy); break;
+    case Qt::Key_Left: moveBy(QPointF(dx,0)); break;
+    case Qt::Key_Right: moveBy(QPointF(-dx,0)); break;
+    case Qt::Key_Up: moveBy(QPointF(0,dy)); break;
+    case Qt::Key_Down: moveBy(QPointF(0,-dy)); break;
     case Qt::Key_PageUp: setZoom(m_scale * 1.2); break;
     case Qt::Key_PageDown: setZoom(m_scale / 1.2); break;
     }
