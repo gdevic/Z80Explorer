@@ -50,7 +50,7 @@ private:
     QPointF m_tex;                      // Texture coordinate to map to view center (normalized)
     qreal   m_scale;                    // Scaling value
     ZoomType m_view_mode;               // Current zoom mode
-    bool    m_drawActiveNets { true };  // Draw active nets
+    bool    m_drawActiveNets {true};    // Draw active nets
 
     QPoint  m_mousePos;                 // Current mouse position
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
@@ -68,9 +68,9 @@ private:
     uint    m_timer_tick;               // Timer timeout tick counter
     const segdef *m_highlight_segment;  // Segment to highlight in the current image
     const QRect *m_highlight_box;       // Box to highlight in the current image
-    bool m_drawAnnotations { true };    // Draw image annotations
-    bool m_drawActiveTransistors { false };// Draw currently active transistors
-    bool m_drawAllTransistors { false };// Draw all transistors (irrespective of their state)
+    bool m_drawAnnotations {true};      // Draw image annotations
+    bool m_drawActiveTransistors {false};// Draw currently active transistors
+    bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
 
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
