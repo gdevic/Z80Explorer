@@ -1,6 +1,7 @@
 #ifndef WIDGETIMAGEVIEW_H
 #define WIDGETIMAGEVIEW_H
 
+#include "AppTypes.h"
 #include <QWidget>
 
 class WidgetImageOverlay;
@@ -41,6 +42,8 @@ private slots:
     void contextMenu(const QPoint &pos);// Mouse context menu handler
     void editAnnotations();             // Opens dialog to edit annotations
     void addAnnotation();               // Adds a new annotation within the selected box and opens dialog to edit it
+    void netsDriving();                 // Shows nets that the selected net is driving
+    void netsDriven();                  // Shows nets that drive the selected net
 
 private:
     Ui::WidgetImageView *ui;
@@ -72,11 +75,14 @@ private:
     bool m_drawActiveTransistors {false};// Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
 
+    QVector<net_t> m_drivingNets;       // List of nets expanded by the driving/driven heuristic
+
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    void mouseDoubleClickEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *);
     void leaveEvent(QEvent *);
     void keyPressEvent(QKeyEvent *);

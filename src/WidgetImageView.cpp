@@ -259,6 +259,49 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
+    // Draw nodes picked by the mouse double-click and then expanded
+    //------------------------------------------------------------------------
+    if (m_drivingNets.count())
+    {
+        painter.save();
+        painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        QColor col(Qt::darkBlue); // The starting color of expanded (not the first) nets
+        int h, s, l; // We are using hue and saturation of the starting color, varying the lightness
+        col.getHsl(&h, &s, &l);
+        l = 0; // Set the lightness component of the starting color to 0
+
+        for (int i = 0; i < m_drivingNets.count(); i++)
+        {
+            net_t net = m_drivingNets[i];
+
+            // Coloring heuristic:
+            // 1. The very first net has a distinct color since that's our base net
+            // 2. Each successive net is colored in the increasing brightness of another color (blue)
+            // 3. Except for nets that have defined custom colors (like clk, for example)
+            if (i == 0)
+                painter.setBrush(QColor(255,255,255)); // The color of the first net
+            else
+            {
+                if (::controller.getColors().isDefined(net))
+                    painter.setBrush(::controller.getColors().get(net));
+                else
+                {
+                    // Proportionally increment the lightness component to visually separate different nets
+                    col.setHsl(h, s, l + 127);
+                    painter.setBrush(col);
+                    if (m_drivingNets.count() > 1) // Precompute the lightness for the next net
+                        l += 128 / (m_drivingNets.count() - 1);
+                }
+            }
+
+            const segdef *seg = ::controller.getChip().getSegment(net);
+            for (const auto &path : seg->paths)
+                painter.drawPath(path);
+        }
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
     // Draw transistors
     //------------------------------------------------------------------------
     if (m_drawActiveTransistors || m_drawAllTransistors)
@@ -382,6 +425,29 @@ void WidgetImageView::mouseReleaseEvent (QMouseEvent *event)
     m_drawSelection = event->button() == Qt::RightButton;
 }
 
+/*
+ * Double-clicking the mouse on a point in the image selects a net to trace
+ */
+void WidgetImageView::mouseDoubleClickEvent (QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_mousePos = event->pos();
+        QPoint imageCoords = m_invtx.map(event->pos());
+        if (m_image.valid(imageCoords.x(), imageCoords.y()))
+        {
+            // Select only one valid net number that is not vss or vcc
+            QVector<net_t> nets = ::controller.getChip().getNetsAt(imageCoords.x(), imageCoords.y());
+            QVector<net_t> newNets;
+            for (const auto n : nets)
+                if (n > 2) newNets.append(n);
+            if (newNets.count() == 1)
+                m_drivingNets = newNets;
+            update();
+        }
+    }
+}
+
 void WidgetImageView::wheelEvent(QWheelEvent *event)
 {
     if (event->delta() > 0)
@@ -457,11 +523,23 @@ void WidgetImageView::contextMenu(const QPoint& pos)
 {
     QMenu contextMenu(this);
 
-    // "Add annotation" option only if the selection area has some width to it
+    // "Add annotation" option, only if the selection area has some width to it
     QAction actionAddAnnotation("Add annotation...", this);
     connect(&actionAddAnnotation, SIGNAL(triggered()), this, SLOT(addAnnotation()));
     if (m_drawSelection && m_areaRect.width())
         contextMenu.addAction(&actionAddAnnotation);
+
+    // "Driving nets" option, only if the user picked a single net node
+    QAction actionDriving("Driving nets", this);
+    connect(&actionDriving, SIGNAL(triggered()), this, SLOT(netsDriving()));
+    if (m_drivingNets.count() == 1)
+        contextMenu.addAction(&actionDriving);
+
+    // "Driven by" option, only if the user picked a single net node
+    QAction actionDriven("Driven by", this);
+    connect(&actionDriven, SIGNAL(triggered()), this, SLOT(netsDriven()));
+    if (m_drivingNets.count() == 1)
+        contextMenu.addAction(&actionDriven);
 
     QAction actionEditAnnotation("Edit annotations...", this);
     connect(&actionEditAnnotation, SIGNAL(triggered()), this, SLOT(editAnnotations()));
@@ -488,6 +566,31 @@ void WidgetImageView::addAnnotation()
         dlg.exec();
     }
 }
+
+/*
+ * Appends nets that the selected net is driving
+ */
+void WidgetImageView::netsDriving()
+{
+    Q_ASSERT(m_drivingNets.count() == 1);
+    m_drivingNets.append(::controller.getNetlist().netsDriving(m_drivingNets[0]));
+    QStringList list = ::controller.getNetlist().get(m_drivingNets);
+    list.removeFirst(); // Remove the first element which is the net we started at
+    qInfo() << QString::number(m_drivingNets[0]) << "driving" << list;
+}
+
+/*
+ * Appends nets that drive the selected net
+ */
+void WidgetImageView::netsDriven()
+{
+    Q_ASSERT(m_drivingNets.count() == 1);
+    m_drivingNets.append(::controller.getNetlist().netsDriven(m_drivingNets[0]));
+    QStringList list = ::controller.getNetlist().get(m_drivingNets);
+    list.removeFirst(); // Remove the first element which is the net we started at
+    qInfo() << QString::number(m_drivingNets[0]) << "driven by" << list;
+}
+
 /*
  * Opens dialog to edit annotations
  */
