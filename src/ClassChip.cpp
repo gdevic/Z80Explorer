@@ -288,12 +288,21 @@ const QStringList ClassChip::getLayerNames()
 const QVector<net_t> ClassChip::getNetsAt(int x, int y)
 {
     QVector<net_t> list;
-    for(const auto &s : m_segdefs)
+
+    // Use our layer map to read vss, vcc since they are the largest, already mapped, areas
+    uint offset = x + y * m_sx;
+    if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 1) list.append(1); // vss
+    if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 2) list.append(2); // vcc
+
+    for (const auto &s : m_segdefs)
     {
-        for (const auto &path : s.paths) // XXX Use our own feature map for vss and vcc
+        if (s.nodenum > 2) // Skip vss and vcc segments
         {
-            if (path.contains(QPointF(x, y)) && !list.contains(s.nodenum))
-                list.append(s.nodenum);
+            for (const auto &path : s.paths)
+            {
+                if (path.contains(QPointF(x, y)) && !list.contains(s.nodenum))
+                    list.append(s.nodenum);
+            }
         }
     }
     return list;
