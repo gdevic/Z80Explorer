@@ -344,7 +344,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         {
             emit pointerData(imageCoords.x(), imageCoords.y());
 
-            QList<uint> nodes = ::controller.getChip().getNodesAt(imageCoords.x(), imageCoords.y());
+            QVector<net_t> nodes = ::controller.getChip().getNetsAt(imageCoords.x(), imageCoords.y());
             QString s;
             for (const uint i : nodes)
                 s.append(QString::number(i)).append(',');

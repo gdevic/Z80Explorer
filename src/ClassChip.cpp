@@ -282,17 +282,15 @@ const QStringList ClassChip::getLayerNames()
     return names;
 }
 
-// XXX Make it a vector and use net_t, rename to getNetsAt
-//     Use our own feature map for vss and vcc
 /*
  * Returns a list of (unique) nets located at the specified image coordinates
  */
-const QList<uint> ClassChip::getNodesAt(int x, int y)
+const QVector<net_t> ClassChip::getNetsAt(int x, int y)
 {
-    QList<uint> list;
+    QVector<net_t> list;
     for(const auto &s : m_segdefs)
     {
-        for (const auto &path : s.paths)
+        for (const auto &path : s.paths) // XXX Use our own feature map for vss and vcc
         {
             if (path.contains(QPointF(x, y)) && !list.contains(s.nodenum))
                 list.append(s.nodenum);
