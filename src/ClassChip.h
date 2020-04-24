@@ -9,17 +9,17 @@
 // Contains visual definition of a segment (wire at the same voltage level)
 struct segdef
 {
-    uint nodenum {};                // A non-zero node (segment) number
-    QVector<QPainterPath> paths {}; // Visual QPainter class' list of paths (patches) describing the area
+    net_t nodenum {};               // A non-zero net number
+    QVector<QPainterPath> paths {}; // Outline of the segment topology as a set of QPainter paths
 };
 
 // Contains individual transistor definition
 struct transdef
 {
     QString name;       // Transistor name (ex. 't251')
-    uint gatenode;      // Node (segment) connected to its gate
+    net_t gatenode;     // Node (segment) connected to its gate
     QRect box;          // Visual rectangle where it is (roughly) located
-    QPainterPath path;  // Precise outlines of a transistor topology
+    QPainterPath path;  // Outline of the transistor topology as a single QPainter path
 };
 
 /*
@@ -37,10 +37,11 @@ public:
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getImage(QString name, bool &ok); // Returns the reference to the image by the image (embedded) name
+
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QStringList getTransistorsAt(int x, int y);
     const QStringList getLayerNames();  // Returns a list of layer / image names
-    const segdef *getSegment(uint nodenum); // Returns the segdef given its node number, zero-nodenum segment if not found
+    const segdef *getSegment(net_t net); // Returns the segdef given its net number, zero if not found
     const transdef *getTrans(QString name); // Returns transistor definition given its name, nullptr if not found
 
 public slots:
@@ -48,7 +49,7 @@ public slots:
     void expDrawTransistors(QPainter &painter, bool highlightAll);
 
 private:
-    QHash<uint, segdef> m_segdefs;      // Hash of segment definitions, key is the segment node number
+    QHash<net_t, segdef> m_segdefs;     // Hash of segment definitions, key is the segment net number
     QVector<transdef> m_transdefs;      // Array of transistor definitions
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps

@@ -145,7 +145,7 @@ bool ClassChip::loadSegdefs(QString dir)
                 if (list.length() > 4)
                 {
                     segdef s;
-                    uint key = list[0].toUInt();
+                    net_t key = list[0].toUInt();
                     QPainterPath path;
                     for (int i=3; i<list.length()-1; i+=2)
                     {
@@ -311,13 +311,13 @@ const QStringList ClassChip::getTransistorsAt(int x, int y)
 }
 
 /*
- * Returns segdef given its node number, zero-nodenum segment if not found
+ * Returns the segdef given its net number, zero if not found
  */
-const segdef *ClassChip::getSegment(uint nodenum)
+const segdef *ClassChip::getSegment(net_t net)
 {
     static const segdef empty;
-    if (m_segdefs.contains(nodenum))
-        return &m_segdefs[nodenum];
+    if (m_segdefs.contains(net))
+        return &m_segdefs[net];
     return &empty;
 }
 
