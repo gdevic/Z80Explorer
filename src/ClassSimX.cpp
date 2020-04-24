@@ -96,7 +96,8 @@ uint ClassSimX::doReset()
     set(1, "int");
     set(1, "nmi");
     set(1, "wait");
-    recalcNetlist(allNets());
+    QVector<net_t> nets = allNets();
+    recalcNetlist(nets);
 
     // Start the cycle count from the begining of a reset sequence
     m_hcycletotal = 0;
@@ -199,25 +200,20 @@ inline void ClassSimX::setDB(uint8_t db)
 /*
  * Sets a named input net to pullup or pulldown status
  */
-void ClassSimX::set(bool on, QString name)
+inline void ClassSimX::set(bool on, QString name)
 {
     net_t n = get(name);
-    if (n)
-    {
-        m_netlist[n].pullup = on;
-        m_netlist[n].pulldown = !on;
-        QVector<net_t> list {n}; // XXX optimize to send only 1 net
-        recalcNetlist(list);
-    }
-    else
-        qWarning() << "set: nonexistent net" << name;
+    m_netlist[n].pullup = on;
+    m_netlist[n].pulldown = !on;
+    QVector<net_t> list {n};
+    recalcNetlist(list);
 }
 
 inline bool ClassSimX::getNetValue()
 {
     // 1. deal with power connections first
-    if (group.contains(ngnd)) return false;
-    if (group.contains(npwr)) return true;
+    if (Q_UNLIKELY(group.contains(ngnd))) return false;
+    if (Q_UNLIKELY(group.contains(npwr))) return true;
     // 2. deal with pullup/pulldowns next
     for (auto i : group)
     {
@@ -243,7 +239,7 @@ inline bool ClassSimX::getNetValue()
     return max_state;
 }
 
-inline void ClassSimX::recalcNetlist(QVector<net_t> list)
+inline void ClassSimX::recalcNetlist(QVector<net_t> &list)
 {
     recalcList.clear();
     for (int i=0; i<100 && list.count(); i++) // loop limiter
@@ -257,7 +253,7 @@ inline void ClassSimX::recalcNetlist(QVector<net_t> list)
 
 inline void ClassSimX::recalcNet(net_t n)
 {
-    if ((n==ngnd) || (n==npwr)) return;
+    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
     getNetGroup(n);
     auto newState = getNetValue();
     for (auto i : group)
@@ -304,7 +300,7 @@ inline void ClassSimX::setTransOff(struct trans &t)
 
 inline void ClassSimX::addRecalcNet(net_t n)
 {
-    if ((n==ngnd) || (n==npwr)) return;
+    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
     if (!recalcList.contains(n))
         recalcList.append(n);
 }
@@ -319,7 +315,7 @@ inline void ClassSimX::addNetToGroup(net_t n)
 {
     if (group.contains(n)) return;
     group.append(n);
-    if ((n==ngnd) || (n==npwr)) return;
+    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
     for (trans *t : m_netlist[n].c1c2s)
     {
         if (!t->on) continue;

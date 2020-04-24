@@ -38,7 +38,7 @@ private:
     //----------------------- Simulator ------------------------
     void halfCycle();
     bool getNetValue();
-    void recalcNetlist(QVector<net_t> list);
+    void recalcNetlist(QVector<net_t> &list);
     void setTransOn(struct trans &t);
     void setTransOff(struct trans &t);
     void addRecalcNet(net_t n);
