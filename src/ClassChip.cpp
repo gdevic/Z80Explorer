@@ -28,8 +28,10 @@ static const QStringList files =
 #define BURIED_SHIFT     3
 #define VIA_DIFF_SHIFT   2
 #define VIA_POLY_SHIFT   1
+#define IONS_SHIFT       0
 #define TRANSISTOR_SHIFT 7
 
+#define IONS       (1 << IONS_SHIFT)
 #define DIFF       (1 << DIFF_SHIFT)
 #define POLY       (1 << POLY_SHIFT)
 #define METAL      (1 << METAL_SHIFT)
@@ -427,6 +429,7 @@ void ClassChip::buildFeatureMap()
 
     bool ok = true;
     // Get a pointer to the first byte of each image data
+    const uchar *p_ions = getImage("bw.ions", ok).constBits();
     const uchar *p_diff = getImage("bw.diffusion", ok).constBits();
     const uchar *p_poly = getImage("bw.polysilicon", ok).constBits();
     const uchar *p_metl = getImage("bw.metal", ok).constBits();
@@ -442,16 +445,19 @@ void ClassChip::buildFeatureMap()
 
     for (uint i=0; i < m_mapsize; i++)
     {
+        uchar ions = !!p_ions[i] << IONS_SHIFT;
         uchar diff = !!p_diff[i] << DIFF_SHIFT;
         uchar poly = !!p_poly[i] << POLY_SHIFT;
         uchar metl = !!p_metl[i] << METAL_SHIFT;
         uchar buri = !!p_buri[i] << BURIED_SHIFT;
         uchar viad = !!(p_vias[i] && diff) << VIA_DIFF_SHIFT;
         uchar viap = !!(p_vias[i] && poly) << VIA_POLY_SHIFT;
-        //uchar ions = (!!(*p_ions++)) << VIA_DIFF_SHIFT;  XXX how to process ions?
+        // Ions under a transistor make it non-functional, always closed, disrespective of its gate voltage
+        // There are 4 transistors on Z80 die that have this trap and they are already hard-coded in transdefs.js file
+        Q_UNUSED(ions);
 
         // Vias are connections from metal to (poly or diffusion) layer
-        if (false && p_vias[i]) // XXX Temporarily remove one warning
+        if (false && p_vias[i]) // Optionally check vias
         {
             // Check that the vias are actually connected to either poly or metal
             if (!diff && !poly)
@@ -467,11 +473,9 @@ void ClassChip::buildFeatureMap()
         uchar c = diff | poly | metl | buri | viad | viap;
 
         // Check valid combinations of features and correct them
-        if (1)
+        // These combinations appear in the Z80 layers, many are valid but some are non-functional:
+        switch (c)
         {
-            // These combinations appear in the Z80 layers, many are valid but some are non-functional:
-            switch (c)
-            {
             case (0                                       ): c = 0                                       ; break; // - No features
             case (DIFF                                    ): c = DIFF                                    ; break; // - Diffusion area
             case (     POLY                               ): c =      POLY                               ; break; // - Poly trace
@@ -493,11 +497,12 @@ void ClassChip::buildFeatureMap()
             case (     POLY|METAL|                VIA_POLY): c =      POLY|METAL|                VIA_POLY; break; // - Metal connected to poly
             default:
                 qWarning() << "Unexpected feature combination:" << c;
-            }
-            // Reassign bits based on the correction
-            viad = c & VIA_DIFF;
-            viap = c & VIA_POLY;
         }
+
+        // Reassign bits based on the correction
+        viad = c & VIA_DIFF;
+        viap = c & VIA_POLY;
+
         // Mark a transistor area (poly over diffusion without a buried contact)
         // Transistor path also splits the diffusion area into two, so we remove DIFF over these traces
         if ((c & (DIFF | POLY | BURIED)) == (DIFF | POLY)) c = (c & ~DIFF) | TRANSISTOR;
