@@ -25,7 +25,7 @@ void ClassSimX::initChip()
     m_netlist[npwr].floats = false;
 
     // Turn off all transistors
-    for (auto t : m_transdefs)
+    for (auto &t : m_transdefs)
         t.on = false;
 }
 

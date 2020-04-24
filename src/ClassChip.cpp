@@ -279,7 +279,7 @@ void ClassChip::setFirstImage(QString name)
 const QStringList ClassChip::getLayerNames()
 {
     QStringList names;
-    for (auto name : m_img)
+    for (const auto &name : m_img)
         names.append(name.text("name"));
     return names;
 }
@@ -287,9 +287,9 @@ const QStringList ClassChip::getLayerNames()
 QList<int> ClassChip::getNodesAt(int x, int y)
 {
     QList<int> list;
-    for(auto s : m_segdefs)
+    for (const auto &s : m_segdefs)
     {
-        for (auto path : s.paths)
+        for (const auto &path : s.paths)
         {
             if (path.contains(QPointF(x, y)))
                 list.append(s.nodenum);
@@ -301,7 +301,7 @@ QList<int> ClassChip::getNodesAt(int x, int y)
 const QStringList ClassChip::getTransistorsAt(int x, int y)
 {
     QStringList list;
-    for(auto s : m_transdefs)
+    for (const auto &s : m_transdefs)
     {
         if (s.box.contains(QPoint(x, y)))
             list.append(s.name);
@@ -355,7 +355,7 @@ void ClassChip::drawTransistors(QImage &img)
     painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
     painter.setOpacity(0.5);
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
-    for (auto s : m_transdefs)
+    for (const auto &s : m_transdefs)
         painter.drawRect(s.box);
 }
 
@@ -591,7 +591,7 @@ void ClassChip::drawAllNetsAsInactive(QString source, QString dest)
 
     for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
     {
-        for (auto path : ::controller.getChip().getSegment(i)->paths)
+        for (const auto &path : ::controller.getChip().getSegment(i)->paths)
             painter.drawPath(path);
     }
 
@@ -629,7 +629,7 @@ void ClassChip::redrawNetsColorize(QString source, QString dest)
         else
             painter.setBrush(QColor(128, 0, 128));
 
-        for (auto path : ::controller.getChip().getSegment(i)->paths)
+        for (const auto &path : ::controller.getChip().getSegment(i)->paths)
             painter.drawPath(path);
     }
 
@@ -896,7 +896,7 @@ void ClassChip::expDrawTransistors(QPainter &painter, bool highlightAll)
     painter.setBrush(Qt::yellow);
     painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
 
-    for (auto &t : m_transdefs)
+    for (const auto &t : m_transdefs)
     {
         if (!highlightAll && ::controller.getSimx().getNetState(t.gatenode) == 0)
             painter.setBrush(Qt::gray);

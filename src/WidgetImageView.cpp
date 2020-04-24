@@ -226,7 +226,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         {
             if (::controller.getSimx().getNetState(i) == 1)
             {
-                for (auto path : ::controller.getChip().getSegment(i)->paths)
+                for (const auto &path : ::controller.getChip().getSegment(i)->paths)
                     painter.drawPath(path);
             }
         }
@@ -253,7 +253,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             painter.drawRect(*m_highlight_box);
         if (m_highlight_segment)
         {
-            for (auto path : m_highlight_segment->paths)
+            for (const auto &path : m_highlight_segment->paths)
                 painter.drawPath(path);
         }
         painter.restore();
@@ -355,7 +355,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
 
             // For each node number in the nodes list, get their name
             QList<QString> list;
-            for(net_t n : nodes)
+            for (net_t n : nodes)
             {
                 QString name = ::controller.getNetlist().get(n);
                 if (!name.isEmpty() && !list.contains(name)) // Do not create duplicates

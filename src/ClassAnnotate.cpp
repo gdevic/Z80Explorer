@@ -54,7 +54,7 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
 {
     QPen pen(Qt::white);
     painter.setPen(pen);
-    for (auto a : m_annot)
+    for (const auto &a : m_annot)
     {
         // Selective rendering hides annotations that are too large or too small for the given scale
         qreal apparent = a.pix * scale;
