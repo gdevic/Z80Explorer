@@ -268,24 +268,6 @@ QStringList ClassNetlist::getNodenames()
 }
 
 /*
- * Returns a list of nets that the given net is driving
- */
-const QVector<net_t> ClassNetlist::netsDriving(net_t n)
-{
-    QVector<net_t> nets;
-    const QVector<trans *> &gates = m_netlist[n].gates;
-
-    for (const auto t : gates)
-    {
-        if (t->c1 > 2) // c1 is the source
-            nets.append(t->c1);
-        if (t->c2 > 2) // c2 is the drain
-            nets.append(t->c2);
-    }
-    return nets;
-}
-
-/*
  * Returns net names for each net in the list
  */
 const QStringList ClassNetlist::get(const QVector<net_t> &nets)
@@ -300,13 +282,33 @@ const QStringList ClassNetlist::get(const QVector<net_t> &nets)
 }
 
 /*
- * Returns a list of nets that the given net is being driven by
+ * Returns a sorted list of nets that the given net is driving
+ */
+const QVector<net_t> ClassNetlist::netsDriving(net_t n)
+{
+    QVector<net_t> nets;
+    const QVector<trans *> &gates = m_netlist[n].gates;
+
+    for (const auto t : gates)
+    {
+        if (t->c1 > 2) // c1 is the source
+            nets.append(t->c1);
+        if (t->c2 > 2) // c2 is the drain
+            nets.append(t->c2);
+    }
+    std::sort(nets.begin(), nets.end());
+    return nets;
+}
+
+/*
+ * Returns a sorted list of nets that the given net is being driven by
  */
 const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 {
     QVector<net_t> nets;
     for (const auto &t : m_netlist[n].c1c2s)
         nets.append(t->gate);
+    std::sort(nets.begin(), nets.end());
     return nets;
 }
 

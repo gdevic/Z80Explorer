@@ -37,7 +37,7 @@ public:
     ~ClassNetlist();
 
     bool loadResources(const QString dir);
-    QStringList getNodenames();                 // Returns a list of net and bus names concatenated
+    QStringList getNodenames();                 // Returns a list of net and bus names concatenated XXX needed any more?
     const QVector<net_t> &getBus(QString &name) // Returns nets that comprise a bus
         { static const QVector<net_t>x {}; return m_buses.contains(name) ? m_buses[name] : x; }
     inline net_t get(const QString &name)       // Returns net number given its name
@@ -46,8 +46,8 @@ public:
         { return m_netnames[n]; }
     const QStringList get(const QVector<net_t> &nets); // Returns net names for each net in the list
 
-    const QVector<net_t> netsDriving(net_t n);  // Returns a list of nets that the given net is driving
-    const QVector<net_t> netsDriven(net_t n);   // Returns a list of nets that the given net is being driven by
+    const QVector<net_t> netsDriving(net_t n);  // Returns a sorted list of nets that the given net is driving
+    const QVector<net_t> netsDriven(net_t n);   // Returns a sorted list of nets that the given net is being driven by
 
     net_t getNetlistCount()                     // Returns the number of nets in the netlist
         { return m_netlist.count(); }

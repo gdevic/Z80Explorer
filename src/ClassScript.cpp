@@ -1,6 +1,5 @@
 #include "ClassScript.h"
 #include <ClassController.h>
-#include <algorithm>
 #include <QDebug>
 
 ClassScript::ClassScript(QObject *parent) : QObject(parent)
@@ -69,11 +68,8 @@ QScriptValue ClassScript::onDriving(QScriptContext *ctx, QScriptEngine *)
 {
     net_t net = ctx->argument(0).toNumber();
     QVector<net_t> nets = ::controller.getNetlist().netsDriving(net);
-    std::sort(nets.begin(), nets.end());
-    QString s;
-    for (auto n : nets)
-        s += QString::number(n) + " ";
-    emit ::controller.getScript().response(s);
+    QStringList list = ::controller.getNetlist().get(nets);
+    emit ::controller.getScript().response(list.join(" "));
     return "OK";
 }
 
@@ -81,11 +77,8 @@ QScriptValue ClassScript::onDriven(QScriptContext *ctx, QScriptEngine *)
 {
     net_t net = ctx->argument(0).toNumber();
     QVector<net_t> nets = ::controller.getNetlist().netsDriven(net);
-    std::sort(nets.begin(), nets.end());
-    QString s;
-    for (auto n : nets)
-        s += QString::number(n) + " ";
-    emit ::controller.getScript().response(s);
+    QStringList list = ::controller.getNetlist().get(nets);
+    emit ::controller.getScript().response(list.join(" "));
     return "OK";
 }
 
