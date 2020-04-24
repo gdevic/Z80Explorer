@@ -5,9 +5,6 @@
 #include <QColor>
 #include <QHash>
 
-// Invalid color (pick an ugly one or an odd number easy to spot)
-#define COLOR_INVALID  (QRgb(0xCDCDCD))
-
 /*
  * This class contains and manages colors used by the application
  */
@@ -17,8 +14,11 @@ class ClassColors : public QObject
 public:
     explicit ClassColors(QObject *parent = nullptr);
 
+    bool isDefined(uint net)            // Returns true if a net has a defined custom color
+        { return m_colors.contains(net); }
+
     QColor &get(uint net)               // Returns the color of a net as QColor
-        { return m_colors.contains(net) ? m_colors[net] : m_invalid; }
+        { return m_colors.contains(net) ? m_colors[net] : m_colors[0]; }
 
     uint16_t get16(uint net)            // Returns the color of a net as 565 rgb
         { return toUint16(get(net)); }
@@ -30,7 +30,6 @@ public:
 
 private:
     QHash<uint, QColor> m_colors;       // Hash of net numbers to their custom colors
-    QColor m_invalid { COLOR_INVALID }; // Color value of the invalid color
 };
 
 #endif // CLASSCOLORS_H

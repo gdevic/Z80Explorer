@@ -3,7 +3,8 @@
 ClassColors::ClassColors(QObject *parent) : QObject(parent)
 {
     // Populate some known colors
-    m_colors[1] = QColor(  0, 127,   0); // vss dark green
-    m_colors[2] = QColor(192,   0,   0); // vcc red
-    m_colors[3] = QColor(200, 200, 200); // clk white-ish
+    m_colors[0] = QColor(Qt::black);        // Also used as an invalid color
+    m_colors[1] = QColor(  0, 127,   0);    // vss medium green
+    m_colors[2] = QColor(192,   0,   0);    // vcc quite red
+    m_colors[3] = QColor(Qt::white);        // clk
 }
