@@ -284,10 +284,10 @@ const QStringList ClassChip::getLayerNames()
     return names;
 }
 
-QList<int> ClassChip::getNodesAt(int x, int y)
+const QList<uint> ClassChip::getNodesAt(int x, int y)
 {
-    QList<int> list;
-    for (const auto &s : m_segdefs)
+    QList<uint> list;
+    for(const auto &s : m_segdefs)
     {
         for (const auto &path : s.paths)
         {

@@ -344,12 +344,12 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         {
             emit pointerData(imageCoords.x(), imageCoords.y());
 
-            QList<int> nodes = ::controller.getChip().getNodesAt(imageCoords.x(), imageCoords.y());
+            QList<uint> nodes = ::controller.getChip().getNodesAt(imageCoords.x(), imageCoords.y());
             QString s;
-            for (int &i : nodes)
+            for (const uint i : nodes)
                 s.append(QString::number(i)).append(',');
             QStringList trans = ::controller.getChip().getTransistorsAt(imageCoords.x(), imageCoords.y());
-            for (QString name : trans)
+            for (const QString &name : trans)
                 s.append(name).append(',');
             m_ov->setText(1, s);
 
