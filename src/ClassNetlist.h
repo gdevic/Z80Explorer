@@ -1,7 +1,7 @@
 #ifndef CLASSNETLIST_H
 #define CLASSNETLIST_H
 
-#include "z80state.h"
+#include "AppTypes.h"
 #include <QObject>
 #include <QHash>
 

@@ -1,11 +1,8 @@
 #ifndef Z80STATE_H
 #define Z80STATE_H
 
-#include <QObject>
-
-typedef uint16_t net_t;                 // Type of an index to the net array
-typedef uint16_t tran_t;                // Type of an index to the transistor array
-typedef uint8_t  pin_t;                 // Type of the pin state (0, 1; or 2 for floating)
+#include "AppTypes.h"
+#include <QString>
 
 // Holds chip state, mainly registers and pins
 struct z80state

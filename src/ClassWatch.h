@@ -1,7 +1,8 @@
 #ifndef CLASSWATCH_H
 #define CLASSWATCH_H
 
-#include "z80state.h"
+#include "AppTypes.h"
+#include <QObject>
 
 #define MAX_WATCH_HISTORY  1000
 

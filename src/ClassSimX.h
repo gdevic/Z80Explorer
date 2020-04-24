@@ -2,6 +2,7 @@
 #define CLASSSIMX_H
 
 #include "ClassNetlist.h"
+#include "z80state.h"
 #include <QElapsedTimer>
 #include <QTimer>
 

@@ -51,6 +51,7 @@ SOURCES += \
     src/main.cpp
 
 HEADERS += \
+    src/AppTypes.h \
     src/ClassAnnotate.h \
     src/ClassApplog.h \
     src/ClassChip.h \
