@@ -270,9 +270,9 @@ QStringList ClassNetlist::getNodenames()
 /*
  * Returns a list of nets that the given net is driving
  */
-const QList<net_t> ClassNetlist::netsDriving(net_t n)
+const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 {
-    QList<net_t> nets;
+    QVector<net_t> nets;
     const QVector<trans *> &gates = m_netlist[n].gates;
 
     for (const auto t : gates)
@@ -288,9 +288,9 @@ const QList<net_t> ClassNetlist::netsDriving(net_t n)
 /*
  * Returns a list of nets that the given net is being driven by
  */
-const QList<net_t> ClassNetlist::netsDriven(net_t n)
+const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 {
-    QList<net_t> nets;
+    QVector<net_t> nets;
     const QVector<trans *> &c1c2s = m_netlist[n].gates;
 
     for (const auto t : c1c2s)
