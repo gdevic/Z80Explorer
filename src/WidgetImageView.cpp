@@ -390,8 +390,8 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             QString s;
             for (const uint i : nodes)
                 s.append(QString::number(i)).append(", ");
-            QStringList trans = ::controller.getChip().getTransistorsAt(imageCoords.x(), imageCoords.y());
-            s.append(trans.join(", "));
+            QString trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
+            s.append(trans);
             m_ov->setText(1, s);
 
             // For each node number in the nodes list, get their name

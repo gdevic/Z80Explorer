@@ -299,15 +299,17 @@ const QVector<net_t> ClassChip::getNetsAt(int x, int y)
     return list;
 }
 
-const QStringList ClassChip::getTransistorsAt(int x, int y)
+/*
+ * Returns a transistor found at the specified image coordinates or empty string for no transistor
+ */
+const QString ClassChip::getTransistorAt(int x, int y)
 {
-    QStringList list;
     for (const auto &s : m_transdefs)
     {
-        if (s.box.contains(QPoint(x, y)))
-            list.append(s.name);
+        if (s.path.contains(QPoint(x, y)))
+            return s.name;
     }
-    return list;
+    return QString();
 }
 
 /*
