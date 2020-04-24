@@ -16,6 +16,7 @@ struct segdef
 struct transdef
 {
     QString name;       // Transistor name (ex. 't251')
+    uint gatenode;      // Node (segment) connected to its gate
     QRect box;          // Visual rectangle where it is (roughly) located
     QPainterPath path;  // Precise outlines of a transistor topology
 };
