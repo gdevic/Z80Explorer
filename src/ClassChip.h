@@ -36,7 +36,7 @@ public:
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getImage(QString name, bool &ok); // Returns the reference to the image by the image (embedded) name
-    const QList<uint> getNodesAt(int x, int y);
+    const QList<uint> getNodesAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QStringList getTransistorsAt(int x, int y);
     const QStringList getLayerNames();  // Returns a list of layer / image names
     const segdef *getSegment(uint nodenum); // Returns the segdef given its node number, zero-nodenum segment if not found
