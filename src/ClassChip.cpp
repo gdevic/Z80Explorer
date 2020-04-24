@@ -209,9 +209,6 @@ bool ClassChip::loadTransdefs(QString dir)
                 {
                     transdef t;
                     t.name = list[0].mid(2, list[0].length()-3);
-                    t.gatenode = list[1].toUInt();
-                    t.sourcenode = list[2].toUInt();
-                    t.drainnode = list[3].toUInt();
                     // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
                     // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
                     t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt() - 1, y - list[6].toInt() - 1));
@@ -898,7 +895,8 @@ void ClassChip::expDrawTransistors(QPainter &painter, bool highlightAll)
 
     for (const auto &t : m_transdefs)
     {
-        if (!highlightAll && ::controller.getSimx().getNetState(t.gatenode) == 0)
+        uint net = ::controller.getSimx().get(t.name);
+        if (!highlightAll && ::controller.getSimx().getNetState(net) == 0)
             painter.setBrush(Qt::gray);
         else
             painter.setBrush(Qt::yellow);
