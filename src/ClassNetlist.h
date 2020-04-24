@@ -45,6 +45,9 @@ public:
     inline const QString &get(net_t n)          // Returns net name given its number
         { return m_netnames[n]; }
 
+    const QList<net_t> netsDriving(net_t n);    // Returns a list of nets that the given net is driving
+    const QList<net_t> netsDriven(net_t n);     // Returns a list of nets that the given net is being driven by
+
     net_t getNetlistCount()                     // Returns the number of nets in the netlist
         { return m_netlist.count(); }
     bool getNetState(net_t i)                   // Returns the net logic state

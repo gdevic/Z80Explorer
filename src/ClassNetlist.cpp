@@ -268,6 +268,40 @@ QStringList ClassNetlist::getNodenames()
 }
 
 /*
+ * Returns a list of nets that the given net is driving
+ */
+const QList<net_t> ClassNetlist::netsDriving(net_t n)
+{
+    QList<net_t> nets;
+    const QVector<trans *> &gates = m_netlist[n].gates;
+
+    for (const auto t : gates)
+    {
+        if (t->c1 > 2) // c1 is the source
+            nets.append(t->c1);
+        if (t->c2 > 2) // c2 is the drain
+            nets.append(t->c2);
+    }
+    return nets;
+}
+
+/*
+ * Returns a list of nets that the given net is being driven by
+ */
+const QList<net_t> ClassNetlist::netsDriven(net_t n)
+{
+    QList<net_t> nets;
+    const QVector<trans *> &c1c2s = m_netlist[n].gates;
+
+    for (const auto t : c1c2s)
+    {
+        if (t->gate > 2)
+            nets.append(t->gate);
+    }
+    return nets;
+}
+
+/*
  * Adds bus by name and a set of nets listed by their name
  */
 void ClassNetlist::addBus(const QString &name, const QStringList &netslist)
