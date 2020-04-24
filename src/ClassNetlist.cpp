@@ -305,13 +305,8 @@ const QStringList ClassNetlist::get(const QVector<net_t> &nets)
 const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 {
     QVector<net_t> nets;
-    const QVector<trans *> &c1c2s = m_netlist[n].gates;
-
-    for (const auto t : c1c2s)
-    {
-        if (t->gate > 2)
-            nets.append(t->gate);
-    }
+    for (const auto &t : m_netlist[n].c1c2s)
+        nets.append(t->gate);
     return nets;
 }
 
