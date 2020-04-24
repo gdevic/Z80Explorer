@@ -58,10 +58,8 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     // Load and set main window location and size
     // Include also all docking windows location, size and docking status
     QSettings settings;
-    restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
-    restoreState(settings.value("MainWindow/State").toByteArray());
-    // Let the log and command windows use the same space on the bottom
-    //tabifyDockWidget(m_cmd, m_log);
+    restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
+    restoreState(settings.value("mainWindowState").toByteArray());
 
     // Connect the rest of the menu actions...
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
@@ -79,16 +77,10 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
 }
 
 /*
- * Main window destructor. Do all clean-ups here.
+ * Main window destructor.
  */
 MainWindow::~MainWindow()
 {
-    // Save window configuration after the main application finished executing
-    // Include also all docking windows location, size and docking status
-    QSettings settings;
-    settings.setValue("MainWindow/Geometry", saveGeometry());
-    settings.setValue("MainWindow/State", saveState());
-
     delete ui;
 }
 
@@ -97,6 +89,12 @@ MainWindow::~MainWindow()
  */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    // Save window configuration after the main application finished executing
+    // Include also all docking windows location, size and docking status
+    QSettings settings;
+    settings.setValue("mainWindowGeometry", saveGeometry());
+    settings.setValue("mainWindowState", saveState());
+
     onSaveWatchlist();
     event->accept();
 }
