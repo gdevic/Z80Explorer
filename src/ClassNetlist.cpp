@@ -286,6 +286,20 @@ const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 }
 
 /*
+ * Returns net names for each net in the list
+ */
+const QStringList ClassNetlist::get(const QVector<net_t> &nets)
+{
+    QStringList list;
+    for (net_t n : nets)
+    {
+        QString name = get(n);
+        list.append(name.isEmpty() ? QString::number(n) : name);
+    }
+    return list;
+}
+
+/*
  * Returns a list of nets that the given net is being driven by
  */
 const QVector<net_t> ClassNetlist::netsDriven(net_t n)

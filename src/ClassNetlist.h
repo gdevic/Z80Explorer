@@ -44,6 +44,7 @@ public:
         { return m_netnums.contains(name) ? m_netnums[name] : 0; }
     inline const QString &get(net_t n)          // Returns net name given its number
         { return m_netnames[n]; }
+    const QStringList get(const QVector<net_t> &nets); // Returns net names for each net in the list
 
     const QVector<net_t> netsDriving(net_t n);  // Returns a list of nets that the given net is driving
     const QVector<net_t> netsDriven(net_t n);   // Returns a list of nets that the given net is being driven by

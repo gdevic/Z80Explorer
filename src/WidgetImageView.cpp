@@ -337,31 +337,23 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
     }
     else
     {
-        // With no buttons pushed, a mouse move needs to update the information
-        // about the net or object it is currently pointing to
+        // With no buttons pushed, update information on which nets or objects the mouse is pointing to
         QPoint imageCoords = m_invtx.map(event->pos());
         if (m_image.valid(imageCoords.x(), imageCoords.y()))
         {
             emit pointerData(imageCoords.x(), imageCoords.y());
 
-            QVector<net_t> nodes = ::controller.getChip().getNetsAt(imageCoords.x(), imageCoords.y());
+            const QVector<net_t> nodes = ::controller.getChip().getNetsAt(imageCoords.x(), imageCoords.y());
             QString s;
             for (const uint i : nodes)
-                s.append(QString::number(i)).append(',');
+                s.append(QString::number(i)).append(", ");
             QStringList trans = ::controller.getChip().getTransistorsAt(imageCoords.x(), imageCoords.y());
-            for (const QString &name : trans)
-                s.append(name).append(',');
+            s.append(trans.join(", "));
             m_ov->setText(1, s);
 
             // For each node number in the nodes list, get their name
-            QList<QString> list;
-            for (net_t n : nodes)
-            {
-                QString name = ::controller.getNetlist().get(n);
-                if (!name.isEmpty() && !list.contains(name)) // Do not create duplicates
-                    list.append(name);
-            }
-            m_ov->setText(2, list.join(','));
+            const QStringList list = ::controller.getNetlist().get(nodes);
+            m_ov->setText(2, list.join(", "));
         }
         else
         {
