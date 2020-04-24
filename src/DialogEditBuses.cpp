@@ -16,7 +16,7 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
 
     // Read all nets and buses and separate nets from buses
     ClassNetlist &Net = ::controller.getNetlist();
-    for (auto name : Net.getNodenames())
+    for (auto name : Net.getNetnames())
     {
         if (Net.get(name)) // Non-zero net number is a net
             ui->listNets->addItem(name);
@@ -105,7 +105,7 @@ void DialogEditBuses::onCreate()
     if (!name.isNull() && name.trimmed().length() > 0)
     {
         name = name.trimmed().toUpper(); // Bus names are always upper-cased
-        name = name.replace(' ', '_'); // YYY Should we be doing more checks on valid characters?
+        name = name.replace(' ', '_');
         if (ui->listBuses->findItems(name, Qt::MatchExactly).count() == 0) // Don't add it if a bus name already exists
         {
             add(name, nets);

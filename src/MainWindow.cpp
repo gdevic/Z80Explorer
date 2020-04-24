@@ -149,7 +149,7 @@ void MainWindow::onEditBuses()
 void MainWindow::onEditWatchlist()
 {
     DialogEditWatchlist dlg(this);
-    dlg.setNodeList(::controller.getNetlist().getNodenames());
+    dlg.setNodeList(::controller.getNetlist().getNetnames());
     dlg.setWatchlist(::controller.getWatch().getWatchlist());
     if (dlg.exec()==QDialog::Accepted)
         ::controller.getWatch().updateWatchlist(dlg.getWatchlist());

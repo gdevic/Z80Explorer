@@ -260,7 +260,7 @@ bool ClassNetlist::loadPullups(const QString dir)
 /*
  * Returns a list of net and bus names concatenated
  */
-QStringList ClassNetlist::getNodenames()
+QStringList ClassNetlist::getNetnames()
 {
     QStringList nodes = m_netnums.keys();
     QStringList buses = m_buses.keys();

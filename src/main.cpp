@@ -23,7 +23,6 @@ ClassController controller {}; // Application-wide controller class
 void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QSettings settings;
-    // XXX This is temporary: logLevel should be 2 (not to include qDebug() messages)
     int logLevel = settings.value("AppLogLevel", 3).toInt();
 
     QByteArray localMsg = msg.toLocal8Bit();
