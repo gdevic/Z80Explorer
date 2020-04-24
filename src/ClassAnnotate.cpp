@@ -131,7 +131,7 @@ bool ClassAnnotate::save(QString dir)
 {
     QString fileName = dir + "/annotations.json";
     QFile saveFile(fileName);
-    if (saveFile.open(QIODevice::WriteOnly))
+    if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {
         QJsonObject data;
         write(data);
