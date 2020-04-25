@@ -824,11 +824,12 @@ bool ClassChip::scanForTransistor(uchar const *p, QRect t, uint &x, uint &y)
     return false;
 }
 
+// Directional lookups: starting with the "up", going clockwise in 45 degree steps
 static const int dx[8] = { 0, 1, 1, 1, 0,-1,-1,-1 };
 static const int dy[8] = {-1,-1, 0, 1, 1, 1, 0,-1 };
 
 #define OFFSET(dx,dy) (x+(dx) + (y+(dy)) * m_sx)
-uint ClassChip::edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir)
+inline uint ClassChip::edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir)
 {
     for (int i = 0; i < 8; i++)
     {
@@ -853,8 +854,11 @@ void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
         {
             x += dx[dir];
             y += dy[dir];
-            if ((x == startx) && (y == starty))
+            if (Q_UNLIKELY((x == startx) && (y == starty)))
+            {
+                path.lineTo(x, y); // This is the last point; coincides with the starting point
                 return;
+            }
             nextdir = edgeWalkFindDir(p, x, y, dir - 3);
         } while (dir == nextdir);
         // Optionally, add dx,dy to make the transistor shape fit better onto the existing segments
@@ -893,7 +897,7 @@ void ClassChip::experimental_3()
         // Find the top-leftmost edge of a transistor
         if (!scanForTransistor(p, t.box, x, y)) // There are few trans in Visual 6502 transdefs.js that are...not (?)
         {
-            qWarning() << "Unable to scan transistor" << t.name << t.box << "Is it a trap?";
+            qWarning() << "Unable to scan transistor" << t.name << t.box;
             continue;
         }
         // Build the path around the transistor
@@ -906,7 +910,7 @@ void ClassChip::experimental_3()
 
 /*
  * Draws all transistors in two shades: yellow for active and gray for inactive
- * Optionally, for the test, draw all highlighted
+ * with an additional option to highlight all of them irrespective of their state
  */
 void ClassChip::expDrawTransistors(QPainter &painter, bool highlightAll)
 {
