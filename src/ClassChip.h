@@ -46,7 +46,7 @@ public:
 
 public slots:
     void experimental(int n);           // Runs experimental function number n
-    void expDrawTransistors(QPainter &painter, bool highlightAll);
+    void expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll);
 
 private:
     QHash<net_t, segdef> m_segdefs;     // Hash of segment definitions, key is the segment net number

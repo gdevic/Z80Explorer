@@ -3,6 +3,7 @@
 
 #include "AppTypes.h"
 #include <QWidget>
+#include <QQueue>
 
 class WidgetImageOverlay;
 struct segdef;
@@ -66,9 +67,11 @@ private:
     QTransform m_invtx;                 // Transformation matrix from screen to normalized image space
     QRect   m_viewPort;                 // Bounding rectangle of the current screen view
     QRectF  m_imageView;                // Bounding rectangle in the texture space of the current screen viewport
+    QQueue<qreal> m_perf;               // Helps calculate the rolling average of the painter's performance
     WidgetImageOverlay *m_ov;           // Image overlay class
     QTimer *m_timer;                    // Image refresh timer
     uint    m_timer_tick;               // Timer timeout tick counter
+
     const segdef *m_highlight_segment;  // Segment to highlight in the current image
     const QRect *m_highlight_box;       // Box to highlight in the current image
     bool m_drawAnnotations {true};      // Draw image annotations

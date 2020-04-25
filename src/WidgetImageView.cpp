@@ -162,35 +162,16 @@ void WidgetImageView::clampImageCoords(QPointF &tex, qreal xmax, qreal ymax)
     tex.setY(qBound(0.0, tex.y(), ymax));
 }
 
-#if 0
-// Return the coordinates within the image that the view is clipped at, given
-// its position and zoom ratio. This rectangle corresponds to what the user sees.
-QRectF WidgetImageView::getImageView()
-{
-    // Point 0 is at the top-left corner; point 1 is at the bottom-right corner of the view.
-    // Do the inverse map to get to the coordinates in the texture space.
-    QPointF t0 = m_invtx.map(QPointF(0,0));
-    QPointF t1 = m_invtx.map(QPointF(m_viewPort.right(), m_viewPort.bottom()));
-
-    // Normalize the texture coordinates and clamp them to the range of [0,1]
-    t0.rx() /= m_image.width();
-    t0.ry() /= m_image.height();
-    t1.rx() /= m_image.width();
-    t1.ry() /= m_image.height();
-
-    clampImageCoords(t0);
-    clampImageCoords(t1);
-
-    return QRectF(t0, t1);
-}
-#endif
-
 //============================================================================
 // Callbacks
 //============================================================================
 
 void WidgetImageView::paintEvent(QPaintEvent *)
 {
+    // Measure the drawing performance
+    QElapsedTimer timer;
+    timer.start();
+
     QPainter painter(this);
     m_viewPort = painter.viewport();
 
@@ -307,7 +288,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawActiveTransistors || m_drawAllTransistors)
     {
         painter.save();
-        ::controller.getChip().expDrawTransistors(painter, m_drawAllTransistors);
+        ::controller.getChip().expDrawTransistors(painter, m_imageView.toAlignedRect(), m_drawAllTransistors);
         painter.restore();
     }
     //------------------------------------------------------------------------
@@ -328,6 +309,16 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.setPen(QPen(Qt::white, 3.0 / m_scale, Qt::DashLine));
         painter.drawRect(m_areaRect);
         painter.restore();
+    }
+
+    // Measure the drawing performance
+    qreal ms = timer.elapsed();
+    if (ms > 200) // If the drawing takes more than this many milliseconds, it will be measured and shown
+    {
+        m_perf.enqueue(ms);
+        ms = 0; for (int i = 0; i < m_perf.count(); i++) ms += m_perf.at(i);
+        qDebug() << "Widget paint:" << qRound(ms / m_perf.count()) << "ms";
+        if (m_perf.count() == 4) m_perf.dequeue();
     }
 }
 

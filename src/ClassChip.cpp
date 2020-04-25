@@ -912,19 +912,21 @@ void ClassChip::experimental_3()
  * Draws all transistors in two shades: yellow for active and gray for inactive
  * with an additional option to highlight all of them irrespective of their state
  */
-void ClassChip::expDrawTransistors(QPainter &painter, bool highlightAll)
+void ClassChip::expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll)
 {
-    painter.setBrush(Qt::yellow);
-    painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
+    const static QBrush brush[2] = { Qt::gray, Qt::yellow };
+    const static QPen pens[2] = { QPen(QColor(), 0, Qt::NoPen), QPen(QColor(255, 0, 255), 1, Qt::SolidLine) };
 
     for (const auto &t : m_transdefs)
     {
-        if (!highlightAll && ::controller.getSimx().getNetState(t.gatenode) == 0)
-            painter.setBrush(Qt::gray);
-        else
-            painter.setBrush(Qt::yellow);
-
-        painter.drawPath(t.path);
+        // Speed up rendering by clipping to the viewport's image rectangle
+        if (t.box.intersected(viewport) != QRect())
+        {
+            bool state = ::controller.getSimx().getNetState(t.gatenode);
+            painter.setPen(pens[state]);
+            painter.setBrush(brush[state || highlightAll]);
+            painter.drawPath(t.path);
+        }
     }
 }
 
