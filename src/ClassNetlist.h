@@ -57,6 +57,9 @@ public:
     void addBus(const QString &name, const QStringList &netlist); // Adds bus by name and a set of nets listed by their name
     void clearBuses() { m_buses.clear(); }      // Clear all buses, used only by the DialogEditBuses
 
+    // You should not call this function - call ::controller.setNetName() since it will also broadcast the event.
+    void setNetName(const QString name, net_t); // Sets a name (alias) for a net number
+
 protected:
     QVector<trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
     QVector<net> m_netlist;                     // Array of nets, indexed by the net number

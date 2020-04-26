@@ -45,6 +45,7 @@ private slots:
     void addAnnotation();               // Adds a new annotation within the selected box and opens dialog to edit it
     void netsDriving();                 // Shows nets that the selected net is driving
     void netsDriven();                  // Shows nets that drive the selected net
+    void editNetName();                 // Opens dialog to edit selected net name (alias)
 
 private:
     Ui::WidgetImageView *ui;

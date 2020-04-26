@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPainter>
 #include <QRegularExpression>
 #include <QResizeEvent>
@@ -532,6 +533,12 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     if (m_drivingNets.count() == 1)
         contextMenu.addAction(&actionDriven);
 
+    // "Edit net name..." option, only if the user picked a single net node
+    QAction actionEditNetName("Edit net name...", this);
+    connect(&actionEditNetName, SIGNAL(triggered()), this, SLOT(editNetName()));
+    if (m_drivingNets.count() == 1)
+        contextMenu.addAction(&actionEditNetName);
+
     QAction actionEditAnnotation("Edit annotations...", this);
     connect(&actionEditAnnotation, SIGNAL(triggered()), this, SLOT(editAnnotations()));
     contextMenu.addAction(&actionEditAnnotation);
@@ -580,6 +587,21 @@ void WidgetImageView::netsDriven()
     QStringList list = ::controller.getNetlist().get(m_drivingNets);
     list.removeFirst(); // Remove the first element which is the net we started at
     qInfo() << QString::number(m_drivingNets[0]) << "driven by" << list;
+}
+
+/*
+ * Opens dialog to edit selected net name (alias)
+ */
+void WidgetImageView::editNetName()
+{
+    Q_ASSERT(m_drivingNets.count() == 1);
+    QStringList allNames = ::controller.getNetlist().getNetnames();
+    QString name = QInputDialog::getText(this, "Edit net name", "Enter the name (alias) for the selected net\n", QLineEdit::Normal);
+    if (name.isNull() || (name.trimmed().length() == 0))
+        return;
+    if (allNames.contains(name) && (QMessageBox::question(this, "Edit net name", "The name '" + name + "' is already in use.\nDo you want to proceed and overwrite the old name?") != QMessageBox::Yes))
+        return;
+    ::controller.setNetName(name, m_drivingNets[0]);
 }
 
 /*
