@@ -1,4 +1,5 @@
 #include "ClassNetlist.h"
+#include <QCollator>
 #include <QDebug>
 #include <QFile>
 #include <QSettings>
@@ -54,11 +55,19 @@ bool ClassNetlist::saveNetNames(const QString fileName)
         out << "// This file contains custom net names, overrides of the names defined in nodenames.js\n";
         out << "// and definitions of buses (collections of nets). Modify by hand only when the app is not running.\n";
         out << "var nodenames_override = {\n";
+
+        QStringList names; // Write out custom names, sorted alphabetically
         for (int i=0; i<MAX_NET; i++)
         {
             if (m_netoverrides[i])
-                out << m_netnames[i] << ": " << QString::number(i) << ",\n";
-        }        
+                names.append(m_netnames[i]);
+        }
+        QCollator collator; // Sort in the correct numerical order, naturally (so, after "a9" comes "a10")
+        collator.setNumericMode(true);
+        std::sort(names.begin(), names.end(), collator);
+        for (auto n : names)
+            out << n << ": " << QString::number(m_netnums[n]) << ",\n";
+
         out << "// Buses:\n"; // Write out the buses, sorted alphabetically
         QStringList buses = m_buses.keys();
         buses.sort();
