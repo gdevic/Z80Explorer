@@ -41,6 +41,15 @@ DialogEditAnnotations::~DialogEditAnnotations()
 }
 
 /*
+ * Focus on the selected index
+ */
+void DialogEditAnnotations::selectRow(int i)
+{
+    if (i >= 0)
+        ui->listAll->setCurrentRow(i);
+}
+
+/*
  * User clicked on the Apply button
  */
 void DialogEditAnnotations::onApply()

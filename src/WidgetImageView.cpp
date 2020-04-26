@@ -564,6 +564,7 @@ void WidgetImageView::addAnnotation()
     {
         ::controller.getChip().annotate.add(text, m_areaRect.normalized());
         DialogEditAnnotations dlg(this);
+        dlg.selectRow(::controller.getChip().annotate.count() - 1); // Selects the last annotation (the newly added one)
         dlg.exec();
     }
 }
@@ -617,6 +618,8 @@ void WidgetImageView::editNetName()
 void WidgetImageView::editAnnotations()
 {
     DialogEditAnnotations dlg(this);
+    QPoint pos = m_invtx.map(m_pinMousePos);
+    dlg.selectRow(::controller.getChip().annotate.get(pos)); // Selects the annotation under the mouse pointer (or none)
     dlg.exec();
 }
 

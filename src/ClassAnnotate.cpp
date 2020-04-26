@@ -47,6 +47,21 @@ void ClassAnnotate::add(QString text, QRect box)
 }
 
 /*
+ * Returns index of the annotation at the given coordinate or -1 for no annotation
+ */
+int ClassAnnotate::get(QPoint &pos)
+{
+    for (int i = 0; i < m_annot.count(); i++)
+    {
+        annotation &a = m_annot[i];
+        QRect r = QRect(a.pos.x(), a.pos.y(), a.pix * a.text.text().length() / m_someXFactor, a.pix);
+        if (r.contains(pos))
+            return i;
+    }
+    return -1;
+}
+
+/*
  * Draws annotations
  * scale is the current image scaling value, used to selectively draw different text sizes
  */
@@ -74,6 +89,7 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
         // drawStaticText() anchor is at the top-left point (drawText() is on the bottom-left)
         m_fixedFont.setPixelSize(a.pix); // Base all text on the same font family; set the size
         painter.setFont(m_fixedFont);
+        //painter.drawRect(a.pos.x(), a.pos.y(), a.pix * a.text.text().length() / m_someXFactor, a.pix); // Testing: Draw box around the text
         painter.drawStaticText(a.pos, a.text);
     }
 }

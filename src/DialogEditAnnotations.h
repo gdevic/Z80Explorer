@@ -17,6 +17,7 @@ class DialogEditAnnotations : public QDialog
 public:
     explicit DialogEditAnnotations(QWidget *parent);
     ~DialogEditAnnotations();
+    void selectRow(int i); // Focus on the selected index
 
 private slots:
     void onUp();
