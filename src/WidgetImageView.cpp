@@ -599,10 +599,14 @@ void WidgetImageView::editNetName()
 {
     Q_ASSERT(m_drivingNets.count() == 1);
     QStringList allNames = ::controller.getNetlist().getNetnames();
-    QString name = QInputDialog::getText(this, "Edit net name", "Enter the name (alias) for the selected net\n", QLineEdit::Normal);
-    if (name.isNull() || (name.trimmed().length() == 0))
+    QString oldName = ::controller.getNetlist().get(m_drivingNets[0]);
+    bool ok;
+    QString name = QInputDialog::getText(this, "Edit net name", "Enter the name (alias) for the selected net\n", QLineEdit::Normal, oldName, &ok);
+    if (!ok)
         return;
-    if (allNames.contains(name) && (QMessageBox::question(this, "Edit net name", "The name '" + name + "' is already in use.\nDo you want to proceed and overwrite the old name?") != QMessageBox::Yes))
+    if ((name.trimmed().length() == 0) && (QMessageBox::question(this, "Edit net name", "Delete net name '" + name + "'?") != QMessageBox::Yes))
+        return;
+    else if (allNames.contains(name) && (QMessageBox::question(this, "Edit net name", "The name '" + name + "' is already in use.\nDo you want to proceed and overwrite the old name?") != QMessageBox::Yes))
         return;
     ::controller.setNetName(name, m_drivingNets[0]);
 }
