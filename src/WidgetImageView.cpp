@@ -13,6 +13,7 @@
 #include <QRegularExpression>
 #include <QResizeEvent>
 #include <QTimer>
+#include <QToolTip>
 
 WidgetImageView::WidgetImageView(QWidget *parent) :
     QWidget(parent),
@@ -389,6 +390,9 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             // For each node number in the nodes list, get their name
             const QStringList list = ::controller.getNetlist().get(nodes);
             m_ov->setText(2, list.join(", "));
+
+            // XXX Test more the usability of this tooltip
+            //QToolTip::showText(event->globalPos(), list.join(","));
         }
         else
         {
