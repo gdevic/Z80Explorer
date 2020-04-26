@@ -643,6 +643,14 @@ void ClassChip::redrawNetsColorize(QString source, QString dest)
             painter.setBrush(QColor(128, 128, 192));
         else if (name.startsWith("pla"))
             painter.setBrush(QColor(128, 192, 192));
+        else if (name.startsWith("dbus"))
+            painter.setBrush(QColor(0, 192, 0));
+        else if (name.startsWith("ubus"))
+            painter.setBrush(QColor(128, 255, 0));
+        else if (name.startsWith("vbus"))
+            painter.setBrush(QColor(0, 255, 128));
+        else if (name.startsWith("abus"))
+            painter.setBrush(QColor(128, 128, 255));
         else
             painter.setBrush(QColor(128, 0, 128));
 
