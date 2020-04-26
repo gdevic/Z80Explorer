@@ -69,6 +69,8 @@ bool ClassChip::loadChipResources(QString dir)
         createLayerMapImage("vss.vcc");
         drawAllNetsAsInactive("vss.vcc", "vss.vcc.nets");
         redrawNetsColorize("vss.vcc", "vss.vcc.nets.col");
+        connect(&::controller, &ClassController::netNameChanged, this, [this]() // May need different colors for renamed nets
+            { redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); } );
         experimental_4(); // Create transistor paths
 
         setFirstImage("vss.vcc.nets.col");
@@ -659,6 +661,16 @@ void ClassChip::redrawNetsColorize(QString source, QString dest)
     }
 
     img.setText("name", dest);
+
+    // If the dest image already exists, swap it with the newly drawn one
+    for (int i=0; i<m_img.count(); i++)
+    {
+        if (m_img[i].text("name") == dest)
+        {
+            m_img[i].swap(img);
+            return;
+        }
+    }
     m_img.append(img);
 }
 
