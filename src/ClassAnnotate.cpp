@@ -32,7 +32,7 @@ void ClassAnnotate::add(QString text, QRect box)
 {
     annotation a(text);
 
-    qreal pixX = qreal(box.width()) / (text.length() / m_someXFactor);
+    qreal pixX = qreal(box.width()) / (textLength(a.text) / m_someXFactor);
     qreal pixY = box.height();
     qreal pix = qMin(pixX, pixY);
 
@@ -55,7 +55,7 @@ QVector<uint> ClassAnnotate::get(QPoint &pos)
     for (int i = 0; i < m_annot.count(); i++)
     {
         annotation &a = m_annot[i];
-        QRect r = QRect(a.pos.x(), a.pos.y(), a.pix * a.text.text().length() / m_someXFactor, a.pix);
+        QRect r = QRect(a.pos.x(), a.pos.y(), a.pix * textLength(a.text) / m_someXFactor, a.pix);
         if (r.contains(pos))
             sel.append(i);
     }
@@ -85,7 +85,7 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
 {
     QPen pen(Qt::white);
     painter.setPen(pen);
-    for (const auto &a : m_annot)
+    for (auto &a : m_annot)
     {
         // Selective rendering hides annotations that are too large or too small for the given scale
         qreal apparent = a.pix * scale;
@@ -98,14 +98,14 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
             qreal thickness = a.pix / 10.0;
             pen.setWidthF(thickness);
             painter.setPen(pen);
-            qreal dx = a.pix * a.text.text().length() / m_someXFactor;
+            qreal dx = a.pix * textLength(a.text) / m_someXFactor;
             painter.drawLine(a.pos + QPoint(thickness, thickness), a.pos + QPoint(dx - thickness, thickness));
         }
 
         // drawStaticText() anchor is at the top-left point (drawText() is on the bottom-left)
         m_fixedFont.setPixelSize(a.pix); // Base all text on the same font family; set the size
         painter.setFont(m_fixedFont);
-        //painter.drawRect(a.pos.x(), a.pos.y(), a.pix * a.text.text().length() / m_someXFactor, a.pix); // Testing: Draw box around the text
+        //painter.drawRect(a.pos.x(), a.pos.y(), a.pix * textLength(a.text) / m_someXFactor, a.pix); // Testing: Draw box around the text
         painter.drawStaticText(a.pos, a.text);
     }
 }

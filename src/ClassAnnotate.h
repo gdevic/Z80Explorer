@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QPainter>
 #include <QStaticText>
+#include <QTextDocumentFragment>
 
 // Contains individual annotation object
 struct annotation
@@ -45,6 +46,8 @@ private:
     QFont m_fixedFont;                  // Font used to render annotations
     const qreal m_someXFactor = 1.8;    // Depending on a font, we need to stretch its rendering
 
+    int textLength(const QStaticText &text) // Returns the length of a text with HTML tags stripped
+        { return QTextDocumentFragment::fromHtml(text.text()).toPlainText().length(); }
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 };
