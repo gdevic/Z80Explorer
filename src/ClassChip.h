@@ -38,6 +38,7 @@ public:
     QImage &getImage(uint i);           // Returns the reference to the image by the image index
     QImage &getImage(QString name, bool &ok); // Returns the reference to the image by the image (embedded) name
 
+    template<bool includeVssVcc>
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QString getTransistorAt(int x, int y); // Returns a transistor found at the specified image coordinates
     const QStringList getLayerNames();  // Returns a list of layer / image names

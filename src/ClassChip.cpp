@@ -289,15 +289,17 @@ const QStringList ClassChip::getLayerNames()
 /*
  * Returns a list of (unique) nets located at the specified image coordinates
  */
+template<bool includeVssVcc>
 const QVector<net_t> ClassChip::getNetsAt(int x, int y)
 {
     QVector<net_t> list;
-
     // Use our layer map to read vss, vcc since they are the largest, already mapped, areas
     uint offset = x + y * m_sx;
-    if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 1) list.append(1); // vss
-    if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 2) list.append(2); // vcc
-
+    if (includeVssVcc)
+    {
+        if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 1) list.append(1); // vss
+        if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 2) list.append(2); // vcc
+    }
     for (const auto &s : m_segdefs)
     {
         if (s.nodenum > 2) // Skip vss and vcc segments
@@ -311,6 +313,10 @@ const QVector<net_t> ClassChip::getNetsAt(int x, int y)
     }
     return list;
 }
+
+// Explicit instantiation so we don't have to keep the templated code in a header file
+template const QVector<net_t> ClassChip::getNetsAt<true>(int, int);
+template const QVector<net_t> ClassChip::getNetsAt<false>(int, int);
 
 /*
  * Returns a transistor found at the specified image coordinates or empty string for no transistor

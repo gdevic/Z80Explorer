@@ -379,7 +379,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         {
             emit pointerData(imageCoords.x(), imageCoords.y());
 
-            const QVector<net_t> nodes = ::controller.getChip().getNetsAt(imageCoords.x(), imageCoords.y());
+            const QVector<net_t> nodes = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
             QString s;
             for (const uint i : nodes)
                 s.append(QString::number(i)).append(", ");
@@ -434,14 +434,11 @@ void WidgetImageView::mouseDoubleClickEvent (QMouseEvent *event)
         if (m_image.valid(imageCoords.x(), imageCoords.y()))
         {
             // Select only one valid net number that is not vss or vcc
-            QVector<net_t> nets = ::controller.getChip().getNetsAt(imageCoords.x(), imageCoords.y());
-            QVector<net_t> newNets;
-            for (const auto n : nets)
-                if (n > 2) newNets.append(n);
-            if (newNets.count() == 0) // No valid nets, clear the base selected net
+            QVector<net_t> nets = ::controller.getChip().getNetsAt<false>(imageCoords.x(), imageCoords.y());
+            if (nets.count() == 0) // No valid nets, clear the base selected net
                 m_drivingNets.clear();
-            if (newNets.count() == 1) // One valid net, set it as the base selected net
-                m_drivingNets = newNets;
+            if (nets.count() == 1) // One valid net, set it as the base selected net
+                m_drivingNets = nets;
             update();
         }
     }
