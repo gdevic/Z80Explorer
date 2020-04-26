@@ -41,12 +41,12 @@ DialogEditAnnotations::~DialogEditAnnotations()
 }
 
 /*
- * Focus on the selected index
+ * Focus on the selected rows (indices)
  */
-void DialogEditAnnotations::selectRow(int i)
+void DialogEditAnnotations::selectRows(QVector<uint> &sel)
 {
-    if (i >= 0)
-        ui->listAll->setCurrentRow(i);
+    for (auto i : sel)
+        ui->listAll->setCurrentRow(i, QItemSelectionModel::Toggle);
 }
 
 /*

@@ -564,9 +564,26 @@ void WidgetImageView::addAnnotation()
     {
         ::controller.getChip().annotate.add(text, m_areaRect.normalized());
         DialogEditAnnotations dlg(this);
-        dlg.selectRow(::controller.getChip().annotate.count() - 1); // Selects the last annotation (the newly added one)
+        QVector<uint> sel { ::controller.getChip().annotate.count() - 1 };
+        dlg.selectRows(sel); // Selects the last annotation (the newly added one)
         dlg.exec();
     }
+}
+
+/*
+ * Opens dialog to edit annotations
+ */
+void WidgetImageView::editAnnotations()
+{
+    DialogEditAnnotations dlg(this);
+    QVector<uint> sel;
+    QPoint pos = m_invtx.map(m_pinMousePos);
+    if (m_areaRect.isEmpty())
+        sel = ::controller.getChip().annotate.get(pos);
+    else
+        sel = ::controller.getChip().annotate.get(m_areaRect.normalized());
+    dlg.selectRows(sel); // Selects annotations under the mouse pointer
+    dlg.exec();
 }
 
 /*
@@ -610,17 +627,6 @@ void WidgetImageView::editNetName()
     else if (allNames.contains(name) && (QMessageBox::question(this, "Edit net name", "The name '" + name + "' is already in use.\nDo you want to proceed and overwrite the old name?") != QMessageBox::Yes))
         return;
     ::controller.setNetName(name, m_drivingNets[0]);
-}
-
-/*
- * Opens dialog to edit annotations
- */
-void WidgetImageView::editAnnotations()
-{
-    DialogEditAnnotations dlg(this);
-    QPoint pos = m_invtx.map(m_pinMousePos);
-    dlg.selectRow(::controller.getChip().annotate.get(pos)); // Selects the annotation under the mouse pointer (or none)
-    dlg.exec();
 }
 
 /*

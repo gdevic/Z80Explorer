@@ -47,18 +47,34 @@ void ClassAnnotate::add(QString text, QRect box)
 }
 
 /*
- * Returns index of the annotation at the given coordinate or -1 for no annotation
+ * Returns a list of annotation indices at the given coordinate
  */
-int ClassAnnotate::get(QPoint &pos)
+QVector<uint> ClassAnnotate::get(QPoint &pos)
 {
+    QVector<uint> sel;
     for (int i = 0; i < m_annot.count(); i++)
     {
         annotation &a = m_annot[i];
         QRect r = QRect(a.pos.x(), a.pos.y(), a.pix * a.text.text().length() / m_someXFactor, a.pix);
         if (r.contains(pos))
-            return i;
+            sel.append(i);
     }
-    return -1;
+    return sel;
+}
+
+/*
+ * Returns a list of annotation indices within the given rectangle
+ */
+QVector<uint> ClassAnnotate::get(QRect r)
+{
+    QVector<uint> sel;
+    for (int i = 0; i < m_annot.count(); i++)
+    {
+        annotation &a = m_annot[i];
+        if (r.contains(a.pos))
+            sel.append(i);
+    }
+    return sel;
 }
 
 /*

@@ -32,7 +32,8 @@ public:
     QVector<annotation> &get() { return m_annot; }
     void set(QVector<annotation> &list) { m_annot = list; }
     void add(QString text, QRect box);  // Adds annotation to the list
-    int get(QPoint &pos);               // Returns index of the annotation at the given coordinate or -1
+    QVector<uint> get(QPoint &pos);     // Returns a list of annotation indices at the given coordinate
+    QVector<uint> get(QRect r);         // Returns a list of annotation indices within the given rectangle
     uint count() { return m_annot.count(); } // Returns the total number of annotations
 
     void draw(QPainter &painter, qreal scale);
