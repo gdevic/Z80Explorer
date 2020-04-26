@@ -1046,3 +1046,35 @@ void ClassChip::experimental_4()
     img.setText("name", "bw.transistors4");
     m_img.append(img);
 }
+
+/******************************************************************************
+ * Experimental code
+ ******************************************************************************/
+
+/*
+ * Dynamically write nearby net names (experimental)
+ */
+void ClassChip::expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale)
+{
+    if (scale < 1.5) // Start naming nets only at the certain level of detail
+        return;
+
+    static QFont m_fixedFont = QFont("Consolas", 8); // XXX m_fixedFont.setPixelSize(8);
+    painter.setFont(m_fixedFont);
+    painter.setPen(QPen(Qt::white, 1, Qt::SolidLine));
+
+    int x = viewport.x() + (viewport.width() / 3);
+    net_t lastNet = 0;
+    for (int y = viewport.bottom(); y > viewport.top(); y--)
+    {
+        QVector<net_t> nets = getNetsAt<false>(x, y);
+        if ((nets.count() == 1) && (nets[0] != lastNet))
+        {
+            net_t net = nets[0];
+            QString name = ::controller.getNetlist().get(net);
+            painter.drawText(x, y, name);
+            lastNet = net;
+            y -= 8;
+        }
+    }
+}

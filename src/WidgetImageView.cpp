@@ -294,6 +294,14 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
+    // Dynamically write nearby net names (experimental)
+    //------------------------------------------------------------------------
+    {
+        painter.save();
+        ::controller.getChip().expDynamicallyNameNets(painter, m_imageView.toAlignedRect(), m_scale);
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
     // Draw text annotations
     //------------------------------------------------------------------------
     if (m_drawAnnotations)

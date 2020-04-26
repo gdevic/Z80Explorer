@@ -48,6 +48,7 @@ public:
 public slots:
     void experimental(int n);           // Runs experimental function number n
     void expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll);
+    void expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale); // Maps nearby net names
 
 private:
     QHash<net_t, segdef> m_segdefs;     // Hash of segment definitions, key is the segment net number
