@@ -419,6 +419,7 @@ void WidgetImageView::mouseReleaseEvent (QMouseEvent *event)
 
 /*
  * Double-clicking the mouse on a point in the image selects a net to trace
+ * Selecting a point with no valid nets clears the selection
  */
 void WidgetImageView::mouseDoubleClickEvent (QMouseEvent *event)
 {
@@ -433,7 +434,9 @@ void WidgetImageView::mouseDoubleClickEvent (QMouseEvent *event)
             QVector<net_t> newNets;
             for (const auto n : nets)
                 if (n > 2) newNets.append(n);
-            if (newNets.count() == 1)
+            if (newNets.count() == 0) // No valid nets, clear the base selected net
+                m_drivingNets.clear();
+            if (newNets.count() == 1) // One valid net, set it as the base selected net
                 m_drivingNets = newNets;
             update();
         }
