@@ -1,12 +1,5 @@
 #include "ClassWatch.h"
 #include "ClassController.h"
-
-// Serialization support
-#include "cereal/archives/binary.hpp"
-#include "cereal/types/QString.hpp"
-#include "cereal/types/QVector.hpp"
-#include <fstream>
-
 #include <QDebug>
 #include <QFile>
 
@@ -186,16 +179,40 @@ void ClassWatch::updateWatchlist(QStringList list)
  */
 bool ClassWatch::load(QString dir)
 {
-    QString fileName = dir + "/watchlist.wl";
+    QString fileName = dir + "/watchlist.json";
     qInfo() << "Loading watchlist" << fileName;
-    try
+    QFile loadFile(fileName);
+    if (loadFile.open(QIODevice::ReadOnly))
     {
-        std::ifstream os(fileName.toLatin1(), std::ios::binary);
-        cereal::BinaryInputArchive archive(os);
-        archive(m_watchlist);
+        QByteArray data = loadFile.readAll();
+        QJsonDocument loadDoc(QJsonDocument::fromJson(data));
+        read(loadDoc.object());
+        return true;
     }
-    catch(...) { qWarning() << "Unable to load" << fileName; }
-    return true;
+    else
+        qWarning() << "Unable to load" << fileName;
+    return false;
+}
+
+void ClassWatch::read(const QJsonObject &json)
+{
+    if (json.contains("watchlist") && json["watchlist"].isArray())
+    {
+        QJsonArray array = json["watchlist"].toArray();
+        m_watchlist.clear();
+
+        for (int i = 0; i < array.size(); i++)
+        {
+            QString name;
+            net_t net = 0;
+            QJsonObject obj = array[i].toObject();
+            if (obj.contains("net") && obj["net"].isDouble())
+                net = obj["net"].toInt();
+            if (obj.contains("name") && obj["name"].isString())
+                name = obj["name"].toString();
+            m_watchlist.append( {name, net} );
+        }
+    }
 }
 
 /*
@@ -203,14 +220,31 @@ bool ClassWatch::load(QString dir)
  */
 bool ClassWatch::save(QString dir)
 {
-    QString fileName = dir + "/watchlist.wl";
+    QString fileName = dir + "/watchlist.json";
     qInfo() << "Saving watchlist" << fileName;
-    try
+    QFile saveFile(fileName);
+    if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {
-        std::ofstream os(fileName.toLatin1(), std::ios::binary);
-        cereal::BinaryOutputArchive archive(os);
-        archive(m_watchlist);
+        QJsonObject data;
+        write(data);
+        QJsonDocument saveDoc(data);
+        saveFile.write(saveDoc.toJson());
+        return true;
     }
-    catch(...) { qWarning() << "Unable to save" << fileName; }
-    return true;
+    else
+        qWarning() << "Unable to save" << fileName;
+    return false;
+}
+
+void ClassWatch::write(QJsonObject &json) const
+{
+    QJsonArray jsonArray;
+    for (auto w : m_watchlist)
+    {
+        QJsonObject obj;
+        obj["name"] = w.name;
+        obj["net"] = w.n;
+        jsonArray.append(obj);
+    }
+    json["watchlist"] = jsonArray;
 }

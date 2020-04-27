@@ -16,7 +16,7 @@ struct watch
     QString name;                       // The name of the net to watch
     net_t n;                            // Net number (if nonzero), if zero, it is a bus
 
-    template <class Archive> void serialize(Archive & ar) { ar(name, n); }
+    watch(QString _name, net_t net): name(_name), n(net) {}
 
     pin_t d[MAX_WATCH_HISTORY];         // Circular buffer of watch data (not serialized out)
     watch() { memset(d, 3, sizeof(d)); }
@@ -58,6 +58,9 @@ private:
     QVector<watch> m_watchlist;         // The list of watch items that are tracked
     uint m_hcycle_last {};              // Last cycle number for which we got data stored
     uint m_hring_start {};              // Buffer start maps to this absolute cycle
+
+    void read(const QJsonObject &json);
+    void write(QJsonObject &json) const;
 };
 
 #endif // CLASSWATCH_H
