@@ -15,11 +15,10 @@ struct watch
 {
     QString name;                       // The name of the net to watch
     net_t n;                            // Net number (if nonzero), if zero, it is a bus
-
-    watch(QString _name, net_t net): name(_name), n(net) {}
-
     pin_t d[MAX_WATCH_HISTORY];         // Circular buffer of watch data (not serialized out)
-    watch() { memset(d, 3, sizeof(d)); }
+
+    watch(QString _name, net_t net): name(_name), n(net) { clear(); }
+    void clear() { memset(d, 3, sizeof(d)); }
 };
 
 /*

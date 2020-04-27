@@ -113,7 +113,7 @@ void ClassWatch::clear()
     m_hring_start = 0;
     m_hcycle_last = 0;
     for (auto &watch : m_watchlist)
-        memset(watch.d, 3, sizeof(watch.d));
+        watch.clear();
 }
 
 /*
@@ -147,9 +147,7 @@ void ClassWatch::updateWatchlist(QStringList list)
         }
         else
         {
-            watch w {};
-            w.name = name;
-            w.n = ::controller.getNetlist().get(name);
+            watch w(name, ::controller.getNetlist().get(name));
             if (w.n == 0) // A bus. queue it to process it later
                 buses.append(name);
             newlist.append(w);
@@ -165,9 +163,7 @@ void ClassWatch::updateWatchlist(QStringList list)
         {
             if (!find(net)) // If this net is not already part of our m_watchlist...
             {
-                watch w {};
-                w.name = ::controller.getNetlist().get(net);
-                w.n = net;
+                watch w(::controller.getNetlist().get(net), net);
                 m_watchlist.append(w);
             }
         }
