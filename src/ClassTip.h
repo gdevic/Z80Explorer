@@ -27,9 +27,6 @@ public slots:
 
 private:
     QMap<net_t, QString> m_tips;        // Map of tips to their description; key is the net number
-
-    void read(const QJsonObject &json);
-    void write(QJsonObject &json) const;
 };
 
 #endif // CLASSTIP_H

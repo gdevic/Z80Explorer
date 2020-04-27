@@ -32,33 +32,30 @@ bool ClassTip::load(QString dir)
     {
         QByteArray data = loadFile.readAll();
         QJsonDocument loadDoc(QJsonDocument::fromJson(data));
-        read(loadDoc.object());
+        const QJsonObject json = loadDoc.object();
+
+        if (json.contains("tips") && json["tips"].isArray())
+        {
+            QJsonArray array = json["tips"].toArray();
+            m_tips.clear();
+
+            for (int i = 0; i < array.size(); i++)
+            {
+                net_t net;
+                QString tip;
+                QJsonObject obj = array[i].toObject();
+                if (obj.contains("net") && obj["net"].isDouble())
+                    net = obj["net"].toInt();
+                if (obj.contains("tip") && obj["tip"].isString())
+                    tip = obj["tip"].toString();
+                m_tips[net] = tip;
+            }
+        }
         return true;
     }
     else
         qWarning() << "Unable to load" << fileName;
     return false;
-}
-
-void ClassTip::read(const QJsonObject &json)
-{
-    if (json.contains("tips") && json["tips"].isArray())
-    {
-        QJsonArray array = json["tips"].toArray();
-        m_tips.clear();
-
-        for (int i = 0; i < array.size(); i++)
-        {
-            net_t net;
-            QString tip;
-            QJsonObject obj = array[i].toObject();
-            if (obj.contains("net") && obj["net"].isDouble())
-                net = obj["net"].toInt();
-            if (obj.contains("tip") && obj["tip"].isString())
-                tip = obj["tip"].toString();
-            m_tips[net] = tip;
-        }
-    }
 }
 
 /*
@@ -71,31 +68,27 @@ bool ClassTip::save(QString dir)
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {
-        QJsonObject data;
-        write(data);
-        QJsonDocument saveDoc(data);
+        QJsonObject json;
+        QJsonArray jsonArray;
+        QMapIterator<net_t, QString> i(m_tips);
+        while (i.hasNext())
+        {
+            i.next();
+            if (!i.value().trimmed().isEmpty())
+            {
+                QJsonObject obj;
+                obj["net"] = i.key();
+                obj["tip"] = i.value();
+                jsonArray.append(obj);
+            }
+        }
+        json["tips"] = jsonArray;
+
+        QJsonDocument saveDoc(json);
         saveFile.write(saveDoc.toJson());
         return true;
     }
     else
         qWarning() << "Unable to save" << fileName;
     return false;
-}
-
-void ClassTip::write(QJsonObject &json) const
-{
-    QJsonArray jsonArray;
-    QMapIterator<net_t, QString> i(m_tips);
-    while (i.hasNext())
-    {
-        i.next();
-        if (!i.value().trimmed().isEmpty())
-        {
-            QJsonObject obj;
-            obj["net"] = i.key();
-            obj["tip"] = i.value();
-            jsonArray.append(obj);
-        }
-    }
-    json["tips"] = jsonArray;
 }

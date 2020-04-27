@@ -50,8 +50,6 @@ private:
 
     int textLength(const QStaticText &text) // Returns the length of a text with HTML tags stripped
         { return QTextDocumentFragment::fromHtml(text.text()).toPlainText().length(); }
-    void read(const QJsonObject &json);
-    void write(QJsonObject &json) const;
 };
 
 #endif // CLASSANNOTATE_H

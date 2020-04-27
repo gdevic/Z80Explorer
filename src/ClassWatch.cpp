@@ -182,33 +182,30 @@ bool ClassWatch::load(QString dir)
     {
         QByteArray data = loadFile.readAll();
         QJsonDocument loadDoc(QJsonDocument::fromJson(data));
-        read(loadDoc.object());
+        const QJsonObject json = loadDoc.object();
+
+        if (json.contains("watchlist") && json["watchlist"].isArray())
+        {
+            QJsonArray array = json["watchlist"].toArray();
+            m_watchlist.clear();
+
+            for (int i = 0; i < array.size(); i++)
+            {
+                QString name;
+                net_t net = 0;
+                QJsonObject obj = array[i].toObject();
+                if (obj.contains("net") && obj["net"].isDouble())
+                    net = obj["net"].toInt();
+                if (obj.contains("name") && obj["name"].isString())
+                    name = obj["name"].toString();
+                m_watchlist.append( {name, net} );
+            }
+        }
         return true;
     }
     else
         qWarning() << "Unable to load" << fileName;
     return false;
-}
-
-void ClassWatch::read(const QJsonObject &json)
-{
-    if (json.contains("watchlist") && json["watchlist"].isArray())
-    {
-        QJsonArray array = json["watchlist"].toArray();
-        m_watchlist.clear();
-
-        for (int i = 0; i < array.size(); i++)
-        {
-            QString name;
-            net_t net = 0;
-            QJsonObject obj = array[i].toObject();
-            if (obj.contains("net") && obj["net"].isDouble())
-                net = obj["net"].toInt();
-            if (obj.contains("name") && obj["name"].isString())
-                name = obj["name"].toString();
-            m_watchlist.append( {name, net} );
-        }
-    }
 }
 
 /*
@@ -221,26 +218,22 @@ bool ClassWatch::save(QString dir)
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {
-        QJsonObject data;
-        write(data);
-        QJsonDocument saveDoc(data);
+        QJsonObject json;
+        QJsonArray jsonArray;
+        for (auto w : m_watchlist)
+        {
+            QJsonObject obj;
+            obj["name"] = w.name;
+            obj["net"] = w.n;
+            jsonArray.append(obj);
+        }
+        json["watchlist"] = jsonArray;
+
+        QJsonDocument saveDoc(json);
         saveFile.write(saveDoc.toJson());
         return true;
     }
     else
         qWarning() << "Unable to save" << fileName;
     return false;
-}
-
-void ClassWatch::write(QJsonObject &json) const
-{
-    QJsonArray jsonArray;
-    for (auto w : m_watchlist)
-    {
-        QJsonObject obj;
-        obj["name"] = w.name;
-        obj["net"] = w.n;
-        jsonArray.append(obj);
-    }
-    json["watchlist"] = jsonArray;
 }

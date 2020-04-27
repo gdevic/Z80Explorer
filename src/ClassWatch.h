@@ -57,9 +57,6 @@ private:
     QVector<watch> m_watchlist;         // The list of watch items that are tracked
     uint m_hcycle_last {};              // Last cycle number for which we got data stored
     uint m_hring_start {};              // Buffer start maps to this absolute cycle
-
-    void read(const QJsonObject &json);
-    void write(QJsonObject &json) const;
 };
 
 #endif // CLASSWATCH_H

@@ -117,39 +117,36 @@ bool ClassAnnotate::load(QString dir)
     {
         QByteArray data = loadFile.readAll();
         QJsonDocument loadDoc(QJsonDocument::fromJson(data));
-        read(loadDoc.object());
+        const QJsonObject json = loadDoc.object();
+
+        if (json.contains("annotations") && json["annotations"].isArray())
+        {
+            QJsonArray array = json["annotations"].toArray();
+            m_annot.clear();
+            m_annot.reserve(array.size());
+
+            for (int i = 0; i < array.size(); i++)
+            {
+                annotation a;
+                QJsonObject obj = array[i].toObject();
+                if (obj.contains("text") && obj["text"].isString())
+                    a.text.setText(obj["text"].toString());
+                if (obj.contains("x") && obj["x"].isDouble())
+                    a.pos.setX(obj["x"].toInt());
+                if (obj.contains("y") && obj["y"].isDouble())
+                    a.pos.setY(obj["y"].toInt());
+                if (obj.contains("pix") && obj["pix"].isDouble())
+                    a.pix = obj["pix"].toInt();
+                if (obj.contains("bar") && obj["bar"].isBool())
+                    a.overline = obj["bar"].toBool();
+                m_annot.append(a);
+            }
+        }
         return true;
     }
     else
         qWarning() << "Unable to load" << fileName;
     return false;
-}
-
-void ClassAnnotate::read(const QJsonObject &json)
-{
-    if (json.contains("annotations") && json["annotations"].isArray())
-    {
-        QJsonArray array = json["annotations"].toArray();
-        m_annot.clear();
-        m_annot.reserve(array.size());
-
-        for (int i = 0; i < array.size(); i++)
-        {
-            annotation a;
-            QJsonObject obj = array[i].toObject();
-            if (obj.contains("text") && obj["text"].isString())
-                a.text.setText(obj["text"].toString());
-            if (obj.contains("x") && obj["x"].isDouble())
-                a.pos.setX(obj["x"].toInt());
-            if (obj.contains("y") && obj["y"].isDouble())
-                a.pos.setY(obj["y"].toInt());
-            if (obj.contains("pix") && obj["pix"].isDouble())
-                a.pix = obj["pix"].toInt();
-            if (obj.contains("bar") && obj["bar"].isBool())
-                a.overline = obj["bar"].toBool();
-            m_annot.append(a);
-        }
-    }
 }
 
 /*
@@ -162,29 +159,25 @@ bool ClassAnnotate::save(QString dir)
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {
-        QJsonObject data;
-        write(data);
-        QJsonDocument saveDoc(data);
+        QJsonObject json;
+        QJsonArray jsonArray;
+        for (const annotation &a : m_annot)
+        {
+            QJsonObject obj;
+            obj["text"] = a.text.text();
+            obj["x"] = a.pos.x();
+            obj["y"] = a.pos.y();
+            obj["pix"] = int(a.pix);
+            obj["bar"] = a.overline;
+            jsonArray.append(obj);
+        }
+        json["annotations"] = jsonArray;
+
+        QJsonDocument saveDoc(json);
         saveFile.write(saveDoc.toJson());
         return true;
     }
     else
         qWarning() << "Unable to save" << fileName;
     return false;
-}
-
-void ClassAnnotate::write(QJsonObject &json) const
-{
-    QJsonArray jsonArray;
-    for (const annotation &a : m_annot)
-    {
-        QJsonObject obj;
-        obj["text"] = a.text.text();
-        obj["x"] = a.pos.x();
-        obj["y"] = a.pos.y();
-        obj["pix"] = int(a.pix);
-        obj["bar"] = a.overline;
-        jsonArray.append(obj);
-    }
-    json["annotations"] = jsonArray;
 }
