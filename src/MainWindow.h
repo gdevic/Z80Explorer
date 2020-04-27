@@ -21,6 +21,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void onEditAnnotations();           // Edits custom annotations
     void onEditBuses();                 // Edits nets and buses
     void onEditWatchlist();             // Edits watchlist
     void onNewImageView();              // Open a new view to the chip data

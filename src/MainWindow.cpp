@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "ClassController.h"
+#include "DialogEditAnnotations.h"
 #include "DialogEditBuses.h"
 #include "DialogEditWatchlist.h"
 #include "DockWaveform.h"
@@ -35,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     m_log = logWindow;
     addDockWidget(Qt::BottomDockWidgetArea, m_log);
     QAction *actionLog = m_log->toggleViewAction();
-    actionLog->setShortcut(QKeySequence("F2"));
+    actionLog->setShortcut(QKeySequence("F10"));
     actionLog->setStatusTip("Show or hide the application log window");
     m_menuView->addAction(actionLog);
 
@@ -43,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     m_cmd = new DockCommand(this);
     addDockWidget(Qt::BottomDockWidgetArea, m_cmd);
     QAction *actionCmd = m_cmd->toggleViewAction();
-    actionCmd->setShortcut(QKeySequence("F12"));
+    actionCmd->setShortcut(QKeySequence("F11"));
     actionCmd->setStatusTip("Show or hide the command window");
     m_menuView->addAction(actionCmd);
 
@@ -51,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     m_monitor = new DockMonitor(this);
     addDockWidget(Qt::RightDockWidgetArea, m_monitor);
     QAction *actionMonitor = m_monitor->toggleViewAction();
-    actionMonitor->setShortcut(QKeySequence("F11"));
+    actionMonitor->setShortcut(QKeySequence("F12"));
     actionMonitor->setStatusTip("Show or hide the monitor window");
     m_menuView->addAction(actionMonitor);
 
@@ -63,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
 
     // Connect the rest of the menu actions...
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
+    connect(ui->actionEditAnnotations, SIGNAL(triggered()), this, SLOT(onEditAnnotations()));
     connect(ui->actionEditBuses, SIGNAL(triggered()), this, SLOT(onEditBuses()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
@@ -103,6 +105,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::onExit()
 {
     close();
+}
+
+/*
+ * Handle menu item to edit custom annotations
+ */
+void MainWindow::onEditAnnotations()
+{
+    DialogEditAnnotations dlg(this);
+    dlg.exec();
 }
 
 /*
