@@ -13,7 +13,7 @@ bool ClassController::init(QScriptEngine *sc)
     connect(&m_simx, SIGNAL(runStopped(uint)), this, SIGNAL(onRunStopped(uint)));
 
     QSettings settings;
-    QString path = settings.value("ResourceDir", QDir::currentPath()).toString();
+    QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
 
     // Check if the current resource path contains some of the resources
     while (!QFile::exists(path + "/nodenames.js"))
