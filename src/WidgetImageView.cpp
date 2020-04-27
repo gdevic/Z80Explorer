@@ -361,11 +361,10 @@ bool WidgetImageView::event(QEvent *event)
         QVector<net_t> nets = ::controller.getChip().getNetsAt<false>(pos.x(), pos.y());
         if (nets.count() == 1)
         {
-            QString tooltip = ::controller.getChip().tips.get(nets[0]);
-            if (tooltip.isEmpty())
-                tooltip = ::controller.getNetlist().get(nets[0]);
+            QStringList tooltip { ::controller.getNetlist().get(nets[0]), ::controller.getChip().tips.get(nets[0]) };
+            tooltip.removeAll({}); // Remove empty components (from the above, if none defined)
             QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-            QToolTip::showText(helpEvent->globalPos(), tooltip);
+            QToolTip::showText(helpEvent->globalPos(), tooltip.join("<br>"));
 
             event->ignore();
             return true;
