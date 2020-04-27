@@ -11,7 +11,7 @@ ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 {
 }
 
-ClassAnnotate::~ClassAnnotate()
+void ClassAnnotate::onShutdown()
 {
     QSettings settings;
     QString path = settings.value("ResourceDir").toString();
@@ -21,7 +21,7 @@ ClassAnnotate::~ClassAnnotate()
 
 bool ClassAnnotate::init()
 {
-    m_fixedFont = QFont("Consolas");
+    m_fixedFont = QFont("Consolas"); // XXX Why not in the constructor?
     return true;
 }
 
@@ -116,6 +116,7 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
 bool ClassAnnotate::load(QString dir)
 {
     QString fileName = dir + "/annotations.json";
+    qInfo() << "Loading annotations" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
     {
@@ -162,6 +163,7 @@ void ClassAnnotate::read(const QJsonObject &json)
 bool ClassAnnotate::save(QString dir)
 {
     QString fileName = dir + "/annotations.json";
+    qInfo() << "Saving annotations" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {

@@ -89,6 +89,8 @@ MainWindow::~MainWindow()
  */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    emit ::controller.shutdown();
+
     // Save window configuration after the main application finished executing
     // Include also all docking windows location, size and docking status
     QSettings settings;

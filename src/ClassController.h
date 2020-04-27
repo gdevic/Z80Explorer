@@ -53,6 +53,7 @@ public slots:
     void doRunsim(uint ticks);              // Runs the simulation for the given number of clocks
 
 signals:
+    void shutdown();                        // Application is shutting down, save your work!
     void echo(char e);                      // Echo a character onto the virtual console
     uint onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
     void netNameChanged();                  // Net name changed

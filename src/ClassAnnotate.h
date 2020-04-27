@@ -28,7 +28,6 @@ class ClassAnnotate : public QObject
     Q_OBJECT
 public:
     explicit ClassAnnotate(QObject *parent = nullptr);
-    ~ClassAnnotate();
     bool init();
     QVector<annotation> &get() { return m_annot; }
     void set(QVector<annotation> &list) { m_annot = list; }
@@ -40,6 +39,9 @@ public:
     void draw(QPainter &painter, qreal scale);
     bool load(QString dir);             // Loads user annotations
     bool save(QString dir);             // Saves user annotations
+
+public slots:
+    void onShutdown();                  // Called when the app is closing
 
 private:
     QVector<annotation> m_annot;        // List of annotations

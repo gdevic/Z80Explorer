@@ -12,7 +12,7 @@ ClassTip::ClassTip(QObject *parent) : QObject(parent)
     m_tips[0] = "The net number zero should <b>never</> be used";
 }
 
-ClassTip::~ClassTip()
+void ClassTip::onShutdown()
 {
     QSettings settings;
     QString path = settings.value("ResourceDir").toString();
@@ -26,6 +26,7 @@ ClassTip::~ClassTip()
 bool ClassTip::load(QString dir)
 {
     QString fileName = dir + "/tips.json";
+    qInfo() << "Loading custom tips" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
     {
@@ -66,6 +67,7 @@ void ClassTip::read(const QJsonObject &json)
 bool ClassTip::save(QString dir)
 {
     QString fileName = dir + "/tips.json";
+    qInfo() << "Saving custom tips" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {
