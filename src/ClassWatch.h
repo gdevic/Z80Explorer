@@ -31,8 +31,6 @@ class ClassWatch : public QObject
 public:
     ClassWatch();
 
-    bool loadWatchlist(QString name);   // Loads a watchlist
-    bool saveWatchlist(QString name);   // Saves the current watchlist
     QStringList getWatchlist();         // Returns the list of net and bus names in the watchlist
     void updateWatchlist(QStringList);  // Updates watchlist using a new list of watch names
     void clear();                       // Clear watch history buffers (used on simulation reset)
@@ -47,6 +45,12 @@ public:
     net_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
     uint at(watch *w, uint hcycle, uint &ok); // Returns bus watch data at the specified cycle position
     uint gethstart() { return m_hring_start; } // Returns the absolute hcycle of the start of our buffers
+
+    bool load(QString dir);             // Loads a watchlist
+    bool save(QString dir) ;            // Saves a watchlist
+
+public slots:
+    void onShutdown();                  // Called when the app is closing
 
 private:
     watch *find(net_t net);             // Returns a watch containing a given net number or nullptr

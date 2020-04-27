@@ -15,6 +15,14 @@ ClassWatch::ClassWatch()
     clear();
 }
 
+void ClassWatch::onShutdown()
+{
+    QSettings settings;
+    QString path = settings.value("ResourceDir").toString();
+    Q_ASSERT(!path.isEmpty());
+    save(path);
+}
+
 /*
  * Adds net watch data to the watch item's buffer at a specified cycle time
  */
@@ -174,31 +182,35 @@ void ClassWatch::updateWatchlist(QStringList list)
 }
 
 /*
- * Loads a watchlist
+ * Loads a watchlist from a file
  */
-bool ClassWatch::loadWatchlist(QString name)
+bool ClassWatch::load(QString dir)
 {
+    QString fileName = dir + "/watchlist.wl";
+    qInfo() << "Loading watchlist" << fileName;
     try
     {
-        std::ifstream os(name.toLatin1(), std::ios::binary);
+        std::ifstream os(fileName.toLatin1(), std::ios::binary);
         cereal::BinaryInputArchive archive(os);
         archive(m_watchlist);
     }
-    catch(...) { qWarning() << "Unable to load" << name; }
+    catch(...) { qWarning() << "Unable to load" << fileName; }
     return true;
 }
 
 /*
- * Saves the current watchlist
+ * Saves the current watchlist to a file
  */
-bool ClassWatch::saveWatchlist(QString name)
+bool ClassWatch::save(QString dir)
 {
+    QString fileName = dir + "/watchlist.wl";
+    qInfo() << "Saving watchlist" << fileName;
     try
     {
-        std::ofstream os(name.toLatin1(), std::ios::binary);
+        std::ofstream os(fileName.toLatin1(), std::ios::binary);
         cereal::BinaryOutputArchive archive(os);
         archive(m_watchlist);
     }
-    catch(...) { qWarning() << "Unable to save" << name; }
+    catch(...) { qWarning() << "Unable to save" << fileName; }
     return true;
 }

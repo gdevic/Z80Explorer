@@ -25,9 +25,6 @@ private slots:
     void onNewWaveformView();           // Open a new view to the waveforms
     void onEditBuses();                 // Edits nets and buses
     void onEditWatchlist();             // Edits watchlist
-    void onLoadWatchlist();             // Loads watchlist
-    void onSaveWatchlistAs();           // Saves watchlist as
-    void onSaveWatchlist();             // Saves current watchlist
     void onAbout();                     // Shows the About dialog
     void onExit();                      // Exit the application
     void closeEvent(QCloseEvent *event);// Called on application close event

@@ -14,6 +14,7 @@ bool ClassController::init(QScriptEngine *sc)
 
     connect(this, SIGNAL(shutdown()), &m_chip.annotate, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_chip.tips, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));
 
     QSettings settings;
     QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
@@ -37,10 +38,7 @@ bool ClassController::init(QScriptEngine *sc)
         return false;
     }
 
-    // Load the watchlist file: use default or the last recently loaded/saved file
-    QString fileWatchlist = settings.value("WatchlistFile", path + "/watchlist.wl").toString();
-    settings.setValue("WatchlistFile", fileWatchlist); // Make sure the settings contains a valid entry
-    m_watch.loadWatchlist(fileWatchlist);
+    m_watch.load(path);
 
     // Load the "hello world" sample executable file
     if (!m_trick.loadIntelHex(path + "/hello_world.hex"))
