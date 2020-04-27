@@ -28,7 +28,7 @@ class ClassAnnotate : public QObject
     Q_OBJECT
 public:
     explicit ClassAnnotate(QObject *parent = nullptr);
-    bool init();
+
     QVector<annotation> &get() { return m_annot; }
     void set(QVector<annotation> &list) { m_annot = list; }
     void add(QString text, QRect box);  // Adds annotation to the list

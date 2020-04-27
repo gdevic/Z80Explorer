@@ -9,6 +9,7 @@
 
 ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 {
+    m_fixedFont = QFont("Consolas");
 }
 
 void ClassAnnotate::onShutdown()
@@ -17,12 +18,6 @@ void ClassAnnotate::onShutdown()
     QString path = settings.value("ResourceDir").toString();
     Q_ASSERT(!path.isEmpty());
     save(path);
-}
-
-bool ClassAnnotate::init()
-{
-    m_fixedFont = QFont("Consolas"); // XXX Why not in the constructor?
-    return true;
 }
 
 /*
