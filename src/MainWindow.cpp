@@ -63,10 +63,10 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
 
     // Connect the rest of the menu actions...
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
-    connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
-    connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
     connect(ui->actionEditBuses, SIGNAL(triggered()), this, SLOT(onEditBuses()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
+    connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
+    connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
 
     // Do the initial simulated chip reset so that we wake up the app in some useful state
@@ -106,6 +106,27 @@ void MainWindow::onExit()
 }
 
 /*
+ * Handle menu item to edit nets and buses
+ */
+void MainWindow::onEditBuses()
+{
+    DialogEditBuses dlg(this);
+    dlg.exec();
+}
+
+/*
+ * Handle menu item to edit watchlist
+ */
+void MainWindow::onEditWatchlist()
+{
+    DialogEditWatchlist dlg(this);
+    dlg.setNodeList(::controller.getNetlist().getNetnames());
+    dlg.setWatchlist(::controller.getWatch().getWatchlist());
+    if (dlg.exec()==QDialog::Accepted)
+        ::controller.getWatch().updateWatchlist(dlg.getWatchlist());
+}
+
+/*
  * Handle menu item to create a new image view
  */
 void MainWindow::onNewImageView()
@@ -133,24 +154,6 @@ void MainWindow::onNewWaveformView()
     }
     else
         QMessageBox::critical(this, "New Waveform", "You can create up to 4 waveform views. Please switch to one of those that are already created.");
-}
-
-/*
- * Handle menu item to edit nets and buses
- */
-void MainWindow::onEditBuses()
-{
-    DialogEditBuses dlg(this);
-    dlg.exec();
-}
-
-void MainWindow::onEditWatchlist()
-{
-    DialogEditWatchlist dlg(this);
-    dlg.setNodeList(::controller.getNetlist().getNetnames());
-    dlg.setWatchlist(::controller.getWatch().getWatchlist());
-    if (dlg.exec()==QDialog::Accepted)
-        ::controller.getWatch().updateWatchlist(dlg.getWatchlist());
 }
 
 void MainWindow::onAbout()

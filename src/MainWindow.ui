@@ -82,8 +82,8 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionEditWatchlist"/>
     <addaction name="actionEditBuses"/>
+    <addaction name="actionEditWatchlist"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
