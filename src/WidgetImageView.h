@@ -43,6 +43,7 @@ private slots:
     void contextMenu(const QPoint &pos);// Mouse context menu handler
     void editAnnotations();             // Opens dialog to edit annotations
     void addAnnotation();               // Adds a new annotation within the selected box and opens dialog to edit it
+    void editTip();                     // Opens a dialog to edit a tip
     void netsDriving();                 // Shows nets that the selected net is driving
     void netsDriven();                  // Shows nets that drive the selected net
     void editNetName();                 // Opens dialog to edit selected net name (alias)
@@ -83,6 +84,7 @@ private:
 
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
+    bool event(QEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);

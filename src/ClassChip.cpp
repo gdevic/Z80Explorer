@@ -78,6 +78,7 @@ bool ClassChip::loadChipResources(QString dir)
 
         annotate.init();
         annotate.load(dir); // Load custom annotations
+        tips.load(dir);     // Load custom tips
 
         qInfo() << "Completed loading chip resources";
         return true;

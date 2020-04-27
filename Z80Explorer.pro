@@ -31,6 +31,7 @@ SOURCES += \
     src/ClassScript.cpp \
     src/ClassSim.cpp \
     src/ClassSimX.cpp \
+    src/ClassTip.cpp \
     src/ClassTrickbox.cpp \
     src/ClassWatch.cpp \
     src/DialogEditAnnotations.cpp \
@@ -63,6 +64,7 @@ HEADERS += \
     src/ClassSim.h \
     src/ClassSimX.h \
     src/ClassSingleton.h \
+    src/ClassTip.h \
     src/ClassTrickbox.h \
     src/ClassWatch.h \
     src/DialogEditAnnotations.h \

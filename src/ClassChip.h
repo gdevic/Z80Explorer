@@ -3,6 +3,7 @@
 
 #include "AppTypes.h"
 #include "ClassAnnotate.h"
+#include "ClassTip.h"
 #include <QImage>
 #include <QHash>
 
@@ -33,6 +34,7 @@ class ClassChip: public QObject
 public:
     ClassChip() {};
     ClassAnnotate annotate;             // ClassChip "has-a" ClassAnnotate
+    ClassTip tips;                      // ClassChip "has-a" ClassTip
 
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint i);           // Returns the reference to the image by the image index

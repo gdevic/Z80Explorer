@@ -165,7 +165,7 @@ void WidgetImageView::clampImageCoords(QPointF &tex, qreal xmax, qreal ymax)
 }
 
 //============================================================================
-// Callbacks
+// Callbacks and events
 //============================================================================
 
 void WidgetImageView::paintEvent(QPaintEvent *)
@@ -345,9 +345,35 @@ void WidgetImageView::calcTransform()
     m_invtx = m_tx.inverted();
 }
 
-void WidgetImageView::resizeEvent(QResizeEvent * event)
+void WidgetImageView::resizeEvent(QResizeEvent *event)
 {
     m_panelSize = event->size();
+}
+
+/*
+ * The widget main event handler, we want to catch the QEvent::ToolTip events
+ */
+bool WidgetImageView::event(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip)
+    {
+        QPoint pos = m_invtx.map(m_mousePos);
+        QVector<net_t> nets = ::controller.getChip().getNetsAt<false>(pos.x(), pos.y());
+        if (nets.count() == 1)
+        {
+            QString tooltip = ::controller.getChip().tips.get(nets[0]);
+            if (tooltip.isEmpty())
+                tooltip = ::controller.getNetlist().get(nets[0]);
+            QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+            QToolTip::showText(helpEvent->globalPos(), tooltip);
+
+            event->ignore();
+            return true;
+        }
+        QToolTip::hideText();
+        event->ignore();
+    }
+    return QWidget::event(event);
 }
 
 //============================================================================
@@ -545,6 +571,12 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     if (m_drivingNets.count() == 1)
         contextMenu.addAction(&actionDriven);
 
+    // "Edit tip..." option, only if the user picked a single net node
+    QAction actionEditTip("Edit tip...", this);
+    connect(&actionEditTip, SIGNAL(triggered()), this, SLOT(editTip()));
+    if (m_drivingNets.count() == 1)
+        contextMenu.addAction(&actionEditTip);
+
     // "Edit net name..." option, only if the user picked a single net node
     QAction actionEditNetName("Edit net name...", this);
     connect(&actionEditNetName, SIGNAL(triggered()), this, SLOT(editNetName()));
@@ -563,7 +595,7 @@ void WidgetImageView::contextMenu(const QPoint& pos)
 }
 
 /*
- * // Adds a new annotation within the selected box and opens dialog to edit it
+ * Adds a new annotation within the selected box and opens dialog to edit it
  */
 void WidgetImageView::addAnnotation()
 {   
@@ -593,6 +625,21 @@ void WidgetImageView::editAnnotations()
         sel = ::controller.getChip().annotate.get(m_areaRect.normalized());
     dlg.selectRows(sel); // Selects annotations under the mouse pointer
     dlg.exec();
+}
+
+/*
+ * Opens dialog to edit a tip
+ */
+void WidgetImageView::editTip()
+{
+    Q_ASSERT(m_drivingNets.count() == 1);
+    net_t net = m_drivingNets[0];
+    QString name = ::controller.getNetlist().get(net);
+    QString oldTip = ::controller.getChip().tips.get(net);
+    bool ok;
+    QString tip = QInputDialog::getText(this, "Edit tip", QString("Enter the tip for the selected net %1 (%2)").arg(name).arg(QString::number(net)), QLineEdit::Normal, oldTip, &ok);
+    if (ok)
+        ::controller.getChip().tips.set(tip, net);
 }
 
 /*
