@@ -22,6 +22,10 @@ public:
 signals:
     void runStopped(uint hcycle);       // Current simulation run completed at a given half-cycle
 
+public slots:
+    void onShutdown()                   // Called when the app is closing
+        { ClassNetlist::onShutdown(); };// Subclassed netlist needs it more than we do
+
 private slots:
     void onTimeout();                   // Dump z80 state every 500ms when running the simulation
 

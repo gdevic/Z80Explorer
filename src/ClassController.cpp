@@ -14,7 +14,8 @@ bool ClassController::init(QScriptEngine *sc)
 
     connect(this, SIGNAL(shutdown()), &m_chip.annotate, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_chip.tips, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));   
+    connect(this, SIGNAL(shutdown()), &m_simx, SLOT(onShutdown()));
 
     QSettings settings;
     QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();

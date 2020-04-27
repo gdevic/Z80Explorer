@@ -11,7 +11,7 @@ ClassNetlist::ClassNetlist():
 {
 }
 
-ClassNetlist::~ClassNetlist()
+void ClassNetlist::onShutdown()
 {
     QSettings settings;
     QString path = settings.value("ResourceDir").toString();
@@ -47,7 +47,7 @@ bool ClassNetlist::loadResources(const QString dir)
  */
 bool ClassNetlist::saveNetNames(const QString fileName)
 {
-    //qInfo() << "Saving net names" << fileName; // XXX We are calling from a destructor, can't use this
+    qInfo() << "Saving net names" << fileName;
     QFile file(fileName);
     if (file.open(QFile::WriteOnly | QFile::Text))
     {
