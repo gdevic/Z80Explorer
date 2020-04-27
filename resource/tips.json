@@ -1,0 +1,408 @@
+{
+    "tips": [
+        {
+            "net": 0,
+            "tip": "The net number zero should <b>never</> be used"
+        },
+        {
+            "net": 3,
+            "tip": "Clock tree"
+        },
+        {
+            "net": 227,
+            "tip": "rst, bit 3 at bottom"
+        },
+        {
+            "net": 237,
+            "tip": "retx"
+        },
+        {
+            "net": 245,
+            "tip": "di/ei"
+        },
+        {
+            "net": 249,
+            "tip": "im n"
+        },
+        {
+            "net": 258,
+            "tip": "halt"
+        },
+        {
+            "net": 261,
+            "tip": "ldi/ldir/ldd/lddr"
+        },
+        {
+            "net": 264,
+            "tip": "EXTD"
+        },
+        {
+            "net": 266,
+            "tip": "add/sub/and/or/xor/cp (hl)"
+        },
+        {
+            "net": 268,
+            "tip": "111 (CP)"
+        },
+        {
+            "net": 269,
+            "tip": "BITS"
+        },
+        {
+            "net": 271,
+            "tip": "rrd/rld"
+        },
+        {
+            "net": 272,
+            "tip": "ed:adc/sbc"
+        },
+        {
+            "net": 273,
+            "tip": "cb:rotate/shift"
+        },
+        {
+            "net": 274,
+            "tip": "cb:bit"
+        },
+        {
+            "net": 275,
+            "tip": "cb:set"
+        },
+        {
+            "net": 276,
+            "tip": "dec"
+        },
+        {
+            "net": 277,
+            "tip": "010 (SUB)"
+        },
+        {
+            "net": 278,
+            "tip": "011 (SBC)"
+        },
+        {
+            "net": 279,
+            "tip": "001 (ADC)"
+        },
+        {
+            "net": 280,
+            "tip": "cpl"
+        },
+        {
+            "net": 281,
+            "tip": "ld a,i / ld a,r at top, clk at bottom"
+        },
+        {
+            "net": 282,
+            "tip": "000 (ADD)"
+        },
+        {
+            "net": 283,
+            "tip": "100 (AND)"
+        },
+        {
+            "net": 284,
+            "tip": "110 (OR)"
+        },
+        {
+            "net": 285,
+            "tip": "ld a,i / ld a,r"
+        },
+        {
+            "net": 286,
+            "tip": "101 (XOR)"
+        },
+        {
+            "net": 287,
+            "tip": "ldx/cpx/inx/outx"
+        },
+        {
+            "net": 288,
+            "tip": "push rr"
+        },
+        {
+            "net": 289,
+            "tip": "push/pop"
+        },
+        {
+            "net": 290,
+            "tip": "in/out"
+        },
+        {
+            "net": 291,
+            "tip": "jp"
+        },
+        {
+            "net": 292,
+            "tip": "ld rr,**/**,rr"
+        },
+        {
+            "net": 293,
+            "tip": "ld (**),rr"
+        },
+        {
+            "net": 294,
+            "tip": "ret"
+        },
+        {
+            "net": 295,
+            "tip": "out (*),a/a,(*)"
+        },
+        {
+            "net": 296,
+            "tip": "ex af,af'"
+        },
+        {
+            "net": 297,
+            "tip": "ld (hl),*"
+        },
+        {
+            "net": 298,
+            "tip": "IX/IY"
+        },
+        {
+            "net": 299,
+            "tip": "jp cc,**"
+        },
+        {
+            "net": 300,
+            "tip": "ret cc"
+        },
+        {
+            "net": 301,
+            "tip": "jr *"
+        },
+        {
+            "net": 302,
+            "tip": "BITS"
+        },
+        {
+            "net": 303,
+            "tip": "bf"
+        },
+        {
+            "net": 304,
+            "tip": "ld r, (hl) (and hlt)"
+        },
+        {
+            "net": 305,
+            "tip": "ld (hl),r (and hlt)"
+        },
+        {
+            "net": 306,
+            "tip": "all f"
+        },
+        {
+            "net": 307,
+            "tip": "inc/dec"
+        },
+        {
+            "net": 308,
+            "tip": "BITS"
+        },
+        {
+            "net": 309,
+            "tip": "ld r,*"
+        },
+        {
+            "net": 311,
+            "tip": "add/sub/and/or/xor/cmp a,imm"
+        },
+        {
+            "net": 312,
+            "tip": "add/sub/and/or/xor/cmp a,r"
+        },
+        {
+            "net": 313,
+            "tip": "rlca/rla/rrca/rra"
+        },
+        {
+            "net": 314,
+            "tip": "ex de,hl"
+        },
+        {
+            "net": 315,
+            "tip": "ld x,a/a,x"
+        },
+        {
+            "net": 316,
+            "tip": "jp (hl)"
+        },
+        {
+            "net": 317,
+            "tip": "ld (rr),a/a,(rr)"
+        },
+        {
+            "net": 318,
+            "tip": "ex (sp),hl"
+        },
+        {
+            "net": 319,
+            "tip": "dec rr"
+        },
+        {
+            "net": 320,
+            "tip": "ldi/ldir/ldd/lddr"
+        },
+        {
+            "net": 321,
+            "tip": "ccf"
+        },
+        {
+            "net": 322,
+            "tip": "inx/outx/inxr/otxr"
+        },
+        {
+            "net": 323,
+            "tip": "cpi/cpir/cpd/cpdr"
+        },
+        {
+            "net": 324,
+            "tip": "inx/inxr"
+        },
+        {
+            "net": 325,
+            "tip": "outx/otxr"
+        },
+        {
+            "net": 331,
+            "tip": "ld(rr),a/a,(rr)"
+        },
+        {
+            "net": 332,
+            "tip": "exx"
+        },
+        {
+            "net": 333,
+            "tip": "IX/IY"
+        },
+        {
+            "net": 334,
+            "tip": "ld sp,hl"
+        },
+        {
+            "net": 335,
+            "tip": "ld rr,**"
+        },
+        {
+            "net": 336,
+            "tip": "inc/dec rr"
+        },
+        {
+            "net": 337,
+            "tip": "ld (rr),a/ld(**),a/ld(**),hl"
+        },
+        {
+            "net": 338,
+            "tip": "ld r,*"
+        },
+        {
+            "net": 339,
+            "tip": "call"
+        },
+        {
+            "net": 340,
+            "tip": "djnz"
+        },
+        {
+            "net": 341,
+            "tip": "out(*),a"
+        },
+        {
+            "net": 342,
+            "tip": "ld hl,**/**,hl"
+        },
+        {
+            "net": 343,
+            "tip": "ld (**),a/a,(**)"
+        },
+        {
+            "net": 344,
+            "tip": "call cc,**"
+        },
+        {
+            "net": 345,
+            "tip": "jr cc,*"
+        },
+        {
+            "net": 346,
+            "tip": "ld (hl),*"
+        },
+        {
+            "net": 347,
+            "tip": "inc/dec (hl)"
+        },
+        {
+            "net": 348,
+            "tip": "ld"
+        },
+        {
+            "net": 349,
+            "tip": "add hl,rr"
+        },
+        {
+            "net": 350,
+            "tip": "rlca/rla/rrca/rra"
+        },
+        {
+            "net": 351,
+            "tip": "cb:res"
+        },
+        {
+            "net": 352,
+            "tip": "daa"
+        },
+        {
+            "net": 353,
+            "tip": "djnz *"
+        },
+        {
+            "net": 354,
+            "tip": "scf"
+        },
+        {
+            "net": 355,
+            "tip": "out (*),a/in a,(*)"
+        },
+        {
+            "net": 356,
+            "tip": "cb: op (hl)"
+        },
+        {
+            "net": 361,
+            "tip": "cpi/cpir/cpd/cpdr"
+        },
+        {
+            "net": 362,
+            "tip": "out (c),r"
+        },
+        {
+            "net": 363,
+            "tip": "rrd"
+        },
+        {
+            "net": 364,
+            "tip": "cpi/cpir/cpd/cpdr"
+        },
+        {
+            "net": 365,
+            "tip": "ld i,a/a,i/r,a/a,r"
+        },
+        {
+            "net": 366,
+            "tip": "ld i,a / ld r,a"
+        },
+        {
+            "net": 367,
+            "tip": "in"
+        },
+        {
+            "net": 368,
+            "tip": "neg"
+        },
+        {
+            "net": 369,
+            "tip": "ldi/ldir/ldd/lddr"
+        }
+    ]
+}
