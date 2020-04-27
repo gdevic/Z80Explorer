@@ -36,7 +36,7 @@ public: // API
         { return m_trick.readIO(ab); }
     void writeIO(uint16_t ab, uint8_t db)   // Write environment IO
         { m_trick.writeIO(ab, db); }
-    bool loadIntelHex(QString fileName)     // Loads file into RAM memory
+    bool loadIntelHex(QString fileName)     // Loads file into simulated RAM memory
         { return m_trick.loadIntelHex(fileName); }
     void readState(z80state &state)         // Reads chip state structure
         { m_simx.readState(state); }

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Edit annotations</string>
+   <string>Edit Annotations</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>

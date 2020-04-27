@@ -22,7 +22,7 @@ DockMonitor::~DockMonitor()
 
 void DockMonitor::on_btLoadHex_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Select Intel HEX file to load into RAM", "", "File (*.hex);;All files (*.*)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Select Intel HEX file to load into simulated RAM", "", "File (*.hex);;All files (*.*)");
     if (!fileName.isEmpty())
     {
         if (!::controller.loadIntelHex(fileName))

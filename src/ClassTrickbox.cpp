@@ -80,7 +80,7 @@ bool ClassTrickbox::loadIntelHex(const QString fileName)
     }
     file.close();
     if (in.atEnd())
-        qDebug() << "Loaded" << fileName << "into RAM";
+        qDebug() << "Loaded" << fileName << "into simulated RAM";
 
     return in.atEnd();
 }
