@@ -53,16 +53,16 @@ private:
     Ui::DockWaveform *ui;
     uint m_id;                          // This dock ID value
 
-    QStringList getNames();             // Returns a list of all view item names
-    viewitem *find(QString name);       // Find a view item with the given name or nullptr
-    void add(QString name);             // Add a view item
-    void updateViewitems(QStringList);  // Update view items based on the new list of nets/buses
-
     QVector<viewitem> m_view;           // A collection of view items
 
     uint m_lastcursor;                  // Last cursor cycle value
     QString m_fileViewlist;             // This window's default viewlist file name
     qreal m_rel {0};                    // Waveform scroll relative slider position
+
+    QStringList getNames();             // Returns a list of all view item names
+    viewitem *find(QString name);       // Find a view item with the given name or nullptr
+    void add(QString name);             // Add a view item
+    void updateViewitems(QStringList);  // Update view items based on the new list of nets/buses
 };
 
 #endif // DOCKWAVE_H
