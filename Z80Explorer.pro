@@ -29,7 +29,6 @@ SOURCES += \
     src/ClassController.cpp \
     src/ClassNetlist.cpp \
     src/ClassScript.cpp \
-    src/ClassSim.cpp \
     src/ClassSimX.cpp \
     src/ClassTip.cpp \
     src/ClassTrickbox.cpp \
@@ -48,7 +47,6 @@ SOURCES += \
     src/WidgetImageView.cpp \
     src/WidgetToolbar.cpp \
     src/WidgetWaveform.cpp \
-    src/Z80_Simulator.cpp \
     src/main.cpp
 
 HEADERS += \
@@ -61,7 +59,6 @@ HEADERS += \
     src/ClassException.h \
     src/ClassNetlist.h \
     src/ClassScript.h \
-    src/ClassSim.h \
     src/ClassSimX.h \
     src/ClassSingleton.h \
     src/ClassTip.h \
@@ -81,7 +78,6 @@ HEADERS += \
     src/WidgetImageView.h \
     src/WidgetToolbar.h \
     src/WidgetWaveform.h \
-    src/Z80_Simulator.h \
     src/z80state.h
 
 FORMS += \

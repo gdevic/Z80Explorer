@@ -54,48 +54,6 @@ void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const Q
     }
 }
 
-//----------------------------------------------------------------------------
-// Support for Z80_Simulator code
-//----------------------------------------------------------------------------
-void yield()
-{
-    QEventLoop e; // Don't freeze the GUI
-    e.processEvents(QEventLoop::AllEvents);
-}
-
-#include <stdarg.h>
-
-static char log_buffer[1024]; // XXX UNSAFE !!
-static int log_i = 0;
-
-void logf(char *fmt, ...)
-{
-    va_list valist;
-    va_start(valist, fmt);
-    int i = vsprintf(log_buffer + log_i, fmt, valist);
-    bool nl = false;
-    if (i > 0)
-    {
-        if (log_i + i >= 900) // "Safety"
-            nl = true;
-        if (log_buffer[log_i + i - 1] == '\n')
-        {
-            nl = true;
-            log_buffer[log_i + i - 1] = 0;
-        }
-    }
-    if (nl)
-    {
-        log_i = 0;
-        QString s = QString::fromUtf8(log_buffer);
-        qInfo() << s;
-    }
-    else
-        log_i = log_i + i;
-    yield();
-}
-//----------------------------------------------------------------------------
-
 int main(int argc, char *argv[])
 {
     int retCode = -1;
