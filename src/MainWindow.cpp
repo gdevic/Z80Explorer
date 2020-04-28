@@ -169,5 +169,7 @@ void MainWindow::onNewWaveformView()
 
 void MainWindow::onAbout()
 {
-    QMessageBox::about(this, "Z80 Explorer", "<a href='https://baltazarstudios.com'>https://baltazarstudios.com</a><br>by Goran Devic");
+    QMessageBox::about(this, "Z80 Explorer",
+    "Version " + QString::number(APP_VERSION / 10) + "." + QString::number(APP_VERSION % 10) +
+    "<br>Goran Devic<br><a href='https://baltazarstudios.com'>https://baltazarstudios.com</a><br>");
 }

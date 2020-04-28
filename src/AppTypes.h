@@ -4,6 +4,8 @@
 #define MAX_TRANS 9000 // Max number of transistors (est. for Z80)
 #define MAX_NETS  3600 // Max number of nets (est. for Z80)
 
+#define APP_VERSION 10 // Application version (minor % 10)
+
 #include <stdint.h>
 
 typedef uint16_t net_t;                 // Type of an index to the net array
