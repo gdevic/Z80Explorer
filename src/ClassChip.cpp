@@ -69,7 +69,7 @@ bool ClassChip::loadChipResources(QString dir)
         createLayerMapImage("vss.vcc");
         drawAllNetsAsInactive("vss.vcc", "vss.vcc.nets");
         redrawNetsColorize("vss.vcc", "vss.vcc.nets.col");
-        connect(&::controller, &ClassController::netNameChanged, this, [this]() // May need different colors for renamed nets
+        connect(&::controller, &ClassController::eventNetName, this, [this]() // May need different colors for renamed nets
             { redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); } );
         experimental_4(); // Create transistor paths
 

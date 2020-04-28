@@ -104,12 +104,31 @@ const QString ClassController::formatBus(uint fmt, uint value, uint width)
 }
 
 /*
- * Sets a name (alias) for a net number
- * This function should be called when setting (or renaming) a net. It will broadcast necessary net name change
- * signals so anyone who needs to know about the event can connect to it.
+ * Sets the name (alias) for a net
  */
-void ClassController::setNetName(const QString name, net_t net)
+void ClassController::setNetName(const QString name, const net_t net)
 {
-    m_simx.setNetName(name, net);
-    emit netNameChanged();
+    m_simx.eventNetName(Netop::SetName, name, net);
+    emit eventNetName(Netop::SetName, name, net);
+    emit eventNetName(Netop::Changed, QString(), net);
+}
+
+/*
+ * Renames a net using the new name
+ */
+void ClassController::renameNet(const QString name, const net_t net)
+{
+    m_simx.eventNetName(Netop::Rename, name, net);
+    emit eventNetName(Netop::Rename, name, net);
+    emit eventNetName(Netop::Changed, QString(), net);
+}
+
+/*
+ * Deletes the current name of a specified net
+ */
+void ClassController::deleteNetName(const net_t net)
+{
+    m_simx.eventNetName(Netop::DeleteName, QString(), net);
+    emit eventNetName(Netop::DeleteName, QString(), net);
+    emit eventNetName(Netop::Changed, QString(), net);
 }

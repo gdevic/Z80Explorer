@@ -56,8 +56,8 @@ public:
     void addBus(const QString &name, const QStringList &netlist); // Adds bus by name and a set of nets listed by their name
     void clearBuses() { m_buses.clear(); }      // Clear all buses, used only by the DialogEditBuses
 
-    // You should not call this function directly; call ::controller.setNetName() instead to also broadcast this as an event
-    void setNetName(const QString name, net_t); // Sets a name (alias) for a net number
+    // Do not call these functions directly; call the ::controller functional counterparts
+    void eventNetName(Netop op, const QString name, const net_t);
     void onShutdown();                          // Called when the app is closing
 
 protected:

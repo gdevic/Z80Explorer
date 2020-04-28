@@ -277,35 +277,36 @@ QStringList ClassNetlist::getNetnames()
 }
 
 /*
- * You should not call this function - call ::controller.setNetName() since it will also broadcast the event.
- * Sets a name (alias) for a net number. It correctly handles these cases:
- * 1. If the name is already in use (by another net), it will remove it (the other net will become nameless)
- * 2. If the given net already has a name, it will be renamed
- * 3. Delete a net name by setting the name to an empty string
+ * Handles requests to manage net names (called only by the controller class)
  */
-void ClassNetlist::setNetName(const QString name, net_t net)
+void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
 {
-    if (name.isEmpty())
+    if (op == Netop::SetName)
+    {
+        qDebug() << "Setting net name" << name << "for net" << QString::number(net);
+        Q_ASSERT(!m_netnums.contains(name)); // New name should not be already in use
+        Q_ASSERT(m_netnames[net].isEmpty()); // The net we are naming should not already have a name
+        m_netnames[net] = name;
+        m_netnums[name] = net;
+        m_netoverrides[net] = true;
+    }
+    else if (op == Netop::Rename)
+    {
+        qDebug() << "Renaming net" << QString::number(net) << "to" << name;
+        Q_ASSERT(!m_netnums.contains(name)); // New name should not be already in use
+        Q_ASSERT(!m_netnames[net].isEmpty()); // The net we are naming should have a name
+        m_netnames[net] = name;
+        m_netnums[name] = net;
+        m_netoverrides[net] = true;
+    }
+    else if (op == Netop::DeleteName)
     {
         qDebug() << "Deleting name for net" << QString::number(net);
+        Q_ASSERT(!m_netnames[net].isEmpty()); // The net which name we are deleting should already have a name
         QString oldName = m_netnames[net];
         m_netnums.remove(oldName);
         m_netnames[net] = QString();
         m_netoverrides[net] = false;
-    }
-    else
-    {
-        qDebug() << "Setting net name" << name << "for net" << QString::number(net);
-        if (m_netnums.contains(name))
-        {
-            net_t oldNet = m_netnums[name];
-            m_netnums.remove(name);
-            m_netnames[oldNet] = QString();
-            m_netoverrides[oldNet] = false;
-        }
-        m_netnames[net] = name;
-        m_netnums[name] = net;
-        m_netoverrides[net] = true;
     }
 }
 

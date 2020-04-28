@@ -667,21 +667,52 @@ void WidgetImageView::netsDriven()
 
 /*
  * Opens dialog to edit selected net name (alias)
+ *
+ * If the new name equals the old name (covers empty/empty and unchanged cases)
+ *   - do nothing, return
+ * If the new name already belongs to another net
+ *   - ask the user to detach the name, if "No", return
+ *   - delete the name from another net
+ * If the selected net does not have a name
+ *   - set new name to the selected net, return
+ * If the selected net already has a name
+ *   If the new name is empty (delete op)
+ *     - ask the user to delete the name, if "No", return
+ *     - delete the name for this net, return
+ *   If the new name is not empty
+ *     - rename this net, return
  */
 void WidgetImageView::editNetName()
 {
     Q_ASSERT(m_drivingNets.count() == 1);
+    net_t newNet = m_drivingNets[0];
     QStringList allNames = ::controller.getNetlist().getNetnames();
-    QString oldName = ::controller.getNetlist().get(m_drivingNets[0]);
+    QString oldName = ::controller.getNetlist().get(newNet);
     bool ok;
-    QString name = QInputDialog::getText(this, "Edit net name", "Enter the name (alias) for the selected net\n", QLineEdit::Normal, oldName, &ok);
-    if (!ok)
+    QString newName = QInputDialog::getText(this, "Edit net name", "Enter the name (alias) of the selected net " + QString::number(newNet) + "\n", QLineEdit::Normal, oldName, &ok);
+    newName = newName.trimmed().toLower(); // Trim spaces to keep net names lowercased
+    if (!ok || (newName == oldName))
         return;
-    if ((name.trimmed().length() == 0) && (QMessageBox::question(this, "Edit net name", "Delete net name '" + name + "'?") != QMessageBox::Yes))
-        return;
-    else if (allNames.contains(name) && (QMessageBox::question(this, "Edit net name", "The name '" + name + "' is already in use.\nDo you want to proceed and overwrite the old name?") != QMessageBox::Yes))
-        return;
-    ::controller.setNetName(name, m_drivingNets[0]);
+    net_t otherNet = ::controller.getNetlist().get(newName);
+    if (allNames.contains(newName))
+    {
+        if (QMessageBox::question(this, "Edit net name", "The name '" + newName + "' is already attached to another net.\nDo you want to continue (the other net will become nameless)?") != QMessageBox::Yes)
+            return;
+        ::controller.deleteNetName(otherNet);
+    }
+    if (oldName.isEmpty())
+        ::controller.setNetName(newName, newNet);
+    else
+    {
+        if (newName.isEmpty())
+        {
+            if (QMessageBox::question(this, "Edit net name", "Delete name '" + oldName + "' of the net " + QString::number(newNet) + " ?") != QMessageBox::Yes)
+                return;
+            ::controller.deleteNetName(newNet);
+        }
+        else
+            ::controller.renameNet(newName, newNet);
+    }
 }
 
 /*

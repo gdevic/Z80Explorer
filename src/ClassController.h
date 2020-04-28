@@ -46,7 +46,10 @@ public: // API
     enum FormatBus { Hex, Bin, Oct, Dec, Ascii };
     const QString formatBus(uint fmt, uint value, uint width); // Returns the formatted string for a bus type value
 
-    void setNetName(const QString name, net_t); // Sets a name (alias) for a net number
+    // Requests operations on net names; this class will dispatch those operations via eventNetName() signal
+    void setNetName(const QString name, const net_t); // Sets the name (alias) for a net
+    void renameNet(const QString name, const net_t); // Renames a net using the new name
+    void deleteNetName(const net_t);        // Deletes the current name of a specified net
 
 public slots:
     uint doReset();                         // Run the chip reset sequence, returns the number of clocks thet reset took
@@ -56,7 +59,7 @@ signals:
     void shutdown();                        // Application is shutting down, save your work!
     void echo(char e);                      // Echo a character onto the virtual console
     uint onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
-    void netNameChanged();                  // Net name changed
+    void eventNetName(Netop op, const QString name, const net_t); // Dispatches operations on net names
 
 private:
     ClassChip     m_chip;       // Global chip resource class
