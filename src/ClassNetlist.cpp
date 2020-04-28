@@ -6,7 +6,7 @@
 #include <QStringBuilder>
 
 ClassNetlist::ClassNetlist():
-    m_transdefs(MAX_TRANSDEFS),
+    m_transdefs(MAX_TRANS),
     m_netlist(MAX_NETS)
 {
 }
@@ -193,7 +193,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                     // ----- Add the transistor to the transistor array -----
                     QString tnum = list[0].mid(3, list[0].length() - 4);
                     uint i = tnum.toUInt();
-                    Q_ASSERT(i < MAX_TRANSDEFS);
+                    Q_ASSERT(i < MAX_TRANS);
                     trans *p = &m_transdefs[i];
 
                     p->gate = list[1].toUInt();
