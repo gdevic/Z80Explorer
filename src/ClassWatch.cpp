@@ -117,12 +117,12 @@ void ClassWatch::clear()
 }
 
 /*
- * Returns the list of net and bus names in the watchlist
+ * Returns a list of net and bus names in the watchlist
  */
 QStringList ClassWatch::getWatchlist()
 {
     QStringList list;
-    for (auto item : m_watchlist)
+    for (const auto &item : m_watchlist)
         list.append(item.name);
     return list;
 }

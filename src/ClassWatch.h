@@ -22,7 +22,8 @@ struct watch
 };
 
 /*
- * ClassWatch holds the watchlist, the list of nets and buses whose state is tracked during the simulation
+ * ClassWatch holds the watchlist - the list of nets and buses whose state is tracked during the simulation,
+ * the simulation data (in circular buffers) for those signals and the code to query and manipulate this data.
  */
 class ClassWatch : public QObject
 {
@@ -30,7 +31,7 @@ class ClassWatch : public QObject
 public:
     ClassWatch();
 
-    QStringList getWatchlist();         // Returns the list of net and bus names in the watchlist
+    QStringList getWatchlist();         // Returns a list of net and bus names in the watchlist
     void updateWatchlist(QStringList);  // Updates watchlist using a new list of watch names
     void clear();                       // Clear watch history buffers (used on simulation reset)
 
