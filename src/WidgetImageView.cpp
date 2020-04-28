@@ -650,7 +650,7 @@ void WidgetImageView::netsDriving()
     m_drivingNets.append(::controller.getNetlist().netsDriving(m_drivingNets[0]));
     QStringList list = ::controller.getNetlist().get(m_drivingNets);
     list.removeFirst(); // Remove the first element which is the net we started at
-    qInfo() << QString::number(m_drivingNets[0]) << "driving" << list;
+    qInfo() << QString::number(m_drivingNets[0]) << "driving" << list.count() << "nets" << list;
 }
 
 /*
@@ -662,7 +662,7 @@ void WidgetImageView::netsDriven()
     m_drivingNets.append(::controller.getNetlist().netsDriven(m_drivingNets[0]));
     QStringList list = ::controller.getNetlist().get(m_drivingNets);
     list.removeFirst(); // Remove the first element which is the net we started at
-    qInfo() << QString::number(m_drivingNets[0]) << "driven by" << list;
+    qInfo() << QString::number(m_drivingNets[0]) << "driven by" << list.count() << "nets" << list;
 }
 
 /*
