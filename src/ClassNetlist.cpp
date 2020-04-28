@@ -295,6 +295,8 @@ void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
         qDebug() << "Renaming net" << QString::number(net) << "to" << name;
         Q_ASSERT(!m_netnums.contains(name)); // New name should not be already in use
         Q_ASSERT(!m_netnames[net].isEmpty()); // The net we are naming should have a name
+        QString oldName = m_netnames[net];
+        m_netnums.remove(oldName);
         m_netnames[net] = name;
         m_netnums[name] = net;
         m_netoverrides[net] = true;
