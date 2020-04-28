@@ -9,7 +9,7 @@ namespace Ui { class DockWaveform; }
 struct viewitem
 {
     QString name;               // Net or bus name
-    uint format { 0 };          // Format to use to display values, 0 for global format
+    uint format { 0 };          // Format to use to display values
     QColor color { Qt::green }; // Color override to use to display waveform
 
     template <class Archive> void serialize(Archive & ar) { ar(name, format, color); }
@@ -59,7 +59,6 @@ private:
     void updateViewitems(QStringList);  // Update view items based on the new list of nets/buses
 
     QVector<viewitem> m_view;           // A collection of view items
-    uint m_format;                      // Global format to display values
 
     uint m_lastcursor;                  // Last cursor cycle value
     QString m_fileViewlist;             // This window's default viewlist file name
