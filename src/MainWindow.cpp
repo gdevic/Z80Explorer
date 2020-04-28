@@ -10,10 +10,11 @@
 #include "DockMonitor.h"
 #include "DockLog.h"
 
+#include <QCloseEvent>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
-#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     QMainWindow(parent),
@@ -69,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
+    connect(ui->actionOnlineManual, SIGNAL(triggered()), this, SLOT(onOnlineManual()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
 
     // Do the initial simulated chip reset so that we wake up the app in some useful state
@@ -165,6 +167,12 @@ void MainWindow::onNewWaveformView()
     }
     else
         QMessageBox::critical(this, "New Waveform", "You can create up to 4 waveform views. Please switch to one of those that are already created.");
+}
+
+void MainWindow::onOnlineManual()
+{
+    QString link = "https://baltazarstudios.com/z80explorer";
+    QDesktopServices::openUrl(QUrl(link));
 }
 
 void MainWindow::onAbout()

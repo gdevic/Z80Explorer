@@ -76,6 +76,7 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionOnlineManual"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -174,6 +175,14 @@
    </property>
    <property name="shortcut">
     <string>F2</string>
+   </property>
+  </action>
+  <action name="actionOnlineManual">
+   <property name="text">
+    <string>Online manual...</string>
+   </property>
+   <property name="statusTip">
+    <string>Open the user's manual online</string>
    </property>
   </action>
  </widget>
