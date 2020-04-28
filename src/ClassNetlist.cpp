@@ -7,7 +7,7 @@
 
 ClassNetlist::ClassNetlist():
     m_transdefs(MAX_TRANSDEFS),
-    m_netlist(MAX_NET)
+    m_netlist(MAX_NETS)
 {
 }
 
@@ -57,7 +57,7 @@ bool ClassNetlist::saveNetNames(const QString fileName)
         out << "var nodenames_override = {\n";
 
         QStringList names; // Write out custom names, sorted alphabetically
-        for (int i=0; i<MAX_NET; i++)
+        for (int i=0; i<MAX_NETS; i++)
         {
             if (m_netoverrides[i])
                 names.append(m_netnames[i]);
@@ -252,7 +252,7 @@ bool ClassNetlist::loadPullups(const QString dir)
                 if (list.length() > 4)
                 {
                     uint i = list[0].toUInt();
-                    Q_ASSERT(i < MAX_NET);
+                    Q_ASSERT(i < MAX_NETS);
                     m_netlist[i].pullup = list[1].contains('+');
                 }
                 else
@@ -421,7 +421,7 @@ pin_t ClassNetlist::readPin(const QString &name)
     net_t n = get(name);
     if (n)
     {
-        Q_ASSERT(n < MAX_NET);
+        Q_ASSERT(n < MAX_NETS);
 //        if (m_netlist[n].floats) // XXX handle floating node
 //            return 2;
         return !!m_netlist[n].state;

@@ -5,9 +5,6 @@
 #include <QObject>
 #include <QHash>
 
-#define MAX_TRANSDEFS 9000 // Max number of transistors stored in m_transdefs array
-#define MAX_NET 3600 // Max number of nets
-
 // Contains individual transistor definition
 struct trans
 {
@@ -78,9 +75,9 @@ private:
     bool saveNetNames(const QString fileName);
 
     // The lookup between net names and their numbers is performance critical, so we keep two ways to access them:
-    QString m_netnames[MAX_NET] {};             // List of net names, directly indexed by the net number
+    QString m_netnames[MAX_NETS] {};            // List of net names, directly indexed by the net number
     QHash<QString, net_t> m_netnums {};         // Hash of net names to their net numbers; key is the net name string
-    bool m_netoverrides[MAX_NET] {};            // Net names that are overriden or new
+    bool m_netoverrides[MAX_NETS] {};           // Net names that are overriden or new
     QHash<QString, QVector<net_t>> m_buses {};  // Hash of bus names to their list (vector) of nets
 };
 
