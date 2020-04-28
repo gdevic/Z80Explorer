@@ -17,6 +17,32 @@ void ClassWatch::onShutdown()
 }
 
 /*
+ * Handles events related to managing the net names
+ */
+void ClassWatch::onNetName(Netop op, const QString name, const net_t net)
+{
+    if (op == Netop::SetName) // All newly named nets are automatically added to the watchlist
+    {
+        Q_ASSERT(find(name) == nullptr);
+        m_watchlist.append(watch(name, net));
+    }
+    else if (op == Netop::Rename)
+    {
+        Q_ASSERT(find(net) != nullptr);
+        watch *w = find(net);
+        if (w != nullptr)
+            w->name = name;
+    }
+    else if (op == Netop::DeleteName)
+    {
+        Q_ASSERT(find(net) != nullptr);
+        int i;
+        for (i = 0; (i < m_watchlist.count()) && (m_watchlist.at(i).n != net); i++);
+        m_watchlist.removeAt(i);
+    }
+}
+
+/*
  * Adds net watch data to the watch item's buffer at a specified cycle time
  */
 void ClassWatch::append(watch *w, uint hcycle, net_t value)

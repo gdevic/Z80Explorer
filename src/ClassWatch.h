@@ -51,6 +51,7 @@ public:
 
 public slots:
     void onShutdown();                  // Called when the app is closing
+    void onNetName(Netop op, const QString name, const net_t); // Handles events related to managing the net names
 
 private:
     watch *find(net_t net);             // Returns a watch containing a given net number or nullptr

@@ -40,6 +40,7 @@ bool ClassController::init(QScriptEngine *sc)
     }
 
     m_watch.load(path);
+    connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
     // Load the "hello world" sample executable file
     if (!m_trick.loadIntelHex(path + "/hello_world.hex"))
