@@ -558,16 +558,16 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     if (m_drawSelection && m_areaRect.width())
         contextMenu.addAction(&actionAddAnnotation);
 
-    // "Driving nets" option, only if the user picked a single net node
+    // "Driving nets" option, only if the user selected a node
     QAction actionDriving("Driving nets", this);
     connect(&actionDriving, SIGNAL(triggered()), this, SLOT(netsDriving()));
-    if (m_drivingNets.count() == 1)
+    if (m_drivingNets.count() >= 1)
         contextMenu.addAction(&actionDriving);
 
-    // "Driven by" option, only if the user picked a single net node
+    // "Driven by" option, only if the user selected a node
     QAction actionDriven("Driven by", this);
     connect(&actionDriven, SIGNAL(triggered()), this, SLOT(netsDriven()));
-    if (m_drivingNets.count() == 1)
+    if (m_drivingNets.count() >= 1)
         contextMenu.addAction(&actionDriven);
 
     // "Edit tip..." option, only if the user picked a single net node
@@ -646,7 +646,10 @@ void WidgetImageView::editTip()
  */
 void WidgetImageView::netsDriving()
 {
-    Q_ASSERT(m_drivingNets.count() == 1);
+    Q_ASSERT(m_drivingNets.count() >= 1);
+    net_t primary = m_drivingNets[0]; // Leave only the primary selected node
+    m_drivingNets.clear();
+    m_drivingNets.append(primary);
     m_drivingNets.append(::controller.getNetlist().netsDriving(m_drivingNets[0]));
     QStringList list = ::controller.getNetlist().get(m_drivingNets);
     list.removeFirst(); // Remove the first element which is the net we started at
@@ -658,7 +661,10 @@ void WidgetImageView::netsDriving()
  */
 void WidgetImageView::netsDriven()
 {
-    Q_ASSERT(m_drivingNets.count() == 1);
+    Q_ASSERT(m_drivingNets.count() >= 1);
+    net_t primary = m_drivingNets[0]; // Leave only the primary selected node
+    m_drivingNets.clear();
+    m_drivingNets.append(primary);
     m_drivingNets.append(::controller.getNetlist().netsDriven(m_drivingNets[0]));
     QStringList list = ::controller.getNetlist().get(m_drivingNets);
     list.removeFirst(); // Remove the first element which is the net we started at
