@@ -46,8 +46,8 @@ private slots:
 
 private:
     void rebuildList();
-    bool load(QString fileName);
-    bool save(QString fileName);
+    bool load(QString fileName);        // Loads waveform items
+    bool save(QString fileName);        // Saves waveform items
 
 private:
     Ui::DockWaveform *ui;
@@ -56,7 +56,7 @@ private:
     QVector<viewitem> m_view;           // A collection of view items
 
     uint m_lastcursor;                  // Last cursor cycle value
-    QString m_fileViewlist;             // This window's default viewlist file name
+    QString m_fileViewlist;             // This window's default waveform configuration file name
     qreal m_rel {0};                    // Waveform scroll relative slider position
 
     QStringList getNames();             // Returns a list of all view item names

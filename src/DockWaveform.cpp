@@ -9,13 +9,6 @@
 #include <QSettings>
 #include <QStringBuilder>
 
-// Serialization support
-#include "cereal/archives/binary.hpp"
-#include "cereal/types/QString.hpp"
-#include "cereal/types/QVector.hpp"
-#include "cereal/types/QColor.hpp"
-#include <fstream>
-
 DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     ui(new Ui::DockWaveform),
     m_id(id)
@@ -43,7 +36,7 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     // Load default viewlist for this window id
     QString resDir = settings.value("ResourceDir").toString();
     Q_ASSERT(!resDir.isEmpty());
-    m_fileViewlist = settings.value("ViewlistFile-" + QString::number(m_id), resDir + "/viewlist-" + QString::number(id) + ".vl").toString();
+    m_fileViewlist = settings.value("waveform-" + QString::number(m_id), resDir + "/waveform-" + QString::number(id) + ".json").toString();
     load(m_fileViewlist);
 
     rebuildList();
@@ -52,7 +45,7 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
 DockWaveform::~DockWaveform()
 {
     Q_ASSERT(!m_fileViewlist.isEmpty());
-    if (m_view.count()) // Save the view only if it is not empty
+    if (m_view.count()) // Save the configuration only if it is not empty
         save(m_fileViewlist);
 
     QSettings settings;
@@ -63,8 +56,8 @@ DockWaveform::~DockWaveform()
 
 void DockWaveform::onLoad()
 {
-    // Prompts the user to select which viewlist file to load
-    QString fileName = QFileDialog::getOpenFileName(this, "Select a viewlist file to load", "", "viewlist (*.vl);;All files (*.*)");
+    // Prompts the user to select which waveform configuration file to load
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a waveform configuration file to load", "", "waveform (*.json);;All files (*.*)");
     if (!fileName.isEmpty())
     {
         if (!load(fileName))
@@ -75,12 +68,12 @@ void DockWaveform::onLoad()
 
 void DockWaveform::onSaveAs()
 {
-    // Prompts the user to select the viewlist file to save to
-    QString fileName = QFileDialog::getSaveFileName(this, "Save viewlist to a file", "", "viewlist (*.vl);;All files (*.*)");
+    // Prompts the user to select the waveform configuration file to save to
+    QString fileName = QFileDialog::getSaveFileName(this, "Save waveform configuration to a file", "", "waveform (*.json);;All files (*.*)");
     if (!fileName.isEmpty())
     {
         if (!save(fileName))
-            QMessageBox::critical(this, "Error", "Unable to save viewlist to " + fileName);
+            QMessageBox::critical(this, "Error", "Unable to save waveform configuration to " + fileName);
     }
 }
 
@@ -88,14 +81,14 @@ void DockWaveform::onSave()
 {
     Q_ASSERT(!m_fileViewlist.isEmpty());
     if (!save(m_fileViewlist))
-        QMessageBox::critical(this, "Error", "Unable to save viewlist to " + m_fileViewlist);
+        QMessageBox::critical(this, "Error", "Unable to save waveform configuration to " + m_fileViewlist);
 }
 
 void DockWaveform::onPng()
 {
     QPixmap pixmap = this->grab(QRect(QPoint(0, 0), this->size()));
 
-    QString fileName = QFileDialog::getSaveFileName(this, "Save window content", "image.png", "png file (*.png);;All files (*.*)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save waveform as image", "image.png", "png file (*.png);;All files (*.*)");
     if (!fileName.isEmpty() && !pixmap.toImage().save(fileName))
         QMessageBox::critical(this, "Error", "Unable to save image file " + fileName);
 }
@@ -235,31 +228,74 @@ void DockWaveform::onScrollBarActionTriggered(int)
 }
 
 /*
- * Loads view items
+ * Loads waveform configuration from a file
  */
 bool DockWaveform::load(QString fileName)
 {
-    try
+    qInfo() << "Loading waveform configuration from" << fileName;
+    QFile loadFile(fileName);
+    if (loadFile.open(QIODevice::ReadOnly))
     {
-        std::ifstream os(fileName.toLatin1(), std::ios::binary);
-        cereal::BinaryInputArchive archive(os);
-        archive(m_view);
+        QByteArray data = loadFile.readAll();
+        QJsonDocument loadDoc(QJsonDocument::fromJson(data));
+        const QJsonObject json = loadDoc.object();
+
+        if (json.contains("waveform") && json["waveform"].isArray())
+        {
+            QJsonArray array = json["waveform"].toArray();
+            m_view.clear();
+            m_view.reserve(array.size());
+
+            for (int i = 0; i < array.size(); i++)
+            {
+                viewitem a;
+                QJsonObject obj = array[i].toObject();
+                if (obj.contains("name") && obj["name"].isString())
+                    a.name = obj["name"].toString();
+                if (obj.contains("format") && obj["format"].isDouble())
+                    a.format = obj["format"].toInt();
+                if (obj.contains("color") && obj["color"].isString())
+                {
+                    QStringList s = obj["color"].toString().split(',');
+                    if (s.count() == 4)
+                        a.color = QColor(s[3].toInt(), s[0].toInt(), s[1].toUInt(), s[2].toInt());
+                }
+                m_view.append(a);
+            }
+        }
+        return true;
     }
-    catch(...) { qWarning() << "Unable to load" << fileName; }
-    return true;
+    else
+        qWarning() << "Unable to load" << fileName;
+    return false;
 }
 
 /*
- * Saves current view items
+ * Saves waveform configuration to a file
  */
 bool DockWaveform::save(QString fileName)
 {
-    try
+    qInfo() << "Saving waveform configuration to" << fileName;
+    QFile saveFile(fileName);
+    if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {
-        std::ofstream os(fileName.toLatin1(), std::ios::binary);
-        cereal::BinaryOutputArchive archive(os);
-        archive(m_view);
+        QJsonObject json;
+        QJsonArray jsonArray;
+        for (const viewitem &a : m_view)
+        {
+            QJsonObject obj;
+            obj["name"] = a.name;
+            obj["format"] = int(a.format);
+            obj["color"] = QString("%1,%2,%3,%4").arg(a.color.alpha()).arg(a.color.red()).arg(a.color.green()).arg(a.color.blue());
+            jsonArray.append(obj);
+        }
+        json["waveform"] = jsonArray;
+
+        QJsonDocument saveDoc(json);
+        saveFile.write(saveDoc.toJson());
+        return true;
     }
-    catch(...) { qWarning() << "Unable to save" << fileName; }
-    return true;
+    else
+        qWarning() << "Unable to save" << fileName;
+    return false;
 }
