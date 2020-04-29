@@ -468,10 +468,9 @@ void WidgetImageView::mouseDoubleClickEvent (QMouseEvent *event)
         {
             // Select only one valid net number that is not vss or vcc
             QVector<net_t> nets = ::controller.getChip().getNetsAt<false>(imageCoords.x(), imageCoords.y());
-            if (nets.count() == 0) // No valid nets, clear the base selected net
-                m_drivingNets.clear();
-            if (nets.count() == 1) // One valid net, set it as the base selected net
-                m_drivingNets = nets;
+            m_drivingNets.clear();
+            if (nets.count() >= 1) // At least one valid net, set it as the base selected net
+                m_drivingNets.append(nets[0]);
             update();
         }
     }
