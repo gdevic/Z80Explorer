@@ -3,122 +3,146 @@
         {
             "color": "255,255,255,255",
             "format": 0,
-            "name": "clk"
+            "name": "clk",
+            "net": 3
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "AB"
+            "name": "AB",
+            "net": 0
         },
         {
             "color": "170,255,127,255",
             "format": 0,
-            "name": "DB"
+            "name": "DB",
+            "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "_m1"
+            "name": "_m1",
+            "net": 26
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "_mreq"
+            "name": "_mreq",
+            "net": 29
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "_rfsh"
+            "name": "_rfsh",
+            "net": 31
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "_rd"
+            "name": "_rd",
+            "net": 27
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "_wr"
+            "name": "_wr",
+            "net": 28
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "_iorq"
+            "name": "_iorq",
+            "net": 30
         },
         {
             "color": "255,0,0,255",
             "format": 0,
-            "name": "_reset"
+            "name": "_reset",
+            "net": 21
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "_load_ir"
+            "name": "_load_ir",
+            "net": 326
         },
         {
             "color": "85,170,255,255",
             "format": 0,
-            "name": "INSTR"
+            "name": "INSTR",
+            "net": 0
         },
         {
             "color": "170,85,0,255",
             "format": 0,
-            "name": "m1"
+            "name": "m1",
+            "net": 155
         },
         {
             "color": "170,85,0,255",
             "format": 0,
-            "name": "m2"
+            "name": "m2",
+            "net": 173
         },
         {
             "color": "170,85,0,255",
             "format": 0,
-            "name": "m3"
+            "name": "m3",
+            "net": 163
         },
         {
             "color": "170,85,0,255",
             "format": 0,
-            "name": "m4"
+            "name": "m4",
+            "net": 159
         },
         {
             "color": "170,85,0,255",
             "format": 0,
-            "name": "m5"
+            "name": "m5",
+            "net": 209
         },
         {
             "color": "170,85,0,255",
             "format": 0,
-            "name": "m6"
+            "name": "m6",
+            "net": 210
         },
         {
             "color": "170,170,255,255",
             "format": 0,
-            "name": "t1"
+            "name": "t1",
+            "net": 115
         },
         {
             "color": "170,170,255,255",
             "format": 0,
-            "name": "t2"
+            "name": "t2",
+            "net": 137
         },
         {
             "color": "170,170,255,255",
             "format": 0,
-            "name": "t3"
+            "name": "t3",
+            "net": 144
         },
         {
             "color": "170,170,255,255",
             "format": 0,
-            "name": "t4"
+            "name": "t4",
+            "net": 166
         },
         {
             "color": "170,170,255,255",
             "format": 0,
-            "name": "t5"
+            "name": "t5",
+            "net": 134
         },
         {
             "color": "170,170,255,255",
             "format": 0,
-            "name": "t6"
+            "name": "t6",
+            "net": 168
         }
     ]
 }

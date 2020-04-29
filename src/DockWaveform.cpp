@@ -252,6 +252,8 @@ bool DockWaveform::load(QString fileName)
                 QJsonObject obj = array[i].toObject();
                 if (obj.contains("name") && obj["name"].isString())
                     a.name = obj["name"].toString();
+                if (obj.contains("net") && obj["net"].isDouble())
+                    a.net = obj["net"].toInt();
                 if (obj.contains("format") && obj["format"].isDouble())
                     a.format = obj["format"].toInt();
                 if (obj.contains("color") && obj["color"].isString())
@@ -285,6 +287,7 @@ bool DockWaveform::save(QString fileName)
         {
             QJsonObject obj;
             obj["name"] = a.name;
+            obj["net"] = a.net;
             obj["format"] = int(a.format);
             obj["color"] = QString("%1,%2,%3,%4").arg(a.color.red()).arg(a.color.green()).arg(a.color.blue()).arg(a.color.alpha());
             jsonArray.append(obj);

@@ -1,6 +1,7 @@
 #ifndef DOCKWAVE_H
 #define DOCKWAVE_H
 
+#include "AppTypes.h"
 #include <QDockWidget>
 
 namespace Ui { class DockWaveform; }
@@ -9,6 +10,7 @@ namespace Ui { class DockWaveform; }
 struct viewitem
 {
     QString name;               // Net or bus name
+    net_t net { 0 };            // Net number or 0 if bus
     uint format { 0 };          // Format to use to display values
     QColor color { Qt::green }; // Color override to use to display waveform
 
@@ -57,7 +59,7 @@ private:
 
     uint m_lastcursor;                  // Last cursor cycle value
     QString m_fileViewlist;             // This window's default waveform configuration file name
-    qreal m_rel {0};                    // Waveform scroll relative slider position
+    qreal m_rel { 0 };                  // Waveform scroll relative slider position
 
     QStringList getNames();             // Returns a list of all view item names
     viewitem *find(QString name);       // Find a view item with the given name or nullptr
