@@ -33,6 +33,8 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::actionTriggered, this, &DockWaveform::onScrollBarActionTriggered);
 
+    connect(&::controller, &ClassController::eventNetName, this, &DockWaveform::eventNetName);
+
     // Load default viewlist for this window id
     QString resDir = settings.value("ResourceDir").toString();
     Q_ASSERT(!resDir.isEmpty());
@@ -122,9 +124,32 @@ viewitem *DockWaveform::find(QString name)
     return nullptr;
 }
 
+viewitem *DockWaveform::find(net_t net)
+{
+    for (auto &i : m_view)
+        if (i.net == net)
+            return &i;
+    return nullptr;
+}
+
 void DockWaveform::add(QString name)
 {
     m_view.append(viewitem { name, ::controller.getNetlist().get(name) });
+}
+
+/*
+ * Handles messages about net name changes
+ */
+void DockWaveform::eventNetName(Netop op, const QString name, const net_t net)
+{
+    viewitem *a = find(net);
+    switch (op)
+    {
+        case Netop::SetName: if (a) a->name = name; break;
+        case Netop::Rename: if (a) a->name = name; break;
+        case Netop::DeleteName: if (a) a->name = "(unnamed)"; break;
+        case Netop::Changed: rebuildList(); break;
+    }
 }
 
 /*

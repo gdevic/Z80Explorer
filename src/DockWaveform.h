@@ -46,6 +46,7 @@ private slots:
     void cursorChanged(uint hcycle);    // Cursor moved, need to update values that are shown
     void onScrollBarActionTriggered(int);
     void onScrollBarRangeChanged(int,int);
+    void eventNetName(Netop op, const QString name, const net_t net);
 
 private:
     void rebuildList();
@@ -64,6 +65,7 @@ private:
 
     QStringList getNames();             // Returns a list of all view item names
     viewitem *find(QString name);       // Find a view item with the given name or nullptr
+    viewitem *find(net_t n);            // Find a view item with the given net number or nullptr
     void add(QString name);             // Add a view item
     void updateViewitems(QStringList);  // Update view items based on the new list of nets/buses
 };
