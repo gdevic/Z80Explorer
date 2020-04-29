@@ -45,9 +45,9 @@ private slots:
     void onScrollBarRangeChanged(int,int);
 
 private:
+    void rebuildList();
     bool load(QString fileName);
     bool save(QString fileName);
-    void rebuildList();
 
 private:
     Ui::DockWaveform *ui;

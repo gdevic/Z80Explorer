@@ -61,36 +61,6 @@ DockWaveform::~DockWaveform()
     delete ui;
 }
 
-/*
- * Loads view items
- */
-bool DockWaveform::load(QString fileName)
-{
-    try
-    {
-        std::ifstream os(fileName.toLatin1(), std::ios::binary);
-        cereal::BinaryInputArchive archive(os);
-        archive(m_view);
-    }
-    catch(...) { qWarning() << "Unable to load" << fileName; }
-    return true;
-}
-
-/*
- * Saves current view items
- */
-bool DockWaveform::save(QString fileName)
-{
-    try
-    {
-        std::ofstream os(fileName.toLatin1(), std::ios::binary);
-        cereal::BinaryOutputArchive archive(os);
-        archive(m_view);
-    }
-    catch(...) { qWarning() << "Unable to save" << fileName; }
-    return true;
-}
-
 void DockWaveform::onLoad()
 {
     // Prompts the user to select which viewlist file to load
@@ -262,4 +232,34 @@ void DockWaveform::onScrollBarActionTriggered(int)
     uint range = sb->maximum();
     uint pos = sb->sliderPosition();
     m_rel = qreal(pos) / range;
+}
+
+/*
+ * Loads view items
+ */
+bool DockWaveform::load(QString fileName)
+{
+    try
+    {
+        std::ifstream os(fileName.toLatin1(), std::ios::binary);
+        cereal::BinaryInputArchive archive(os);
+        archive(m_view);
+    }
+    catch(...) { qWarning() << "Unable to load" << fileName; }
+    return true;
+}
+
+/*
+ * Saves current view items
+ */
+bool DockWaveform::save(QString fileName)
+{
+    try
+    {
+        std::ofstream os(fileName.toLatin1(), std::ios::binary);
+        cereal::BinaryOutputArchive archive(os);
+        archive(m_view);
+    }
+    catch(...) { qWarning() << "Unable to save" << fileName; }
+    return true;
 }
