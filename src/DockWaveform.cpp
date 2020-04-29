@@ -258,7 +258,7 @@ bool DockWaveform::load(QString fileName)
                 {
                     QStringList s = obj["color"].toString().split(',');
                     if (s.count() == 4)
-                        a.color = QColor(s[3].toInt(), s[0].toInt(), s[1].toUInt(), s[2].toInt());
+                        a.color = QColor(s[0].toInt(), s[1].toInt(), s[2].toUInt(), s[3].toInt());
                 }
                 m_view.append(a);
             }
@@ -286,7 +286,7 @@ bool DockWaveform::save(QString fileName)
             QJsonObject obj;
             obj["name"] = a.name;
             obj["format"] = int(a.format);
-            obj["color"] = QString("%1,%2,%3,%4").arg(a.color.alpha()).arg(a.color.red()).arg(a.color.green()).arg(a.color.blue());
+            obj["color"] = QString("%1,%2,%3,%4").arg(a.color.red()).arg(a.color.green()).arg(a.color.blue()).arg(a.color.alpha());
             jsonArray.append(obj);
         }
         json["waveform"] = jsonArray;
