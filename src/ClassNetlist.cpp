@@ -47,7 +47,7 @@ bool ClassNetlist::loadResources(const QString dir)
  */
 bool ClassNetlist::saveNetNames(const QString fileName)
 {
-    qInfo() << "Saving net names" << fileName;
+    qInfo() << "Saving net names to" << fileName;
     QFile file(fileName);
     if (file.open(QFile::WriteOnly | QFile::Text))
     {

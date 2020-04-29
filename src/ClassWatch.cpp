@@ -202,7 +202,7 @@ void ClassWatch::updateWatchlist(QStringList list)
 bool ClassWatch::load(QString dir)
 {
     QString fileName = dir + "/watchlist.json";
-    qInfo() << "Loading watchlist" << fileName;
+    qInfo() << "Loading watchlist from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
     {
@@ -240,7 +240,7 @@ bool ClassWatch::load(QString dir)
 bool ClassWatch::save(QString dir)
 {
     QString fileName = dir + "/watchlist.json";
-    qInfo() << "Saving watchlist" << fileName;
+    qInfo() << "Saving watchlist to" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {

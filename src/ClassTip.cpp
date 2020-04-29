@@ -26,7 +26,7 @@ void ClassTip::onShutdown()
 bool ClassTip::load(QString dir)
 {
     QString fileName = dir + "/tips.json";
-    qInfo() << "Loading custom tips" << fileName;
+    qInfo() << "Loading custom tips from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
     {
@@ -64,7 +64,7 @@ bool ClassTip::load(QString dir)
 bool ClassTip::save(QString dir)
 {
     QString fileName = dir + "/tips.json";
-    qInfo() << "Saving custom tips" << fileName;
+    qInfo() << "Saving custom tips to" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {

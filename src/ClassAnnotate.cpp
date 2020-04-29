@@ -111,7 +111,7 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
 bool ClassAnnotate::load(QString dir)
 {
     QString fileName = dir + "/annotations.json";
-    qInfo() << "Loading annotations" << fileName;
+    qInfo() << "Loading annotations from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
     {
@@ -155,7 +155,7 @@ bool ClassAnnotate::load(QString dir)
 bool ClassAnnotate::save(QString dir)
 {
     QString fileName = dir + "/annotations.json";
-    qInfo() << "Saving annotations" << fileName;
+    qInfo() << "Saving annotations to" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {
