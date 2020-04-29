@@ -16,7 +16,8 @@ struct viewitem
 
     template <class Archive> void serialize(Archive & ar) { ar(name, format, color); }
 
-    viewitem(const QString n): name(n) {}
+    viewitem(const QString name): name(name) {}
+    viewitem(const QString name, const net_t n): name(name), net(n) {}
     viewitem(){};
     bool operator==(const viewitem &b) { return name == b.name; }
 };

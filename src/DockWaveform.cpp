@@ -124,7 +124,7 @@ viewitem *DockWaveform::find(QString name)
 
 void DockWaveform::add(QString name)
 {
-    m_view.append(viewitem { name });
+    m_view.append(viewitem { name, ::controller.getNetlist().get(name) });
 }
 
 /*
