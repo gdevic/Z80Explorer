@@ -262,6 +262,11 @@ bool DockWaveform::load(QString fileName)
                     if (s.count() == 4)
                         a.color = QColor(s[0].toInt(), s[1].toInt(), s[2].toUInt(), s[3].toInt());
                 }
+                // For nets (but not buses!), ignore the net name from the file and use only the net number
+                // since the name could have changed in the meantime.
+                // The name in the json file is only a help to anyone wishing to edit json by hand
+                if (a.net)
+                    a.name = ::controller.getNetlist().get(a.net);
                 m_view.append(a);
             }
         }

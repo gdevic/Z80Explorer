@@ -127,6 +127,7 @@ void DialogEditWaveform::onAdd()
     for (auto i : sel)
     {
         viewitem view(i->text());
+        view.net = ::controller.getNetlist().get(i->text());
         append(view);
     }
 }
