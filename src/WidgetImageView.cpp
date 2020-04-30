@@ -628,7 +628,7 @@ void WidgetImageView::addAnnotation()
     QString text = QInputDialog::getText(this, "Add annotation", "Annotation text:", QLineEdit::Normal, "", &ok);
     if (ok && !text.isEmpty())
     {
-        ::controller.getChip().annotate.add(text, m_areaRect.normalized());
+        ::controller.getChip().annotate.add(text, m_areaRect);
         DialogEditAnnotations dlg(this);
         QVector<uint> sel { ::controller.getChip().annotate.count() - 1 };
         dlg.selectRows(sel); // Selects the last annotation (the newly added one)
@@ -647,7 +647,7 @@ void WidgetImageView::editAnnotations()
     if (m_areaRect.isEmpty())
         sel = ::controller.getChip().annotate.get(pos);
     else
-        sel = ::controller.getChip().annotate.get(m_areaRect.normalized());
+        sel = ::controller.getChip().annotate.get(m_areaRect);
     dlg.selectRows(sel); // Selects annotations under the mouse pointer
     dlg.exec();
 }
