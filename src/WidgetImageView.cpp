@@ -584,28 +584,28 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     if (m_drawSelection && m_areaRect.width())
         contextMenu.addAction(&actionAddAnnotation);
 
-    // "Driving nets" option, only if the user selected a node
+    // "Driving nets" option, only if the user selected a node but not selection area (less confusing)
     QAction actionDriving("Driving nets", this);
     connect(&actionDriving, SIGNAL(triggered()), this, SLOT(netsDriving()));
-    if (m_drivingNets.count() >= 1)
+    if ((m_drivingNets.count() >= 1) && !m_areaRect.width())
         contextMenu.addAction(&actionDriving);
 
-    // "Driven by" option, only if the user selected a node
+    // "Driven by" option, only if the user selected a node but not selection area (less confusing)
     QAction actionDriven("Driven by", this);
     connect(&actionDriven, SIGNAL(triggered()), this, SLOT(netsDriven()));
-    if (m_drivingNets.count() >= 1)
+    if ((m_drivingNets.count() >= 1) && !m_areaRect.width())
         contextMenu.addAction(&actionDriven);
 
-    // "Edit tip..." option, only if the user picked a single net node
+    // "Edit tip..." option, only if the user picked a single net node but not selection area (less confusing)
     QAction actionEditTip("Edit tip...", this);
     connect(&actionEditTip, SIGNAL(triggered()), this, SLOT(editTip()));
-    if (m_drivingNets.count() == 1)
+    if ((m_drivingNets.count() == 1) && !m_areaRect.width())
         contextMenu.addAction(&actionEditTip);
 
-    // "Edit net name..." option, only if the user picked a single net node
+    // "Edit net name..." option, only if the user picked a single net node but not selection area (less confusing)
     QAction actionEditNetName("Edit net name...", this);
     connect(&actionEditNetName, SIGNAL(triggered()), this, SLOT(editNetName()));
-    if (m_drivingNets.count() == 1)
+    if ((m_drivingNets.count() == 1) && !m_areaRect.width())
         contextMenu.addAction(&actionEditNetName);
 
     QAction actionEditAnnotation("Edit annotations...", this);
