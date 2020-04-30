@@ -35,7 +35,7 @@ void WidgetImageOverlay::setImageNames(QStringList images)
 /*
  * Shows the coordinate pointed to by a mouse location
  */
-void WidgetImageOverlay::onPointerData(int x, int y)
+void WidgetImageOverlay::setCoords(int x, int y)
 {
     QString coords = QString("%1,%2").arg(x).arg(y);
     ui->btCoords->setText(coords);

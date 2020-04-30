@@ -26,7 +26,6 @@ public:
 
 signals:
     void imageMoved(QPointF);           // Image is moved by this control to new coordinates
-    void pointerData(int x, int y);     // Send the XY coordinates of the pointer (in image coordinates)
 
 public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates

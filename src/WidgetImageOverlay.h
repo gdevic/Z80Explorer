@@ -16,8 +16,9 @@ public:
     explicit WidgetImageOverlay(QWidget *parent);
     ~WidgetImageOverlay();
 
-    void setImageNames(QStringList images);
     void setInfoLine(QString text);
+    void setCoords(int x, int y);
+    void setImageNames(QStringList images);
 
 signals:
     void actionCoords();                // User clicked on the button with coordinates
@@ -25,7 +26,6 @@ signals:
     void actionSetImage(int i);         // Set image by index
 
 public slots:
-    void onPointerData(int x, int y);
     void selectImage(QString name, bool compose);
 
 private slots:

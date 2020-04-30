@@ -44,7 +44,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
     m_timer->start();
 
-    connect(this, SIGNAL(pointerData(int,int)), m_ov, SLOT(onPointerData(int,int)));
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
     connect(m_ov, SIGNAL(actionSetImage(int)), this, SLOT(setImage(int)));
@@ -409,8 +408,8 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         // With no buttons pushed, update information on which nets or objects the mouse is pointing to
         QPoint imageCoords = m_invtx.map(event->pos());
         if (m_image.valid(imageCoords.x(), imageCoords.y()))
-        {
-            emit pointerData(imageCoords.x(), imageCoords.y());
+        {            
+            m_ov->setCoords(imageCoords.x(), imageCoords.y());
 
             const QVector<net_t> nets = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
             const QString trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
