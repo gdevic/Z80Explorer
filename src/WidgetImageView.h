@@ -28,10 +28,6 @@ public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
 
 private slots:
-    void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
-    void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
-    void setZoomMode(ZoomType);         // Set the view mode
-    void setZoom(double);               // Set the zoom value
     void onFind(QString text);          // Search for the named feature
     void onTimeout();                   // Timer timeout handler
     void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
@@ -88,6 +84,11 @@ private:
     void wheelEvent(QWheelEvent *);
     void leaveEvent(QEvent *);
     void keyPressEvent(QKeyEvent *);
+
+    void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
+    void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
+    void setZoomMode(ZoomType);         // Set the view mode
+    void setZoom(double);               // Set the zoom value
 
     void calcTransform();
     void clampImageCoords(QPointF &tex, qreal xmax = 1.0, qreal ymax = 1.0);

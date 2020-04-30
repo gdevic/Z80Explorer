@@ -474,7 +474,7 @@ void WidgetImageView::wheelEvent(QWheelEvent *event)
         m_scale = m_scale * 1.2;
     else
         m_scale = m_scale / 1.2;
-    emit setZoom(m_scale);
+    setZoom(m_scale);
 }
 
 void WidgetImageView::leaveEvent(QEvent *)
