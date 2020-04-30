@@ -42,7 +42,7 @@ void WidgetImageOverlay::onPointerData(int x, int y)
 
 void WidgetImageOverlay::onClearPointerData()
 {
-    ui->label1->setText(QString());
+    ui->labelInfo->setText(QString());
 }
 
 void WidgetImageOverlay::on_btCoords_clicked()
@@ -50,12 +50,9 @@ void WidgetImageOverlay::on_btCoords_clicked()
     emit actionCoords();
 }
 
-void WidgetImageOverlay::setText(int index, QString text)
+void WidgetImageOverlay::setInfoLine(QString text)
 {
-    if (index == 1) ui->label1->setText(text);
-    if (index == 2) ui->label2->setText(text);
-    if (index == 3) ui->label3->setText(text);
-    if (index == 4) ui->label4->setText(text);
+    ui->labelInfo->setText(text);
 }
 
 /*

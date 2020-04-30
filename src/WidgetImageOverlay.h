@@ -17,6 +17,7 @@ public:
     ~WidgetImageOverlay();
 
     void setImageNames(QStringList images);
+    void setInfoLine(QString text);
 
 signals:
     void actionCoords();
@@ -26,7 +27,6 @@ signals:
 public slots:
     void onPointerData(int x, int y);
     void onClearPointerData();
-    void setText(int index, QString text);
     void selectImage(QString name, bool compose);
 
 private slots:

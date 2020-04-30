@@ -413,17 +413,12 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         {
             emit pointerData(imageCoords.x(), imageCoords.y());
 
-            const QVector<net_t> nodes = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
-            QString s;
-            for (const uint i : nodes)
-                s.append(QString::number(i)).append(", ");
-            QString trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
-            s.append(trans);
-            m_ov->setText(1, s);
-
-            // For each node number in the nodes list, get their name
-            const QStringList list = ::controller.getNetlist().get(nodes);
-            m_ov->setText(2, list.join(", "));
+            const QVector<net_t> nets = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
+            const QString trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
+            QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
+            netNames.insert(0, trans); // Insert the transistor name at the front
+            netNames.removeAll(QString()); // Remove any blanks (likely due to the infrequent transistor)
+            m_ov->setInfoLine(netNames.join(", "));
 
             // XXX Test more the usability of this tooltip
             //QToolTip::showText(event->globalPos(), list.join(","));
