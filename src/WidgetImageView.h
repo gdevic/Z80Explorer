@@ -71,6 +71,7 @@ private:
     bool m_drawAnnotations {true};      // Draw image annotations
     bool m_drawActiveTransistors {false};// Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
+    bool m_drawNetNames {true};         // Dynamically write nearby net names (experimental)
 
     QVector<net_t> m_drivingNets;       // List of nets expanded by the driving/driven heuristic
 

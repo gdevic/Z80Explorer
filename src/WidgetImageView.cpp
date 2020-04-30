@@ -293,6 +293,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     //------------------------------------------------------------------------
     // Dynamically write nearby net names (experimental)
     //------------------------------------------------------------------------
+    if (m_drawNetNames)
     {
         painter.save();
         ::controller.getChip().expDynamicallyNameNets(painter, m_imageView.toAlignedRect(), m_scale);
@@ -510,6 +511,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Comma: m_drawAnnotations = !m_drawAnnotations; break;
     case Qt::Key_Period: m_drawActiveTransistors = !m_drawActiveTransistors, m_drawAllTransistors = false; break;
     case Qt::Key_Greater: m_drawAllTransistors = !m_drawAllTransistors; break;
+    case Qt::Key_Slash: m_drawNetNames = !m_drawNetNames; break;
     case Qt::Key_Left: moveBy(QPointF(dx,0)); break;
     case Qt::Key_Right: moveBy(QPointF(-dx,0)); break;
     case Qt::Key_Up: moveBy(QPointF(0,dy)); break;
