@@ -45,7 +45,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     m_timer->start();
 
     connect(this, SIGNAL(pointerData(int,int)), m_ov, SLOT(onPointerData(int,int)));
-    connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
     connect(m_ov, SIGNAL(actionSetImage(int)), this, SLOT(setImage(int)));
@@ -427,7 +426,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         {
             // Oops - the pointer is in this widget, but it's not currently over
             // the image, so we have no data to report.
-            emit clearPointerData();
+            m_ov->setInfoLine(QString());
         }
     }
 }
@@ -483,7 +482,7 @@ void WidgetImageView::wheelEvent(QWheelEvent *event)
 
 void WidgetImageView::leaveEvent(QEvent *)
 {
-    emit clearPointerData();
+    m_ov->setInfoLine(QString());
 }
 
 void WidgetImageView::keyPressEvent(QKeyEvent *event)

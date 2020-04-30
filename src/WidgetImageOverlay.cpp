@@ -40,11 +40,6 @@ void WidgetImageOverlay::onPointerData(int x, int y)
     ui->btCoords->setText(coords);
 }
 
-void WidgetImageOverlay::onClearPointerData()
-{
-    ui->labelInfo->setText(QString());
-}
-
 void WidgetImageOverlay::on_btCoords_clicked()
 {
     emit actionCoords();

@@ -26,7 +26,6 @@ signals:
 
 public slots:
     void onPointerData(int x, int y);
-    void onClearPointerData();
     void selectImage(QString name, bool compose);
 
 private slots:
