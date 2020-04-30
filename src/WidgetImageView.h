@@ -24,9 +24,6 @@ public:
     enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes
     Q_ENUM(ZoomType);                   // Register enum names inside a QMetaObject
 
-signals:
-    void imageMoved(QPointF);           // Image is moved by this control to new coordinates
-
 public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
 

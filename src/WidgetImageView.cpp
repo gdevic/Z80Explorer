@@ -28,8 +28,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     setFocusPolicy(Qt::ClickFocus);
     setCursor(QCursor(Qt::CrossCursor));
 
-    // Connect the view's internal intent to move its image (for example, when the user drags it with a mouse)
-    connect(this, SIGNAL(imageMoved(QPointF)), this, SLOT(moveBy(QPointF)));
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
 
     // Create and set the image overlay widget
@@ -392,7 +390,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         dX = dX / m_image.width();
         dY = dY / m_image.height();
 
-        emit imageMoved(QPointF(dX/m_scale, dY/m_scale));
+        moveBy(QPointF(dX/m_scale, dY/m_scale));
     }
     else if (m_mouseRightPressed) // With a right mouse button pressed: define the selection area
     {
