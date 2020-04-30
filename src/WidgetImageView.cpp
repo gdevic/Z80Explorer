@@ -569,6 +569,13 @@ void WidgetImageView::setImage(int i)
  */
 void WidgetImageView::contextMenu(const QPoint& pos)
 {
+    // If the user dragged the selection rectangle in the "opposite" way, we need to swap the corners
+    m_areaRect = m_areaRect.normalized();
+
+    // If the selection area is too small, clear it
+    if ((m_areaRect.width() < 4) || (m_areaRect.height() < 4))
+        m_areaRect.setRect(0,0,0,0);
+
     QMenu contextMenu(this);
 
     // "Add annotation" option, only if the selection area has some width to it
