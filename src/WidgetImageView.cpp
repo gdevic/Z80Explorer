@@ -28,8 +28,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     setFocusPolicy(Qt::ClickFocus);
     setCursor(QCursor(Qt::CrossCursor));
 
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
-
     // Create and set the image overlay widget
     m_ov = new WidgetImageOverlay(this);
     m_ov->setParent(this);
@@ -45,7 +43,14 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
     connect(m_ov, SIGNAL(actionSetImage(int)), this, SLOT(setImage(int)));
-
+    // Map overlay buttons directly to our keyboard handler and pass the corresponding key commands
+    connect(m_ov, &WidgetImageOverlay::actionButton, this, [this](int i)
+    {
+        static const int key[4] = { Qt::Key_Space, Qt::Key_Comma, Qt::Key_Period, Qt::Key_Slash };
+        QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
+        keyPressEvent(&event);
+    });
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
 }
 
@@ -507,11 +512,24 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
             case Value: setZoomMode(Fit); break;
         }
         break;
-    case Qt::Key_Space: m_drawActiveNets = !m_drawActiveNets; break;
-    case Qt::Key_Comma: m_drawAnnotations = !m_drawAnnotations; break;
-    case Qt::Key_Period: m_drawActiveTransistors = !m_drawActiveTransistors, m_drawAllTransistors = false; break;
+    case Qt::Key_Space:
+        m_drawActiveNets = !m_drawActiveNets;
+        m_ov->setButton(0, m_drawActiveNets);
+        break;
+    case Qt::Key_Comma:
+        m_drawAnnotations = !m_drawAnnotations;
+        m_ov->setButton(1, m_drawAnnotations);
+        break;
+    case Qt::Key_Period:
+        m_drawActiveTransistors = !m_drawActiveTransistors;
+        m_drawAllTransistors = false;
+        m_ov->setButton(2, m_drawActiveTransistors);
+        break;
     case Qt::Key_Greater: m_drawAllTransistors = !m_drawAllTransistors; break;
-    case Qt::Key_Slash: m_drawNetNames = !m_drawNetNames; break;
+    case Qt::Key_Slash:
+        m_drawNetNames = !m_drawNetNames;
+        m_ov->setButton(3, m_drawNetNames);
+        break;
     case Qt::Key_Left: moveBy(QPointF(dx,0)); break;
     case Qt::Key_Right: moveBy(QPointF(-dx,0)); break;
     case Qt::Key_Up: moveBy(QPointF(0,dy)); break;

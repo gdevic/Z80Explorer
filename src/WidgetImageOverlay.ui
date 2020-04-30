@@ -40,6 +40,103 @@
     </widget>
    </item>
    <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QToolButton" name="btA">
+        <property name="toolTip">
+         <string>Show active nets&lt;br&gt;Key: space</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>5000</number>
+        </property>
+        <property name="text">
+         <string>X</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btB">
+        <property name="toolTip">
+         <string>Show annotations&lt;br&gt;Key: comma</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>5000</number>
+        </property>
+        <property name="text">
+         <string>A</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btC">
+        <property name="toolTip">
+         <string>Show transistors&lt;br&gt;Key: period</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>5000</number>
+        </property>
+        <property name="text">
+         <string>T</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btD">
+        <property name="toolTip">
+         <string>Show net names&lt;br&gt;Key: slash</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>5000</number>
+        </property>
+        <property name="text">
+         <string>N</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QPushButton" name="btCoords">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>

@@ -2,6 +2,7 @@
 #include "ui_WidgetImageOverlay.h"
 
 #include <QPushButton>
+#include <QToolButton>
 
 WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
     QWidget(parent),
@@ -11,11 +12,40 @@ WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
 
     connect(ui->editFind, SIGNAL(returnPressed()), this, SLOT(onFind()));
     connect(ui->btCoords, &QPushButton::clicked, this, &WidgetImageOverlay::actionCoords);
+    connect(ui->btA, &QToolButton::clicked, this, [this](){ emit actionButton(0); } );
+    connect(ui->btB, &QToolButton::clicked, this, [this](){ emit actionButton(1); } );
+    connect(ui->btC, &QToolButton::clicked, this, [this](){ emit actionButton(2); } );
+    connect(ui->btD, &QToolButton::clicked, this, [this](){ emit actionButton(3); } );
 }
 
 WidgetImageOverlay::~WidgetImageOverlay()
 {
     delete ui;
+}
+
+void WidgetImageOverlay::setInfoLine(QString text)
+{
+    ui->labelInfo->setText(text);
+}
+
+/*
+ * Sets checked state to one of 4 buttons specified by the index
+ */
+void WidgetImageOverlay::setButton(uint i, bool checked)
+{
+    if (i == 0) ui->btA->setChecked(checked);
+    if (i == 1) ui->btB->setChecked(checked);
+    if (i == 2) ui->btC->setChecked(checked);
+    if (i == 3) ui->btD->setChecked(checked);
+}
+
+/*
+ * Shows the coordinate pointed to by a mouse location
+ */
+void WidgetImageOverlay::setCoords(int x, int y)
+{
+    QString coords = QString("%1,%2").arg(x).arg(y);
+    ui->btCoords->setText(coords);
 }
 
 void WidgetImageOverlay::setImageNames(QStringList images)
@@ -30,20 +60,6 @@ void WidgetImageOverlay::setImageNames(QStringList images)
         ui->layout->addWidget(p);
     }
     ui->layout->setSizeConstraint(QLayout::SetMinimumSize);
-}
-
-/*
- * Shows the coordinate pointed to by a mouse location
- */
-void WidgetImageOverlay::setCoords(int x, int y)
-{
-    QString coords = QString("%1,%2").arg(x).arg(y);
-    ui->btCoords->setText(coords);
-}
-
-void WidgetImageOverlay::setInfoLine(QString text)
-{
-    ui->labelInfo->setText(text);
 }
 
 /*

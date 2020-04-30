@@ -17,10 +17,12 @@ public:
     ~WidgetImageOverlay();
 
     void setInfoLine(QString text);
+    void setButton(uint i, bool checked);
     void setCoords(int x, int y);
     void setImageNames(QStringList images);
 
 signals:
+    void actionButton(int i);           // User clicked on one of the buttons on the top
     void actionCoords();                // User clicked on the button with coordinates
     void actionFind(QString text);      // New text entered in the "Find" edit box
     void actionSetImage(int i);         // Set image by index
