@@ -416,8 +416,10 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             netNames.removeAll(QString()); // Remove any blanks (likely due to the infrequent transistor)
             m_ov->setInfoLine(netNames.join(", "));
 
-            // XXX Test more the usability of this tooltip
-            //QToolTip::showText(event->globalPos(), list.join(","));
+            // Holding the Ctrl key while moving the mouse will immediately show complete info as a tooltop
+            bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+            if (ctrl)
+                QToolTip::showText(event->globalPos(), netNames.join(", "));
         }
         else
         {
