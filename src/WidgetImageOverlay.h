@@ -20,7 +20,7 @@ public:
     void setInfoLine(QString text);
 
 signals:
-    void actionCoords();
+    void actionCoords();                // User clicked on the button with coordinates
     void actionFind(QString text);      // New text entered in the "Find" edit box
     void actionSetImage(int i);         // Set image by index
 
@@ -29,7 +29,6 @@ public slots:
     void selectImage(QString name, bool compose);
 
 private slots:
-    void on_btCoords_clicked();
     void onFind();                      // Called by the editFind edit widget when the user presses the Enter key
 
 private:

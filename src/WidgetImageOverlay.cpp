@@ -10,6 +10,7 @@ WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->editFind, SIGNAL(returnPressed()), this, SLOT(onFind()));
+    connect(ui->btCoords, &QPushButton::clicked, this, &WidgetImageOverlay::actionCoords);
 }
 
 WidgetImageOverlay::~WidgetImageOverlay()
@@ -38,11 +39,6 @@ void WidgetImageOverlay::onPointerData(int x, int y)
 {
     QString coords = QString("%1,%2").arg(x).arg(y);
     ui->btCoords->setText(coords);
-}
-
-void WidgetImageOverlay::on_btCoords_clicked()
-{
-    emit actionCoords();
 }
 
 void WidgetImageOverlay::setInfoLine(QString text)
