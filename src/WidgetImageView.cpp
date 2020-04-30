@@ -530,20 +530,22 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
 
 void WidgetImageView::setImage(int i)
 {
-    if (i >= 0)
+    if (i >= 0) // called from keyPressEvent() might not be selecting an image
     {
         bool alt = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
-        if (alt) // Compositing multiple images view
+        if (alt) // Compositing multiple images
         {
+            QImage &image = ::controller.getChip().getImage(i);
             QPainter painter(&m_image);
             painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
-            painter.drawImage(0,0, ::controller.getChip().getImage(i));
+            painter.drawImage(0,0, image);
             painter.end();
+            m_ov->selectImage(image.text("name"), true);
         }
         else // Simple image view
         {
             m_image = ::controller.getChip().getImage(i); // Creates a shallow image copy
-            m_ov->setText(3, m_image.text("name"));
+            m_ov->selectImage(m_image.text("name"), false);
         }
     }
     update();

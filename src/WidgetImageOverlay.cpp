@@ -1,5 +1,6 @@
 #include "WidgetImageOverlay.h"
 #include "ui_WidgetImageOverlay.h"
+
 #include <QPushButton>
 
 WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
@@ -65,4 +66,14 @@ void WidgetImageOverlay::onFind()
     QString text = ui->editFind->text().trimmed();
     ui->editFind->clear(); // Clear the edit box from the user input
     emit actionFind(text);
+}
+
+/*
+ * Called when an image is selected to highlight the corresponding button
+ * If compose is true, other buttons will not be reset (additive operation)
+ */
+void WidgetImageOverlay::selectImage(QString name, bool compose)
+{
+    for (auto &pb : findChildren<QPushButton *>())
+        pb->setFlat((name == pb->text().mid(6)) || (pb->isFlat() & compose));
 }
