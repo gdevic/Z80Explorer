@@ -353,7 +353,7 @@ void WidgetImageView::resizeEvent(QResizeEvent *event)
  */
 bool WidgetImageView::event(QEvent *event)
 {
-    if (event->type() == QEvent::ToolTip)
+    if (event->type() == QEvent::ToolTip) // XXX Is this now redundant? We already use tooltip with Ctrl key
     {
         QPoint pos = m_invtx.map(m_mousePos);
         QVector<net_t> nets = ::controller.getChip().getNetsAt<false>(pos.x(), pos.y());
