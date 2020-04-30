@@ -16,14 +16,14 @@ WidgetImageOverlay::~WidgetImageOverlay()
     delete ui;
 }
 
-void WidgetImageOverlay::setLayerNames(QStringList layers)
+void WidgetImageOverlay::setImageNames(QStringList images)
 {
     const QString c = "123456789abcdefghijklmnopq";
-    for (int i=0; i < layers.count(); i++)
+    for (int i=0; i < images.count(); i++)
     {
         QPushButton *p = new QPushButton(this);
         p->setStyleSheet("text-align:left;");
-        p->setText(QString(c[i % c.length()]) + " ... " + layers[i]);
+        p->setText(QString(c[i % c.length()]) + " ... " + images[i]);
         connect(p, &QPushButton::clicked, this, [this, i]() { emit actionSetImage(i); });
         ui->layout->addWidget(p);
     }

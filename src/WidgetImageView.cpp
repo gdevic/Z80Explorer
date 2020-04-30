@@ -58,9 +58,8 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
  */
 void WidgetImageView::init()
 {
-    m_image = ::controller.getChip().getImage(0);
-    m_ov->setText(3, m_image.text("name"));
-    m_ov->setLayerNames(::controller.getChip().getLayerNames());
+    m_ov->setImageNames(::controller.getChip().getImageNames());
+    setImage(0); // Display the very first image
     m_scale = 0.19; // Arbitrary initial scaling.. looks perfect on my monitor ;-)
     setZoomMode(Value);
 }

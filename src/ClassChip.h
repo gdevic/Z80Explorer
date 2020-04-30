@@ -43,7 +43,7 @@ public:
     template<bool includeVssVcc>
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QString getTransistorAt(int x, int y); // Returns a transistor found at the specified image coordinates
-    const QStringList getLayerNames();  // Returns a list of layer / image names
+    const QStringList getImageNames();  // Returns a list of layer / image names
     const segdef *getSegment(net_t net); // Returns the segdef given its net number, zero if not found
     const transdef *getTrans(QString name); // Returns transistor definition given its name, nullptr if not found
 

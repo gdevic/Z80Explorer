@@ -278,11 +278,11 @@ void ClassChip::setFirstImage(QString name)
 /*
  * Returns a list of layer / image names, text stored with each image
  */
-const QStringList ClassChip::getLayerNames()
+const QStringList ClassChip::getImageNames()
 {
     QStringList names;
-    for (const auto &name : m_img)
-        names.append(name.text("name"));
+    for (const auto &image : m_img)
+        names.append(image.text("name"));
     return names;
 }
 

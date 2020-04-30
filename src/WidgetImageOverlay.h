@@ -16,7 +16,7 @@ public:
     explicit WidgetImageOverlay(QWidget *parent);
     ~WidgetImageOverlay();
 
-    void setLayerNames(QStringList layers);
+    void setImageNames(QStringList images);
 
 signals:
     void actionCoords();
