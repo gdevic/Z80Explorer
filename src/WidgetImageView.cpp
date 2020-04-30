@@ -12,6 +12,7 @@
 #include <QPainter>
 #include <QRegularExpression>
 #include <QResizeEvent>
+#include <QGuiApplication>
 #include <QTimer>
 #include <QToolTip>
 
@@ -47,6 +48,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     connect(this, SIGNAL(clearPointerData()), m_ov, SLOT(onClearPointerData()));
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
+    connect(m_ov, SIGNAL(actionSetImage(int)), this, SLOT(setImage(int)));
 
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
 }
@@ -495,9 +497,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     // Approximate image move offsets in the texture space
     qreal dx = qreal(m_image.width()) / (m_viewPort.width() * m_scale * 100);
     qreal dy = qreal(m_image.height()) / (m_viewPort.height() * m_scale * 200);
-    bool alt = event->modifiers() & Qt::AltModifier;
     int i = -1;
-
     if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_9)
         i = event->key() - Qt::Key_1;
     else if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_Z)
@@ -526,8 +526,14 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_PageDown: setZoom(m_scale / 1.2); break;
     }
 
+    setImage(i);
+}
+
+void WidgetImageView::setImage(int i)
+{
     if (i >= 0)
     {
+        bool alt = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
         if (alt) // Compositing multiple images view
         {
             QPainter painter(&m_image);

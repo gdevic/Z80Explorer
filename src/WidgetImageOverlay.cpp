@@ -1,7 +1,6 @@
 #include "WidgetImageOverlay.h"
 #include "ui_WidgetImageOverlay.h"
-
-#include <QLabel>
+#include <QPushButton>
 
 WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
     QWidget(parent),
@@ -22,8 +21,10 @@ void WidgetImageOverlay::setLayerNames(QStringList layers)
     const QString c = "123456789abcdefghijklmnopq";
     for (int i=0; i < layers.count(); i++)
     {
-        QLabel *p = new QLabel(this);
+        QPushButton *p = new QPushButton(this);
+        p->setStyleSheet("text-align:left;");
         p->setText(QString(c[i % c.length()]) + " ... " + layers[i]);
+        connect(p, &QPushButton::clicked, this, [this, i]() { emit actionSetImage(i); });
         ui->layout->addWidget(p);
     }
     ui->layout->setSizeConstraint(QLayout::SetMinimumSize);

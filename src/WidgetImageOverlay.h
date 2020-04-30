@@ -21,6 +21,7 @@ public:
 signals:
     void actionCoords();
     void actionFind(QString text);      // New text entered in the "Find" edit box
+    void actionSetImage(int i);         // Set image by index
 
 public slots:
     void onPointerData(int x, int y);
