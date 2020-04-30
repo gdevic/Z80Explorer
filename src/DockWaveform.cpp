@@ -58,8 +58,8 @@ DockWaveform::~DockWaveform()
 
 void DockWaveform::onLoad()
 {
-    // Prompts the user to select which waveform configuration file to load
-    QString fileName = QFileDialog::getOpenFileName(this, "Select a waveform configuration file to load", "", "waveform (*.json);;All files (*.*)");
+    // Prompts the user to select which waveform view configuration file to load
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a waveform view configuration file to load", "", "waveform (*.json);;All files (*.*)");
     if (!fileName.isEmpty())
     {
         if (!load(fileName))
@@ -70,12 +70,12 @@ void DockWaveform::onLoad()
 
 void DockWaveform::onSaveAs()
 {
-    // Prompts the user to select the waveform configuration file to save to
-    QString fileName = QFileDialog::getSaveFileName(this, "Save waveform configuration to a file", "", "waveform (*.json);;All files (*.*)");
+    // Prompts the user to select the waveform view configuration file to save to
+    QString fileName = QFileDialog::getSaveFileName(this, "Save waveform view configuration to a file", "", "waveform (*.json);;All files (*.*)");
     if (!fileName.isEmpty())
     {
         if (!save(fileName))
-            QMessageBox::critical(this, "Error", "Unable to save waveform configuration to " + fileName);
+            QMessageBox::critical(this, "Error", "Unable to save waveform view configuration to " + fileName);
     }
 }
 
@@ -83,7 +83,7 @@ void DockWaveform::onSave()
 {
     Q_ASSERT(!m_fileViewlist.isEmpty());
     if (!save(m_fileViewlist))
-        QMessageBox::critical(this, "Error", "Unable to save waveform configuration to " + m_fileViewlist);
+        QMessageBox::critical(this, "Error", "Unable to save waveform view configuration to " + m_fileViewlist);
 }
 
 void DockWaveform::onPng()
@@ -253,11 +253,11 @@ void DockWaveform::onScrollBarActionTriggered(int)
 }
 
 /*
- * Loads waveform configuration from a file
+ * Loads waveform view configuration from a file
  */
 bool DockWaveform::load(QString fileName)
 {
-    qInfo() << "Loading waveform configuration from" << fileName;
+    qInfo() << "Loading waveform view configuration from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
     {
@@ -303,11 +303,11 @@ bool DockWaveform::load(QString fileName)
 }
 
 /*
- * Saves waveform configuration to a file
+ * Saves waveform view configuration to a file
  */
 bool DockWaveform::save(QString fileName)
 {
-    qInfo() << "Saving waveform configuration to" << fileName;
+    qInfo() << "Saving waveform view configuration to" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
     {

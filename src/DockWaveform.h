@@ -60,7 +60,7 @@ private:
     QVector<viewitem> m_view;           // A collection of view items
 
     uint m_lastcursor;                  // Last cursor cycle value
-    QString m_fileViewlist;             // This window's default waveform configuration file name
+    QString m_fileViewlist;             // This window's default waveform view configuration file name
     qreal m_rel { 0 };                  // Waveform scroll relative slider position
 
     QStringList getNames();             // Returns a list of all view item names
