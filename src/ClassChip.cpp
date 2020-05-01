@@ -300,6 +300,12 @@ const QVector<net_t> ClassChip::getNetsAt(int x, int y)
     QVector<net_t> list;
     // Use our layer map to read vss, vcc since they are the largest, already mapped, areas
     uint offset = x + y * m_sx;
+#if HAVE_PREBUILT_LAYERMAP
+    const net_t minNet = includeVssVcc ? 0 : 2;
+    if (m_p3[0][offset] > minNet) list.append(m_p3[0][offset]);
+    if (m_p3[1][offset] > minNet) list.append(m_p3[1][offset]);
+    if (m_p3[2][offset] > minNet) list.append(m_p3[2][offset]);
+#else
     if (includeVssVcc)
     {
         if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 1) list.append(1); // vss
@@ -316,6 +322,7 @@ const QVector<net_t> ClassChip::getNetsAt(int x, int y)
             }
         }
     }
+#endif // HAVE_PREBUILT_LAYERMAP
     return list;
 }
 
