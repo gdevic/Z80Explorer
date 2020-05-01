@@ -242,7 +242,7 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
         return;
     if(m_cursormoving) // User is moving the cursor
     {
-        uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
+        int mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
         if ((mouse_in_dataX >= 0) && (mouse_in_dataX < MAX_WATCH_HISTORY * 2))
             m_cursors2x[m_cursor] = mouse_in_dataX;
         setCursor(Qt::SizeHorCursor);
@@ -288,7 +288,7 @@ void WidgetWaveform::mousePressEvent(QMouseEvent *event)
         if (m_cursormoving)
         {
             // If we identified a cursor, set it's new X coordiate
-            uint mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
+            int mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
             if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= MAX_WATCH_HISTORY * 2))
                 m_cursors2x[m_cursor] = mouse_in_dataX;
         }
@@ -311,7 +311,7 @@ void WidgetWaveform::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if (m_cursors2x.count())
     {
-        uint mouse_in_dataX = event->x() / (m_hscale / 2);
+        int mouse_in_dataX = event->x() / (m_hscale / 2);
         if ((mouse_in_dataX >= 0) && (mouse_in_dataX < MAX_WATCH_HISTORY * 2))
             m_cursors2x[m_cursor] = mouse_in_dataX;
         update();

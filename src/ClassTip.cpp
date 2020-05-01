@@ -41,14 +41,15 @@ bool ClassTip::load(QString dir)
 
             for (int i = 0; i < array.size(); i++)
             {
-                net_t net;
+                net_t net = 0;
                 QString tip;
                 QJsonObject obj = array[i].toObject();
                 if (obj.contains("net") && obj["net"].isDouble())
                     net = obj["net"].toInt();
                 if (obj.contains("tip") && obj["tip"].isString())
                     tip = obj["tip"].toString();
-                m_tips[net] = tip;
+                if (net)
+                    m_tips[net] = tip;
             }
         }
         return true;
