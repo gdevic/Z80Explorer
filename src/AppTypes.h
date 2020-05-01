@@ -6,6 +6,8 @@
 
 #define APP_VERSION 10 // Application version (minor % 10)
 
+#define HAVE_PREBUILT_LAYERMAP 1 // We have extracted a fully prebuilt layermap.bin and can use it
+
 #include <stdint.h>
 
 typedef uint16_t net_t;                 // Type of an index to the net array

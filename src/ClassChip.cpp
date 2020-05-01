@@ -63,6 +63,10 @@ bool ClassChip::loadChipResources(QString dir)
         // If we cannot load the layer map, we need to create it (and then save it)
         if (!loadLayerMap(dir))
         {
+#if HAVE_PREBUILT_LAYERMAP
+            qCritical() << "Prebuilt layermap missing";
+            return false;
+#endif
             experimental_1(); // Generates a layer map
             experimental_2(); // Saves layer map to file to be loaded next time
         }
@@ -588,6 +592,9 @@ void ClassChip::createLayerMapImage(QString name)
         uint16_t c = 0;
         if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = ::controller.getColors().get16(1); // vss
         if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = ::controller.getColors().get16(2); // vcc
+
+        //c = (net[0] << 4) | (net[1] << 2) | (net[2]); // XXX Visualize the layermap net values
+
         p[i] = c;
     }
 
