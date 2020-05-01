@@ -460,6 +460,9 @@ void WidgetImageView::mouseReleaseEvent (QMouseEvent *event)
  */
 void WidgetImageView::mouseDoubleClickEvent (QMouseEvent *event)
 {
+    m_pinMousePos = QPoint();
+    m_areaRect.setRect(0,0,0,0);
+
     if (event->button() == Qt::LeftButton)
     {
         m_mousePos = event->pos();
