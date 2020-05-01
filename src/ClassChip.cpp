@@ -64,17 +64,18 @@ bool ClassChip::loadChipResources(QString dir)
         if (!loadLayerMap(dir))
         {
 #if HAVE_PREBUILT_LAYERMAP
-            qCritical() << "Prebuilt layermap missing";
+            qCritical() << "Prebuilt layermap missing!";
+            qCritical() << "*** Did you extract layermap.7z file? ***";
             return false;
 #endif
             experimental_1(); // Generates a layer map
             experimental_2(); // Saves layer map to file to be loaded next time
         }
-        createLayerMapImage("vss.vcc");
-        drawAllNetsAsInactive("vss.vcc", "vss.vcc.nets");
-        redrawNetsColorize("vss.vcc", "vss.vcc.nets.col");
+        createLayerMapImage("vss.vcc", true); // Create a base image showing GND and +5V traces
+        drawAllNetsAsInactive("vss.vcc", "vss.vcc.nets"); // Using the vss.vcc as a base, faintly add all nets
+        redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); // Using the vss.vcc as a base, colorize selected buses
         connect(&::controller, &ClassController::eventNetName, this, [this]() // May need different colors for renamed nets
-            { redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); } );
+            { redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); } ); // Dynamically rebuild the colorized image
         experimental_4(); // Create transistor paths
 
         setFirstImage("vss.vcc.nets.col");
@@ -240,7 +241,7 @@ bool ClassChip::loadTransdefs(QString dir)
 }
 
 /*
- * Returns the reference to the image by the image index.
+ * Returns a reference to the image by the image index.
  * Returns the very first image if the index is outside the stored images count
  */
 QImage &ClassChip::getImage(uint i)
@@ -251,7 +252,7 @@ QImage &ClassChip::getImage(uint i)
 }
 
 /*
- * Returns the reference to the image by the image (embedded) name
+ * Returns a reference to the image by the image (embedded) name
  * ok is set to false if the image cannot be found. It is not modified on success
  */
 QImage &ClassChip::getImage(QString name, bool &ok)
@@ -581,7 +582,7 @@ void ClassChip::shrinkVias(QString source, QString dest)
 /*
  * Creates a color image from the layer map data
  */
-void ClassChip::createLayerMapImage(QString name)
+void ClassChip::createLayerMapImage(QString name, bool onlyVssVcc)
 {
     // Out of 3 layers, compose one visual image that we'd like to see
     uint16_t *p = new uint16_t[m_mapsize];
@@ -592,9 +593,8 @@ void ClassChip::createLayerMapImage(QString name)
         uint16_t c = 0;
         if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = ::controller.getColors().get16(1); // vss
         if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = ::controller.getColors().get16(2); // vcc
-
-        //c = (net[0] << 4) | (net[1] << 2) | (net[2]); // XXX Visualize the layermap net values
-
+        if (!onlyVssVcc)
+            c = (net[0] << 4) | (net[1] << 2) | (net[2]); // Visualize all layermap net values
         p[i] = c;
     }
 
