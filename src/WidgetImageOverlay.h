@@ -16,7 +16,8 @@ public:
     explicit WidgetImageOverlay(QWidget *parent);
     ~WidgetImageOverlay();
 
-    void setInfoLine(QString text);
+    void setInfoLine(uint index, QString text);
+    void clearInfoLine(uint index);
     void setButton(uint i, bool checked);
     void setCoords(int x, int y);
     void setImageNames(QStringList images);

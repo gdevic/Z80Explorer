@@ -23,9 +23,20 @@ WidgetImageOverlay::~WidgetImageOverlay()
     delete ui;
 }
 
-void WidgetImageOverlay::setInfoLine(QString text)
+void WidgetImageOverlay::setInfoLine(uint index, QString text)
 {
-    ui->labelInfo->setText(text);
+    if ((index == 0) || (index == 1))
+        ui->labelInfo1->setText(text);
+    if ((index == 0) || (index == 2))
+        ui->labelInfo2->setText(text);
+}
+
+void WidgetImageOverlay::clearInfoLine(uint index)
+{
+    if ((index == 0) || (index == 1))
+        ui->labelInfo1->clear();
+    if ((index == 0) || (index == 2))
+        ui->labelInfo2->clear();
 }
 
 /*

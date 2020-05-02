@@ -447,8 +447,10 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             const QString trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
             QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
             netNames.insert(0, trans); // Insert the transistor name at the front
-            netNames.removeAll(QString()); // Remove any blanks (likely due to the infrequent transistor)
-            m_ov->setInfoLine(netNames.join(", "));
+            netNames.removeAll(QString()); // Remove any blanks (likely due to an infrequent transistor area)
+            m_ov->setInfoLine(1, netNames.join(", "));
+            QString tip = nets.count() ? ::controller.getChip().tips.get(nets[0]) : QString();
+            m_ov->setInfoLine(2, tip);
 
             // Holding the Ctrl key while moving the mouse will immediately show complete info as a tooltop
             bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
@@ -459,7 +461,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         {
             // Oops - the pointer is in this widget, but it's not currently over
             // the image, so we have no data to report.
-            m_ov->setInfoLine(QString());
+            m_ov->clearInfoLine(0);
         }
     }
 }
@@ -518,7 +520,7 @@ void WidgetImageView::wheelEvent(QWheelEvent *event)
 
 void WidgetImageView::leaveEvent(QEvent *)
 {
-    m_ov->setInfoLine(QString());
+    m_ov->clearInfoLine(0);
 }
 
 void WidgetImageView::keyPressEvent(QKeyEvent *event)
