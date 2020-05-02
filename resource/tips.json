@@ -30,7 +30,7 @@
         },
         {
             "net": 264,
-            "tip": "EXTD"
+            "tip": "ED"
         },
         {
             "net": 266,
@@ -42,7 +42,7 @@
         },
         {
             "net": 269,
-            "tip": "BITS"
+            "tip": "CB"
         },
         {
             "net": 271,
@@ -50,19 +50,19 @@
         },
         {
             "net": 272,
-            "tip": "ed:adc/sbc"
+            "tip": "ED: adc/sbc"
         },
         {
             "net": 273,
-            "tip": "cb:rotate/shift"
+            "tip": "CB: rotate/shift"
         },
         {
             "net": 274,
-            "tip": "cb:bit"
+            "tip": "CB: bit"
         },
         {
             "net": 275,
-            "tip": "cb:set"
+            "tip": "CB: set"
         },
         {
             "net": 276,
@@ -86,7 +86,7 @@
         },
         {
             "net": 281,
-            "tip": "ld a,i / ld a,r at top, clk at bottom"
+            "tip": "ld a,i / ld a,r"
         },
         {
             "net": 282,
@@ -130,7 +130,7 @@
         },
         {
             "net": 292,
-            "tip": "ld rr,**/**,rr"
+            "tip": "ld rr,** / ld **,rr"
         },
         {
             "net": 293,
@@ -142,7 +142,7 @@
         },
         {
             "net": 295,
-            "tip": "out (*),a/a,(*)"
+            "tip": "out (*),a / out a,(*)"
         },
         {
             "net": 296,
@@ -170,11 +170,11 @@
         },
         {
             "net": 302,
-            "tip": "BITS"
+            "tip": "IX/IY+CB"
         },
         {
             "net": 303,
-            "tip": "bf"
+            "tip": "Every CB with IX/IY"
         },
         {
             "net": 304,
@@ -186,7 +186,7 @@
         },
         {
             "net": 306,
-            "tip": "all f"
+            "tip": "Every CB"
         },
         {
             "net": 307,
@@ -194,7 +194,7 @@
         },
         {
             "net": 308,
-            "tip": "BITS"
+            "tip": "IX/IY+CB"
         },
         {
             "net": 309,
@@ -226,7 +226,7 @@
         },
         {
             "net": 317,
-            "tip": "ld (rr),a/a,(rr)"
+            "tip": "ld (rr),a / ld a,(rr)"
         },
         {
             "net": 318,
@@ -262,7 +262,7 @@
         },
         {
             "net": 331,
-            "tip": "ld(rr),a/a,(rr)"
+            "tip": "ld (rr),a / ld a,(rr)"
         },
         {
             "net": 332,
@@ -302,15 +302,15 @@
         },
         {
             "net": 341,
-            "tip": "out(*),a"
+            "tip": "out (*),a"
         },
         {
             "net": 342,
-            "tip": "ld hl,**/**,hl"
+            "tip": "ld hl,** / ld **,hl"
         },
         {
             "net": 343,
-            "tip": "ld (**),a/a,(**)"
+            "tip": "ld (**),a / ld a,(**)"
         },
         {
             "net": 344,
@@ -342,7 +342,7 @@
         },
         {
             "net": 351,
-            "tip": "cb:res"
+            "tip": "CB: res"
         },
         {
             "net": 352,
@@ -358,11 +358,11 @@
         },
         {
             "net": 355,
-            "tip": "out (*),a/in a,(*)"
+            "tip": "out (*),a / in a,(*)"
         },
         {
             "net": 356,
-            "tip": "cb: op (hl)"
+            "tip": "CB: op (hl)"
         },
         {
             "net": 361,
