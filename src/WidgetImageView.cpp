@@ -24,6 +24,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
 {
     setZoomMode(Fit);
     setMouseTracking(true);
+    setAttribute(Qt::WA_AcceptTouchEvents);
     setContextMenuPolicy(Qt::CustomContextMenu);
     setFocusPolicy(Qt::ClickFocus);
     setCursor(QCursor(Qt::CrossCursor));
@@ -375,6 +376,33 @@ bool WidgetImageView::event(QEvent *event)
         QToolTip::hideText();
         event->ignore();
     }
+
+    // Handle image scaling by multi-point touch
+    switch (event->type())
+    {
+        case QEvent::TouchBegin:
+        case QEvent::TouchUpdate:
+        case QEvent::TouchEnd:
+        {
+            QTouchEvent *touchEvent = static_cast<QTouchEvent *>(event);
+            QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
+            if (touchPoints.count() == 2)
+            {
+                // Determine the relative scale factor
+                const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
+                const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
+                qreal touchScale = QLineF(touchPoint0.pos(), touchPoint1.pos()).length() /
+                                   QLineF(touchPoint0.startPos(), touchPoint1.startPos()).length();
+                if (touchEvent->touchPointStates() & Qt::TouchPointPressed)
+                    m_touchScale =  m_scale / touchScale; // On "pressed" event, set the scale factor
+                m_scale = touchScale * m_touchScale;
+                setZoom(m_scale);
+            }
+            return true;
+        }
+        default: break;
+    }
+
     return QWidget::event(event);
 }
 

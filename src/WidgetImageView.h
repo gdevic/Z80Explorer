@@ -54,6 +54,7 @@ private:
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
     bool    m_mouseLeftPressed {};      // Mouse left button is pressed
     bool    m_mouseRightPressed {};     // Mouse right button is pressed
+    qreal   m_touchScale;               // Scale correction factor during the touch zoom event
     bool    m_drawSelection {};         // Draw the mouse selected area
     QRect   m_areaRect;                 // Area rectangle to draw during the mouse selection
 
