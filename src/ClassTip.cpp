@@ -9,7 +9,6 @@
 
 ClassTip::ClassTip(QObject *parent) : QObject(parent)
 {
-    m_tips[0] = "The net number zero should <b>never</> be used";
 }
 
 void ClassTip::onShutdown()

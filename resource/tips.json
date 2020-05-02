@@ -1,10 +1,6 @@
 {
     "tips": [
         {
-            "net": 0,
-            "tip": "The net number zero should <b>never</> be used"
-        },
-        {
             "net": 3,
             "tip": "Clock tree"
         },
