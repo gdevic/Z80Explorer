@@ -45,6 +45,9 @@ public: // API
     enum FormatBus { Hex, Bin, Oct, Dec, Ascii };
     const QString formatBus(uint fmt, uint value, uint width); // Returns the formatted string for a bus type value
 
+    // Simulator calls this on every half-clock cycle, controller will directly dispatch to modules that need it
+    inline void onTick(uint ticks)          // Recieves the simulation half-cycle message and broadcast it to whomever needs it
+        { m_trick.onTick(ticks); }
     // Requests operations on net names; this class will dispatch those operations via eventNetName() signal
     void setNetName(const QString name, const net_t); // Sets the name (alias) for a net
     void renameNet(const QString name, const net_t); // Renames a net using the new name

@@ -17,7 +17,10 @@ public:
     void initChip();                    // One-time initialization
     void readState(z80state &z);        // Reads chip state into a state structure
     uint doReset();                     // Run chip reset sequence
-    void doRunsim(uint ticks);          // Run the simulation for the given number of cloks
+    void doRunsim(uint ticks);          // Run the simulation for the given number of clocks
+    uint getCurrentHCycle()             // Returns the current simulation half-cycle count
+        { return m_hcycletotal; }
+    bool setPin(uint index, pin_t p);   // Sets an input pin to a value
 
 signals:
     void runStopped(uint hcycle);       // Current simulation run completed at a given half-cycle

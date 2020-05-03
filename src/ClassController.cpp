@@ -58,6 +58,7 @@ uint ClassController::doReset()
 {
     qDebug() << "Chip reset";
     m_watch.clear(); // Clear watch signal history
+    m_trick.reset(); // Reset the control counters etc.
     uint hcycle = m_simx.doReset();
     emit onRunStopped(hcycle);
     return hcycle;

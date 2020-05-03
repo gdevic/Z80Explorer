@@ -32,13 +32,24 @@ void ClassSimX::initChip()
 // XXX Remove this timer here and implement it somewhere else (?)
 void ClassSimX::onTimeout()
 {
-    z80state z80;
-    readState(z80);
-    QStringList s = z80state::dumpState(z80).split("\n");
-    s.removeAt(4); // Remove pins section
-    qDebug() << s << "Half-Cycles:" % QString::number(m_hcycletotal) << (m_hcyclecnt / 2.0) / (m_elapsed.elapsed() / 1000.0) << " Hz";
+    qDebug() << "Half-Cycles:" % QString::number(m_hcycletotal) << (m_hcyclecnt / 2.0) / (m_elapsed.elapsed() / 1000.0) << " Hz";
     if (m_runcount <= 0)
         m_timer.stop();
+}
+
+/*
+ * Sets an input pin to a value, return false if the index specified undefined input pin
+ */
+bool ClassSimX::setPin(uint index, pin_t p)
+{
+    const static QStringList pins = { "int", "nmi", "busrq", "wait", "_reset" };
+    if (index < uint(pins.count()))
+    {
+        set(p, pins[index]);
+        return true;
+    }
+    Q_ASSERT(0);
+    return false;
 }
 
 /*
@@ -144,6 +155,9 @@ inline void ClassSimX::halfCycle()
         if (!m1 && rfsh &&  mreq &&  rd &&  wr && !iorq)
             handleIrq(readAB()); // Interrupt request/Ack cycle
     }
+
+    ::controller.onTick(m_hcycletotal);
+
     set(clk, "clk"); // Let the clock edge propagate through the chip
 
     // After each half-cycle, populate the watch data
