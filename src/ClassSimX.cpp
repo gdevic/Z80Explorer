@@ -32,7 +32,7 @@ void ClassSimX::initChip()
 // XXX Remove this timer here and implement it somewhere else (?)
 void ClassSimX::onTimeout()
 {
-    qDebug() << "Half-Cycles:" % QString::number(m_hcycletotal) << (m_hcyclecnt / 2.0) / (m_elapsed.elapsed() / 1000.0) << " Hz";
+    qDebug() << "Half-Cycles:" << m_hcycletotal << (m_hcyclecnt / 2.0) / (m_elapsed.elapsed() / 1000.0) << " Hz";
     if (m_runcount <= 0)
         m_timer.stop();
 }

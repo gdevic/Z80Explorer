@@ -66,7 +66,7 @@ bool ClassNetlist::saveNetNames(const QString fileName)
         collator.setNumericMode(true);
         std::sort(names.begin(), names.end(), collator);
         for (auto n : names)
-            out << n << ": " << QString::number(m_netnums[n]) << ",\n";
+            out << n << ": " << m_netnums[n] << ",\n";
 
         out << "// Buses:\n"; // Write out the buses, sorted alphabetically
         QStringList buses = m_buses.keys();
@@ -283,7 +283,7 @@ void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
 {
     if (op == Netop::SetName)
     {
-        qDebug() << "Setting net name" << name << "for net" << QString::number(net);
+        qDebug() << "Setting net name" << name << "for net" << net;
         Q_ASSERT(!m_netnums.contains(name)); // New name should not be already in use
         Q_ASSERT(m_netnames[net].isEmpty()); // The net we are naming should not already have a name
         m_netnames[net] = name;
@@ -292,7 +292,7 @@ void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
     }
     else if (op == Netop::Rename)
     {
-        qDebug() << "Renaming net" << QString::number(net) << "to" << name;
+        qDebug() << "Renaming net" << net << "to" << name;
         Q_ASSERT(!m_netnums.contains(name)); // New name should not be already in use
         Q_ASSERT(!m_netnames[net].isEmpty()); // The net we are naming should have a name
         QString oldName = m_netnames[net];
@@ -303,7 +303,7 @@ void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
     }
     else if (op == Netop::DeleteName)
     {
-        qDebug() << "Deleting name for net" << QString::number(net);
+        qDebug() << "Deleting name for net" << net;
         Q_ASSERT(!m_netnames[net].isEmpty()); // The net which name we are deleting should already have a name
         QString oldName = m_netnames[net];
         m_netnums.remove(oldName);

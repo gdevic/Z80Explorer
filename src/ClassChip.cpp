@@ -429,7 +429,7 @@ bool ClassChip::loadLayerMap(QString dir)
             int64_t read = file.read((char *) m_p3[i], size);
             if (read != size)
             {
-                qWarning() << "Error reading" << fileName << "layer" << QString::number(i);
+                qWarning() << "Error reading" << fileName << "layer" << i;
                 return false;
             }
         }
@@ -838,7 +838,7 @@ void ClassChip::experimental_2()
             int64_t written = file.write((const char *) m_p3[i], size);
             if (written != size)
             {
-                qWarning() << "Error writing" << fileName << "layer" << QString::number(i);
+                qWarning() << "Error writing" << fileName << "layer" << i;
                 return;
             }
         }
