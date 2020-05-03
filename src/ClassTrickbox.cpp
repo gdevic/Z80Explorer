@@ -44,7 +44,7 @@ void ClassTrickbox::writeMem(uint16_t ab, uint8_t db)
     // Trickbox control address space
     if ((ab >= TRICKBOX_START) && (ab <= TRICKBOX_END))
     {
-        const static QStringList pins = { "int", "nmi", "busrq", "wait", "_reset" };
+        const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
 
         // We let the value already be written in RAM, which is a backing store for the trickbox
         // counters anyways; here we check the validity of cycle values but only on the second
@@ -56,7 +56,7 @@ void ClassTrickbox::writeMem(uint16_t ab, uint8_t db)
 
         uint current = ::controller.getSimx().getCurrentHCycle();
 
-        for (uint i = 0; i < 5; i++) // { "int", "nmi", "busrq", "wait", "_reset" };
+        for (uint i = 0; i < 5; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
         {
             if (m_trick->pinCtrl[i].cycle && (m_trick->pinCtrl[i].cycle <= current)) // Zero is non-active
             {
@@ -121,7 +121,7 @@ void ClassTrickbox::onTick(uint ticks)
         return ::controller.getSimx().doRunsim(0);
     }
 
-    for (uint i = 0; i < 5; i++) // { "int", "nmi", "busrq", "wait", "_reset" };
+    for (uint i = 0; i < 5; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
     {
         if ((m_trick->pinCtrl[i].cycle == 0) || (m_trick->pinCtrl[i].cycle > ticks))
             continue;

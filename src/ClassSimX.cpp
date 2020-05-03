@@ -42,7 +42,7 @@ void ClassSimX::onTimeout()
  */
 bool ClassSimX::setPin(uint index, pin_t p)
 {
-    const static QStringList pins = { "int", "nmi", "busrq", "wait", "_reset" };
+    const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
     if (index < uint(pins.count()))
     {
         set(p, pins[index]);
@@ -103,10 +103,10 @@ uint ClassSimX::doReset()
     // Initialize control pins
     set(0, "_reset");
     set(1, "clk");
-    set(1, "busrq");
-    set(1, "int");
-    set(1, "nmi");
-    set(1, "wait");
+    set(1, "_busrq");
+    set(1, "_int");
+    set(1, "_nmi");
+    set(1, "_wait");
     QVector<net_t> nets = allNets();
     recalcNetlist(nets);
 
@@ -365,16 +365,16 @@ void ClassSimX::readState(z80state &z)
     for (int i=0; i < 8; i++)
         z._db[i] = readPin("db" % QString::number(i));
     z.clk = readPin("clk");
-    z.intr = readPin("int");
-    z.nmi = readPin("nmi");
+    z.intr = readPin("_int");
+    z.nmi = readPin("_nmi");
     z.halt = readPin("_halt");
     z.mreq = readPin("_mreq");
     z.iorq = readPin("_iorq");
     z.rd = readPin("_rd");
     z.wr = readPin("_wr");
     z.busak = readPin("_busak");
-    z.wait= readPin("wait");
-    z.busrq = readPin("busrq");
+    z.wait= readPin("_wait");
+    z.busrq = readPin("_busrq");
     z.reset = readPin("_reset");
     z.m1 = readPin("_m1");
     z.rfsh = readPin("_rfsh");
