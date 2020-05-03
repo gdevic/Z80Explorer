@@ -1,6 +1,7 @@
 ;==============================================================================
 ; Test code for the A-Z80 CPU
 ;==============================================================================
+include trickbox.inc
     org 0
 start:
     jmp boot
@@ -94,6 +95,8 @@ boot:
     ld  sp, 16384    ; 16 Kb of RAM
     ; Jump into the executable at 100h
     jmp 100h
+die:
+    ld (0),a ; Writing to address 0 of the simulated RAM terminates the simulation
 
 ;==============================================================================
 ;
@@ -106,7 +109,7 @@ exec:
 lp1:
     ld  a, (hl)
     cp  a, 0ffh
-die:jz  die
+    jz  die
     push hl
     ld  c,a
     ld  b,0

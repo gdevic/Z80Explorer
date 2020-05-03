@@ -1,6 +1,6 @@
 ;==============================================================================
-; Test code for the A-Z80 CPU that prints "Hello, World!"
-; Also used to test responses to interrupts.
+; Prototype test file: it provides source for the character out and interrupt
+; handling but the test itself simply terminates.
 ;==============================================================================
 include trickbox.inc
     org 0
@@ -92,17 +92,10 @@ im2_handler:
 int_im2_msg:
     db  "_IM2_",'$'
 boot:
+    ld a,4
+    ld (1),a
     ; Set the stack pointer
     ld  sp, 16384    ; 16 Kb of RAM
-    ; Set up for interrupt testing: see Z80\cpu\toplevel\test_top.sv
-    ; IMPORTANT: To test IM0, Verilog test code needs to put 0xFF on the bus
-    ;            To test IM2, the test code needs to put a vector of 0x80 !!
-    ;            This is done in tb_iorq.sv
-    im  2
-    ld  a,0
-    ld  i,a
-    ei
-    ;halt
     ; Jump into the executable at 100h
     jmp 100h
 die:
@@ -110,82 +103,13 @@ die:
 
 ;==============================================================================
 ;
-; Prints "Hello, World!"
+; Test start
 ;
 ;==============================================================================
     org 100h
-    ld  hl,0
-    ld  (counter),hl
 exec:
-    ld  de,hello
-    ld  c,9
-    call 5
-
-    ; Print the counter and the stack pointer to make sure it does not change
-    ld  hl, (counter)
-    inc hl
-    ld  (counter),hl
-
-    ld  hl, text
-    ld  a,(counter+1)
-    call tohex
-    ld  hl, text+2
-    ld  a,(counter)
-    call tohex
-
-    ld  (stack),sp
-
-; Several options on which values we want to dump, uncomment only one:
-    ld  hl, text+5
-;   ld  a,(stack+1)     ; Dump stack pointer (useful to check SP)
-    ld  a, i            ; Show IR register
-    call tohex
-    ld  hl, text+7
-;   ld  a,(stack)       ; Dump stack pointer (useful to check SP)
-    ld  a, r            ; Show IR register
-    call tohex
-
-; Two versions of the code: either keep printing the text indefinitely (which
-; can be used for interrupt testing), or print it only once and die
-    jr exec
-;    jr die
-
-tohex:
-    ; HL = Address to store a hex value
-    ; A  = Hex value 00-FF
-    push af
-    and  a,0fh
-    cmp  a,10
-    jc   skip1
-    add  a, 'A'-'9'-1
-skip1:
-    add  a, '0'
-    inc  hl
-    ld   (hl),a
-    dec  hl
-    pop  af
-    rra
-    rra
-    rra
-    rra
-    and  a,0fh
-    cmp  a,10
-    jc   skip2
-    add  a, 'A'-'9'-1
-skip2:
-    add  a, '0'
-    ld   (hl),a
-    ret
-
-; Print a counter before Hello, World so we can see if the
-; processor rebooted during one of the interrupts. Also, print the content
-; of the SP register which should stay fixed and "uninterrupted"
-counter: dw 0
-stack: dw 0
-
-hello:
-    db  13,10
-text:
-    db '---- ---- Hello, World!$'
-
+    ld hl,200
+    ld (tb_cyc_stop), hl ; Terminate at cycle 200
+    jmp 0
+    jmp die
 end
