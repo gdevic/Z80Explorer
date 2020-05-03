@@ -13,6 +13,8 @@ DockMonitor::DockMonitor(QWidget *parent) :
 
     connect(&::controller, SIGNAL(echo(char)), this, SLOT(onEcho(char)));
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
+    connect(ui->btLoad, &QPushButton::clicked, this, &DockMonitor::onLoad);
+    connect(ui->btReload, &QPushButton::clicked, this, &DockMonitor::onReload);
 }
 
 DockMonitor::~DockMonitor()
@@ -20,13 +22,24 @@ DockMonitor::~DockMonitor()
     delete ui;
 }
 
-void DockMonitor::on_btLoadHex_clicked()
+void DockMonitor::onLoad()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Select Intel HEX file to load into simulated RAM", "", "File (*.hex);;All files (*.*)");
     if (!fileName.isEmpty())
     {
         if (!::controller.loadIntelHex(fileName))
             QMessageBox::critical(this, "Error", "Error loading" + fileName);
+        else
+            m_lastLoadedHex = fileName;
+    }
+}
+
+void DockMonitor::onReload()
+{
+    if (!m_lastLoadedHex.isEmpty())
+    {
+        if (!::controller.loadIntelHex(m_lastLoadedHex))
+            QMessageBox::critical(this, "Error", "Error loading" + m_lastLoadedHex);
     }
 }
 
