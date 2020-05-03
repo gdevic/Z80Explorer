@@ -19,20 +19,21 @@ public:
     bool init(QScriptEngine *); // Initialize controller classes and variables
 
 public: // API
-    inline ClassChip    &getChip()    { return m_chip; }    // Returns a reference to the chip class
-    inline ClassColors  &getColors()  { return m_colors; }  // Returns a reference to the colors class
-    inline ClassScript  &getScript()  { return m_script; }  // Returns a reference to the script class
-    inline ClassSimX    &getSimx()    { return m_simx; }    // Returns a reference to the simx class
-    inline ClassWatch   &getWatch()   { return m_watch; }   // Returns a reference to the watch class
-    inline ClassNetlist &getNetlist() { return m_simx; }    // Returns a reference to the netlist class (a subclass)
+    inline ClassChip     &getChip()     { return m_chip; }   // Returns a reference to the chip class
+    inline ClassColors   &getColors()   { return m_colors; } // Returns a reference to the colors class
+    inline ClassScript   &getScript()   { return m_script; } // Returns a reference to the script class
+    inline ClassSimX     &getSimx()     { return m_simx; }   // Returns a reference to the simx class
+    inline ClassWatch    &getWatch()    { return m_watch; }  // Returns a reference to the watch class
+    inline ClassNetlist  &getNetlist()  { return m_simx; }   // Returns a reference to the netlist class (a subclass)
+    inline ClassTrickbox &getTrickbox() { return m_trick; }  // Returns a reference to the Trickbox class
 
-    uint8_t readMem(uint16_t ab)            // Read environment RAM
+    inline uint8_t readMem(uint16_t ab)           // Reads from simulated RAM
         { return m_trick.readMem(ab); }
-    void writeMem(uint16_t ab, uint8_t db)  // Write environment RAM
+    inline void writeMem(uint16_t ab, uint8_t db) // Writes to simulated RAM
         { m_trick.writeMem(ab, db); }
-    uint8_t readIO(uint16_t ab)             // Read environment IO
+    inline uint8_t readIO(uint16_t ab)            // Reads from simulated IO space
         { return m_trick.readIO(ab); }
-    void writeIO(uint16_t ab, uint8_t db)   // Write environment IO
+    inline void writeIO(uint16_t ab, uint8_t db)  // Writes to simulated IO space
         { m_trick.writeIO(ab, db); }
     bool loadIntelHex(QString fileName)     // Loads file into simulated RAM memory
         { return m_trick.loadIntelHex(fileName); }
