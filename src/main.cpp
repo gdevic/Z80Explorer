@@ -60,8 +60,11 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QScriptEngine scriptEngine;
 
-    // Wrap the application code with an exception handler
+    // Wrap the application code with an exception handler in release build
+    // In debug build we want to catch problems within the running debugger
+#ifdef QT_NO_DEBUG
     try
+#endif // QT_NO_DEBUG
     {
         // Initialize core application attributes
         QCoreApplication::setOrganizationDomain("BaltazarStudios.com");
@@ -103,6 +106,7 @@ int main(int argc, char *argv[])
         }
         delete wndInit;
     }
+#ifdef QT_NO_DEBUG
     catch(std::exception& e)
     {
         QString s = QString::fromStdString(e.what()) + "\nPlease report this incident as a bug!";
@@ -112,6 +116,7 @@ int main(int argc, char *argv[])
     {
         QMessageBox::critical(0, "Application exception", "Unexpected error. Please report this incident as a bug!");
     }
+#endif // QT_NO_DEBUG
 
     return retCode;
 }
