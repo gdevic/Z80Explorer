@@ -419,21 +419,6 @@ uint ClassNetlist::readByte(const QString &name)
 }
 
 /*
- * Returns a bit value read from the netlist for a particular net
- */
-//uint ClassNetlist::readBit(QString name)
-//{
-//    net_t n = get(name);
-//    if (n)
-//    {
-//        Q_ASSERT(n < MAX_NET);
-//        return !!m_netlist[n].state;
-//    }
-//    qWarning() << "readBit: Invalid name" << name;
-//    return 0xbadbad;
-//}
-
-/*
  * Returns the pin value
  */
 pin_t ClassNetlist::readPin(const QString &name)
