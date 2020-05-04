@@ -54,7 +54,7 @@ private:
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
     bool    m_mouseLeftPressed {};      // Mouse left button is pressed
     bool    m_mouseRightPressed {};     // Mouse right button is pressed
-    qreal   m_touchScale;               // Scale correction factor during the touch zoom event
+    qreal   m_touchScale;               // Scale correction factor during a pinch-to-zoom event
     bool    m_drawSelection {};         // Draw the mouse selected area
     QRect   m_areaRect;                 // Area rectangle to draw during the mouse selection
 
@@ -76,16 +76,16 @@ private:
 
     QVector<net_t> m_drivingNets;       // List of nets expanded by the driving/driven heuristic
 
-    void paintEvent(QPaintEvent *);
-    void resizeEvent(QResizeEvent *);
-    bool event(QEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mouseDoubleClickEvent(QMouseEvent *);
-    void wheelEvent(QWheelEvent *);
-    void leaveEvent(QEvent *);
-    void keyPressEvent(QKeyEvent *);
+    void paintEvent(QPaintEvent *) override;
+    void resizeEvent(QResizeEvent *) override;
+    bool event(QEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void mouseDoubleClickEvent(QMouseEvent *) override;
+    void wheelEvent(QWheelEvent *) override;
+    void leaveEvent(QEvent *) override;
+    void keyPressEvent(QKeyEvent *) override;
 
     void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
     void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
