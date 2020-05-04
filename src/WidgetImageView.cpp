@@ -536,6 +536,14 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     else
     switch (event->key())
     {
+    case Qt::Key_Escape: // ESC key removes, in this order: Found nets; driven by; selected net
+        if (m_highlight_segment)
+            m_highlight_segment = nullptr;
+        else if (m_drivingNets.count() > 1)
+            m_drivingNets.remove(1, m_drivingNets.count() - 1);
+        else if (m_drivingNets.count() == 1)
+            m_drivingNets.clear();
+        break;
     case Qt::Key_F1:
         switch(m_view_mode)
         {
