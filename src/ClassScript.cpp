@@ -23,9 +23,9 @@ void ClassScript::init(QScriptEngine *sc)
     QScriptValue funDriven = m_engine->newFunction(&ClassScript::onDriven);
     m_engine->globalObject().setProperty("driven", funDriven);
     QScriptValue funNet = m_engine->newFunction(&ClassScript::onNet);
-    m_engine->globalObject().setProperty("net", funNet);
+    m_engine->globalObject().setProperty("n", funNet);
     QScriptValue funTrans = m_engine->newFunction(&ClassScript::onTrans);
-    m_engine->globalObject().setProperty("trans", funTrans);
+    m_engine->globalObject().setProperty("t", funTrans);
     QScriptValue funExperimental = m_engine->newFunction(&ClassScript::onExperimental);
     m_engine->globalObject().setProperty("ex", funExperimental);
 }
@@ -44,8 +44,8 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "reset()       - Resets the simulation state\n";
     text << "driving(net)  - Shows a list of nets that the given net is driving\n";
     text << "driven(net)   - Shows a list of nets that drive the given net\n";
-    text << "net(net)      - Shows a net state\n";
-    text << "trans(t)      - Shows a transistor state\n";
+    text << "n(net)        - Shows a net state\n";
+    text << "t(t)          - Shows a transistor state\n";
     text << "ex(n)         - Runs experimental function 'n'\n";
     emit ::controller.getScript().response(s);
     return "OK";
