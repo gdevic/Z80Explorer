@@ -441,8 +441,26 @@ pin_t ClassNetlist::readPin(const QString &name)
 QString ClassNetlist::cmdNet(net_t net)
 {
     if (net < MAX_NETS)
-        return QString("%1: state:%2 floats:%3 pullup:%4 pulldown:%4").arg(net)
+    {
+        QString s = QString("%1: state:%2 floats:%3 pullup:%4 pulldown:%5").arg(net)
                 .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].pullup).arg(m_netlist[net].pulldown);
+
+        // List transistor numbers for which this net is either source or drain
+        s += QString("\nsource/drain:");
+        QStringList c1c2s;
+        for (auto &t : m_netlist[net].c1c2s)
+            c1c2s.append( QString::number(t - &m_transdefs[0]) );
+        s += c1c2s.join(",");
+
+        // List transistor numbers for which this net is connected to their gate
+        s += QString("\nto-gates:");
+        QStringList gates;
+        for (auto &t : m_netlist[net].gates)
+            gates.append( QString::number(t - &m_transdefs[0]) );
+        s += gates.join(",");
+
+        return s;
+    }
     return QString("Invalid net number");
 }
 
