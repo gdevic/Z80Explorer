@@ -10,12 +10,12 @@ bool ClassController::init(QScriptEngine *sc)
     m_script.init(sc);
 
     connect(&m_trick, SIGNAL(echo(char)), this, SIGNAL(echo(char)));
-    connect(&m_simx, SIGNAL(runStopped(uint)), this, SIGNAL(onRunStopped(uint)));
+    connect(&m_simz80, SIGNAL(runStopped(uint)), this, SIGNAL(onRunStopped(uint)));
 
     connect(this, SIGNAL(shutdown()), &m_chip.annotate, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_chip.tips, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));   
-    connect(this, SIGNAL(shutdown()), &m_simx, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_simz80, SLOT(onShutdown()));
 
     QSettings settings;
     QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
@@ -33,7 +33,7 @@ bool ClassController::init(QScriptEngine *sc)
     settings.setValue("ResourceDir", path);
 
     // Initialize all global classes using the given path to resource
-    if (!m_simx.loadResources(path) || !m_chip.loadChipResources(path))
+    if (!m_simz80.loadResources(path) || !m_chip.loadChipResources(path))
     {
         qCritical() << "Unable to load chip resources from" << path;
         return false;
@@ -46,7 +46,7 @@ bool ClassController::init(QScriptEngine *sc)
     if (!m_trick.loadIntelHex(path + "/hello_world.hex"))
         qWarning() << "Unable to load example Z80 hex file";
 
-    m_simx.initChip();
+    m_simz80.initChip();
 
     return true;
 }
@@ -59,7 +59,7 @@ uint ClassController::doReset()
     qDebug() << "Chip reset";
     m_watch.clear(); // Clear watch signal history
     m_trick.reset(); // Reset the control counters etc.
-    uint hcycle = m_simx.doReset();
+    uint hcycle = m_simz80.doReset();
     emit onRunStopped(hcycle);
     return hcycle;
 }
@@ -69,7 +69,7 @@ uint ClassController::doReset()
  */
 void ClassController::doRunsim(uint ticks)
 {
-    m_simx.doRunsim(ticks);
+    m_simz80.doRunsim(ticks);
     if (ticks != INT_MAX)
         qDebug() << "Chip run for" << ticks << "half-clocks";
 }
@@ -111,7 +111,7 @@ const QString ClassController::formatBus(uint fmt, uint value, uint width)
  */
 void ClassController::setNetName(const QString name, const net_t net)
 {
-    m_simx.eventNetName(Netop::SetName, name, net);
+    m_simz80.eventNetName(Netop::SetName, name, net);
     emit eventNetName(Netop::SetName, name, net);
     emit eventNetName(Netop::Changed, QString(), net);
 }
@@ -121,7 +121,7 @@ void ClassController::setNetName(const QString name, const net_t net)
  */
 void ClassController::renameNet(const QString name, const net_t net)
 {
-    m_simx.eventNetName(Netop::Rename, name, net);
+    m_simz80.eventNetName(Netop::Rename, name, net);
     emit eventNetName(Netop::Rename, name, net);
     emit eventNetName(Netop::Changed, QString(), net);
 }
@@ -131,7 +131,7 @@ void ClassController::renameNet(const QString name, const net_t net)
  */
 void ClassController::deleteNetName(const net_t net)
 {
-    m_simx.eventNetName(Netop::DeleteName, QString(), net);
+    m_simz80.eventNetName(Netop::DeleteName, QString(), net);
     emit eventNetName(Netop::DeleteName, QString(), net);
     emit eventNetName(Netop::Changed, QString(), net);
 }

@@ -1,5 +1,5 @@
-#ifndef CLASSSIMX_H
-#define CLASSSIMX_H
+#ifndef CLASSSIMZ80_H
+#define CLASSSIMZ80_H
 
 #include "ClassNetlist.h"
 #include "z80state.h"
@@ -7,13 +7,13 @@
 #include <QTimer>
 
 /*
- * ClassSimX implements a chip netlist simulator
+ * ClassSimZ80 implements Z80 chip netlist simulator
  */
-class ClassSimX : public QObject, public ClassNetlist
+class ClassSimZ80 : public QObject, public ClassNetlist
 {
     Q_OBJECT
 public:
-    explicit ClassSimX();
+    explicit ClassSimZ80();
     void initChip();                    // One-time initialization
     void readState(z80state &z);        // Reads chip state into a state structure
     uint doReset();                     // Run chip reset sequence
@@ -64,4 +64,4 @@ private:
     QAtomicInt m_hcycletotal {};        // Total simulation half-cycle count (resets on a chip reset)
 };
 
-#endif // CLASSSIMX_H
+#endif // CLASSSIMZ80_H

@@ -4,7 +4,7 @@
 #include "ClassChip.h"
 #include "ClassColors.h"
 #include "ClassScript.h"
-#include "ClassSimX.h"
+#include "ClassSimZ80.h"
 #include "ClassTrickbox.h"
 #include "ClassWatch.h"
 
@@ -22,9 +22,9 @@ public: // API
     inline ClassChip     &getChip()     { return m_chip; }   // Returns a reference to the chip class
     inline ClassColors   &getColors()   { return m_colors; } // Returns a reference to the colors class
     inline ClassScript   &getScript()   { return m_script; } // Returns a reference to the script class
-    inline ClassSimX     &getSimx()     { return m_simx; }   // Returns a reference to the simx class
+    inline ClassSimZ80   &getSimZ80()   { return m_simz80; } // Returns a reference to the Z80 simulator class
     inline ClassWatch    &getWatch()    { return m_watch; }  // Returns a reference to the watch class
-    inline ClassNetlist  &getNetlist()  { return m_simx; }   // Returns a reference to the netlist class (a subclass)
+    inline ClassNetlist  &getNetlist()  { return m_simz80; } // Returns a reference to the netlist class (a subclass)
     inline ClassTrickbox &getTrickbox() { return m_trick; }  // Returns a reference to the Trickbox class
 
     inline uint8_t readMem(uint16_t ab)           // Reads from simulated RAM
@@ -38,7 +38,7 @@ public: // API
     bool loadIntelHex(QString fileName)     // Loads file into simulated RAM memory
         { return m_trick.loadIntelHex(fileName); }
     void readState(z80state &state)         // Reads chip state structure
-        { m_simx.readState(state); }
+        { m_simz80.readState(state); }
 
     const QStringList getFormats(QString name); // Returns a list of formats applicable to the signal name (a net or a bus)
     enum FormatNet { Logic, TransUp, TransDown, TransAny };
@@ -67,7 +67,7 @@ private:
     ClassChip     m_chip;       // Global chip resource class
     ClassColors   m_colors;     // Global application colors
     ClassScript   m_script;     // Global scripting support
-    ClassSimX     m_simx;       // Global simulator simx class
+    ClassSimZ80   m_simz80;     // Global Z80 simulator class
     ClassWatch    m_watch;      // Global watchlist
     ClassTrickbox m_trick;      // Global trickbox supporting environment
 };

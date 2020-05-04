@@ -1,7 +1,7 @@
 #include "WidgetImageView.h"
 #include "ClassChip.h"
 #include "ClassController.h"
-#include "ClassSimX.h"
+#include "ClassSimZ80.h"
 #include "DialogEditAnnotations.h"
 #include "WidgetImageOverlay.h"
 
@@ -208,9 +208,9 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
         painter.setBrush(QColor(255, 0, 255));
-        for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+        for (uint i=3; i<::controller.getSimZ80().getNetlistCount(); i++)
         {
-            if (::controller.getSimx().getNetState(i) == 1)
+            if (::controller.getSimZ80().getNetState(i) == 1)
             {
                 for (const auto &path : ::controller.getChip().getSegment(i)->paths)
                     painter.drawPath(path);

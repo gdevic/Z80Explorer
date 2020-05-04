@@ -37,7 +37,7 @@ void ClassTrickbox::writeMem(uint16_t ab, uint8_t db)
     if (ab == 0)
     {
         qInfo() << "Stopping sim: WR(0)";
-        return ::controller.getSimx().doRunsim(0);
+        return ::controller.getSimZ80().doRunsim(0);
     }
     m_mem[ab] = db;
 
@@ -54,7 +54,7 @@ void ClassTrickbox::writeMem(uint16_t ab, uint8_t db)
         if (!m_enableTrick)
             return;
 
-        uint current = ::controller.getSimx().getCurrentHCycle();
+        uint current = ::controller.getSimZ80().getCurrentHCycle();
 
         for (uint i = 0; i < 5; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
         {
@@ -62,7 +62,7 @@ void ClassTrickbox::writeMem(uint16_t ab, uint8_t db)
             {
                 qInfo() << "Trickbox: Asked to assert pin " << pins[i] << "at hcycle"
                         << m_trick->pinCtrl[i].cycle << "but current is already at" << current;
-                return ::controller.getSimx().doRunsim(0);
+                return ::controller.getSimZ80().doRunsim(0);
             }
         }
         if (m_trick->cycleStop)
@@ -70,7 +70,7 @@ void ClassTrickbox::writeMem(uint16_t ab, uint8_t db)
             if (m_trick->cycleStop <= current)
             {
                 qInfo() << "Trickbox: Asked to stop sim at hcycle" << m_trick->cycleStop << "but current is already at" << current;
-                return ::controller.getSimx().doRunsim(0);
+                return ::controller.getSimZ80().doRunsim(0);
             }
         }
     }
@@ -98,7 +98,7 @@ void ClassTrickbox::writeIO(uint16_t ab, uint8_t db)
         if (db == 0x04) // Console output of character 4 (EOD, End-of-Transmission): stops the simulation
         {
             qInfo() << "Stopping simulation: CHAR(EOD)";
-            ::controller.getSimx().doRunsim(0);
+            ::controller.getSimZ80().doRunsim(0);
         }
         else
             emit echo(char(db));
@@ -118,7 +118,7 @@ void ClassTrickbox::onTick(uint ticks)
     if ((m_trick->cycleStop > 0) && (m_trick->cycleStop == ticks))
     {
         qInfo() << "Trickbox: Stopping at cycle" << ticks;
-        return ::controller.getSimx().doRunsim(0);
+        return ::controller.getSimZ80().doRunsim(0);
     }
 
     for (uint i = 0; i < 5; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
@@ -126,14 +126,14 @@ void ClassTrickbox::onTick(uint ticks)
         if ((m_trick->pinCtrl[i].cycle == 0) || (m_trick->pinCtrl[i].cycle > ticks))
             continue;
         if (m_trick->pinCtrl[i].cycle == ticks)
-            ::controller.getSimx().setPin(i, 0); // and assert its pin if the cycle is reached
+            ::controller.getSimZ80().setPin(i, 0); // and assert its pin if the cycle is reached
         else
         {
             if (m_trick->pinCtrl[i].count > 0)
                 m_trick->pinCtrl[i].count--;
             if (m_trick->pinCtrl[i].count == 0)
             {
-                ::controller.getSimx().setPin(i, 1); // Release the pin
+                ::controller.getSimZ80().setPin(i, 1); // Release the pin
                 m_trick->pinCtrl[i].cycle = 0;
             }
         }

@@ -1,19 +1,19 @@
-#include "ClassSimX.h"
+#include "ClassSimZ80.h"
 #include "ClassController.h"
 #include <QDebug>
 #include <QStringBuilder>
 #include <QtConcurrent>
 
-ClassSimX::ClassSimX()
+ClassSimZ80::ClassSimZ80()
 {
     m_timer.setInterval(500);
-    connect(&m_timer, &QTimer::timeout, this, &ClassSimX::onTimeout);
+    connect(&m_timer, &QTimer::timeout, this, &ClassSimZ80::onTimeout);
 }
 
 /*
  * One-time initialization
  */
-void ClassSimX::initChip()
+void ClassSimZ80::initChip()
 {
     Q_ASSERT(ngnd == 1);
     Q_ASSERT(npwr == 2);
@@ -30,7 +30,7 @@ void ClassSimX::initChip()
 }
 
 // XXX Remove this timer here and implement it somewhere else (?)
-void ClassSimX::onTimeout()
+void ClassSimZ80::onTimeout()
 {
     qDebug() << "Half-Cycles:" << m_hcycletotal << (m_hcyclecnt / 2.0) / (m_elapsed.elapsed() / 1000.0) << " Hz";
     if (m_runcount <= 0)
@@ -40,7 +40,7 @@ void ClassSimX::onTimeout()
 /*
  * Sets an input pin to a value, return false if the index specified undefined input pin
  */
-bool ClassSimX::setPin(uint index, pin_t p)
+bool ClassSimZ80::setPin(uint index, pin_t p)
 {
     const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
     if (index < uint(pins.count()))
@@ -55,7 +55,7 @@ bool ClassSimX::setPin(uint index, pin_t p)
 /*
  * Run the simulation for the given number of clocks. Zero stops the simulation.
  */
-void ClassSimX::doRunsim(uint ticks)
+void ClassSimZ80::doRunsim(uint ticks)
 {
     if (!m_runcount && !ticks) // For Stop signal (ticks=0), do nothing if the sim thread is not running
         return;
@@ -91,7 +91,7 @@ void ClassSimX::doRunsim(uint ticks)
 /*
  * Run chip reset sequence, returns the total number of cycles the reset took
  */
-uint ClassSimX::doReset()
+uint ClassSimZ80::doReset()
 {
     // If the chip is running, stop it instead
     if (m_runcount)
@@ -125,7 +125,7 @@ uint ClassSimX::doReset()
 /*
  * Advance the simulation by one half-cycle of the clock
  */
-inline void ClassSimX::halfCycle()
+inline void ClassSimZ80::halfCycle()
 {
     pin_t clk = ! readBit("clk");
     if (clk) // Before the clock rise, service the chip pins
@@ -175,37 +175,37 @@ inline void ClassSimX::halfCycle()
     m_hcycletotal++; // Total half-cycle count since the chip reset
 }
 
-inline void ClassSimX::handleMemRead(uint16_t ab)
+inline void ClassSimZ80::handleMemRead(uint16_t ab)
 {
     uint8_t db = ::controller.readMem(ab);
     setDB(db);
 }
 
-inline void ClassSimX::handleMemWrite(uint16_t ab)
+inline void ClassSimZ80::handleMemWrite(uint16_t ab)
 {
     uint8_t db = readByte("db");
     ::controller.writeMem(ab, db);
 }
 
-inline void ClassSimX::handleIORead(uint16_t ab)
+inline void ClassSimZ80::handleIORead(uint16_t ab)
 {
     uint8_t db = ::controller.readIO(ab);
     setDB(db);
 }
 
-inline void ClassSimX::handleIOWrite(uint16_t ab)
+inline void ClassSimZ80::handleIOWrite(uint16_t ab)
 {
     uint8_t db = readByte("db");
     ::controller.writeIO(ab, db);
 }
 
-inline void ClassSimX::handleIrq(uint16_t ab)
+inline void ClassSimZ80::handleIrq(uint16_t ab)
 {
     uint8_t db = ::controller.readIO(ab);
     setDB(db);
 }
 
-inline void ClassSimX::setDB(uint8_t db)
+inline void ClassSimZ80::setDB(uint8_t db)
 {
     for (int i=0; i < 8; i++, db >>= 1)
         set(db & 1, "db" % QString::number(i));
@@ -214,7 +214,7 @@ inline void ClassSimX::setDB(uint8_t db)
 /*
  * Sets a named input net to pullup or pulldown status
  */
-inline void ClassSimX::set(bool on, QString name)
+inline void ClassSimZ80::set(bool on, QString name)
 {
     net_t n = get(name);
     m_netlist[n].pullup = on;
@@ -223,7 +223,7 @@ inline void ClassSimX::set(bool on, QString name)
     recalcNetlist(list);
 }
 
-inline bool ClassSimX::getNetValue()
+inline bool ClassSimZ80::getNetValue()
 {
     // 1. deal with power connections first
     if (Q_UNLIKELY(group.contains(ngnd))) return false;
@@ -253,7 +253,7 @@ inline bool ClassSimX::getNetValue()
     return max_state;
 }
 
-inline void ClassSimX::recalcNetlist(QVector<net_t> &list)
+inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
 {
     recalcList.clear();
     for (int i=0; i<100 && list.count(); i++) // loop limiter
@@ -265,7 +265,7 @@ inline void ClassSimX::recalcNetlist(QVector<net_t> &list)
     }
 }
 
-inline void ClassSimX::recalcNet(net_t n)
+inline void ClassSimZ80::recalcNet(net_t n)
 {
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
     getNetGroup(n);
@@ -285,7 +285,7 @@ inline void ClassSimX::recalcNet(net_t n)
     }
 }
 
-QVector<net_t> ClassSimX::allNets()
+QVector<net_t> ClassSimZ80::allNets()
 {
     QVector<net_t> nets;
     for (net_t n=0; n < m_netlist.count(); n++)
@@ -297,14 +297,14 @@ QVector<net_t> ClassSimX::allNets()
     return nets;
 }
 
-inline void ClassSimX::setTransOn(struct trans &t)
+inline void ClassSimZ80::setTransOn(struct trans &t)
 {
     if (t.on) return;
     t.on = true;
     addRecalcNet(t.c1);
 }
 
-inline void ClassSimX::setTransOff(struct trans &t)
+inline void ClassSimZ80::setTransOff(struct trans &t)
 {
     if (!t.on) return;
     t.on = false;
@@ -312,20 +312,20 @@ inline void ClassSimX::setTransOff(struct trans &t)
     addRecalcNet(t.c2);
 }
 
-inline void ClassSimX::addRecalcNet(net_t n)
+inline void ClassSimZ80::addRecalcNet(net_t n)
 {
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
     if (!recalcList.contains(n))
         recalcList.append(n);
 }
 
-inline void ClassSimX::getNetGroup(net_t n)
+inline void ClassSimZ80::getNetGroup(net_t n)
 {
     group.clear();
     addNetToGroup(n);
 }
 
-inline void ClassSimX::addNetToGroup(net_t n)
+inline void ClassSimZ80::addNetToGroup(net_t n)
 {
     if (group.contains(n)) return;
     group.append(n);
@@ -344,7 +344,7 @@ inline void ClassSimX::addNetToGroup(net_t n)
 /*
  * Reads chip state into a state structure
  */
-void ClassSimX::readState(z80state &z)
+void ClassSimZ80::readState(z80state &z)
 {
     z.af = (readByte("reg_a") << 8) | readByte("reg_f");
     z.bc = (readByte("reg_b") << 8) | readByte("reg_c");

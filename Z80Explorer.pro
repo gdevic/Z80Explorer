@@ -29,7 +29,7 @@ SOURCES += \
     src/ClassController.cpp \
     src/ClassNetlist.cpp \
     src/ClassScript.cpp \
-    src/ClassSimX.cpp \
+    src/ClassSimZ80.cpp \
     src/ClassTip.cpp \
     src/ClassTrickbox.cpp \
     src/ClassWatch.cpp \
@@ -59,7 +59,7 @@ HEADERS += \
     src/ClassException.h \
     src/ClassNetlist.h \
     src/ClassScript.h \
-    src/ClassSimX.h \
+    src/ClassSimZ80.h \
     src/ClassSingleton.h \
     src/ClassTip.h \
     src/ClassTrickbox.h \

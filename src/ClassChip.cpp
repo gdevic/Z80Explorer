@@ -628,7 +628,7 @@ void ClassChip::drawAllNetsAsInactive(QString source, QString dest)
     painter.setBrush(QColor(128, 0, 128));
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+    for (uint i=3; i<::controller.getSimZ80().getNetlistCount(); i++)
     {
         for (const auto &path : ::controller.getChip().getSegment(i)->paths)
             painter.drawPath(path);
@@ -654,7 +654,7 @@ void ClassChip::redrawNetsColorize(QString source, QString dest)
     painter.setBrush(QColor(128, 0, 128));
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    for (uint i=3; i<::controller.getSimx().getNetlistCount(); i++)
+    for (uint i=3; i<::controller.getSimZ80().getNetlistCount(); i++)
     {
         QString name = ::controller.getNetlist().get(i);
         if (name.startsWith("clk"))
@@ -962,7 +962,7 @@ void ClassChip::expDrawTransistors(QPainter &painter, const QRect &viewport, boo
         // Speed up rendering by clipping to the viewport's image rectangle
         if (t.box.intersected(viewport) != QRect())
         {
-            bool state = ::controller.getSimx().getNetState(t.gatenode);
+            bool state = ::controller.getSimZ80().getNetState(t.gatenode);
             painter.setPen(pens[state]);
             painter.setBrush(brush[state || highlightAll]);
             painter.drawPath(t.path);
