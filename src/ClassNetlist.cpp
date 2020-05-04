@@ -449,3 +449,25 @@ pin_t ClassNetlist::readPin(const QString &name)
     qWarning() << "readPin: Invalid name" << name;
     return 3;
 }
+
+/*
+ * Implements script command net(n)
+ */
+QString ClassNetlist::cmdNet(net_t net)
+{
+    if (net < MAX_NETS)
+        return QString("%1: state:%2 floats:%3 pullup:%4 pulldown:%4").arg(net)
+                .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].pullup).arg(m_netlist[net].pulldown);
+    return QString("Invalid net number");
+}
+
+/*
+ * Implements script command trans(t)
+ */
+QString ClassNetlist::cmdTrans(uint t)
+{
+    if (t < MAX_TRANS)
+        return QString("%1: gate:%2 c1:%3 c2:%4 ON:%5").arg(t)
+                .arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(m_transdefs[t].c2).arg(m_transdefs[t].on);
+    return QString("Invalid transistor number");
+}

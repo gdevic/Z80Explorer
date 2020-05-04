@@ -57,6 +57,9 @@ public:
     void eventNetName(Netop op, const QString name, const net_t);
     void onShutdown();                          // Called when the app is closing
 
+    QString cmdNet(net_t net);                  // Implements script command net(n)
+    QString cmdTrans(uint t);                   // Implements script command trans(t)
+
 protected:
     QVector<trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
     QVector<net> m_netlist;                     // Array of nets, indexed by the net number
