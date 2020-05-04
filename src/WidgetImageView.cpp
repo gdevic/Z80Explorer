@@ -714,9 +714,7 @@ void WidgetImageView::editTip()
 void WidgetImageView::netsDriving()
 {
     Q_ASSERT(m_drivingNets.count() >= 1);
-    net_t primary = m_drivingNets[0]; // Leave only the primary selected node
-    m_drivingNets.clear();
-    m_drivingNets.append(primary);
+    m_drivingNets.remove(1, m_drivingNets.count() - 1); // Leave only the primary selected node
     m_drivingNets.append(::controller.getNetlist().netsDriving(m_drivingNets[0]));
     QStringList list = ::controller.getNetlist().get(m_drivingNets);
     list.removeFirst(); // Remove the first element which is the net we started at
@@ -729,9 +727,7 @@ void WidgetImageView::netsDriving()
 void WidgetImageView::netsDriven()
 {
     Q_ASSERT(m_drivingNets.count() >= 1);
-    net_t primary = m_drivingNets[0]; // Leave only the primary selected node
-    m_drivingNets.clear();
-    m_drivingNets.append(primary);
+    m_drivingNets.remove(1, m_drivingNets.count() - 1); // Leave only the primary selected node
     m_drivingNets.append(::controller.getNetlist().netsDriven(m_drivingNets[0]));
     QStringList list = ::controller.getNetlist().get(m_drivingNets);
     list.removeFirst(); // Remove the first element which is the net we started at
