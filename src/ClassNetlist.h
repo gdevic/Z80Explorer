@@ -8,7 +8,8 @@
 // Contains individual transistor definition
 struct trans
 {
-    net_t gate;                         // Gate net
+    tran_t id;                          // Transistor number
+    net_t gate;                         // Net connected to its gate
     net_t c1, c2;                       // Connections 1, 2 (source, drain) nets
     bool on {false};                    // Is the transistor on?
 };

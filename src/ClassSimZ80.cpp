@@ -253,6 +253,26 @@ inline bool ClassSimZ80::getNetValue()
     return max_state;
 }
 
+#if 1 // Optimized version
+inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
+{
+    recalcList.clear();
+    while(list.count())
+    {
+        t01opt = 0;
+        for (auto n : list)
+            recalcNet(n);
+        list = recalcList;
+        recalcList.clear();
+        // Optimization: if no transistors changed state, or if the same group of transistors toggled on and off
+        // which happens when the group is unchanged and there is a feedback loop, exit.
+        // Note: not necessarily 100% reliable since different trans id's may still add to the same value
+        // but in practice it appears to work.
+        if (t01opt == 0)
+            break;
+    }
+}
+#else // Legacy version
 inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
 {
     recalcList.clear();
@@ -264,6 +284,7 @@ inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
         recalcList.clear();
     }
 }
+#endif
 
 inline void ClassSimZ80::recalcNet(net_t n)
 {
@@ -300,6 +321,7 @@ QVector<net_t> ClassSimZ80::allNets()
 inline void ClassSimZ80::setTransOn(struct trans &t)
 {
     if (t.on) return;
+    t01opt += t.id;
     t.on = true;
     addRecalcNet(t.c1);
 }
@@ -307,6 +329,7 @@ inline void ClassSimZ80::setTransOn(struct trans &t)
 inline void ClassSimZ80::setTransOff(struct trans &t)
 {
     if (!t.on) return;
+    t01opt -= t.id;
     t.on = false;
     addRecalcNet(t.c1);
     addRecalcNet(t.c2);

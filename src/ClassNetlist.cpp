@@ -216,6 +216,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                     Q_ASSERT(i < MAX_TRANS);
                     trans *p = &m_transdefs[i];
 
+                    p->id = i;
                     p->gate = list[1].toUInt();
                     p->c1 = list[2].toUInt();
                     p->c2 = list[3].toUInt();

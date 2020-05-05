@@ -55,6 +55,7 @@ private:
     void addNetToGroup(net_t n);
     QVector<net_t> recalcList;
     QVector<net_t> group;
+    int t01opt;                         // Early loop detection (performance optimization)
     //----------------------------------------------------------
 
     QTimer m_timer;                     // Timer to dump z80 state every 500ms when running the simulation
