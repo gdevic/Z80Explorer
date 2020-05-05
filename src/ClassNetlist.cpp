@@ -212,7 +212,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                 {
                     // ----- Add the transistor to the transistor array -----
                     QString tnum = list[0].mid(3, list[0].length() - 4);
-                    uint i = tnum.toUInt();
+                    tran_t i = tnum.toUInt();
                     Q_ASSERT(i < MAX_TRANS);
                     trans *p = &m_transdefs[i];
 
@@ -467,7 +467,7 @@ QString ClassNetlist::cmdNet(net_t net)
 /*
  * Implements script command trans(t)
  */
-QString ClassNetlist::cmdTrans(uint t)
+QString ClassNetlist::cmdTrans(tran_t t)
 {
     if (t < MAX_TRANS)
         return QString("%1: gate:%2 c1:%3 c2:%4 ON:%5").arg(t)

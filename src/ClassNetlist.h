@@ -58,7 +58,7 @@ public:
     void onShutdown();                          // Called when the app is closing
 
     QString cmdNet(net_t net);                  // Implements script command net(n)
-    QString cmdTrans(uint t);                   // Implements script command trans(t)
+    QString cmdTrans(tran_t t);                 // Implements script command trans(t)
 
 protected:
     QVector<trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
