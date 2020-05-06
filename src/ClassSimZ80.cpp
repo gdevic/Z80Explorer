@@ -13,20 +13,43 @@ ClassSimZ80::ClassSimZ80()
 /*
  * One-time initialization
  */
-void ClassSimZ80::initChip()
+bool ClassSimZ80::initChip()
 {
     Q_ASSERT(ngnd == 1);
     Q_ASSERT(npwr == 2);
 
     // Initialize GND and Vcc
     m_netlist[ngnd].state = false;
-    m_netlist[ngnd].floats = false;
     m_netlist[npwr].state = true;
-    m_netlist[npwr].floats = false;
+
+    // Initialize nets which can float, have hi-Z value on the readout
+    net_t mreq = get("_mreq");
+    net_t iorq = get("_iorq");
+    net_t rd = get("_rd");
+    net_t wr = get("_wr");
+    if (mreq && iorq && rd && wr)
+    {
+        m_netlist[get("_mreq")].floats = true;
+        m_netlist[get("_iorq")].floats = true;
+        m_netlist[get("_rd")].floats = true;
+        m_netlist[get("_wr")].floats = true;
+        // A bit more relaxed about assigning floats status to buses
+        for (int i=0; i<16; i++)
+            m_netlist[get(QString("ab%1").arg(i))].floats = true;
+        for (int i=0; i<8; i++)
+            m_netlist[get(QString("db%1").arg(i))].floats = true;
+    }
+    else
+    {
+        qCritical() << "Unknown net _mreq,_iorq,_rd or _wr";
+        return false;
+    }
 
     // Turn off all transistors
     for (auto &t : m_transdefs)
         t.on = false;
+
+    return true;
 }
 
 // XXX Remove this timer here and implement it somewhere else (?)

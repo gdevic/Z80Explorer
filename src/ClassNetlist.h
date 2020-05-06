@@ -20,7 +20,7 @@ struct net
     QVector<trans *> gates;             // The list of transistors for which this net is a gate
     QVector<trans *> c1c2s;             // The list of transistors for which this net is either a source or a drain
     bool state {false};                 // The voltage on the net is high (if not floating)
-    bool floats {true};                 // Net is in the floating state (neither pulled up nor pulled down)
+    bool floats {false};                // Net can float (used with ab, db, mreq, iorq, rd, wr to read hi-Z state)
     bool pullup {false};                // Net is being pulled-up
     bool pulldown {false};              // Net is being pulled-down
 };

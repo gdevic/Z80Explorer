@@ -33,7 +33,7 @@ bool ClassController::init(QScriptEngine *sc)
     settings.setValue("ResourceDir", path);
 
     // Initialize all global classes using the given path to resource
-    if (!m_simz80.loadResources(path) || !m_chip.loadChipResources(path))
+    if (!m_simz80.loadResources(path) || !m_chip.loadChipResources(path) || !m_simz80.initChip())
     {
         qCritical() << "Unable to load chip resources from" << path;
         return false;
@@ -45,8 +45,6 @@ bool ClassController::init(QScriptEngine *sc)
     // Load the "hello world" sample executable file
     if (!m_trick.loadIntelHex(path + "/hello_world.hex"))
         qWarning() << "Unable to load example Z80 hex file";
-
-    m_simz80.initChip();
 
     return true;
 }

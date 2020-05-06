@@ -18,7 +18,7 @@ class ClassSimZ80 : public QObject, public ClassNetlist
     Q_OBJECT
 public:
     explicit ClassSimZ80();
-    void initChip();                    // One-time initialization
+    bool initChip();                    // One-time chip initialization
     void readState(z80state &z);        // Reads chip state into a state structure
     uint doReset();                     // Run chip reset sequence
     void doRunsim(uint ticks);          // Run the simulation for the given number of clocks
