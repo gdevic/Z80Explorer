@@ -238,14 +238,14 @@ inline void ClassSimZ80::set(bool on, QString name)
 inline bool ClassSimZ80::getNetValue()
 {
     // 1. deal with power connections first
-    for (int i=0; i<m_groupIndex; i++)
-        if (m_group[i] == ngnd) return false;
-    for (int i=0; i<m_groupIndex; i++)
-        if (m_group[i] == npwr) return true;
+    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
+        if (*p == ngnd) return false;
+    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
+        if (*p == npwr) return true;
     // 2. deal with pullup/pulldowns next
-    for (int i=0; i<m_groupIndex; i++)
+    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
-        auto net = m_netlist[m_group[i]];
+        net &net = m_netlist[*p];
         if (net.pullup) return true;
         if (net.pulldown) return false;
     }
@@ -254,9 +254,9 @@ inline bool ClassSimZ80::getNetValue()
     // (previously this was any node with state true wins)
     auto max_state = false;
     auto max_conn = 0;
-    for (int i=0; i<m_groupIndex; i++)
+    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
-        auto net = m_netlist[m_group[i]];
+        net &net = m_netlist[*p];
         auto conn = net.gates.count() + net.c1c2s.count();
         if (conn > max_conn)
         {
@@ -298,7 +298,7 @@ inline bool ClassSimZ80::getNetValue()
 }
 #endif
 
-#if EARLY_LOOP_DETECTION // Optimized version
+#if EARLY_LOOP_DETECTION
 #if USE_MY_LISTS
 inline void ClassSimZ80::recalcNetlist()
 {
@@ -380,9 +380,9 @@ inline void ClassSimZ80::recalcNet(net_t n)
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
     getNetGroup(n);
     bool newState = getNetValue();
-    for (int i=0; i<m_groupIndex; i++)
+    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
-        net &net = m_netlist[m_group[i]];
+        net &net = m_netlist[*p];
         if (net.state == newState) continue;
         net.state = newState;
         for (int i=0; i<net.gates.count(); i++)
@@ -466,8 +466,8 @@ inline void ClassSimZ80::setTransOff(struct trans *t)
 inline void ClassSimZ80::addRecalcNet(net_t n)
 {
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
-    for (int i=0; i<m_recalcListIndex; i++)
-        if (m_recalcList[i] == n)
+    for (net_t *p = m_recalcList; p < (m_recalcList + m_recalcListIndex); p++)
+        if (*p == n)
             return;
     m_recalcList[m_recalcListIndex++] = n;
 }
@@ -497,8 +497,8 @@ inline void ClassSimZ80::getNetGroup(net_t n)
 #if USE_MY_LISTS
 inline void ClassSimZ80::addNetToGroup(net_t n)
 {
-    for (int i=0; i<m_groupIndex; i++)
-        if (m_group[i] == n)
+    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
+        if (*p == n)
             return;
     m_group[m_groupIndex++] = n;
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
