@@ -7,20 +7,20 @@
 // Holds chip state, mainly registers and pins
 struct z80state
 {
-    uint16_t ab;                            // Address bus value
-    uint8_t db;                             // Data bus value
-    pin_t ab0;                              // Address bus 0 hi-Z sample (if one is hi-Z, all of them are)
-    pin_t db0;                              // Data bus bit 0 hi-Z sample (if one is hi-Z, all of them are)
-    pin_t mreq, iorq, rd, wr;               // Control pins capable of being hi-Z
-    bool busrq, clk, intr, nmi, reset, wait;// Input control signals
-    bool busak, halt, m1, rfsh;             // Output control signals
+    uint16_t ab;                        // Address bus value
+    uint8_t db;                         // Data bus value
+    pin_t ab0;                          // Address bus 0 hi-Z sample (if one is hi-Z, all of them are)
+    pin_t db0;                          // Data bus bit 0 hi-Z sample (if one is hi-Z, all of them are)
+    pin_t mreq, iorq, rd, wr;           // Control pins capable of being hi-Z
+    pin_t busrq, clk, intr, nmi, reset, wait;// Input control signals
+    pin_t busak, halt, m1, rfsh;        // Output control signals
 
-    uint16_t af, bc, de, hl;                // General purpose registers
-    uint16_t af2, bc2, de2, hl2;            // Alternative set of general purpose registers
-    uint16_t ix, iy, sp, ir, wz, pc;        // Indexing and sytem registers
+    uint16_t af, bc, de, hl;            // General purpose registers
+    uint16_t af2, bc2, de2, hl2;        // Alternative set of general purpose registers
+    uint16_t ix, iy, sp, ir, wz, pc;    // Indexing and sytem registers
 
-    bool m[6], t[6];                        // M and T cycles
-    uint8_t instr;                          // Instruction register value
+    bool m[6], t[6];                    // M and T cycles
+    uint8_t instr;                      // Instruction register value
 
     /*
      * Returns the chip state structure as a decoded string
@@ -45,16 +45,11 @@ struct z80state
         s += QString("Instr:%1").arg(hex(z.instr,2));
         return s;
     }
-
+private:
     inline static QString hex(uint n, uint width)
     {
         QString x = QString::number(n,16).toUpper();
         return QString("%1").arg(x,width,QChar('0'));
-    }
-
-    inline static QString pin(bool p) // Simple on/off
-    {
-        return p ? "0" : "1";
     }
 
     inline static QString pin(pin_t p) // on/off and hi-Z

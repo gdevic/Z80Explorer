@@ -81,7 +81,8 @@ pin_t ClassWatch::at(watch *w, uint hcycle)
  * This function variation returns the aggregate value of a bus; ok is set to the bus width if
  * all of the bus nets are valid, or to zero if the bus value could not be read.
  *
- * This function variation returns a bus.
+ * This function variation returns a bus. If any of the nets comprising a bus are hi-Z, then the
+ * complete bus is considered hi-Z and the return value will be UINT_MAX.
  */
 uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
 {
@@ -100,7 +101,9 @@ uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
         if (wb == nullptr)
             return 0;
         pin_t pin = wb->d[hcycle % MAX_WATCH_HISTORY];
-        if (pin > 1)
+        if (pin == 2) // Any contributing net that is at hi-Z makes the complete bus being hi-Z
+            value = UINT_MAX;
+        else if (pin > 2) // Invalid value
             return 0;
         value |= uint(pin) << (width - 1);
     }

@@ -432,33 +432,15 @@ uint8_t ClassNetlist::readByte(const QString &name)
 }
 
 /*
- * Returns the pin on/off value
+ * Returns a bit value read from the netlist for a particular net
  */
-bool ClassNetlist::readPin(const QString &name)
+pin_t ClassNetlist::readBit(const QString &name)
 {
     net_t n = get(name);
-    if (n)
-    {
-        Q_ASSERT(n < MAX_NETS);
-        return !!m_netlist[n].state;
-    }
-    qWarning() << "readPin: Invalid name" << name;
-    return false;
-}
-
-/*
- * Returns the pin on/off/hi-Z value
- */
-pin_t ClassNetlist::readPinEx(const QString &name)
-{
-    net_t n = get(name);
-    if (n)
-    {
-        Q_ASSERT(n < MAX_NETS);
+    Q_ASSERT(n < MAX_NETS);
+    if (Q_UNLIKELY(m_netlist[n].floats))
         return getNetStateEx(n);
-    }
-    qWarning() << "readPinEx: Invalid name" << name;
-    return 3;
+    return m_netlist[n].state;
 }
 
 /*

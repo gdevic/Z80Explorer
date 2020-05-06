@@ -22,26 +22,31 @@ bool ClassSimZ80::initChip()
     m_netlist[ngnd].state = false;
     m_netlist[npwr].state = true;
 
-    // Initialize nets which can float, have hi-Z value on the readout
+    // Initialize nets which can float, have hi-Z value, on a readout
     net_t mreq = get("_mreq");
     net_t iorq = get("_iorq");
     net_t rd = get("_rd");
     net_t wr = get("_wr");
-    if (mreq && iorq && rd && wr)
+    net_t ab0 = get("ab0"); // Sanity check that we have address bus name
+    net_t db0 = get("db0"); // Sanity check that we have data bus name
+    if (mreq && iorq && rd && wr && ab0 && db0)
     {
-        m_netlist[get("_mreq")].floats = true;
-        m_netlist[get("_iorq")].floats = true;
-        m_netlist[get("_rd")].floats = true;
-        m_netlist[get("_wr")].floats = true;
-        // A bit more relaxed about assigning floats status to buses
+        m_netlist[mreq].floats = true;
+        m_netlist[iorq].floats = true;
+        m_netlist[rd].floats = true;
+        m_netlist[wr].floats = true;
         for (int i=0; i<16; i++)
             m_netlist[get(QString("ab%1").arg(i))].floats = true;
+#if DATA_PINS_HI_Z
+        // It turns out data pins very rarely drive the data bus: most of the time they are in hi-Z
+        // (or input mode). Uncomment this to see DB tristated unless actively driving a value out.
         for (int i=0; i<8; i++)
             m_netlist[get(QString("db%1").arg(i))].floats = true;
+#endif
     }
     else
     {
-        qCritical() << "Unknown net _mreq,_iorq,_rd or _wr";
+        qCritical() << "Unknown net name _mreq,_iorq,_rd,_wr,ab0 or db0";
         return false;
     }
 
@@ -562,23 +567,23 @@ void ClassSimZ80::readState(z80state &z)
     z.ab = readAB();
     z.db = readByte("db");
 
-    z.ab0 = readPinEx("ab0");
-    z.db0 = readPinEx("db7");
-    z.mreq = readPinEx("_mreq");
-    z.iorq = readPinEx("_iorq");
-    z.rd = readPinEx("_rd");
-    z.wr = readPinEx("_wr");
+    z.ab0 = readBit("ab0");
+    z.db0 = readBit("db0");
+    z.mreq = readBit("_mreq");
+    z.iorq = readBit("_iorq");
+    z.rd = readBit("_rd");
+    z.wr = readBit("_wr");
 
-    z.busak = readPin("_busak");
-    z.busrq = readPin("_busrq");
-    z.clk = readPin("clk");
-    z.halt = readPin("_halt");
-    z.intr = readPin("_int");
-    z.m1 = readPin("_m1");
-    z.nmi = readPin("_nmi");
-    z.reset = readPin("_reset");
-    z.rfsh = readPin("_rfsh");
-    z.wait= readPin("_wait");
+    z.busak = readBit("_busak");
+    z.busrq = readBit("_busrq");
+    z.clk = readBit("clk");
+    z.halt = readBit("_halt");
+    z.intr = readBit("_int");
+    z.m1 = readBit("_m1");
+    z.nmi = readBit("_nmi");
+    z.reset = readBit("_reset");
+    z.rfsh = readBit("_rfsh");
+    z.wait= readBit("_wait");
 
     z.af = (readByte("reg_a") << 8) | readByte("reg_f");
     z.bc = (readByte("reg_b") << 8) | readByte("reg_c");
@@ -597,8 +602,8 @@ void ClassSimZ80::readState(z80state &z)
 
     for (int i=0; i<6; i++)
     {
-        z.m[i] = readPin("m" % QString::number(i+1));
-        z.t[i] = readPin("t" % QString::number(i+1));
+        z.m[i] = readBit("m" % QString::number(i+1));
+        z.t[i] = readBit("t" % QString::number(i+1));
     }
     z.instr = readByte("_instr");
 }

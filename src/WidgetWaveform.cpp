@@ -75,26 +75,32 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
 
 void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
+    static const QPen penHiZ = QPen(QColor(Qt::white), 1, Qt::DotLine);
     painter.setPen(viewitem->color);
     net_t data_cur, data_prev = ::controller.getWatch().at(w, hstart);
     for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
     {
         data_cur = ::controller.getWatch().at(w, hstart + i);
-        if (data_cur > 2) // If the data is undef at this cycle, skip drawing it
+        if (data_cur > 2) // If the data is undef at this cycle, do not draw it
             continue;
+        static const uint wh[4] { 0, m_waveheight, m_waveheight / 2, 0 };
         uint x1 = i * m_hscale;
         uint x2 = (i + 1) * m_hscale;
-        uint y1 = data_prev ? m_waveheight : 0;
-        uint y2 = data_cur ? m_waveheight : 0;
+        uint y1 = wh[data_prev & 3];
+        uint y2 = wh[data_cur & 3];
 
         if (viewitem->format == ClassController::FormatNet::Logic) // Draw simple logic diagram
-        {
+        {            
+            if (Q_UNLIKELY(data_cur == 2)) // Hi-Z states use special color + dotted lines
+                painter.setPen(penHiZ);
             if (data_prev != data_cur)
             {
                 painter.drawLine(x1, y - y1, x1, y - y2);
                 painter.drawLine(x1, y - y2, x2, y - y2);
             }
             painter.drawLine(x1, y - y2, x2, y - y2);
+            if (Q_UNLIKELY(data_cur == 2))
+                painter.setPen(viewitem->color);
         }
         else if (data_prev != data_cur) // Draw transition triangles
         {
@@ -119,6 +125,8 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
 
 void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
+    static const QPen penHiZ = QPen(QColor(Qt::white), 1, Qt::DotLine);
+    static const QPen penText = QPen(Qt::white);
     painter.setPen(viewitem->color);
     uint width, data_cur, data_prev = ::controller.getWatch().at(w, hstart, width);
     uint last_data_x = 0; // X coordinate of the last bus data change
@@ -133,11 +141,11 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
         uint y2 = y - m_waveheight;
 
         data_cur = ::controller.getWatch().at(w, hstart + i, width);
-        if (width == 0) // If the data is undef or incomplete at this cycle, skip drawing it
+        if (width == 0) // If the data is undef or incomplete at this cycle, do not draw it
         {
             if (width0text) // Print the text only on the first undef data to flush out previous value
             {
-                painter.setPen(QPen(Qt::white));
+                painter.setPen(penText);
                 painter.drawText(last_data_x + 3, y1 - 2, text);
                 painter.setPen(viewitem->color);
                 last_data_x = x1;
@@ -147,15 +155,18 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
         }
         width0text = true; // If we are here, we had a valid data, so enable printing text on undef next time
 
+        if (Q_UNLIKELY(data_cur == UINT_MAX)) // Hi-Z states use special color + dotted lines
+            painter.setPen(penHiZ);
         if (data_prev != data_cur) // Bus data is changing, draw crossed lines
         {
             // Check if there is enough space (in pixels) to write out the last text
             QRect bb = painter.fontMetrics().boundingRect(text);
             if (bb.width() < int(x1 - last_data_x))
             {
-                painter.setPen(QPen(Qt::white));
+                painter.save();
+                painter.setPen(penText);
                 painter.drawText(last_data_x + 3, y1 - 2, text);
-                painter.setPen(viewitem->color);
+                painter.restore();
             }
             last_data_x = x1;
 
@@ -172,12 +183,14 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
             painter.drawLine(x1, y1, x2, y1);
             painter.drawLine(x1, y2, x2, y2);
         }
+        if (Q_UNLIKELY(data_cur == UINT_MAX))
+            painter.setPen(viewitem->color);
 
         // At the end of the graph, write out last bus values
         if (i == (MAX_WATCH_HISTORY - 1))
         {
             last_data_x = m_hscale * (MAX_WATCH_HISTORY + 1);
-            painter.setPen(QPen(Qt::white));
+            painter.setPen(penText);
             painter.drawText(last_data_x, y1 - 2, text);
         }
     }

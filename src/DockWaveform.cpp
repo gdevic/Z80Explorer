@@ -200,24 +200,31 @@ void DockWaveform::cursorChanged(uint hcycle)
     QTableWidget *tv = ui->list;
     for (int row=0; row < m_view.count(); row++)
     {
+        QTableWidgetItem *tvi = tv->item(row, 1);
         watch *w = ::controller.getWatch().find(m_view[row].name);
         pin_t data_cur = ::controller.getWatch().at(w, hcycle);
 
-        QString display = QString::number(data_cur);
-        if (data_cur == 3)
-            display = "no-data";
-        else
-        if (data_cur == 4) // Bus
+        if (data_cur < 2)
+            tvi->setText(QString::number(data_cur));
+        else if (data_cur == 2)
+            tvi->setText("hi-Z");
+        else if (data_cur == 3)
+            tvi->setText("no-data");
+        else if (data_cur == 4) // Bus
         {
             uint width, value = ::controller.getWatch().at(w, hcycle, width);
             if (width)
-                display = ::controller.formatBus(m_view[row].format, value, width);
+            {
+                if (Q_UNLIKELY(value == UINT_MAX))
+                    tvi->setText("hi-Z");
+                else
+                    tvi->setText(::controller.formatBus(m_view[row].format, value, width));
+            }
             else
-                display = "no-data";
+                tvi->setText("no-data");
         }
-
-        QTableWidgetItem *tvi = tv->item(row, 1);
-        tvi->setText(display);
+        else
+            tvi->setText("error");
     }
 }
 
