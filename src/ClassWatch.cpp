@@ -45,7 +45,7 @@ void ClassWatch::onNetName(Netop op, const QString name, const net_t net)
 /*
  * Adds net watch data to the watch item's buffer at a specified cycle time
  */
-void ClassWatch::append(watch *w, uint hcycle, net_t value)
+void ClassWatch::append(watch *w, uint hcycle, pin_t value)
 {
     m_hcycle_last = hcycle + 1;
     uint i = hcycle % MAX_WATCH_HISTORY;
@@ -59,15 +59,15 @@ void ClassWatch::append(watch *w, uint hcycle, net_t value)
 
 /*
  * Returns watch data at the specified cycle position. The watch structure can represent a net
- * or a bus. For nets, we simply return the net_t bit stored for that net.
+ * or a bus. For nets, we simply return the pin_t bit stored for that net.
  * For a bus, we need to aggregate all nets that comprise this bus.
  *
  * This function variation returns a net.
  */
-net_t ClassWatch::at(watch *w, uint hcycle)
+pin_t ClassWatch::at(watch *w, uint hcycle)
 {
     if (!w || !m_hcycle_last || (hcycle < m_hring_start) || (hcycle >= m_hcycle_last))
-        return 3;
+        return 3; // Invalid
     if (w->n) // n is non-zero: it is a net
         return w->d[hcycle % MAX_WATCH_HISTORY];
     return 4; // The watch is a bus error
@@ -75,7 +75,7 @@ net_t ClassWatch::at(watch *w, uint hcycle)
 
 /*
  * Returns watch data at the specified cycle position. The watch structure can represent a net
- * or a bus. For nets, we simply return the net_t bit stored for that net.
+ * or a bus. For nets, we simply return the pin_t bit stored for that net.
  * For a bus, we need to aggregate all nets that comprise this bus.
  *
  * This function variation returns the aggregate value of a bus; ok is set to the bus width if
@@ -87,7 +87,7 @@ uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
 {
     ok = 0;
     if (!w || !m_hcycle_last || (hcycle < m_hring_start) || (hcycle >= m_hcycle_last))
-        return 0;
+        return 0; // Invalid bus, or it is a net
     if (w->n) // n is non-zero: it is a net
         return 0;
     uint value = 0; // The watch is a bus

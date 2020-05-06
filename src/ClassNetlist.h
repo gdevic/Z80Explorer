@@ -67,8 +67,8 @@ protected:
     QVector<net> m_netlist;                     // Array of nets, indexed by the net number
     net_t ngnd {}, npwr {};                     // 'vss' and 'vcc' nets (expected values: 1 and 2)
 
-    uint readByte(const QString &name);         // Returns a byte value read from the netlist for a particular net bus
-    inline uint readBit(const QString &name)    // Returns a bit value read from the netlist for a particular net
+    uint8_t readByte(const QString &name);      // Returns a byte value read from the netlist for a particular net bus
+    inline bool readBit(const QString &name)    // Returns a bit value read from the netlist for a particular net
         { return !!m_netlist[get(name)].state; }// (Performance-critical function)
     bool readPin(const QString &name);          // Returns the pin on/off value
     pin_t readPinEx(const QString &name);       // Returns the pin on/off/hi-Z value

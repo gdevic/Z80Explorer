@@ -41,8 +41,8 @@ public:
         { return (it < m_watchlist.count()) ? &m_watchlist[it++] : nullptr; }
 
     watch *find(QString name);          // Returns the watch of a given name or nullptr
-    void append(watch *w, uint hcycle, net_t value); // Adds net watch data to the specified cycle position
-    net_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
+    void append(watch *w, uint hcycle, pin_t value); // Adds net watch data to the specified cycle position
+    pin_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
     uint at(watch *w, uint hcycle, uint &ok); // Returns bus watch data at the specified cycle position
     uint gethstart() { return m_hring_start; } // Returns the absolute hcycle of the start of our buffers
 

@@ -171,7 +171,7 @@ inline void ClassSimZ80::halfCycle()
     watch *w = ::controller.getWatch().getFirst(it);
     while (w != nullptr)
     {
-        net_t bit = readBit(w->name);
+        pin_t bit = readBit(w->name);
         ::controller.getWatch().append(w, m_hcycletotal, bit);
 
         w = ::controller.getWatch().getNext(it);

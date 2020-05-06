@@ -411,7 +411,7 @@ uint16_t ClassNetlist::readAB()
     for (int i=15; i >= 0; --i)
     {
         value <<= 1;
-        value |= readBit(QString("ab" % QString::number(i)));
+        value |= !!readBit(QString("ab" % QString::number(i)));
     }
     return value;
 }
@@ -420,13 +420,13 @@ uint16_t ClassNetlist::readAB()
  * Returns a byte value read from the netlist for a particular net bus
  * The bus needs to be named with the last character selecting the bit, ex. ab0, ab1,...
  */
-uint ClassNetlist::readByte(const QString &name)
+uint8_t ClassNetlist::readByte(const QString &name)
 {
     uint value = 0;
     for (int i=7; i >= 0; --i)
     {
         value <<= 1;
-        value |= readBit(QString(name % QString::number(i)));
+        value |= !!readBit(QString(name % QString::number(i)));
     }
     return value;
 }
