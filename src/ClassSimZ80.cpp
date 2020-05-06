@@ -107,8 +107,13 @@ uint ClassSimZ80::doReset()
     set(1, "_int");
     set(1, "_nmi");
     set(1, "_wait");
-    QVector<net_t> nets = allNets();
-    recalcNetlist(nets);
+#if USE_MY_LISTS
+    allNets();
+    recalcNetlist();
+#else
+    QVector<net_t> list = allNets();
+    recalcNetlist(list);
+#endif
 
     // Start the cycle count from the begining of a reset sequence
     m_hcycletotal = 0;
@@ -219,10 +224,49 @@ inline void ClassSimZ80::set(bool on, QString name)
     net_t n = get(name);
     m_netlist[n].pullup = on;
     m_netlist[n].pulldown = !on;
+#if USE_MY_LISTS
+    m_list[0] = n;
+    m_listIndex = 1;
+    recalcNetlist();
+#else
     QVector<net_t> list {n};
     recalcNetlist(list);
+#endif
 }
 
+#if USE_MY_LISTS
+inline bool ClassSimZ80::getNetValue()
+{
+    // 1. deal with power connections first
+    for (int i=0; i<m_groupIndex; i++)
+        if (m_group[i] == ngnd) return false;
+    for (int i=0; i<m_groupIndex; i++)
+        if (m_group[i] == npwr) return true;
+    // 2. deal with pullup/pulldowns next
+    for (int i=0; i<m_groupIndex; i++)
+    {
+        auto net = m_netlist[m_group[i]];
+        if (net.pullup) return true;
+        if (net.pulldown) return false;
+    }
+    // 3. resolve connected set of floating nodes
+    // based on state of largest (by #connections) node
+    // (previously this was any node with state true wins)
+    auto max_state = false;
+    auto max_conn = 0;
+    for (int i=0; i<m_groupIndex; i++)
+    {
+        auto net = m_netlist[m_group[i]];
+        auto conn = net.gates.count() + net.c1c2s.count();
+        if (conn > max_conn)
+        {
+            max_conn = conn;
+            max_state = net.state;
+        }
+    }
+    return max_state;
+}
+#else
 inline bool ClassSimZ80::getNetValue()
 {
     // 1. deal with power connections first
@@ -252,11 +296,37 @@ inline bool ClassSimZ80::getNetValue()
     }
     return max_state;
 }
+#endif
 
-#if 1 // Optimized version
+#if EARLY_LOOP_DETECTION // Optimized version
+#if USE_MY_LISTS
+inline void ClassSimZ80::recalcNetlist()
+{
+    m_recalcListIndex = 0;
+    int t01rep = 3;
+    while(m_listIndex)
+    {
+        t01opt = 0;
+        for (int i=0; i<m_listIndex; i++)
+            recalcNet(m_list[i]);
+        memcpy(m_list, m_recalcList, m_recalcListIndex * sizeof (net_t));
+        m_listIndex = m_recalcListIndex;
+        m_recalcListIndex = 0;
+        // Optimization: if no transistors changed state, or if the *same group* of transistors toggled on and off,
+        // which happens when there is a feedback loop, exit.
+        // This is not necessarily 100% reliable since different trans id's may still add up to the same value,
+        // so an additional counter, t01opt, activates it only after the early loop detects 3 times in a row.
+        if ((t01opt == 0) && (t01rep-- == 0))
+            break;
+        if (t01opt != 0)
+            t01rep = 3;
+    }
+}
+#else
 inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
 {
     recalcList.clear();
+    int t01rep = 3;
     while(list.count())
     {
         t01opt = 0;
@@ -264,15 +334,32 @@ inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
             recalcNet(n);
         list = recalcList;
         recalcList.clear();
-        // Optimization: if no transistors changed state, or if the same group of transistors toggled on and off
-        // which happens when the group is unchanged and there is a feedback loop, exit.
-        // Note: not necessarily 100% reliable since different trans id's may still add to the same value
-        // but in practice it appears to work.
-        if (t01opt == 0)
+        // Optimization: if no transistors changed state, or if the *same group* of transistors toggled on and off,
+        // which happens when there is a feedback loop, exit.
+        // This is not necessarily 100% reliable since different trans id's may still add up to the same value,
+        // so an additional counter, t01opt, activates it only after the early loop detects 3 times in a row.
+        if ((t01opt == 0) && (t01rep-- == 0))
             break;
+        if (t01opt != 0)
+            t01rep = 3;
     }
 }
+#endif
 #else // Legacy version
+#if USE_MY_LISTS
+inline void ClassSimZ80::recalcNetlist()
+{
+    m_recalcListIndex = 0;
+    for (int i=0; i<50 && m_listIndex; i++) // loop limiter
+    {
+        for (int i=0; i<m_listIndex; i++)
+            recalcNet(m_list[i]);
+        memcpy(m_list, m_recalcList, m_recalcListIndex * sizeof (net_t));
+        m_listIndex = m_recalcListIndex;
+        m_recalcListIndex = 0;
+    }
+}
+#else // USE_MY_LISTS
 inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
 {
     recalcList.clear();
@@ -284,28 +371,63 @@ inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
         recalcList.clear();
     }
 }
+#endif // USE_MY_LISTS
 #endif
 
+#if USE_MY_LISTS
 inline void ClassSimZ80::recalcNet(net_t n)
 {
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
     getNetGroup(n);
-    auto newState = getNetValue();
-    for (auto i : group)
+    bool newState = getNetValue();
+    for (int i=0; i<m_groupIndex; i++)
     {
-        auto &net = m_netlist[i];
+        net &net = m_netlist[m_group[i]];
         if (net.state == newState) continue;
         net.state = newState;
-        for (trans *t : net.gates)
+        for (int i=0; i<net.gates.count(); i++)
         {
             if (net.state)
-                setTransOn(*t);
+                setTransOn(net.gates[i]);
             else
-                setTransOff(*t);
+                setTransOff(net.gates[i]);
         }
     }
 }
+#else
+inline void ClassSimZ80::recalcNet(net_t n)
+{
+    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    getNetGroup(n);
+    bool newState = getNetValue();
+    for (auto i : group)
+    {
+        net &net = m_netlist[i];
+        if (net.state == newState) continue;
+        net.state = newState;
+        for (int i=0; i<net.gates.count(); i++)
+        {
+            if (net.state)
+                setTransOn(net.gates[i]);
+            else
+                setTransOff(net.gates[i]);
+        }
+    }
+}
+#endif
 
+#if USE_MY_LISTS
+void ClassSimZ80::allNets()
+{
+    m_listIndex = 0;
+    for (net_t n=0; n < m_netlist.count(); n++)
+    {
+        if ((n==ngnd) || (n==npwr) || (m_netlist[n].gates.count()==0 && m_netlist[n].c1c2s.count()==0))
+            continue;
+        m_list[m_listIndex++] = n;
+    }
+}
+#else
 QVector<net_t> ClassSimZ80::allNets()
 {
     QVector<net_t> nets;
@@ -317,37 +439,80 @@ QVector<net_t> ClassSimZ80::allNets()
     }
     return nets;
 }
+#endif
 
-inline void ClassSimZ80::setTransOn(struct trans &t)
+inline void ClassSimZ80::setTransOn(struct trans *t)
 {
-    if (t.on) return;
-    t01opt += t.id;
-    t.on = true;
-    addRecalcNet(t.c1);
+    if (t->on) return;
+#if EARLY_LOOP_DETECTION
+    t01opt += t->id;
+#endif
+    t->on = true;
+    addRecalcNet(t->c1);
 }
 
-inline void ClassSimZ80::setTransOff(struct trans &t)
+inline void ClassSimZ80::setTransOff(struct trans *t)
 {
-    if (!t.on) return;
-    t01opt -= t.id;
-    t.on = false;
-    addRecalcNet(t.c1);
-    addRecalcNet(t.c2);
+    if (!t->on) return;
+#if EARLY_LOOP_DETECTION
+    t01opt -= t->id;
+#endif
+    t->on = false;
+    addRecalcNet(t->c1);
+    addRecalcNet(t->c2);
 }
 
+#if USE_MY_LISTS
+inline void ClassSimZ80::addRecalcNet(net_t n)
+{
+    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    for (int i=0; i<m_recalcListIndex; i++)
+        if (m_recalcList[i] == n)
+            return;
+    m_recalcList[m_recalcListIndex++] = n;
+}
+#else
 inline void ClassSimZ80::addRecalcNet(net_t n)
 {
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
     if (!recalcList.contains(n))
         recalcList.append(n);
 }
+#endif
 
+#if USE_MY_LISTS
+inline void ClassSimZ80::getNetGroup(net_t n)
+{
+    m_groupIndex = 0;
+    addNetToGroup(n);
+}
+#else
 inline void ClassSimZ80::getNetGroup(net_t n)
 {
     group.clear();
     addNetToGroup(n);
 }
+#endif
 
+#if USE_MY_LISTS
+inline void ClassSimZ80::addNetToGroup(net_t n)
+{
+    for (int i=0; i<m_groupIndex; i++)
+        if (m_group[i] == n)
+            return;
+    m_group[m_groupIndex++] = n;
+    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    for (trans *t : m_netlist[n].c1c2s)
+    {
+        if (!t->on) continue;
+        net_t other = 0;
+        if (t->c1 == n) other = t->c2;
+        if (t->c2 == n) other = t->c1;
+        if (other)
+            addNetToGroup(other);
+    }
+}
+#else
 inline void ClassSimZ80::addNetToGroup(net_t n)
 {
     if (group.contains(n)) return;
@@ -363,6 +528,7 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
             addNetToGroup(other);
     }
 }
+#endif
 
 /*
  * Reads chip state into a state structure
