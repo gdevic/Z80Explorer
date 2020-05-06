@@ -348,7 +348,7 @@ const QStringList ClassNetlist::get(const QVector<net_t> &nets)
 }
 
 /*
- * Returns a sorted list of nets that the given net is driving
+ * Returns a sorted list of unique nets that the given net is driving
  */
 const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 {
@@ -357,9 +357,9 @@ const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 
     for (const auto t : gates)
     {
-        if (t->c1 > 2) // c1 is the source
+        if ((t->c1 > 2) && !nets.contains(t->c1)) // c1 is the source
             nets.append(t->c1);
-        if (t->c2 > 2) // c2 is the drain
+        if ((t->c2 > 2) && !nets.contains(t->c2)) // c2 is the drain
             nets.append(t->c2);
     }
     std::sort(nets.begin(), nets.end());
@@ -367,13 +367,14 @@ const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 }
 
 /*
- * Returns a sorted list of nets that the given net is being driven by
+ * Returns a sorted list of unique nets that the given net is being driven by
  */
 const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 {
     QVector<net_t> nets;
     for (const auto &t : m_netlist[n].c1c2s)
-        nets.append(t->gate);
+        if (!nets.contains(t->gate))
+            nets.append(t->gate);
     std::sort(nets.begin(), nets.end());
     return nets;
 }
