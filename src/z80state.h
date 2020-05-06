@@ -7,16 +7,20 @@
 // Holds chip state, mainly registers and pins
 struct z80state
 {
-    uint16_t af, bc, de, hl;
-    uint16_t af2, bc2, de2, hl2;
-    uint16_t ix, iy, sp, ir, wz, pc;
-    uint16_t ab;
-    uint8_t db;                         // Data bus value
-    pin_t _db[8];                       // Data bus with floating state information
-    pin_t clk, intr, nmi, halt, mreq, iorq;
-    pin_t rd, wr, busak, wait, busrq, reset, m1, rfsh;
-    pin_t m[6], t[6];                   // M and T cycles
-    uint8_t instr;                      // Instruction register
+    uint16_t ab;                            // Address bus value
+    uint8_t db;                             // Data bus value
+    pin_t ab0;                              // Address bus 0 hi-Z sample (if one is hi-Z, all of them are)
+    pin_t db0;                              // Data bus bit 0 hi-Z sample (if one is hi-Z, all of them are)
+    pin_t mreq, iorq, rd, wr;               // Control pins capable of being hi-Z
+    bool busrq, clk, intr, nmi, reset, wait;// Input control signals
+    bool busak, halt, m1, rfsh;             // Output control signals
+
+    uint16_t af, bc, de, hl;                // General purpose registers
+    uint16_t af2, bc2, de2, hl2;            // Alternative set of general purpose registers
+    uint16_t ix, iy, sp, ir, wz, pc;        // Indexing and sytem registers
+
+    bool m[6], t[6];                        // M and T cycles
+    uint8_t instr;                          // Instruction register value
 
     /*
      * Returns the chip state structure as a decoded string
@@ -28,7 +32,8 @@ struct z80state
                  hex(z.af2,4),hex(z.bc2,4),hex(z.de2,4),hex(z.hl2,4));
         s += QString("IX:%1 IY:%2 SP:%3 IR:%4 WZ:%5 PC:%6\n").arg
                 (hex(z.ix,4),hex(z.iy,4),hex(z.sp,4),hex(z.ir,4),hex(z.wz,4),hex(z.pc,4));
-        s += QString("AB:%1 DB:%2 ").arg(hex(z.ab,4),hex(z.db,2));
+        s += QString("AB:%1 ").arg( (z.ab0 == 2) ? "~~~~" : hex(z.ab,4));
+        s += QString("DB:%1 (driving:%2)").arg(hex(z.db,2)).arg((z.db0 == 2) ? "~~" : hex(z.db,2));
         s += QString("\nclk:%1 int:%2 nmi:%3 halt:%4 mreq:%5 iorq:%6 rd:%7 wr:%8 ").arg
                 (pin(z.clk),pin(z.intr),pin(z.nmi),pin(z.halt),pin(z.mreq),pin(z.iorq),pin(z.rd),pin(z.wr));
         s += QString("busak:%1 wait:%2 busrq:%3 reset:%4 m1:%5 rfsh:%6\n").arg
@@ -47,9 +52,14 @@ struct z80state
         return QString("%1").arg(x,width,QChar('0'));
     }
 
-    inline static QString pin(pin_t p)
+    inline static QString pin(bool p) // Simple on/off
     {
-        return p==0 ? "0" : (p==1 ? "1" : (p==2 ? "-" : "?"));
+        return p ? "0" : "1";
+    }
+
+    inline static QString pin(pin_t p) // on/off and hi-Z
+    {
+        return p==0 ? "0" : (p==1 ? "1" : (p==2 ? "~" : "?"));
     }
 };
 

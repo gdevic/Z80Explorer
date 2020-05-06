@@ -156,7 +156,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
                         }
                     }
                     else // Load base nodename.js
-                    {                        
+                    {
                         if (m_netnums.contains(name)) // New name should not already be in use
                             qWarning() << "Duplicate name" << name << "for net" << n << ", already assigned to net" << m_netnums[name];
                         else if (!m_netnames[n].isEmpty()) // The net we are naming should not already have a name
@@ -380,6 +380,17 @@ const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 }
 
 /*
+ * Returns the net extended logic state (including hi-Z)
+ */
+inline pin_t ClassNetlist::getNetStateEx(net_t n)
+{
+    // Every transistor in the contributing nets needs to be off for this net to be hi-Z
+    for (auto tran : m_netlist[n].c1c2s)
+        if (tran->on) return !!m_netlist[n].state;
+    return 2;
+}
+
+/*
  * Adds bus by name and a set of nets listed by their name
  */
 void ClassNetlist::addBus(const QString &name, const QStringList &netslist)
@@ -421,19 +432,32 @@ uint ClassNetlist::readByte(const QString &name)
 }
 
 /*
- * Returns the pin value
+ * Returns the pin on/off value
  */
-pin_t ClassNetlist::readPin(const QString &name)
+bool ClassNetlist::readPin(const QString &name)
 {
     net_t n = get(name);
     if (n)
     {
         Q_ASSERT(n < MAX_NETS);
-//        if (m_netlist[n].floats) // XXX handle floating node
-//            return 2;
         return !!m_netlist[n].state;
     }
     qWarning() << "readPin: Invalid name" << name;
+    return false;
+}
+
+/*
+ * Returns the pin on/off/hi-Z value
+ */
+pin_t ClassNetlist::readPinEx(const QString &name)
+{
+    net_t n = get(name);
+    if (n)
+    {
+        Q_ASSERT(n < MAX_NETS);
+        return getNetStateEx(n);
+    }
+    qWarning() << "readPinEx: Invalid name" << name;
     return 3;
 }
 

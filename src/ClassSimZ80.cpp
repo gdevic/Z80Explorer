@@ -536,6 +536,27 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
  */
 void ClassSimZ80::readState(z80state &z)
 {
+    z.ab = readAB();
+    z.db = readByte("db");
+
+    z.ab0 = readPinEx("ab0");
+    z.db0 = readPinEx("db7");
+    z.mreq = readPinEx("_mreq");
+    z.iorq = readPinEx("_iorq");
+    z.rd = readPinEx("_rd");
+    z.wr = readPinEx("_wr");
+
+    z.busak = readPin("_busak");
+    z.busrq = readPin("_busrq");
+    z.clk = readPin("clk");
+    z.halt = readPin("_halt");
+    z.intr = readPin("_int");
+    z.m1 = readPin("_m1");
+    z.nmi = readPin("_nmi");
+    z.reset = readPin("_reset");
+    z.rfsh = readPin("_rfsh");
+    z.wait= readPin("_wait");
+
     z.af = (readByte("reg_a") << 8) | readByte("reg_f");
     z.bc = (readByte("reg_b") << 8) | readByte("reg_c");
     z.de = (readByte("reg_d") << 8) | readByte("reg_e");
@@ -550,24 +571,7 @@ void ClassSimZ80::readState(z80state &z)
     z.ir = (readByte("reg_i") << 8) | readByte("reg_r");
     z.wz = (readByte("reg_w") << 8) | readByte("reg_z");
     z.pc = (readByte("reg_pch") << 8) | readByte("reg_pcl");
-    z.ab = readAB();
-    z.db = readByte("db");
-    for (int i=0; i < 8; i++)
-        z._db[i] = readPin("db" % QString::number(i));
-    z.clk = readPin("clk");
-    z.intr = readPin("_int");
-    z.nmi = readPin("_nmi");
-    z.halt = readPin("_halt");
-    z.mreq = readPin("_mreq");
-    z.iorq = readPin("_iorq");
-    z.rd = readPin("_rd");
-    z.wr = readPin("_wr");
-    z.busak = readPin("_busak");
-    z.wait= readPin("_wait");
-    z.busrq = readPin("_busrq");
-    z.reset = readPin("_reset");
-    z.m1 = readPin("_m1");
-    z.rfsh = readPin("_rfsh");
+
     for (int i=0; i<6; i++)
     {
         z.m[i] = readPin("m" % QString::number(i+1));

@@ -46,10 +46,11 @@ public:
     const QVector<net_t> netsDriving(net_t n);  // Returns a sorted list of nets that the given net is driving
     const QVector<net_t> netsDriven(net_t n);   // Returns a sorted list of nets that the given net is being driven by
 
-    net_t getNetlistCount()                     // Returns the number of nets in the netlist
+    uint getNetlistCount()                      // Returns the number of nets in the netlist
         { return m_netlist.count(); }
     bool getNetState(net_t i)                   // Returns the net logic state
         { return m_netlist[i].state; }
+    pin_t getNetStateEx(net_t n);               // Returns the net extended logic state (including hi-Z)
 
     void addBus(const QString &name, const QStringList &netlist); // Adds bus by name and a set of nets listed by their name
     void clearBuses() { m_buses.clear(); }      // Clear all buses, used only by the DialogEditBuses
@@ -69,7 +70,8 @@ protected:
     uint readByte(const QString &name);         // Returns a byte value read from the netlist for a particular net bus
     inline uint readBit(const QString &name)    // Returns a bit value read from the netlist for a particular net
         { return !!m_netlist[get(name)].state; }// (Performance-critical function)
-    pin_t readPin(const QString &name);         // Returns the pin value
+    bool readPin(const QString &name);          // Returns the pin on/off value
+    pin_t readPinEx(const QString &name);       // Returns the pin on/off/hi-Z value
     uint16_t readAB();                          // Returns the value on the address bus
 
 private:
