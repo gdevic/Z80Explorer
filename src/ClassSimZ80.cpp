@@ -32,7 +32,8 @@ void ClassSimZ80::initChip()
 // XXX Remove this timer here and implement it somewhere else (?)
 void ClassSimZ80::onTimeout()
 {
-    qDebug() << "Half-Cycles:" << m_hcycletotal << (m_hcyclecnt / 2.0) / (m_elapsed.elapsed() / 1000.0) << " Hz";
+    qreal hz = (m_hcyclecnt / 2.0) / (m_elapsed.elapsed() / 1000.0);
+    qDebug() << "Half-Cycles:" << m_hcycletotal << "~" << ((hz < 100) ? 0 : hz) << " Hz";
     if (m_runcount <= 0)
         m_timer.stop();
 }
