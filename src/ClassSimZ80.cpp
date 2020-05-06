@@ -59,7 +59,7 @@ void ClassSimZ80::doRunsim(uint ticks)
 {
     if (!m_runcount && !ticks) // For Stop signal (ticks=0), do nothing if the sim thread is not running
         return;
-    if (m_runcount) // If the sim thread is already running, simply set the new tick counter
+    if (m_runcount) // If the sim thread is already running, simply set the new tick count limiter
         m_runcount = ticks;
     else
     {
@@ -70,16 +70,16 @@ void ClassSimZ80::doRunsim(uint ticks)
             emit runStopped(m_hcycletotal);
             onTimeout(); // XXX Can we get rid of this chain?
         }
-        else
+        else // If the sim thread is not running, start it and set the tick count limiter
         {
-            m_runcount = ticks; // If the sim thread is not running, start it using the new tick counter
+            m_runcount = ticks;
             m_timer.start();
             m_elapsed.start();
             m_hcyclecnt = 0;
             // Code in this block will run in another thread
             QFuture<void> future = QtConcurrent::run([=]()
             {
-                while (--m_runcount >= 0)
+                while (m_runcount.fetchAndAddOrdered(-1) > 0)
                     halfCycle();
                 m_runcount = 0;
                 emit runStopped(m_hcycletotal);
@@ -93,10 +93,10 @@ void ClassSimZ80::doRunsim(uint ticks)
  */
 uint ClassSimZ80::doReset()
 {
-    // If the chip is running, stop it instead
+    // If the simulation is running, stop it instead
     if (m_runcount)
     {
-        m_runcount = 0; // XXX This is not enough since the runnig thread may continue for a cycle or two
+        m_runcount = 0;
         return 0;
     }
 
@@ -176,8 +176,8 @@ inline void ClassSimZ80::halfCycle()
         w = ::controller.getWatch().getNext(it);
     }
 
-    m_hcyclecnt++; // Half-cycle count for this single simulation run
-    m_hcycletotal++; // Total half-cycle count since the chip reset
+    m_hcyclecnt.fetchAndAddRelaxed(1); // Half-cycle count for this single simulation run
+    m_hcycletotal.fetchAndAddRelaxed(1); // Total half-cycle count since the chip reset
 }
 
 inline void ClassSimZ80::handleMemRead(uint16_t ab)

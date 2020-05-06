@@ -3,6 +3,7 @@
 
 #include "ClassNetlist.h"
 #include "z80state.h"
+#include <QAtomicInteger>
 #include <QElapsedTimer>
 #include <QTimer>
 
