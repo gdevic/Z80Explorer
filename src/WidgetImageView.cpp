@@ -448,6 +448,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
             netNames.insert(0, trans); // Insert the transistor name at the front
             netNames.removeAll(QString()); // Remove any blanks (likely due to an infrequent transistor area)
+            netNames.removeDuplicates(); // Don't you simply love Qt?
             m_ov->setInfoLine(1, netNames.join(", "));
             QString tip = nets.count() ? ::controller.getChip().tips.get(nets[0]) : QString();
             m_ov->setInfoLine(2, tip);
