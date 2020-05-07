@@ -432,11 +432,22 @@ uint8_t ClassNetlist::readByte(const QString &name)
 }
 
 /*
- * Returns a bit value read from the netlist for a particular net
+ * Returns a bit value read from the netlist for a particular net, by net name
  */
 pin_t ClassNetlist::readBit(const QString &name)
 {
     net_t n = get(name);
+    Q_ASSERT(n < MAX_NETS);
+    if (Q_UNLIKELY(m_netlist[n].floats))
+        return getNetStateEx(n);
+    return m_netlist[n].state;
+}
+
+/*
+ * Returns a bit value read from the netlist for a particular net, by net number
+ */
+pin_t ClassNetlist::readBit(const net_t n)
+{
     Q_ASSERT(n < MAX_NETS);
     if (Q_UNLIKELY(m_netlist[n].floats))
         return getNetStateEx(n);
