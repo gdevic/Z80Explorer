@@ -147,7 +147,7 @@ void DockWaveform::eventNetName(Netop op, const QString name, const net_t net)
     {
         case Netop::SetName: if (a) a->name = name; break;
         case Netop::Rename: if (a) a->name = name; break;
-        case Netop::DeleteName: if (a) a->name = "(unnamed)"; break;
+        case Netop::DeleteName: if (a) a->name = QString("(%1)").arg(net); break;
         case Netop::Changed: rebuildList(); break;
     }
 }
@@ -298,7 +298,11 @@ bool DockWaveform::load(QString fileName)
                 // since the name could have changed in the meantime.
                 // The name in the json file is only a help to anyone wishing to edit json by hand
                 if (a.net)
-                    a.name = ::controller.getNetlist().get(a.net);
+                {
+                    // When the name is not valid, show the net number instead
+                    QString name = ::controller.getNetlist().get(a.net);
+                    a.name = name.isEmpty() ? QString("(%1)").arg(a.net) : name;
+                }
                 m_view.append(a);
             }
         }
