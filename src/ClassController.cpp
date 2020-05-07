@@ -79,7 +79,7 @@ const QStringList ClassController::getFormats(QString name)
 {
     static const QStringList formats[2] = {
         { "Logic", "Transition Up", "Transition Down", "Transition Any" },
-        { "Hexadecimal", "Binary", "Octal", "Decimal", "ASCII" }
+        { "Hexadecimal", "Binary", "Octal", "Decimal", "ASCII", "Disasm" }
     };
     // If the name represents a bus, get() will return 0 for the net number, selecting formats[!0]
     return formats[!getNetlist().get(name)];
@@ -95,12 +95,23 @@ const QString ClassController::formatBus(uint fmt, uint value, uint width)
     // Handle a special case where asked to print ASCII, but a value is not a prinable character: return its hex value
     if ((fmt == FormatBus::Ascii) && !QChar::isPrint(value))
         return s;
+    // Handle a special case where asked to print Disasm, but the width is not exactly 8 bits: return its hex value
+    if ((fmt == FormatBus::Disasm) && (width != 8))
+        return s;
+    static bool wasED = false;
+    static bool wasCB = false;
     switch (fmt)
     {
         case FormatBus::Bin: s = QString::number(width) % "'b" % QString::number(value, 2); break;
         case FormatBus::Oct: s = QString::number(width) % "'o" % QString::number(value, 8); break;
         case FormatBus::Dec: s = QString::number(width) % "'d" % QString::number(value, 10); break;
         case FormatBus::Ascii: s = QString(QString::number(width) % "'" % QChar(value) % "'"); break;
+        case FormatBus::Disasm:
+            // HACK: To get better opcode decode we keep the last ED/CB assuming we are called in-order
+            s = z80state::disasm(value, !wasED, !wasCB);
+            if (value != 0x00) // NOP keeps the flags as-is since there is a one-cycle NOP after ED/CB
+                wasED = (value == 0xED), wasCB = (value == 0xCB);
+            break;
     }
     return s;
 }

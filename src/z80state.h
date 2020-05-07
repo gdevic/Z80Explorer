@@ -4,7 +4,8 @@
 #include "AppTypes.h"
 #include <QString>
 
-// Holds chip state, mainly registers and pins
+// Holds portions of the chip state, mainly registers, pins and a few special nets,
+// and functions to dump the state in several ways
 struct z80state
 {
     uint16_t ab;                        // Address bus value
@@ -47,6 +48,17 @@ struct z80state
         s += QString("Instr:%1 %2").arg(hex(z.instr,2)).arg(disasm(z.instr, z.nED, z.nCB));
         return s;
     }
+
+    /*
+     * Returns Z80 instruction disassembly mnemonics given the ED,CB state modifiers
+     */
+    static const QString &disasm(uint8_t instr, pin_t nED, pin_t nCB)
+    {
+        if (!nED) return decodeED[instr];
+        if (!nCB) return decodeCB[instr];
+        return decode[instr];
+    }
+
 private:
     inline static QString hex(uint n, uint width)
     {
@@ -57,13 +69,6 @@ private:
     inline static QString pin(pin_t p) // on/off and hi-Z
     {
         return p==0 ? "0" : (p==1 ? "1" : (p==2 ? "~" : "?"));
-    }
-
-    static const QString &disasm(uint8_t instr, pin_t nED, pin_t nCB)
-    {
-        if (!nED) return decodeED[instr];
-        if (!nCB) return decodeCB[instr];
-        return decode[instr];
     }
 
     static const QString decode[256];

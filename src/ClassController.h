@@ -42,7 +42,7 @@ public: // API
 
     const QStringList getFormats(QString name); // Returns a list of formats applicable to the signal name (a net or a bus)
     enum FormatNet { Logic, TransUp, TransDown, TransAny };
-    enum FormatBus { Hex, Bin, Oct, Dec, Ascii };
+    enum FormatBus { Hex, Bin, Oct, Dec, Ascii, Disasm };
     const QString formatBus(uint fmt, uint value, uint width); // Returns the formatted string for a bus type value
 
     // Simulator calls this on every half-clock cycle, controller will directly dispatch to modules that need it

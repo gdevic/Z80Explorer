@@ -215,8 +215,9 @@ void DockWaveform::cursorChanged(uint hcycle)
             uint width, value = ::controller.getWatch().at(w, hcycle, width);
             if (width)
             {
-                if (Q_UNLIKELY(value == UINT_MAX))
-                    tvi->setText("hi-Z");
+                // For Disasm format, print the hex opcode instead
+                if (m_view[row].format == ClassController::FormatBus::Disasm)
+                    tvi->setText(::controller.formatBus(ClassController::FormatBus::Hex, value, width));
                 else
                     tvi->setText(::controller.formatBus(m_view[row].format, value, width));
             }
