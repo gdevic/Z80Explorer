@@ -1,4 +1,5 @@
 #include "ClassNetlist.h"
+#include "ClassController.h"
 #include <QCollator>
 #include <QDebug>
 #include <QFile>
@@ -87,7 +88,13 @@ bool ClassNetlist::saveNetNames(const QString fileName)
         collator.setNumericMode(true);
         std::sort(names.begin(), names.end(), collator);
         for (auto n : names)
-            out << n << ": " << m_netnums[n] << ",\n";
+        {
+            QString tip = ::controller.getChip().tips.get(m_netnums[n]);
+            if (tip.isEmpty())
+                out << n << ": " << m_netnums[n] << ",\n";
+            else
+                out << n << ": " << m_netnums[n] << ", // " << tip << "\n";
+        }
 
         out << "// Buses:\n"; // Write out the buses, sorted alphabetically
         QStringList buses = m_buses.keys();
@@ -128,7 +135,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
             line = in.readLine();
             int comment = line.indexOf('/'); // Strip comments
             if (comment != -1)
-                line = line.left(comment);
+                line = line.left(comment).trimmed();
             if (line.indexOf(':') != -1)
             {
                 line.chop(1); // Remove comma at the end of each line
