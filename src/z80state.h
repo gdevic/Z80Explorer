@@ -21,6 +21,8 @@ struct z80state
 
     bool m[6], t[6];                    // M and T cycles
     uint8_t instr;                      // Instruction register value
+    pin_t nED;                          // ED prefix is active (net 265)
+    pin_t nCB;                          // CB prefix is active (net 263)
 
     /*
      * Returns the chip state structure as a decoded string
@@ -42,7 +44,7 @@ struct z80state
         s += QString("M:%1%2%3%4%5%6 ").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
         s += QString("T:%1%2%3%4%5%6\n").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
     #undef MT
-        s += QString("Instr:%1").arg(hex(z.instr,2));
+        s += QString("Instr:%1 %2").arg(hex(z.instr,2)).arg(disasm(z.instr, z.nED, z.nCB));
         return s;
     }
 private:
@@ -56,6 +58,17 @@ private:
     {
         return p==0 ? "0" : (p==1 ? "1" : (p==2 ? "~" : "?"));
     }
+
+    static const QString &disasm(uint8_t instr, pin_t nED, pin_t nCB)
+    {
+        if (!nED) return decodeED[instr];
+        if (!nCB) return decodeCB[instr];
+        return decode[instr];
+    }
+
+    static const QString decode[256];
+    static const QString decodeED[256];
+    static const QString decodeCB[256];
 };
 
 #endif // Z80STATE_H
