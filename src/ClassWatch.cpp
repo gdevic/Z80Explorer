@@ -13,7 +13,8 @@ void ClassWatch::onShutdown()
     QSettings settings;
     QString path = settings.value("ResourceDir").toString();
     Q_ASSERT(!path.isEmpty());
-    save(path);
+    if (m_watchlist.count()) // Save the watchlist only if it is not empty
+        save(path);
 }
 
 /*
@@ -229,8 +230,10 @@ bool ClassWatch::load(QString dir)
                     name = obj["name"].toString();
                 m_watchlist.append( {name, net} );
             }
+            return true;
         }
-        return true;
+        else
+            qWarning() << "Invalid json file";
     }
     else
         qWarning() << "Unable to load" << fileName;

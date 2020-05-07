@@ -16,7 +16,8 @@ void ClassTip::onShutdown()
     QSettings settings;
     QString path = settings.value("ResourceDir").toString();
     Q_ASSERT(!path.isEmpty());
-    save(path);
+    if (m_tips.size()) // // Save the tips only if we have any
+        save(path);
 }
 
 /*
@@ -50,8 +51,10 @@ bool ClassTip::load(QString dir)
                 if (net)
                     m_tips[net] = tip;
             }
+            return true;
         }
-        return true;
+        else
+            qWarning() << "Invalid json file";
     }
     else
         qWarning() << "Unable to load" << fileName;

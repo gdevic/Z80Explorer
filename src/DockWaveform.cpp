@@ -306,8 +306,10 @@ bool DockWaveform::load(QString fileName)
                 }
                 m_view.append(a);
             }
+            return true;
         }
-        return true;
+        else
+            qWarning() << "Invalid json file";
     }
     else
         qWarning() << "Unable to load" << fileName;

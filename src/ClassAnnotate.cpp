@@ -17,7 +17,8 @@ void ClassAnnotate::onShutdown()
     QSettings settings;
     QString path = settings.value("ResourceDir").toString();
     Q_ASSERT(!path.isEmpty());
-    save(path);
+    if (m_annot.count()) // Save the annotations only if we have any defined
+        save(path);
 }
 
 /*
@@ -141,8 +142,10 @@ bool ClassAnnotate::load(QString dir)
                     a.overline = obj["bar"].toBool();
                 m_annot.append(a);
             }
+            return true;
         }
-        return true;
+        else
+            qWarning() << "Invalid json file";
     }
     else
         qWarning() << "Unable to load" << fileName;
