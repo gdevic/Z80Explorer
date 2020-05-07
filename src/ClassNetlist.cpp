@@ -126,9 +126,12 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
         while(!in.atEnd())
         {
             line = in.readLine();
-            if (!line.startsWith('/') && line.indexOf(':') != -1)
+            int comment = line.indexOf('/'); // Strip comments
+            if (comment != -1)
+                line = line.left(comment);
+            if (line.indexOf(':') != -1)
             {
-                line.chop(1);
+                line.chop(1); // Remove comma at the end of each line
                 list = line.split(':', QString::SkipEmptyParts);
                 if (list.length()==2)
                 {
@@ -171,8 +174,6 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
                 else
                     qWarning() << "Invalid line" << list;
             }
-            else
-                qDebug() << "Skipping" << line;
         }
         file.close();
         return true;
