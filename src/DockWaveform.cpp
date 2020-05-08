@@ -164,7 +164,7 @@ void DockWaveform::updateViewitems(QStringList items)
         if (!items.contains(it.next().name))
             it.remove();
     // 2. Add items present in items but not present in m_view
-    for (auto name : items)
+    for (auto &name : items)
         if (find(name) == nullptr)
             add(name);
 }
