@@ -111,7 +111,7 @@ void DockWaveform::onEdit()
 QStringList DockWaveform::getNames()
 {
     QStringList items;
-    for (const auto &i : m_view)
+    for (auto &i : m_view)
         items.append(i.name);
     return items;
 }
@@ -164,7 +164,7 @@ void DockWaveform::updateViewitems(QStringList items)
         if (!items.contains(it.next().name))
             it.remove();
     // 2. Add items present in items but not present in m_view
-    for (const auto name : items)
+    for (auto name : items)
         if (find(name) == nullptr)
             add(name);
 }
@@ -327,7 +327,7 @@ bool DockWaveform::save(QString fileName)
     {
         QJsonObject json;
         QJsonArray jsonArray;
-        for (const viewitem &a : m_view)
+        for (viewitem &a : m_view)
         {
             QJsonObject obj;
             obj["name"] = a.name;

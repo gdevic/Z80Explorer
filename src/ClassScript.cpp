@@ -54,19 +54,19 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
 QScriptValue ClassScript::onRun(QScriptContext *ctx, QScriptEngine *)
 {
     uint cycles = ctx->argument(0).toNumber();
-    emit ::controller.doRunsim(cycles);
+    ::controller.doRunsim(cycles);
     return "OK";
 }
 
 QScriptValue ClassScript::onStop(QScriptContext *, QScriptEngine *)
 {
-    emit ::controller.doRunsim(0);
+    ::controller.doRunsim(0);
     return "OK";
 }
 
 QScriptValue ClassScript::onReset(QScriptContext *, QScriptEngine *)
 {
-    emit ::controller.doReset();
+    ::controller.doReset();
     return "OK";
 }
 
@@ -108,6 +108,6 @@ QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
 {
     uint n = ctx->argument(0).toNumber();
     qDebug() << n;
-    emit ::controller.getChip().experimental(n);
+    ::controller.getChip().experimental(n);
     return "OK";
 }

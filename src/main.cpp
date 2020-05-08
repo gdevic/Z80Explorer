@@ -25,7 +25,6 @@ void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const Q
     QSettings settings;
     int logLevel = settings.value("AppLogLevel", 3).toInt();
 
-    QByteArray localMsg = msg.toLocal8Bit();
     QString s1 = "File: " + (context.file ? QString(context.file) : "?");
     QString s2 = "Function: " + (context.function ? QString(context.function) : "?");
     // These are logging levels:

@@ -36,7 +36,7 @@ struct z80state
         s += QString("IX:%1 IY:%2 SP:%3 IR:%4 WZ:%5 PC:%6\n").arg
                 (hex(z.ix,4),hex(z.iy,4),hex(z.sp,4),hex(z.ir,4),hex(z.wz,4),hex(z.pc,4));
         s += QString("AB:%1 ").arg( (z.ab0 == 2) ? "~~~~" : hex(z.ab,4));
-        s += QString("DB:%1 (driving:%2)").arg(hex(z.db,2)).arg((z.db0 == 2) ? "~~" : hex(z.db,2));
+        s += QString("DB:%1 (driving:%2)").arg(hex(z.db,2),(z.db0 == 2) ? "~~" : hex(z.db,2));
         s += QString("\nclk:%1 int:%2 nmi:%3 halt:%4 mreq:%5 iorq:%6 rd:%7 wr:%8 ").arg
                 (pin(z.clk),pin(z.intr),pin(z.nmi),pin(z.halt),pin(z.mreq),pin(z.iorq),pin(z.rd),pin(z.wr));
         s += QString("busak:%1 wait:%2 busrq:%3 reset:%4 m1:%5 rfsh:%6\n").arg
@@ -45,7 +45,7 @@ struct z80state
         s += QString("M:%1%2%3%4%5%6 ").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
         s += QString("T:%1%2%3%4%5%6\n").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
     #undef MT
-        s += QString("Instr:%1 %2").arg(hex(z.instr,2)).arg(disasm(z.instr, z.nED, z.nCB));
+        s += QString("Instr:%1 %2").arg(hex(z.instr,2),disasm(z.instr, z.nED, z.nCB));
         return s;
     }
 

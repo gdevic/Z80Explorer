@@ -110,7 +110,6 @@ void DialogEditWaveform::onFormatIndexChanged(int index)
     {
         QList<QListWidgetItem *> sel = ui->listView->selectedItems();
         Q_ASSERT(sel.size() == 1);
-        QString name = sel[0]->text();
         viewitem view = get(sel[0]);
         view.format = index;
         set(sel[0], view);

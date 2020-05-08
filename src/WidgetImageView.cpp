@@ -704,7 +704,7 @@ void WidgetImageView::editTip()
     QString name = ::controller.getNetlist().get(net);
     QString oldTip = ::controller.getChip().tips.get(net);
     bool ok;
-    QString tip = QInputDialog::getText(this, "Edit tip", QString("Enter the tip for the selected net %1 (%2)").arg(name).arg(QString::number(net)), QLineEdit::Normal, oldTip, &ok);
+    QString tip = QInputDialog::getText(this, "Edit tip", QString("Enter the tip for the selected net %1 (%2)").arg(name,QString::number(net)), QLineEdit::Normal, oldTip, &ok);
     if (ok)
         ::controller.getChip().tips.set(tip, net);
 }

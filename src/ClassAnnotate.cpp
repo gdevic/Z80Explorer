@@ -164,7 +164,7 @@ bool ClassAnnotate::save(QString dir)
     {
         QJsonObject json;
         QJsonArray jsonArray;
-        for (const annotation &a : m_annot)
+        for (annotation &a : m_annot)
         {
             QJsonObject obj;
             obj["text"] = a.text.text();
