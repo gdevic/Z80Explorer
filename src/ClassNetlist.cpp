@@ -342,7 +342,7 @@ void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
 }
 
 /*
- * Returns net names for each net in the list
+ * Returns sorted net names for each net on the list
  */
 const QStringList ClassNetlist::get(const QVector<net_t> &nets)
 {
@@ -352,6 +352,11 @@ const QStringList ClassNetlist::get(const QVector<net_t> &nets)
         QString name = get(n);
         list.append(name.isEmpty() ? QString::number(n) : name);
     }
+
+    QCollator collator; // Sort in the correct numerical order, naturally (so, after "a9" comes "a10")
+    collator.setNumericMode(true);
+    std::sort(list.begin(), list.end(), collator);
+
     return list;
 }
 
@@ -370,7 +375,7 @@ const QVector<net_t> ClassNetlist::netsDriving(net_t n)
         if ((t->c2 > 2) && !nets.contains(t->c2)) // c2 is the drain
             nets.append(t->c2);
     }
-    std::sort(nets.begin(), nets.end());
+    std::sort(nets.begin(), nets.end()); // Sorting numbers only
     return nets;
 }
 
@@ -383,7 +388,7 @@ const QVector<net_t> ClassNetlist::netsDriven(net_t n)
     for (auto &t : m_netlist[n].c1c2s)
         if (!nets.contains(t->gate))
             nets.append(t->gate);
-    std::sort(nets.begin(), nets.end());
+    std::sort(nets.begin(), nets.end()); // Sorting numbers only
     return nets;
 }
 
