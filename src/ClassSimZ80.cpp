@@ -531,7 +531,7 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
             return;
     m_group[m_groupIndex++] = n;
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
-    for (trans *t : m_netlist[n].c1c2s)
+    for (auto &t : m_netlist[n].c1c2s)
     {
         if (!t->on) continue;
         net_t other = 0;
@@ -547,7 +547,7 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
     if (group.contains(n)) return;
     group.append(n);
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
-    for (trans *t : m_netlist[n].c1c2s)
+    for (auto &t : m_netlist[n].c1c2s)
     {
         if (!t->on) continue;
         net_t other = 0;
