@@ -12,12 +12,12 @@
 // List of z80 chip resource images / layers. "Z80_" and ".png" are appended only when loading the files.
 static const QStringList files =
 {
-    { "diffusion" },
-    { "polysilicon" },
-    { "metal" },
-    { "buried" },
-    { "vias" },
-    { "ions" },
+    "diffusion",
+    "polysilicon",
+    "metal",
+    "buried",
+    "vias",
+    "ions"
 };
 
 // --- Feature map bits ---
