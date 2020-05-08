@@ -44,7 +44,7 @@ QStringList DialogEditWatchlist::getWatchlist()
 
 void DialogEditWatchlist::onAdd()
 {
-    for (auto item : ui->listAll->selectedItems())
+    for (auto &item : ui->listAll->selectedItems())
     {
         if (ui->listSelected->findItems(item->text(), Qt::MatchFixedString).count()==0)
             ui->listSelected->addItem(item->text());
@@ -53,6 +53,6 @@ void DialogEditWatchlist::onAdd()
 
 void DialogEditWatchlist::onRemove()
 {
-    for (auto item : ui->listSelected->selectedItems())
+    for (auto &item : ui->listSelected->selectedItems())
         delete ui->listSelected->takeItem(ui->listSelected->row(item));
 }

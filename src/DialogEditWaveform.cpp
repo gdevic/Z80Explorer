@@ -196,7 +196,7 @@ void DialogEditWaveform::onColor()
     col = QColorDialog::getColor(col); // Opens a dialog to let the user chose a color
     if (col.isValid())
     {
-        for (auto i : sel)
+        for (auto &i : sel)
         {
             viewitem view = get(i);
             view.color = col;

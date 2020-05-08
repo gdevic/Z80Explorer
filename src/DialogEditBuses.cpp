@@ -16,7 +16,7 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
 
     // Read all nets and buses and separate nets from buses
     ClassNetlist &Net = ::controller.getNetlist();
-    for (auto name : Net.getNetnames())
+    for (auto &name : Net.getNetnames())
     {
         if (Net.get(name)) // Non-zero net number is a net
             ui->listNets->addItem(name);
@@ -94,7 +94,7 @@ void DialogEditBuses::add(QString busName, QStringList nets)
 void DialogEditBuses::onCreate()
 {
     QStringList nets;
-    for (auto net : ui->listNets->selectedItems())
+    for (auto &net : ui->listNets->selectedItems())
         nets.append(net->text());
     if (nets.count() > int(sizeof(uint) * 8))
     {
