@@ -152,7 +152,7 @@ void ClassWatch::clear()
 QStringList ClassWatch::getWatchlist()
 {
     QStringList list;
-    for (const auto &item : m_watchlist)
+    for (auto &item : m_watchlist)
         list.append(item.name);
     return list;
 }
@@ -166,7 +166,7 @@ void ClassWatch::updateWatchlist(QStringList list)
 {
     QVector<QString> buses; // List of buses to process later
     QVector<watch> newlist; // New list that we are building
-    for (auto name : list)
+    for (auto &name : list)
     {
         watch *w = find(name);
         if (w)
@@ -252,7 +252,7 @@ bool ClassWatch::save(QString dir)
     {
         QJsonObject json;
         QJsonArray jsonArray;
-        for (auto w : m_watchlist)
+        for (auto &w : m_watchlist)
         {
             QJsonObject obj;
             obj["name"] = w.name;
