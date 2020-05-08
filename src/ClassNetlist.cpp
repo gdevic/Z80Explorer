@@ -37,7 +37,7 @@ bool ClassNetlist::loadResources(const QString dir)
         ngnd = get("vss");
         npwr = get("vcc");
 
-        if (strings == m_netnums.keys().count())
+        if (strings == m_netnums.count())
         {
             if (ngnd == 1)
             {
@@ -57,7 +57,7 @@ bool ClassNetlist::loadResources(const QString dir)
                 qWarning() << "vss expected to be net number 1 but it is" << ngnd;
         }
         else
-            qWarning() << "netnames inconsistency:" << strings << "names but" << m_netnums.keys().count() << "nets";
+            qWarning() << "netnames inconsistency:" << strings << "names but" << m_netnums.count() << "nets";
     }
     else
         qWarning() << "Loading netlist resource failed";
@@ -87,7 +87,7 @@ bool ClassNetlist::saveNetNames(const QString fileName)
         QCollator collator; // Sort in the correct numerical order, naturally (so, after "a9" comes "a10")
         collator.setNumericMode(true);
         std::sort(names.begin(), names.end(), collator);
-        for (auto n : names)
+        for (auto &n : names)
         {
             QString tip = ::controller.getChip().tips.get(m_netnums[n]);
             if (tip.isEmpty())
@@ -102,7 +102,7 @@ bool ClassNetlist::saveNetNames(const QString fileName)
         for (const auto &i : buses)
         {
             QString line = QString("%1: [").arg(i);
-            for (auto net : m_buses[i])
+            for (auto &net : m_buses[i])
                 line.append(QString::number(net) % ",");
             line.chop(1); // Remove that last comma
             line.append("],\n");
@@ -249,7 +249,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         qInfo() << "Loaded" << m_transdefs.count() << "transistor definitions";
         qInfo() << "Max net index" << max;
         net_t count = 0;
-        for (const auto &net : m_netlist)
+        for (auto &net : m_netlist)
             count += !!(net.gates.count() || net.c1c2s.count());
         qInfo() << "Number of nets" << count;
         return true;
@@ -380,7 +380,7 @@ const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 {
     QVector<net_t> nets;
-    for (const auto &t : m_netlist[n].c1c2s)
+    for (auto &t : m_netlist[n].c1c2s)
         if (!nets.contains(t->gate))
             nets.append(t->gate);
     std::sort(nets.begin(), nets.end());
@@ -393,7 +393,7 @@ const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 inline pin_t ClassNetlist::getNetStateEx(net_t n)
 {
     // Every transistor in the contributing nets needs to be off for this net to be hi-Z
-    for (auto tran : m_netlist[n].c1c2s)
+    for (auto &tran : m_netlist[n].c1c2s)
         if (tran->on) return !!m_netlist[n].state;
     return 2;
 }
