@@ -9,17 +9,6 @@
 #include <QPainter>
 #include <QSettings>
 
-// List of z80 chip resource images / layers. "Z80_" and ".png" are appended only when loading the files.
-static const QStringList files =
-{
-    "diffusion",
-    "polysilicon",
-    "metal",
-    "buried",
-    "vias",
-    "ions"
-};
-
 // --- Feature map bits ---
 // We can use any bits, but these make the map looking good when simply viewed it as an image
 #define DIFF_SHIFT       6
@@ -96,6 +85,18 @@ bool ClassChip::loadChipResources(QString dir)
  */
 bool ClassChip::loadImages(QString dir)
 {
+    // List of z80 chip resource images / layers. "Z80_" and ".png" are appended only when loading the files
+    // since we use those names, as layer names, to store them into QImage.text fields
+    static const QStringList files =
+    {
+        "diffusion",
+        "polysilicon",
+        "metal",
+        "buried",
+        "vias",
+        "ions"
+    };
+
     QEventLoop e; // Don't freeze the GUI
     QImage img;
     m_img.clear();
