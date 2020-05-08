@@ -100,7 +100,7 @@ bool ClassChip::loadImages(QString dir)
     QEventLoop e; // Don't freeze the GUI
     QImage img;
     m_img.clear();
-    for (auto image : files)
+    for (auto &image : files)
     {
         QString png_file = dir + "/z80_" + image + ".png";
         qInfo() << "Loading" + png_file;
@@ -287,7 +287,7 @@ void ClassChip::setFirstImage(QString name)
 const QStringList ClassChip::getImageNames()
 {
     QStringList names;
-    for (const auto &image : m_img)
+    for (auto &image : m_img)
         names.append(image.text("name"));
     return names;
 }
@@ -336,7 +336,7 @@ template const QVector<net_t> ClassChip::getNetsAt<false>(int, int);
  */
 const QString ClassChip::getTransistorAt(int x, int y)
 {
-    for (const auto &s : m_transdefs)
+    for (auto &s : m_transdefs)
     {
         if (s.path.contains(QPoint(x, y)))
             return s.name;
@@ -390,7 +390,7 @@ void ClassChip::drawTransistors(QImage &img)
     painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
     painter.setOpacity(0.5);
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
-    for (const auto &s : m_transdefs)
+    for (auto &s : m_transdefs)
         painter.drawRect(s.box);
 }
 
@@ -402,7 +402,7 @@ bool ClassChip::convertToGrayscale()
     qInfo() << "Converting images to grayscale format...";
     QEventLoop e; // Don't freeze the GUI
     QVector<QImage> new_images;
-    for (auto image : m_img)
+    for (auto &image : m_img)
     {
         qInfo() << "Processing image" << image << image.text("name");
         e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
@@ -521,8 +521,8 @@ void ClassChip::buildFeatureMap()
         }
 
         // Reassign bits based on the correction
-        viad = c & VIA_DIFF;
-        viap = c & VIA_POLY;
+//        viad = c & VIA_DIFF; // XXX ?
+//        viap = c & VIA_POLY;
 
         // Mark a transistor area (poly over diffusion without a buried contact)
         // Transistor path also splits the diffusion area into two, so we remove DIFF over these traces
@@ -958,7 +958,7 @@ void ClassChip::expDrawTransistors(QPainter &painter, const QRect &viewport, boo
     const static QBrush brush[2] = { Qt::gray, Qt::yellow };
     const static QPen pens[2] = { QPen(QColor(), 0, Qt::NoPen), QPen(QColor(255, 0, 255), 1, Qt::SolidLine) };
 
-    for (const auto &t : m_transdefs)
+    for (auto &t : m_transdefs)
     {
         // Speed up rendering by clipping to the viewport's image rectangle
         if (t.box.intersected(viewport) != QRect())
