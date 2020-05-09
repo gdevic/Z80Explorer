@@ -48,19 +48,19 @@ bool ClassNetlist::loadResources(const QString dir)
                         qInfo() << "Completed loading netlist resources";
                         return true;
                     }
-                    qWarning() << "Loading transistor resource failed";
+                    qCritical() << "Loading transistor resource failed";
                 }
                 else
-                    qWarning() << "vcc expected to be net number 2 but it is" << npwr;
+                    qCritical() << "vcc expected to be net number 2 but it is" << npwr;
             }
             else
-                qWarning() << "vss expected to be net number 1 but it is" << ngnd;
+                qCritical() << "vss expected to be net number 1 but it is" << ngnd;
         }
         else
-            qWarning() << "netnames inconsistency:" << strings << "names but" << m_netnums.count() << "nets";
+            qCritical() << "netnames inconsistency:" << strings << "names but" << m_netnums.count() << "nets";
     }
     else
-        qWarning() << "Loading netlist resource failed";
+        qCritical() << "Loading netlist resource failed";
     return false;
 }
 
@@ -185,7 +185,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
         file.close();
         return true;
     }
-    qWarning() << "Error opening" << fileName;
+    qCritical() << "Error opening" << fileName;
     return false;
 }
 
@@ -254,7 +254,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         qInfo() << "Number of nets" << count;
         return true;
     }
-    qWarning() << "Error opening transdefs.js";
+    qCritical() << "Error opening transdefs.js";
     return false;
 }
 
@@ -291,7 +291,7 @@ bool ClassNetlist::loadPullups(const QString dir)
         file.close();
         return true;
     }
-    qWarning() << "Error opening segdefs.js";
+    qCritical() << "Error opening segdefs.js";
     return false;
 }
 

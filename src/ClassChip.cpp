@@ -76,7 +76,7 @@ bool ClassChip::loadChipResources(QString dir)
         qInfo() << "Completed loading chip resources";
         return true;
     }
-    qWarning() << "Loading chip resource failed";
+    qCritical() << "Loading chip resource failed";
     return false;
 }
 
@@ -117,7 +117,7 @@ bool ClassChip::loadImages(QString dir)
         }
         else
         {
-            qWarning() << "Error loading" + image;
+            qCritical() << "Error loading" + image;
             return false;
         }
     }
@@ -188,7 +188,7 @@ bool ClassChip::loadSegdefs(QString dir)
         return true;
     }
     else
-        qWarning() << "Error opening segdefs.js";
+        qCritical() << "Error opening segdefs.js";
     return false;
 }
 
@@ -237,7 +237,7 @@ bool ClassChip::loadTransdefs(QString dir)
         return true;
     }
     else
-        qWarning() << "Error opening transdefs.js";
+        qCritical() << "Error opening transdefs.js";
     return false;
 }
 
