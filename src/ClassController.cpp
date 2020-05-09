@@ -21,6 +21,7 @@ bool ClassController::init(QScriptEngine *sc)
     QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
 
     // Check if the current resource path contains required resource(s)
+    qInfo() << "Checking for resource/layermap.bin";
     while (!QFile::exists(path + "/layermap.bin"))
     {
         // Prompts the user to select the chip resource folder
