@@ -90,6 +90,7 @@ MainWindow::~MainWindow()
  */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    qInfo() << "App shutdown...";
     emit ::controller.shutdown();
 
     // Save window configuration after the main application finished executing

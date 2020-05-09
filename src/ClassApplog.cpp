@@ -1,56 +1,68 @@
 #include "ClassApplog.h"
-
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
+#include <QSettings>
 
 using namespace std;
 
-CAppLogHandler::CAppLogHandler()
+extern CAppLogHandler *applog; // Application logging subsystem
+
+/*
+ * Handler for both Qt messages and application messages.
+ * The output is forked to application logger and the log window
+ */
+void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    m_log_file_path = GetCurrentAppDirectory();
-    m_log_file_name = DEFAULT_APP_LOG_FILE_NAME;
-    m_max_log_file_size = DEFAULT_APP_LOG_FILE_SIZE;
-    m_cur_stream_output_verbose = LogVerbose_Info;
+    QSettings settings;
+    int logLevel = settings.value("AppLogLevel", 3).toInt();
+
+    QString s1 = "File: " + (context.file ? QString(context.file) : "?");
+    QString s2 = "Function: " + (context.function ? QString(context.function) : "?");
+    // These are logging levels:
+    // Log level:       3           2             1              0 (can't be disabled)
+    // enum QtMsgType   QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
+    switch (type)
+    {
+    case QtFatalMsg:
+        applog->WriteLine(s1, LogVerbose_Error);
+        applog->WriteLine(s2, LogVerbose_Error);
+        applog->WriteLine(msg, LogVerbose_Error);
+        break;
+    case QtCriticalMsg:
+        if (logLevel>=1)
+            applog->WriteLine(msg, LogVerbose_Error);
+        break;
+    case QtWarningMsg:
+        if (logLevel>=2)
+            applog->WriteLine(msg, LogVerbose_Warning);
+        break;
+    case QtDebugMsg:
+    default:
+        if (logLevel>=3)
+            applog->WriteLine(msg, LogVerbose_Info);
+        break;
+    }
 }
 
 CAppLogHandler::CAppLogHandler(char* logname, int logoption)
 {
-    m_log_file_path = GetCurrentAppDirectory();
-    m_log_file_name = DEFAULT_APP_LOG_FILE_NAME;
-    m_max_log_file_size = DEFAULT_APP_LOG_FILE_SIZE;
-
     m_log_name = logname;
     m_log_options = logoption;
 
     if (CheckBit(m_log_options, LogOptions_File))
-    {
         InitLogFile();
-    }
 }
 
 CAppLogHandler::~CAppLogHandler()
 {
     if (flog.is_open())
-    {
         flog.close();
-    }
-}
-
-void CAppLogHandler::AcquireLock()
-{
-    m_file_lock.lock();
-}
-
-void CAppLogHandler::ReleaseLock()
-{
-    m_file_lock.unlock();
 }
 
 QString CAppLogHandler::GetCurrentAppDirectory()
 {
     QDir CurDir;
-
     return CurDir.absolutePath();
 }
 
@@ -145,9 +157,7 @@ void CAppLogHandler::Write(char* message, int verbose)
     Q_UNUSED(verbose)
     QString logmessage = message;
     if (CheckBit(m_log_options, LogOptions_Signal))
-    {
         emit NewLogMessage(logmessage, false);
-    }
 }
 
 /*
@@ -180,60 +190,4 @@ void CAppLogHandler::WriteLine(const QString message, int verbose)
 void CAppLogHandler::WriteLine(char* message, int verbose)
 {
     WriteLine(QString(message), verbose);
-}
-
-/*
- * Operator << overload to change the message type
- */
-CAppLogHandler& CAppLogHandler::operator<<(LogVerbose t)
-{
-    m_cur_stream_output_verbose = t;
-    return *this;
-}
-
-/*
- * Operator << overload to output const chars
- */
-CAppLogHandler& CAppLogHandler::operator<<(const char* t)
-{
-    QTextStream ts(&m_message);
-    ts << t;
-    if (t[strlen(t)-1] == '\n')
-    {
-        m_message.remove(m_message.length()-1, 1);  // remove last char because writeline will write it
-        WriteLine((char*) m_message.toStdString().c_str(), m_cur_stream_output_verbose);
-        m_message.clear();
-    }
-    return *this;
-}
-
-/*
- * Operator << overload to output QString
- */
-CAppLogHandler& CAppLogHandler::operator<<(const QString & t)
-{
-    QTextStream ts(&m_message);
-    ts << t;
-    if (t[t.length()-1] == '\n')
-    {
-        m_message.remove(m_message.length()-1, 1);  // remove last char because writeline will write it
-        WriteLine((char*) m_message.toStdString().c_str(), m_cur_stream_output_verbose);
-        m_message.clear();
-    }
-    return *this;
-}
-
-/*
- * Operator << overload to output std::endl
- */
-CAppLogHandler& CAppLogHandler::operator<<(std::ostream&(*t)(std::ostream&) )
-{
-    typedef std::ostream& (*os_t)(std::ostream&);
-
-    if (t == static_cast<os_t>(std::endl))
-    {
-        WriteLine((char*) m_message.toStdString().c_str(), m_cur_stream_output_verbose);
-        m_message.clear();
-    }
-    return *this;
 }

@@ -16,43 +16,6 @@ MainWindow *mainWindow = nullptr; // Window: main window class
 CAppLogHandler *applog = nullptr; // Application logging subsystem
 ClassController controller {}; // Application-wide controller class
 
-/*
- * Handler for both Qt messages and application messages.
- * The output is forked to application logger and the log window
- */
-void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    QSettings settings;
-    int logLevel = settings.value("AppLogLevel", 3).toInt();
-
-    QString s1 = "File: " + (context.file ? QString(context.file) : "?");
-    QString s2 = "Function: " + (context.function ? QString(context.function) : "?");
-    // These are logging levels:
-    // Log level:       3           2             1              0 (can't be disabled)
-    // enum QtMsgType   QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
-    switch (type)
-    {
-    case QtFatalMsg:
-        applog->WriteLine(s1, LogVerbose_Error);
-        applog->WriteLine(s2, LogVerbose_Error);
-        applog->WriteLine(msg, LogVerbose_Error);
-        break;
-    case QtCriticalMsg:
-        if (logLevel>=1)
-            applog->WriteLine(msg, LogVerbose_Error);
-        break;
-    case QtWarningMsg:
-        if (logLevel>=2)
-            applog->WriteLine(msg, LogVerbose_Warning);
-        break;
-    case QtDebugMsg:
-    default:
-        if (logLevel>=3)
-            applog->WriteLine(msg, LogVerbose_Info);
-        break;
-    }
-}
-
 int main(int argc, char *argv[])
 {
     int retCode = -1;
@@ -72,9 +35,7 @@ int main(int argc, char *argv[])
 
         // Initialize logging subsystem and register our handler
         applog = &Singleton<CAppLogHandler>::Instance();
-        char logName[] = "z80explorer";
-        applog->SetLogName(logName);
-        applog->SetLogOptions(applog->GetLogOptions() | LogOptions_Signal);
+        applog->SetLogOptions(applog->GetLogOptions() | LogOptions_Signal /* | LogOptions_File */);
 
         // Install the message hook into the log window so we can use qDebug, etc.
         qInstallMessageHandler(appLogMsgHandler);
