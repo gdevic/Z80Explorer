@@ -18,9 +18,7 @@
 
 WidgetImageView::WidgetImageView(QWidget *parent) :
     QWidget(parent),
-    m_image(QImage()),
-    m_highlight_segment(nullptr),
-    m_highlight_box(nullptr)
+    m_image(QImage())
 {
     setZoomMode(Fit);
     setMouseTracking(true);
@@ -223,6 +221,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     //------------------------------------------------------------------------
     {
         painter.save();
+        qreal guideLineScale = 1.0 / m_scale + 1;
         painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
         if (m_timer_tick & 1)
         {
@@ -234,12 +233,19 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             painter.setBrush(QColor(100,200,200));
             painter.setCompositionMode(QPainter::CompositionMode_Plus);
         }
-        if (m_highlight_box)
-            painter.drawRect(*m_highlight_box);
+        if (m_highlight_trans)
+        {
+            painter.drawRect(*m_highlight_trans);
+            painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
+            painter.drawLine(QPoint(0,0), m_highlight_trans->topLeft());
+            painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
+        }
         if (m_highlight_segment)
         {
             for (const auto &path : m_highlight_segment->paths)
                 painter.drawPath(path);
+            painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
+            painter.drawLine(QPoint(0,0), m_highlight_segment[0].paths[0].boundingRect().topLeft());
         }
         painter.restore();
     }
@@ -536,9 +542,12 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     else
     switch (event->key())
     {
-    case Qt::Key_Escape: // ESC key removes, in this order: Found nets; driven by; selected net
-        if (m_highlight_segment)
+    case Qt::Key_Escape: // ESC key removes, in this order: Found transistor and net; driven by; selected net
+        if (m_highlight_segment || m_highlight_trans)
+        {
+            m_highlight_trans = nullptr;
             m_highlight_segment = nullptr;
+        }
         else if (m_drivingNets.count() > 1)
             m_drivingNets.remove(1, m_drivingNets.count() - 1);
         else if (m_drivingNets.count() == 1)
@@ -787,62 +796,49 @@ void WidgetImageView::editNetName()
 /*
  * Search for the named feature
  * This function is called when the user enters some text in the Find box
- * Typing [Enter] in the empty Find dialog will re-trigger the highlight flash
- * Typing "0" will clear all highlights
+ * Typing [Enter] in the empty Find dialog will re-trigger the highlight flashing
  */
 void WidgetImageView::onFind(QString text)
 {
     if (text.length() == 0)
+        m_timer_tick = 10; // With no text, restart the highlights flashing
+    else
     {
-        m_timer_tick = 10;
-        return;
-    }
-    m_timer_tick = 0; // Stop highlights flash
-    if (text=='0')
-    {
-        m_highlight_box = nullptr;
-        m_highlight_segment = nullptr;
-        qDebug() << "Highlights cleared";
-        return;
-    }
-    if (text.startsWith(QChar('t')) && (text.length() > 3)) // Search the transistors by their number, which has at least 3 digits
-    {
+        m_timer_tick = 0; // Stop the highlights flashing
+
+        // Search the transistors first
         const transdef *trans = ::controller.getChip().getTrans(text);
         if (trans)
         {
-            m_highlight_box = &trans->box;
-            qDebug() << "Found transistor" << text;
-            qDebug() << trans->box << "(x,y):" << trans->box.x() << "," << trans->box.y() << "w:" << trans->box.width() << "h:" << trans->box.height();
+            m_highlight_trans = &trans->box;
+            qInfo() << "Found transistor" << text;
             m_timer_tick = 10;
-            update();
         }
-        else
-            qWarning() << "Segment" << text << "not found";
-    }
-    else // Search the visual segment numbers or net names
-    {
-        bool ok;
-        net_t nodenum = text.toUInt(&ok);
-        if (!ok) // Check if the input is a net name
+        else // Search the nets, next...
         {
-            nodenum = ::controller.getNetlist().get(text);
-            ok = nodenum > 0;
-        }
-        if (ok)
-        {
-            const segdef *seg = ::controller.getChip().getSegment(nodenum);
-            if (seg->nodenum)
+            // Search nets by number and then by name
+            bool ok;
+            net_t nodenum = text.toUInt(&ok);
+            if (!ok) // Check if the input is a net name
             {
-                m_highlight_segment = seg;
-                qDebug() << "Found segment" << text;
-                qDebug() << "Path:" << seg->paths.count();
-                m_timer_tick = 10;
-                update();
+                nodenum = ::controller.getNetlist().get(text);
+                ok = nodenum > 0;
+            }
+            if (ok)
+            {
+                const segdef *seg = ::controller.getChip().getSegment(nodenum);
+                if (seg->nodenum)
+                {
+                    m_highlight_segment = seg;
+                    qInfo() << "Found net" << nodenum << text;
+                    m_timer_tick = 10;
+                }
+                else
+                    qInfo() << text << "not found!";
             }
             else
-                qWarning() << "Segment" << text << "not found";
+                qInfo() << text << "not found!";
         }
-        else
-            qWarning() << "Invalid input value" << text;
     }
+    update();
 }

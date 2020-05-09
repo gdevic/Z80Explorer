@@ -67,8 +67,8 @@ private:
     QTimer *m_timer;                    // Image refresh timer
     uint    m_timer_tick;               // Timer timeout tick counter
 
-    const segdef *m_highlight_segment;  // Segment to highlight in the current image
-    const QRect *m_highlight_box;       // Box to highlight in the current image
+    const segdef *m_highlight_segment {nullptr}; // Segment to highlight in the current image
+    const QRect *m_highlight_trans {nullptr}; // Transistor bounding rectangle to highlight in the current image
     bool m_drawAnnotations {true};      // Draw image annotations
     bool m_drawActiveTransistors {false};// Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
