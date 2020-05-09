@@ -20,11 +20,12 @@ bool ClassController::init(QScriptEngine *sc)
     QSettings settings;
     QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
 
-    // Check if the current resource path contains some of the resources
-    while (!QFile::exists(path + "/nodenames.js"))
+    // Check if the current resource path contains required resource(s)
+    while (!QFile::exists(path + "/layermap.bin"))
     {
         // Prompts the user to select the chip resource folder
-        QString fileName = QFileDialog::getOpenFileName(nullptr, "Select the application resource folder", "", "Any file (*.*)");
+        QString fileName = QFileDialog::getOpenFileName(nullptr,
+        "Select the application resource folder with layermap.bin file extracted from layermap.7z", "layermap.bin", "Any file (*.*)");
         if (!fileName.isEmpty())
             path = QFileInfo(fileName).path();
         else
