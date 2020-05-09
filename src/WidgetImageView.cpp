@@ -25,7 +25,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     setZoomMode(Fit);
     setMouseTracking(true);
     setAttribute(Qt::WA_AcceptTouchEvents);
-    setContextMenuPolicy(Qt::CustomContextMenu);
     setFocusPolicy(Qt::ClickFocus);
     setCursor(QCursor(Qt::CrossCursor));
 
@@ -467,9 +466,6 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-/*
- * User pressed a mouse button; the right button context menu is handled via customContextMenuRequested() signal
- */
 void WidgetImageView::mousePressEvent(QMouseEvent *event)
 {
     m_pinMousePos = event->pos();
@@ -483,6 +479,9 @@ void WidgetImageView::mouseReleaseEvent (QMouseEvent *event)
     m_mouseLeftPressed = false;
     m_mouseRightPressed = false;
     m_drawSelection = event->button() == Qt::RightButton;
+    // Releasing the right mouse button opens a custom context menu
+    if (event->button() == Qt::RightButton)
+        contextMenu(event->pos());
 }
 
 /*
