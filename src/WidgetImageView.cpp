@@ -116,7 +116,7 @@ void WidgetImageView::setZoomMode(ZoomType mode)
     setFocus();
 }
 
-void WidgetImageView::setZoom(double value)
+void WidgetImageView::setZoom(qreal value)
 {
     // Make sure that the zoom value is in the sane range
     m_scale = qBound(0.1, value, 10.0);

@@ -90,7 +90,7 @@ private:
     void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
     void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
     void setZoomMode(ZoomType);         // Set the view mode
-    void setZoom(double);               // Set the zoom value
+    void setZoom(qreal);                // Set the zoom value
 
     void calcTransform();
     void clampImageCoords(QPointF &tex, qreal xmax = 1.0, qreal ymax = 1.0);
