@@ -7,20 +7,20 @@
 #include <QImage>
 #include <QHash>
 
-// Contains visual definition of a segment (paths connected together into a single trace)
-struct segvdef
-{
-    net_t nodenum {};               // A non-zero net number
-    QVector<QPainterPath> paths {}; // Outline of the segment topology as a set of QPainter paths
-};
-
 // Contains visual definition of a transistor
 struct transvdef
 {
-    QString name;       // Transistor name (ex. 't251')
-    net_t gatenode;     // Node (segment) connected to its gate
-    QRect box;          // Rectangle where it is (roughly) located
-    QPainterPath path;  // Outline of the transistor topology as a single QPainter path
+    QString name;                       // Transistor name (ex. 't251')
+    net_t gatenode;                     // Node (segment) connected to its gate
+    QRect box;                          // Rectangle where it is (roughly) located
+    QPainterPath path;                  // Outline of the transistor topology as a single QPainter path
+};
+
+// Contains visual definition of a segment (paths connected together into a single trace)
+struct segvdef
+{
+    net_t nodenum {};                   // A non-zero net number
+    QVector<QPainterPath> paths {};     // Outline of the segment topology as a set of QPainter paths
 };
 
 /*
@@ -53,8 +53,8 @@ public slots:
     void expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale); // Maps nearby net names
 
 private:
-    QHash<net_t, segvdef> m_segvdefs;   // Hash of segment visual definitions, key is the segment net number
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
+    QHash<net_t, segvdef> m_segvdefs;   // Hash of segment visual definitions, key is the segment net number
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps
