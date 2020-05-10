@@ -201,6 +201,42 @@
             "net": 39
         },
         {
+            "name": "DBUS",
+            "net": 0
+        },
+        {
+            "name": "dbus0",
+            "net": 138
+        },
+        {
+            "name": "dbus1",
+            "net": 196
+        },
+        {
+            "name": "dbus2",
+            "net": 412
+        },
+        {
+            "name": "dbus3",
+            "net": 480
+        },
+        {
+            "name": "dbus4",
+            "net": 485
+        },
+        {
+            "name": "dbus5",
+            "net": 486
+        },
+        {
+            "name": "dbus6",
+            "net": 380
+        },
+        {
+            "name": "dbus7",
+            "net": 370
+        },
+        {
             "name": "INSTR",
             "net": 0
         },
@@ -259,6 +295,78 @@
         {
             "name": "t6",
             "net": 168
+        },
+        {
+            "name": "UBUS",
+            "net": 0
+        },
+        {
+            "name": "ubus0",
+            "net": 545
+        },
+        {
+            "name": "ubus1",
+            "net": 528
+        },
+        {
+            "name": "ubus2",
+            "net": 526
+        },
+        {
+            "name": "ubus3",
+            "net": 770
+        },
+        {
+            "name": "ubus4",
+            "net": 779
+        },
+        {
+            "name": "ubus5",
+            "net": 790
+        },
+        {
+            "name": "ubus6",
+            "net": 716
+        },
+        {
+            "name": "ubus7",
+            "net": 525
+        },
+        {
+            "name": "VBUS",
+            "net": 0
+        },
+        {
+            "name": "vbus0",
+            "net": 755
+        },
+        {
+            "name": "vbus1",
+            "net": 772
+        },
+        {
+            "name": "vbus2",
+            "net": 783
+        },
+        {
+            "name": "vbus3",
+            "net": 796
+        },
+        {
+            "name": "vbus4",
+            "net": 803
+        },
+        {
+            "name": "vbus5",
+            "net": 808
+        },
+        {
+            "name": "vbus6",
+            "net": 836
+        },
+        {
+            "name": "vbus7",
+            "net": 839
         }
     ]
 }

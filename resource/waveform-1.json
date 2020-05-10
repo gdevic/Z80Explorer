@@ -143,6 +143,24 @@
             "format": 0,
             "name": "t6",
             "net": 168
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "DBUS",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "UBUS",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "VBUS",
+            "net": 0
         }
     ]
 }
