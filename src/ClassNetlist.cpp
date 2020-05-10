@@ -206,6 +206,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         QString line;
         QStringList list;
         m_transdefs.fill(trans{}); // Clear the array with the defaults
+        uint count = 0;
         m_netlist.fill(net{});
 
         while(!in.atEnd())
@@ -238,6 +239,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                     m_netlist[p->gate].gates.append(p);
                     m_netlist[p->c1].c1c2s.append(p);
                     m_netlist[p->c2].c1c2s.append(p);
+                    count++;
                 }
                 else
                     qWarning() << "Invalid line" << list;
@@ -246,9 +248,9 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                 qDebug() << "Skipping" << line;
         }
         file.close();
-        qInfo() << "Loaded" << m_transdefs.count() << "transistor definitions";
+        qInfo() << "Loaded" << count << "transistor definitions";
         qInfo() << "Max net index" << max;
-        net_t count = 0;
+        count = 0;
         for (auto &net : m_netlist)
             count += !!(net.gates.count() || net.c1c2s.count());
         qInfo() << "Number of nets" << count;
