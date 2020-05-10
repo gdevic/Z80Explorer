@@ -91,7 +91,7 @@ QScriptValue ClassScript::onDriven(QScriptContext *ctx, QScriptEngine *)
 QScriptValue ClassScript::onNet(QScriptContext *ctx, QScriptEngine *)
 {
     net_t net = ctx->argument(0).toNumber();
-    QString s = ::controller.getNetlist().cmdNet(net);
+    QString s = ::controller.getNetlist().netInfo(net);
     emit ::controller.getScript().response(s);
     return "OK";
 }
@@ -99,7 +99,7 @@ QScriptValue ClassScript::onNet(QScriptContext *ctx, QScriptEngine *)
 QScriptValue ClassScript::onTrans(QScriptContext *ctx, QScriptEngine *)
 {
     uint trans = ctx->argument(0).toNumber();
-    QString s = ::controller.getNetlist().cmdTrans(trans);
+    QString s = ::controller.getNetlist().transInfo(trans);
     emit ::controller.getScript().response(s);
     return "OK";
 }

@@ -470,9 +470,9 @@ pin_t ClassNetlist::readBit(const net_t n)
 }
 
 /*
- * Implements script command net(n)
+ * Returns basic net information as string
  */
-QString ClassNetlist::cmdNet(net_t net)
+QString ClassNetlist::netInfo(net_t net)
 {
     if (net < MAX_NETS)
     {
@@ -499,12 +499,11 @@ QString ClassNetlist::cmdNet(net_t net)
 }
 
 /*
- * Implements script command trans(t)
+ * Returns basic transistor information as string
  */
-QString ClassNetlist::cmdTrans(tran_t t)
+QString ClassNetlist::transInfo(tran_t t)
 {
-    if (t < MAX_TRANS)
-        return QString("%1: gate:%2 c1:%3 c2:%4 ON:%5").arg(t)
-                .arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(m_transdefs[t].c2).arg(m_transdefs[t].on);
+    if ((t < MAX_TRANS) && m_transdefs[t].id)
+        return QString("gate:%2 c1:%3 c2:%4 ON:%5").arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(m_transdefs[t].c2).arg(m_transdefs[t].on);
     return QString("Invalid transistor number");
 }
