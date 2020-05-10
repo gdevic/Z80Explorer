@@ -169,6 +169,7 @@ void ClassWatch::updateWatchlist(QStringList list)
 {
     QVector<QString> buses; // List of buses to process later
     QVector<watch> newlist; // New list that we are building
+    list.removeDuplicates();
     for (auto &name : list)
     {
         watch *w = find(name);

@@ -96,9 +96,9 @@ void DialogEditBuses::onCreate()
     QStringList nets;
     for (auto &net : ui->listNets->selectedItems())
         nets.append(net->text());
-    if (nets.count() > int(sizeof(uint) * 8))
+    if (nets.count() > 16) // Hardcoded maximum bus width
     {
-        QMessageBox::critical(this, "Create a bus", "A bus cannot be wider than " + QString::number(sizeof(uint) * 8) + " nets!");
+        QMessageBox::critical(this, "Create a bus", "A bus cannot be wider than 16 nets!");
         return;
     }
     QString name = QInputDialog::getText(this, "Create a bus", "Enter the bus name for a group of these nets:\n" + nets.join(','), QLineEdit::Normal);
@@ -112,7 +112,8 @@ void DialogEditBuses::onCreate()
             if (QMessageBox::question(this, "Add bus", "Would you like to add the new bus to the active watch list?") == QMessageBox::Yes)
             {
                 QStringList watches = ::controller.getWatch().getWatchlist();
-                watches.append(name);
+                watches.append(name); // Add the bus name
+                watches.append(nets); // Add the nets comprising the new bus
                 ::controller.getWatch().updateWatchlist(watches);
             }
         }
