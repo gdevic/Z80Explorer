@@ -6,9 +6,7 @@
 #include <QPaintEvent>
 #include <QStringBuilder>
 
-WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent),
-    m_hscale(10),
-    m_waveheight(15)
+WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 {
     m_timer.setInterval(500);
     connect(&m_timer, &QTimer::timeout, this, &WidgetWaveform::onTimeout);
@@ -346,8 +344,4 @@ void WidgetWaveform::leaveEvent(QEvent *)
     setCursor(Qt::ArrowCursor);
     m_mousePressed = false;
     m_cursormoving = false;
-}
-
-void WidgetWaveform::keyPressEvent(QKeyEvent *)
-{
 }

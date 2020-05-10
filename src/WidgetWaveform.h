@@ -26,8 +26,8 @@ private:
     DockWaveform *m_dock {};
     void drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem);
     void drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem);
-    qreal m_hscale;                     // Horizontal scale factor
-    const uint m_waveheight;            // Wave height in pixels
+    qreal m_hscale {10};                // Horizontal scale factor
+    const uint m_waveheight {15};       // Wave height in pixels
 
     void drawCursors(QPainter &painter, const QRect &r, uint hstart);
     QVector<uint> m_cursors2x {};       // Cursors' locations, index into the data (times 2)
@@ -41,7 +41,6 @@ private:
     void mouseDoubleClickEvent(QMouseEvent *) override;
     void wheelEvent(QWheelEvent *) override;
     void leaveEvent(QEvent* event) override;
-    void keyPressEvent(QKeyEvent *e) override;
     QSize sizeHint() const override;
 
     QPoint  m_mousePos;                 // Current mouse position
