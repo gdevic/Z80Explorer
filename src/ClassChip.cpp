@@ -217,7 +217,7 @@ bool ClassChip::loadTransdefs(QString dir)
                 list = line.split(',', QString::SkipEmptyParts);
                 if (list.length()==14 && list[0].length() > 2)
                 {
-                    transdef t;
+                    transvdef t;
                     t.name = list[0].mid(2, list[0].length()-3);
                     t.gatenode = list[1].toUInt();
                     // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
@@ -356,9 +356,9 @@ const segdef *ClassChip::getSegment(net_t net)
 }
 
 /*
- * Returns transistor definition given its name, nullptr if not found
+ * Returns transistor visual definition given its name, nullptr if not found
  */
-const transdef *ClassChip::getTrans(QString name)
+const transvdef *ClassChip::getTrans(QString name)
 {
     for (int i=0; i<m_transdefs.size(); i++)
     {

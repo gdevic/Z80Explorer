@@ -14,12 +14,12 @@ struct segdef
     QVector<QPainterPath> paths {}; // Outline of the segment topology as a set of QPainter paths
 };
 
-// Contains individual transistor definition
-struct transdef
+// Contains visual definition of a transistor
+struct transvdef
 {
     QString name;       // Transistor name (ex. 't251')
     net_t gatenode;     // Node (segment) connected to its gate
-    QRect box;          // Visual rectangle where it is (roughly) located
+    QRect box;          // Rectangle where it is (roughly) located
     QPainterPath path;  // Outline of the transistor topology as a single QPainter path
 };
 
@@ -45,7 +45,7 @@ public:
     const QString getTransistorNameAt(int x, int y); // Returns a transistor found at the specified image coordinates
     const QStringList getImageNames();  // Returns a list of layer / image names
     const segdef *getSegment(net_t net); // Returns the segdef given its net number, zero if not found
-    const transdef *getTrans(QString name); // Returns transistor definition given its name, nullptr if not found
+    const transvdef *getTrans(QString name); // Returns transistor visual definition given its name, nullptr if not found
 
 public slots:
     void experimental(int n);           // Runs experimental function number n
@@ -54,7 +54,7 @@ public slots:
 
 private:
     QHash<net_t, segdef> m_segdefs;     // Hash of segment definitions, key is the segment net number
-    QVector<transdef> m_transdefs;      // Array of transistor definitions
+    QVector<transvdef> m_transdefs;     // Array of transistor visual definitions
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps

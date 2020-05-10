@@ -807,7 +807,7 @@ void WidgetImageView::onFind(QString text)
         m_timer_tick = 0; // Stop the highlights flashing
 
         // Search the transistors first
-        const transdef *trans = ::controller.getChip().getTrans(text);
+        const transvdef *trans = ::controller.getChip().getTrans(text);
         if (trans)
         {
             m_highlight_trans = &trans->box;
