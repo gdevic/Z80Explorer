@@ -60,6 +60,7 @@ private:
     uint m_sy {};                       // Y size of all images and maps
     uint m_mapsize;                     // Map size in bytes, equals to (m_sx * m_sy)
     uint16_t *m_p3[3] {};               // Layer map: [0] diffusion, [1] poly, [2] metal
+    uchar *m_fmap {};                   // Feature bitmap
 
 private:
     bool loadImages(QString dir);       // Loads chip images

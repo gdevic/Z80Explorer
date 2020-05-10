@@ -446,8 +446,6 @@ bool ClassChip::loadLayerMap(QString dir)
 void ClassChip::buildFeatureMap()
 {
     qInfo() << "Building the feature map";
-    QImage featuremap(m_sx, m_sy, QImage::Format_Grayscale8);
-
     bool ok = true;
     // Get a pointer to the first byte of each image data
     const uchar *p_ions = getImage("bw.ions", ok).constBits();
@@ -462,7 +460,7 @@ void ClassChip::buildFeatureMap()
         return;
     }
     // ...and of the destination buffer
-    uchar *p_dest = featuremap.bits();
+    m_fmap = new uchar[m_mapsize];
 
     for (uint i=0; i < m_mapsize; i++)
     {
@@ -528,8 +526,9 @@ void ClassChip::buildFeatureMap()
         // Transistor path also splits the diffusion area into two, so we remove DIFF over these traces
         if ((c & (DIFF | POLY | BURIED)) == (DIFF | POLY)) c = (c & ~DIFF) | TRANSISTOR;
 
-        p_dest[i] = c;
+        m_fmap[i] = c;
     }
+    QImage featuremap(m_fmap, m_sx, m_sy, m_sx * sizeof(uint8_t), QImage::Format_Grayscale8, [](void *p){ delete[] static_cast<uchar *>(p); }, (void *)m_fmap);
     featuremap.setText("name", "bw.featuremap");
     m_img.append(featuremap);
 }
