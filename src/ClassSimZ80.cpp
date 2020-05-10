@@ -35,6 +35,13 @@ bool ClassSimZ80::initChip()
         m_netlist[iorq].floats = true;
         m_netlist[rd].floats = true;
         m_netlist[wr].floats = true;
+
+        // XXX This should go into some kind of init file for this cpu
+        // We should also watch those 3 internal buses for hi-Z
+        m_netlist[get("dbus0")].floats = true;
+        m_netlist[get("ubus0")].floats = true;
+        m_netlist[get("vbus0")].floats = true;
+
         for (int i=0; i<16; i++)
             m_netlist[get(QString("ab%1").arg(i))].floats = true;
 #if DATA_PINS_HI_Z
