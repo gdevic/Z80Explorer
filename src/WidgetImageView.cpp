@@ -449,7 +449,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             m_ov->setCoords(imageCoords.x(), imageCoords.y());
 
             const QVector<net_t> nets = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
-            const QString trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
+            const QString trans = ::controller.getChip().getTransistorNameAt(imageCoords.x(), imageCoords.y());
             QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
             netNames.insert(0, trans); // Insert the transistor name at the front
             netNames.removeAll(QString()); // Remove any blanks (likely due to an infrequent transistor area)

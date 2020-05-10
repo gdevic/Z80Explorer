@@ -334,7 +334,7 @@ template const QVector<net_t> ClassChip::getNetsAt<false>(int, int);
 /*
  * Returns a transistor found at the specified image coordinates or empty string for no transistor
  */
-const QString ClassChip::getTransistorAt(int x, int y)
+const QString ClassChip::getTransistorNameAt(int x, int y)
 {
     for (auto &s : m_transdefs)
     {
