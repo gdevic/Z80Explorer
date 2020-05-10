@@ -103,7 +103,10 @@ uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
             return 0;
         pin_t pin = wb->d[hcycle % MAX_WATCH_HISTORY];
         if (pin == 2) // Any contributing net that is at hi-Z makes the complete bus being hi-Z
+        {
             value = UINT_MAX;
+            break;
+        }
         else if (pin > 2) // Invalid value
             return 0;
         value |= uint(pin) << (width - 1);
