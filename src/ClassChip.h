@@ -53,8 +53,8 @@ public slots:
     void expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale); // Maps nearby net names
 
 private:
-    QHash<net_t, segvdef> m_segdefs;    // Hash of segment visual definitions, key is the segment net number
-    QVector<transvdef> m_transdefs;     // Array of transistor visual definitions
+    QHash<net_t, segvdef> m_segvdefs;   // Hash of segment visual definitions, key is the segment net number
+    QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps

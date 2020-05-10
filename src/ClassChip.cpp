@@ -142,7 +142,7 @@ bool ClassChip::loadSegdefs(QString dir)
         QTextStream in(&file);
         QString line;
         QStringList list;
-        m_segdefs.clear();
+        m_segvdefs.clear();
         while(!in.atEnd())
         {
             line = in.readLine();
@@ -168,14 +168,14 @@ bool ClassChip::loadSegdefs(QString dir)
                     }
                     path.closeSubpath();
 
-                    if (!m_segdefs.contains(key))
+                    if (!m_segvdefs.contains(key))
                     {
                         s.nodenum = key;
                         s.paths.append(path);
-                        m_segdefs[key] = s;
+                        m_segvdefs[key] = s;
                     }
                     else
-                        m_segdefs[key].paths.append(path);
+                        m_segvdefs[key].paths.append(path);
                 }
                 else
                     qWarning() << "Invalid line" << line;
@@ -184,7 +184,7 @@ bool ClassChip::loadSegdefs(QString dir)
                 qDebug() << "Skipping" << line;
         }
         file.close();
-        qInfo() << "Loaded" << m_segdefs.count() << "segdefs";
+        qInfo() << "Loaded" << m_segvdefs.count() << "segment visual definitions";
         return true;
     }
     else
@@ -205,7 +205,7 @@ bool ClassChip::loadTransdefs(QString dir)
         QTextStream in(&file);
         QString line;
         QStringList list;
-        m_transdefs.clear();
+        m_transvdefs.clear();
         uint y = m_img[0].height() - 1;
         while(!in.atEnd())
         {
@@ -224,7 +224,7 @@ bool ClassChip::loadTransdefs(QString dir)
                     // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
                     t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt() - 1, y - list[6].toInt() - 1));
 
-                    m_transdefs.append(t);
+                    m_transvdefs.append(t);
                 }
                 else
                     qWarning() << "Invalid line" << list;
@@ -233,7 +233,7 @@ bool ClassChip::loadTransdefs(QString dir)
                 qDebug() << "Skipping" << line;
         }
         file.close();
-        qInfo() << "Loaded" << m_transdefs.count() << "transistor definitions";
+        qInfo() << "Loaded" << m_transvdefs.count() << "transistor visual definitions";
         return true;
     }
     else
@@ -312,7 +312,7 @@ const QVector<net_t> ClassChip::getNetsAt(int x, int y)
         if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 1) list.append(1); // vss
         if ((m_p3[0][offset] | m_p3[1][offset] | m_p3[2][offset]) == 2) list.append(2); // vcc
     }
-    for (const auto &s : m_segdefs)
+    for (const auto &s : m_segvdefs)
     {
         if (s.nodenum > 2) // Skip vss and vcc segments
         {
@@ -336,7 +336,7 @@ template const QVector<net_t> ClassChip::getNetsAt<false>(int, int);
  */
 const QString ClassChip::getTransistorNameAt(int x, int y)
 {
-    for (auto &s : m_transdefs)
+    for (auto &s : m_transvdefs)
     {
         if (s.path.contains(QPoint(x, y)))
             return s.name;
@@ -350,8 +350,8 @@ const QString ClassChip::getTransistorNameAt(int x, int y)
 const segvdef *ClassChip::getSegment(net_t net)
 {
     static const segvdef empty;
-    if (m_segdefs.contains(net))
-        return &m_segdefs[net];
+    if (m_segvdefs.contains(net))
+        return &m_segvdefs[net];
     return &empty;
 }
 
@@ -360,10 +360,10 @@ const segvdef *ClassChip::getSegment(net_t net)
  */
 const transvdef *ClassChip::getTrans(QString name)
 {
-    for (int i=0; i<m_transdefs.size(); i++)
+    for (int i=0; i<m_transvdefs.size(); i++)
     {
-        if (m_transdefs.at(i).name == name)
-            return &m_transdefs.at(i);
+        if (m_transvdefs.at(i).name == name)
+            return &m_transvdefs.at(i);
     }
     return nullptr;
 }
@@ -390,7 +390,7 @@ void ClassChip::drawTransistors(QImage &img)
     painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
     painter.setOpacity(0.5);
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
-    for (auto &s : m_transdefs)
+    for (auto &s : m_transvdefs)
         painter.drawRect(s.box);
 }
 
@@ -932,7 +932,7 @@ void ClassChip::experimental_3()
     uchar const *p = img.constBits();
 
     // Known problem: We have a valid transistor bounding box, but few transistors overlap
-    for (auto &t : m_transdefs)
+    for (auto &t : m_transvdefs)
     {
         // Find the top-leftmost edge of a transistor
         if (!scanForTransistor(p, t.box, x, y)) // There are few trans in Visual 6502 transdefs.js that are...not (?)
@@ -957,7 +957,7 @@ void ClassChip::expDrawTransistors(QPainter &painter, const QRect &viewport, boo
     const static QBrush brush[2] = { Qt::gray, Qt::yellow };
     const static QPen pens[2] = { QPen(QColor(), 0, Qt::NoPen), QPen(QColor(255, 0, 255), 1, Qt::SolidLine) };
 
-    for (auto &t : m_transdefs)
+    for (auto &t : m_transvdefs)
     {
         // Speed up rendering by clipping to the viewport's image rectangle
         if (t.box.intersected(viewport) != QRect())
@@ -1041,12 +1041,12 @@ void ClassChip::experimental_4()
     }
     qDebug() << "Transistors mapped:" << paths.count();
 
-    //-----------------------------------------------------------------------------------------
-    // Assign our outline paths into m_transdefs transistors for which the bounding box matches
-    //-----------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------
+    // Assign our outline paths into m_transvdefs transistors for which the bounding box matches
+    //------------------------------------------------------------------------------------------
     for (const auto &path : paths)
     {
-        for (auto &t : m_transdefs)
+        for (auto &t : m_transvdefs)
         {
             if (path.boundingRect() == t.box)
             {
