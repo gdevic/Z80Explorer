@@ -457,11 +457,6 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             m_ov->setInfoLine(1, netNames.join(", "));
             QString tip = nets.count() ? ::controller.getChip().tips.get(nets[0]) : QString();
             m_ov->setInfoLine(2, tip);
-
-            // Holding the Ctrl key while moving the mouse will immediately show complete info as a tooltop
-            bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
-            if (ctrl)
-                QToolTip::showText(event->globalPos(), netNames.join(", "));
         }
         else
         {
