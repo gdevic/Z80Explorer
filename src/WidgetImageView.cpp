@@ -449,14 +449,16 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             m_ov->setCoords(imageCoords.x(), imageCoords.y());
 
             const QVector<net_t> nets = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
-            const QString trans = ::controller.getChip().getTransistorNameAt(imageCoords.x(), imageCoords.y());
             QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
-            netNames.insert(0, trans); // Insert the transistor name at the front
+            const tran_t trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
+            if (trans)
+                netNames.insert(0, QString("t%1").arg(trans)); // Insert the transistor name at the front
             netNames.removeAll(QString()); // Remove any blanks (likely due to an infrequent transistor area)
             netNames.removeDuplicates(); // Don't you simply love Qt?
             m_ov->setInfoLine(1, netNames.join(", "));
+
             QString tip = nets.count() ? ::controller.getChip().tips.get(nets[0]) : QString();
-            m_ov->setInfoLine(2, tip);
+            m_ov->setInfoLine(2, trans ? ::controller.getNetlist().transInfo(trans) : tip);
         }
         else
         {
@@ -795,6 +797,8 @@ void WidgetImageView::editNetName()
  */
 void WidgetImageView::onFind(QString text)
 {
+    bool ok;
+    const transvdef *trans = nullptr;
     if (text.length() == 0)
         m_timer_tick = 10; // With no text, restart the highlights flashing
     else
@@ -802,7 +806,12 @@ void WidgetImageView::onFind(QString text)
         m_timer_tick = 0; // Stop the highlights flashing
 
         // Search the transistors first
-        const transvdef *trans = ::controller.getChip().getTrans(text);
+        if (text.startsWith('t'))
+        {
+            tran_t transId = text.mid(1).toUInt(&ok);
+            if (ok)
+                trans = ::controller.getChip().getTrans(transId);
+        }
         if (trans)
         {
             m_highlight_trans = &trans->box;
@@ -812,7 +821,6 @@ void WidgetImageView::onFind(QString text)
         else // Search the nets, next...
         {
             // Search nets by number and then by name
-            bool ok;
             net_t nodenum = text.toUInt(&ok);
             if (!ok) // Check if the input is a net name
             {

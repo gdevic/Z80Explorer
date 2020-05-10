@@ -217,8 +217,13 @@ bool ClassChip::loadTransdefs(QString dir)
                 list = line.split(',', QString::SkipEmptyParts);
                 if (list.length()==14 && list[0].length() > 2)
                 {
+                    // ----- Add the transistor to the transistor array -----
+                    QString tnum = list[0].mid(3, list[0].length() - 4);
+                    tran_t i = tnum.toUInt();
+                    Q_ASSERT(i < MAX_TRANS);
+
                     transvdef t;
-                    t.name = list[0].mid(2, list[0].length()-3);
+                    t.id = i;
                     t.gatenode = list[1].toUInt();
                     // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
                     // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
@@ -332,20 +337,7 @@ template const QVector<net_t> ClassChip::getNetsAt<true>(int, int);
 template const QVector<net_t> ClassChip::getNetsAt<false>(int, int);
 
 /*
- * Returns a transistor found at the specified image coordinates or empty string for no transistor
- */
-const QString ClassChip::getTransistorNameAt(int x, int y)
-{
-    for (auto &s : m_transvdefs)
-    {
-        if (s.path.contains(QPoint(x, y)))
-            return s.name;
-    }
-    return QString();
-}
-
-/*
- * Returns the segment visual definition given its net number, zero if not found
+ * Returns the segment visual definition, zero if not found
  */
 const segvdef *ClassChip::getSegment(net_t net)
 {
@@ -356,16 +348,37 @@ const segvdef *ClassChip::getSegment(net_t net)
 }
 
 /*
- * Returns transistor visual definition given its name, nullptr if not found
+ * Returns transistor visual definition, nullptr if not found
  */
-const transvdef *ClassChip::getTrans(QString name)
+const transvdef *ClassChip::getTrans(tran_t id)
 {
-    for (int i=0; i<m_transvdefs.size(); i++)
+    if ((id < MAX_TRANS) && id)
     {
-        if (m_transvdefs.at(i).name == name)
-            return &m_transvdefs.at(i);
+        for (int i=0; i<m_transvdefs.size(); i++)
+        {
+            if (m_transvdefs.at(i).id == id)
+                return &m_transvdefs.at(i);
+        }
     }
     return nullptr;
+}
+
+/*
+ * Returns a transistor at the specified image coordinates or 0 for no transistor
+ */
+tran_t ClassChip::getTransistorAt(int x, int y)
+{
+    // Early exit if there are no transistors at this location
+    uint offset = x + y * m_sx;
+    if (m_fmap[offset] & TRANSISTOR)
+    {
+        for (auto &s : m_transvdefs)
+        {
+            if (s.path.contains(QPoint(x, y)))
+                return s.id;
+        }
+    }
+    return 0;
 }
 
 /*
@@ -937,7 +950,7 @@ void ClassChip::experimental_3()
         // Find the top-leftmost edge of a transistor
         if (!scanForTransistor(p, t.box, x, y)) // There are few trans in Visual 6502 transdefs.js that are...not (?)
         {
-            qWarning() << "Unable to scan transistor" << t.name << t.box;
+            qWarning() << "Unable to scan transistor" << t.id << t.box;
             continue;
         }
         // Build the path around the transistor

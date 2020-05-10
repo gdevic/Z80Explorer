@@ -10,7 +10,7 @@
 // Contains visual definition of a transistor
 struct transvdef
 {
-    QString name;                       // Transistor name (ex. 't251')
+    tran_t id;                          // Transistor number
     net_t gatenode;                     // Node (segment) connected to its gate
     QRect box;                          // Rectangle where it is (roughly) located
     QPainterPath path;                  // Outline of the transistor topology as a single QPainter path
@@ -42,10 +42,10 @@ public:
 
     template<bool includeVssVcc>
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
-    const QString getTransistorNameAt(int x, int y); // Returns a transistor found at the specified image coordinates
     const QStringList getImageNames();  // Returns a list of layer / image names
-    const segvdef *getSegment(net_t net); // Returns the segment visual definition given its net number, zero if not found
-    const transvdef *getTrans(QString name); // Returns transistor visual definition given its name, nullptr if not found
+    const segvdef *getSegment(net_t net); // Returns the segment visual definition, zero if not found
+    const transvdef *getTrans(tran_t id); // Returns transistor visual definition, nullptr if not found
+    tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
 
 public slots:
     void experimental(int n);           // Runs experimental function number n
