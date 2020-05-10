@@ -20,9 +20,13 @@ public:
     void setWatchlist(QStringList nodeList);
     QStringList getWatchlist();
 
+private:
+    void add(QString busName, QStringList nets);
+
 private slots:
     void onAdd();
     void onRemove();
+    void listSelChanged();
 
 private:
     Ui::DialogEditWatchlist *ui;
