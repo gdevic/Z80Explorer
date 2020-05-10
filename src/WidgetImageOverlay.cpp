@@ -26,9 +26,9 @@ WidgetImageOverlay::~WidgetImageOverlay()
 void WidgetImageOverlay::setInfoLine(uint index, QString text)
 {
     if ((index == 0) || (index == 1))
-        ui->labelInfo1->setText(text);
+        ui->labelInfo1->setText(text.left(30));
     if ((index == 0) || (index == 2))
-        ui->labelInfo2->setText(text);
+        ui->labelInfo2->setText(text.left(30));
 }
 
 void WidgetImageOverlay::clearInfoLine(uint index)
