@@ -154,7 +154,7 @@ bool ClassChip::loadSegdefs(QString dir)
                 list = line.split(',');
                 if (list.length() > 4)
                 {
-                    segdef s;
+                    segvdef s;
                     net_t key = list[0].toUInt();
                     QPainterPath path;
                     for (int i=3; i<list.length()-1; i+=2)
@@ -345,11 +345,11 @@ const QString ClassChip::getTransistorNameAt(int x, int y)
 }
 
 /*
- * Returns the segdef given its net number, zero if not found
+ * Returns the segment visual definition given its net number, zero if not found
  */
-const segdef *ClassChip::getSegment(net_t net)
+const segvdef *ClassChip::getSegment(net_t net)
 {
-    static const segdef empty;
+    static const segvdef empty;
     if (m_segdefs.contains(net))
         return &m_segdefs[net];
     return &empty;

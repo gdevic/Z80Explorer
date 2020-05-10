@@ -286,7 +286,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
                 }
             }
 
-            const segdef *seg = ::controller.getChip().getSegment(net);
+            const segvdef *seg = ::controller.getChip().getSegment(net);
             for (const auto &path : seg->paths)
                 painter.drawPath(path);
         }
@@ -826,7 +826,7 @@ void WidgetImageView::onFind(QString text)
             }
             if (ok)
             {
-                const segdef *seg = ::controller.getChip().getSegment(nodenum);
+                const segvdef *seg = ::controller.getChip().getSegment(nodenum);
                 if (seg->nodenum)
                 {
                     m_highlight_segment = seg;

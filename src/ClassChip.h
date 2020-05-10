@@ -7,8 +7,8 @@
 #include <QImage>
 #include <QHash>
 
-// Contains visual definition of a segment (wire at the same voltage level)
-struct segdef
+// Contains visual definition of a segment (paths connected together into a single trace)
+struct segvdef
 {
     net_t nodenum {};               // A non-zero net number
     QVector<QPainterPath> paths {}; // Outline of the segment topology as a set of QPainter paths
@@ -44,7 +44,7 @@ public:
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QString getTransistorNameAt(int x, int y); // Returns a transistor found at the specified image coordinates
     const QStringList getImageNames();  // Returns a list of layer / image names
-    const segdef *getSegment(net_t net); // Returns the segdef given its net number, zero if not found
+    const segvdef *getSegment(net_t net); // Returns the segment visual definition given its net number, zero if not found
     const transvdef *getTrans(QString name); // Returns transistor visual definition given its name, nullptr if not found
 
 public slots:
@@ -53,7 +53,7 @@ public slots:
     void expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale); // Maps nearby net names
 
 private:
-    QHash<net_t, segdef> m_segdefs;     // Hash of segment definitions, key is the segment net number
+    QHash<net_t, segvdef> m_segdefs;    // Hash of segment visual definitions, key is the segment net number
     QVector<transvdef> m_transdefs;     // Array of transistor visual definitions
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
