@@ -408,11 +408,11 @@ inline pin_t ClassNetlist::getNetStateEx(net_t n)
 /*
  * Adds bus by name and a set of nets listed by their name
  */
-void ClassNetlist::addBus(const QString &name, const QStringList &netslist)
+void ClassNetlist::addBus(const QString &name, const QStringList &list)
 {
     // Replace net names with net numbers
     QVector<net_t> nets;
-    for (const auto &name : netslist)
+    for (const auto &name : list)
         nets.append(get(name));
     m_buses[name] = nets;
 }

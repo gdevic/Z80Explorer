@@ -40,7 +40,7 @@ public:
     inline watch *getNext(int &it)      // Iterator
         { return (it < m_watchlist.count()) ? &m_watchlist[it++] : nullptr; }
 
-    watch *find(QString name);          // Returns the watch of a given name or nullptr
+    watch *find(QString name);          // Returns a watch of a given name or nullptr
     void append(watch *w, uint hcycle, pin_t value); // Adds net watch data to the specified cycle position
     pin_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
     uint at(watch *w, uint hcycle, uint &ok); // Returns bus watch data at the specified cycle position

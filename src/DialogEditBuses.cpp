@@ -102,7 +102,7 @@ void DialogEditBuses::onCreate()
         return;
     }
     QString name = QInputDialog::getText(this, "Create a bus", "Enter the bus name for a group of these nets:\n" + nets.join(','), QLineEdit::Normal);
-    if (!name.isNull() && name.trimmed().length() > 0)
+    if (!name.isEmpty() && name.trimmed().length() > 0)
     {
         name = name.trimmed().toUpper(); // Bus names are always upper-cased
         name = name.replace(' ', '_');
@@ -117,6 +117,8 @@ void DialogEditBuses::onCreate()
                 ::controller.getWatch().updateWatchlist(watches);
             }
         }
+        else
+            QMessageBox::critical(this, "Create a bus", "Bus with the name " + name + " already exists!", QMessageBox::Ok);
     }
 }
 

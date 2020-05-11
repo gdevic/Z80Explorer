@@ -765,7 +765,7 @@ void WidgetImageView::editNetName()
     QString oldName = ::controller.getNetlist().get(newNet);
     bool ok;
     QString newName = QInputDialog::getText(this, "Edit net name", "Enter the name (alias) of the selected net " + QString::number(newNet) + "\n", QLineEdit::Normal, oldName, &ok);
-    newName = newName.trimmed().toLower(); // Trim spaces to keep net names lowercased
+    newName = newName.trimmed().toLower(); // Trim spaces and keep net names lowercased
     if (!ok || (newName == oldName))
         return;
     net_t otherNet = ::controller.getNetlist().get(newName);
