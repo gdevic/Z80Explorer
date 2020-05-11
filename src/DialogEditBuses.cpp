@@ -46,10 +46,15 @@ DialogEditBuses::~DialogEditBuses()
 
 /*
  * We are processing our own accept signal, sent when user clicks on the OK button
+ * All buses are also added to the watchlist
  */
 void DialogEditBuses::accept()
 {
     ClassNetlist &Net = ::controller.getNetlist();
+
+    // Sync up the watchlist to the updated class net buses
+    QStringList watchlist = ::controller.getWatch().getWatchlist();
+
     // Rebuild all buses at the netlist class
     Net.clearBuses(); // from scratch
     for (int i=0; i<ui->listBuses->count(); i++)
@@ -57,7 +62,11 @@ void DialogEditBuses::accept()
         QListWidgetItem *it = ui->listBuses->item(i);
         QStringList nets = it->toolTip().split(',');
         Net.addBus(it->text(), nets);
+
+        // By default, add all buses to the watchlist
+        watchlist.append(it->text());
     }
+    ::controller.getWatch().updateWatchlist(watchlist);
 
     QDialog::done(QDialog::Accepted);
 }
@@ -106,17 +115,10 @@ void DialogEditBuses::onCreate()
     {
         name = name.trimmed().toUpper(); // Bus names are always upper-cased
         name = name.replace(' ', '_');
+        if (!name.at(0).isLetter()) // Make sure the bus name starts with (an uppercased) letter
+            name.prepend('B');
         if (ui->listBuses->findItems(name, Qt::MatchExactly).count() == 0) // Don't add it if a bus name already exists
-        {
             add(name, nets);
-            if (QMessageBox::question(this, "Add bus", "Would you like to add the new bus to the active watch list?") == QMessageBox::Yes)
-            {
-                QStringList watches = ::controller.getWatch().getWatchlist();
-                watches.append(name); // Add the bus name
-                watches.append(nets); // Add the nets comprising the new bus
-                ::controller.getWatch().updateWatchlist(watches);
-            }
-        }
         else
             QMessageBox::critical(this, "Create a bus", "Bus with the name " + name + " already exists!", QMessageBox::Ok);
     }
