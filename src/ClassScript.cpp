@@ -42,10 +42,10 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "run(cycles)   - Runs the simulation for the given number of clocks\n";
     text << "stop()        - Stops the running simulation\n";
     text << "reset()       - Resets the simulation state\n";
+    text << "t(t)          - Shows a transistor state\n";
+    text << "n(net)        - Shows a net state by net number or \"name\"\n";
     text << "driving(net)  - Shows a list of nets that the given net is driving\n";
     text << "driven(net)   - Shows a list of nets that drive the given net\n";
-    text << "n(net)        - Shows a net state\n";
-    text << "t(t)          - Shows a transistor state\n";
     text << "ex(n)         - Runs experimental function 'n'\n";
     emit ::controller.getScript().response(s);
     return "OK";
@@ -73,6 +73,9 @@ QScriptValue ClassScript::onReset(QScriptContext *, QScriptEngine *)
 QScriptValue ClassScript::onDriving(QScriptContext *ctx, QScriptEngine *)
 {
     net_t net = ctx->argument(0).toNumber();
+    QString name = ctx->argument(0).toString();
+    if (!net)
+        net = ::controller.getNetlist().get(name);
     QVector<net_t> nets = ::controller.getNetlist().netsDriving(net);
     QStringList list = ::controller.getNetlist().get(nets);
     emit ::controller.getScript().response(list.join(" "));
@@ -82,6 +85,9 @@ QScriptValue ClassScript::onDriving(QScriptContext *ctx, QScriptEngine *)
 QScriptValue ClassScript::onDriven(QScriptContext *ctx, QScriptEngine *)
 {
     net_t net = ctx->argument(0).toNumber();
+    QString name = ctx->argument(0).toString();
+    if (!net)
+        net = ::controller.getNetlist().get(name);
     QVector<net_t> nets = ::controller.getNetlist().netsDriven(net);
     QStringList list = ::controller.getNetlist().get(nets);
     emit ::controller.getScript().response(list.join(" "));
@@ -91,6 +97,9 @@ QScriptValue ClassScript::onDriven(QScriptContext *ctx, QScriptEngine *)
 QScriptValue ClassScript::onNet(QScriptContext *ctx, QScriptEngine *)
 {
     net_t net = ctx->argument(0).toNumber();
+    QString name = ctx->argument(0).toString();
+    if (!net)
+        net = ::controller.getNetlist().get(name);
     QString s = ::controller.getNetlist().netInfo(net);
     emit ::controller.getScript().response(s);
     return "OK";
