@@ -116,7 +116,7 @@ uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
 }
 
 /*
- * Returns the watch of a given name or nullptr
+ * Returns a watch of a given name or nullptr
  */
 watch *ClassWatch::find(QString name)
 {
@@ -162,42 +162,44 @@ QStringList ClassWatch::getWatchlist()
 
 /*
  * Updates watchlist using a new list of watch names
- * XXX There is a catch: If a bus is added, we need to explicitly add all nets comprising that bus
- *     This will show only the next time the Watch dialog is opened
+ * Each new name is also checked against the valid nets/buses and only added if valid
  */
 void ClassWatch::updateWatchlist(QStringList list)
 {
+    ClassNetlist &Net = ::controller.getNetlist();
     QVector<QString> buses; // List of buses to process later
     QVector<watch> newlist; // New list that we are building
     list.removeDuplicates();
     for (auto &name : list)
     {
+        net_t net = Net.get(name);
+        QVector<net_t> nets = Net.getBus(name);
         watch *w = find(name);
-        if (w)
+
+        if (net || nets.count()) // The name represents a (valid) net or a bus
         {
-            newlist.append(*w);
-            if (w->n == 0) // A bus. queue it to process it later
-                buses.append(w->name);
-        }
-        else
-        {
-            watch w(name, ::controller.getNetlist().get(name));
-            if (w.n == 0) // A bus. queue it to process it later
+            if (w) // Already exists in the watchlist
+                newlist.append(*w);
+            else // It does not exist, create it
+            {
+                watch w(name, net);
+                newlist.append(w);
+            }
+            if (!net) // Check and add all nets that comprise this bus
                 buses.append(name);
-            newlist.append(w);
         }
     }
     m_watchlist = newlist;
 
-    // Make sure all nets, that belong to buses we added, are also included
+    // Make sure that all nets, that belong to buses we added, are also included
     for (auto name : buses)
     {
-        QVector<net_t> nets = ::controller.getNetlist().getBus(name);
+        QVector<net_t> nets = Net.getBus(name);
         for (auto net : nets)
         {
             if (!find(net)) // If this net is not already part of our m_watchlist...
             {
-                watch w(::controller.getNetlist().get(net), net);
+                watch w(Net.get(net), net);
                 m_watchlist.append(w);
             }
         }
