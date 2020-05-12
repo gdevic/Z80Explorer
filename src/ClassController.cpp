@@ -93,7 +93,7 @@ const QStringList ClassController::getFormats(QString name)
 const QString ClassController::formatBus(uint fmt, uint value, uint width)
 {
     if (Q_UNLIKELY(value == UINT_MAX)) return "hi-Z";
-    QString s = QString::number(width) % "'h" % QString::number(value, 16); // Print hex by default
+    QString s = QString::number(width) % "'h" % QString::number(value, 16).toUpper(); // Print hex by default
     // Handle a special case where asked to print ASCII, but a value is not a prinable character: return its hex value
     if ((fmt == FormatBus::Ascii) && !QChar::isPrint(value))
         return s;
