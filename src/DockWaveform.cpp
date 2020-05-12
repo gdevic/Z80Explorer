@@ -16,6 +16,7 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     ui->setupUi(this);
     setWindowTitle("Waveform " + QString::number(m_id));
     ui->widgetWaveform->setDock(this);
+    ui->btLink->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     QSettings settings;
     restoreGeometry(settings.value("dockWaveformGeometry-" + QString::number(m_id)).toByteArray());
 
@@ -30,6 +31,8 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
     connect(ui->widgetWaveform, SIGNAL(cursorChanged(uint)), this, SLOT(cursorChanged(uint)));
     connect(ui->widgetWaveform, SIGNAL(scroll(int)), this, SLOT(scroll(int)));
+    connect(ui->widgetWaveform, &WidgetWaveform::setLink, this, [this](int value) { ui->btLink->setText(QString::number(value)); }  );
+    connect(ui->btLink, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onLinked);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::actionTriggered, this, &DockWaveform::onScrollBarActionTriggered);
 

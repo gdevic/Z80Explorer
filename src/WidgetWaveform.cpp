@@ -206,6 +206,15 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
     QPen pen(Qt::yellow);
     painter.setPen(pen);
 
+    // If the cursors are linked together, draw the link line
+    if (m_linked && m_cursors2x.count() >= 2)
+    {
+        uint x1 = m_cursors2x.at(0) * m_hscale / 2.0;
+        uint x2 = m_cursors2x.at(1) * m_hscale / 2.0;
+        uint y = r.bottom() - 1 * m_fontheight;
+        painter.drawLine(x1, y, x2, y);
+    }
+
     for (int i=0; i<m_cursors2x.count(); i++)
     {
         uint cursorX = m_cursors2x.at(i);
@@ -234,6 +243,15 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
     }
 }
 
+void WidgetWaveform::onLinked(bool isLinked)
+{
+    if (isLinked && m_cursors2x.count() >= 2)
+        m_linked = int(m_cursors2x.at(1)) - int(m_cursors2x.at(0));
+    else
+        m_linked = 0;
+    update();
+}
+
 QSize WidgetWaveform::sizeHint() const
 {
     // The total data size plus some, to give some extra space on the right end
@@ -254,8 +272,17 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
     if(m_cursormoving) // User is moving the cursor
     {
         int mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
-        if ((mouse_in_dataX >= 0) && (mouse_in_dataX < MAX_WATCH_HISTORY * 2))
-            m_cursors2x[m_cursor] = mouse_in_dataX;
+        m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
+
+        // If the first two cursors are linked together, move them both
+        if (m_linked && m_cursors2x.count() >= 2)
+        {
+            if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
+            if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
+        }
+        Q_ASSERT(m_cursors2x.count() >= 2);
+        emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2)));
+
         setCursor(Qt::SizeHorCursor);
         update();
     }
@@ -300,8 +327,7 @@ void WidgetWaveform::mousePressEvent(QMouseEvent *event)
         {
             // If we identified a cursor, set it's new X coordiate
             int mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
-            if ((mouse_in_dataX >= 0) && (mouse_in_dataX <= MAX_WATCH_HISTORY * 2))
-                m_cursors2x[m_cursor] = mouse_in_dataX;
+            m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
         }
     }
     setCursor(m_cursormoving ? Qt::SizeHorCursor : Qt::OpenHandCursor);
@@ -323,8 +349,17 @@ void WidgetWaveform::mouseDoubleClickEvent(QMouseEvent *event)
     if (m_cursors2x.count())
     {
         int mouse_in_dataX = event->x() / (m_hscale / 2);
-        if ((mouse_in_dataX >= 0) && (mouse_in_dataX < MAX_WATCH_HISTORY * 2))
-            m_cursors2x[m_cursor] = mouse_in_dataX;
+        m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
+
+        // If the first two cursors are linked together, move them both
+        if (m_linked && m_cursors2x.count() >= 2)
+        {
+            if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
+            if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
+        }
+        Q_ASSERT(m_cursors2x.count() >= 2);
+        emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2)));
+
         update();
     }
 }

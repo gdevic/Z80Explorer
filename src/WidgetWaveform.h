@@ -17,6 +17,10 @@ public:
 signals:
     void cursorChanged(uint hcycle);    // Cursor selected a new hcycle
     void scroll(int deltaX);            // User moved the view, request to scroll it
+    void setLink(int value);            // Sets the link button text to a numeric value
+
+public slots:
+    void onLinked(bool isLinked);
 
 private slots:
     void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
@@ -31,6 +35,7 @@ private:
 
     void drawCursors(QPainter &painter, const QRect &r, uint hstart);
     QVector<uint> m_cursors2x {};       // Cursors' locations, index into the data (times 2)
+    int m_linked {};                    // First two cursors are linked together by this delta; 0 for unlinked
     uint m_cursor {};                   // Index of the active cursor
     bool m_cursormoving {};             // Selected cursor is being moved by the mouse
 
