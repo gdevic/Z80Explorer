@@ -245,7 +245,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             for (const auto &path : m_highlight_segment->paths)
                 painter.drawPath(path);
             painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
-            painter.drawLine(QPoint(0,0), m_highlight_segment[0].paths[0].boundingRect().topLeft());
+            painter.drawLine(QPoint(0,0), m_highlight_segment[0].paths[0].elementAt(0));
         }
         painter.restore();
     }
