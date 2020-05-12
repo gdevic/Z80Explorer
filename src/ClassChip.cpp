@@ -185,6 +185,19 @@ bool ClassChip::loadSegdefs(QString dir)
         }
         file.close();
         qInfo() << "Loaded" << m_segvdefs.count() << "segment visual definitions";
+
+#if 0 // XXX This code merges paths for each net so nets look better, but this process takes > 2 min on a fast PC
+        qInfo() << "Merging segment paths...";
+        QPainterPath path;
+        for (auto &seg : m_segvdefs)
+        {
+            path.clear();
+            for (auto &p : seg.paths)
+                path |= p;
+            seg.paths.clear();
+            seg.paths.append(path.simplified());
+        }
+#endif
         return true;
     }
     else
