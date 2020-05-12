@@ -308,9 +308,12 @@ const QVector<net_t> ClassChip::getNetsAt(int x, int y)
     uint offset = x + y * m_sx;
 #if HAVE_PREBUILT_LAYERMAP
     const net_t minNet = includeVssVcc ? 0 : 2;
-    if (m_p3[0][offset] > minNet) list.append(m_p3[0][offset]);
-    if (m_p3[1][offset] > minNet) list.append(m_p3[1][offset]);
-    if (m_p3[2][offset] > minNet) list.append(m_p3[2][offset]);
+    const net_t l0 = m_p3[0][offset];
+    const net_t l1 = m_p3[1][offset];
+    const net_t l2 = m_p3[2][offset];
+    if (l0 > minNet) list.append(l0);
+    if ((l1 > minNet) && (!list.contains(l1))) list.append(l1);
+    if ((l2 > minNet) && (!list.contains(l2))) list.append(l2);
 #else
     if (includeVssVcc)
     {
