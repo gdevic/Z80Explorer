@@ -23,6 +23,7 @@ public:
 private slots:
     void onEditAnnotations();           // Edits custom annotations
     void onEditBuses();                 // Edits nets and buses
+    void onEditColors();                // Edits custom net coloring
     void onEditWatchlist();             // Edits watchlist
     void onNewImageView();              // Open a new view to the chip data
     void onNewWaveformView();           // Open a new view to the waveforms

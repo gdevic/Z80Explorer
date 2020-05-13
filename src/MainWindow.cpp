@@ -3,6 +3,7 @@
 #include "ClassController.h"
 #include "DialogEditAnnotations.h"
 #include "DialogEditBuses.h"
+#include "DialogEditColors.h"
 #include "DialogEditWatchlist.h"
 #include "DockWaveform.h"
 #include "DockCommand.h"
@@ -67,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionEditAnnotations, SIGNAL(triggered()), this, SLOT(onEditAnnotations()));
     connect(ui->actionEditBuses, SIGNAL(triggered()), this, SLOT(onEditBuses()));
+    connect(ui->actionEditColors, SIGNAL(triggered()), this, SLOT(onEditColors()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
@@ -125,6 +127,15 @@ void MainWindow::onEditAnnotations()
 void MainWindow::onEditBuses()
 {
     DialogEditBuses dlg(this);
+    dlg.exec();
+}
+
+/*
+ * Handle menu item to edit custom net coloring
+ */
+void MainWindow::onEditColors()
+{
+    DialogEditColors dlg(this);
     dlg.exec();
 }
 

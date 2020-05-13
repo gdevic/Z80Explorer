@@ -85,6 +85,7 @@
     </property>
     <addaction name="actionEditAnnotations"/>
     <addaction name="actionEditBuses"/>
+    <addaction name="actionEditColors"/>
     <addaction name="actionEditWatchlist"/>
    </widget>
    <addaction name="menuFile"/>
@@ -141,7 +142,7 @@
     <string>Edit list of nets to watch</string>
    </property>
    <property name="shortcut">
-    <string>F4</string>
+    <string>F5</string>
    </property>
   </action>
   <action name="actionEditBuses">
@@ -183,6 +184,20 @@
    </property>
    <property name="statusTip">
     <string>Open the user's manual online</string>
+   </property>
+  </action>
+  <action name="actionEditColors">
+   <property name="text">
+    <string>Colors...</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit colors</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit custom net coloring</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
    </property>
   </action>
  </widget>

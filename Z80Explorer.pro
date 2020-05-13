@@ -35,6 +35,7 @@ SOURCES += \
     src/ClassWatch.cpp \
     src/DialogEditAnnotations.cpp \
     src/DialogEditBuses.cpp \
+    src/DialogEditColors.cpp \
     src/DialogEditWatchlist.cpp \
     src/DialogEditWaveform.cpp \
     src/DockCommand.cpp \
@@ -66,6 +67,7 @@ HEADERS += \
     src/ClassWatch.h \
     src/DialogEditAnnotations.h \
     src/DialogEditBuses.h \
+    src/DialogEditColors.h \
     src/DialogEditWatchlist.h \
     src/DialogEditWaveform.h \
     src/DockCommand.h \
@@ -83,6 +85,7 @@ HEADERS += \
 FORMS += \
     src/DialogEditAnnotations.ui \
     src/DialogEditBuses.ui \
+    src/DialogEditColors.ui \
     src/DialogEditWatchlist.ui \
     src/DialogEditWaveform.ui \
     src/DockCommand.ui \
