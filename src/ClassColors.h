@@ -6,8 +6,15 @@
 #include <QColor>
 #include <QHash>
 
+// Contains a coloring definition
+struct colordef
+{
+    QString expr;                       // Expression condition
+    QColor color;                       // Color
+};
+
 /*
- * This class contains and manages colors used by the application
+ * This class contains and manages custom nets coloring used by the application
  */
 class ClassColors : public QObject
 {
@@ -29,8 +36,15 @@ public:
                | ((uint16_t(c.green()) & 0xFC) << 3)
                | ((uint16_t(c.blue())) >> 3); }
 
+    bool load(QString dir);             // Loads color definitions
+    bool save(QString dir);             // Saves color definitions
+
+public slots:
+    void onShutdown();                  // Called when the app is closing
+
 private:
     QHash<net_t, QColor> m_colors;      // Hash of net numbers to their custom colors
+    QVector<colordef> m_colordefs;      // Coloring definitions
 };
 
 #endif // CLASSCOLORS_H

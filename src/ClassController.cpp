@@ -14,7 +14,8 @@ bool ClassController::init(QScriptEngine *sc)
 
     connect(this, SIGNAL(shutdown()), &m_chip.annotate, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_chip.tips, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));   
+    connect(this, SIGNAL(shutdown()), &m_colors, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_simz80, SLOT(onShutdown()));
 
     QSettings settings;
@@ -33,6 +34,8 @@ bool ClassController::init(QScriptEngine *sc)
             return false;
     }
     settings.setValue("ResourceDir", path);
+
+    m_colors.load(path); // Needs to happen before we load chip resources to have colors available to the functions there
 
     // Initialize all global classes using the given path to resource
     if (!m_simz80.loadResources(path) || !m_chip.loadChipResources(path) || !m_simz80.initChip())
