@@ -35,6 +35,7 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     connect(ui->btLink, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onLinked);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::actionTriggered, this, &DockWaveform::onScrollBarActionTriggered);
+    connect(ui->scrollArea, &CustomScrollArea::zoom, ui->widgetWaveform, &WidgetWaveform::onZoom);
 
     connect(&::controller, &ClassController::eventNetName, this, &DockWaveform::eventNetName);
 

@@ -3,6 +3,8 @@
 
 #include "AppTypes.h"
 #include <QDockWidget>
+#include <QKeyEvent>
+#include <QScrollArea>
 
 namespace Ui { class DockWaveform; }
 
@@ -23,6 +25,36 @@ struct viewitem
 };
 Q_DECLARE_METATYPE(viewitem);
 
+/*
+ * Subclass QScrollArea to handle PgUp/PgDown (and cursor Up/Down) keys for zooming in/out
+ */
+class CustomScrollArea : public QScrollArea
+{
+    Q_OBJECT
+
+public:
+    explicit CustomScrollArea(QWidget *parent = nullptr): QScrollArea(parent) {}
+
+signals:
+    void zoom(bool isUp);       // Send a zoom signal with the direction indicator
+
+private:
+    void keyPressEvent(QKeyEvent *event) override
+    {
+        switch (event->key())   // Intercept and handle only PgUp/PgDown and cursor Up/Down keys
+        {
+        case Qt::Key_Up:
+        case Qt::Key_PageUp: emit zoom(true); break;
+        case Qt::Key_Down:
+        case Qt::Key_PageDown: emit zoom(false); break;
+        default: QScrollArea::keyPressEvent(event);
+        }
+    }
+};
+
+/*
+ * This class implements waveform window and container view
+ */
 class DockWaveform : public QDockWidget
 {
     Q_OBJECT

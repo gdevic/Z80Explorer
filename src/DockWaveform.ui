@@ -179,7 +179,7 @@ color: rgb(255, 255, 255);</string>
         </widget>
        </item>
        <item>
-        <widget class="QScrollArea" name="scrollArea">
+        <widget class="CustomScrollArea" name="scrollArea">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(74, 74, 74);</string>
          </property>
@@ -235,6 +235,12 @@ color: rgb(255, 255, 255);</string>
    <class>WidgetWaveform</class>
    <extends>QWidget</extends>
    <header>WidgetWaveform.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomScrollArea</class>
+   <extends>QScrollArea</extends>
+   <header>DockWaveform.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

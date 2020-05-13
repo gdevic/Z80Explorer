@@ -364,14 +364,19 @@ void WidgetWaveform::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
-void WidgetWaveform::wheelEvent(QWheelEvent *event)
+void WidgetWaveform::onZoom(bool isUp)
 {
-    if (event->delta() > 0)
+    if (isUp)
         m_hscale *= 1.2;
     else
         m_hscale /= 1.2;
     m_hscale = qBound(1.0, m_hscale, 100.0);
     updateGeometry();
+}
+
+void WidgetWaveform::wheelEvent(QWheelEvent *event)
+{
+    onZoom(event->delta() > 0);
 }
 
 void WidgetWaveform::leaveEvent(QEvent *)

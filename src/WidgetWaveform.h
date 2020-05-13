@@ -20,7 +20,8 @@ signals:
     void setLink(int value);            // Sets the link button text to a numeric value
 
 public slots:
-    void onLinked(bool isLinked);
+    void onLinked(bool isLinked);       // Links and unlinks the first two cursors
+    void onZoom(bool isUp);             // Zooms in and out by a predefined step
 
 private slots:
     void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
@@ -45,7 +46,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *) override;
     void mouseDoubleClickEvent(QMouseEvent *) override;
     void wheelEvent(QWheelEvent *) override;
-    void leaveEvent(QEvent* event) override;
+    void leaveEvent(QEvent *) override;
     QSize sizeHint() const override;
 
     QPoint  m_mousePos;                 // Current mouse position
