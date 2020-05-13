@@ -1,27 +1,15 @@
 #include "ClassColors.h"
+#include "ClassController.h"
 #include <QDebug>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QSettings>
 
 ClassColors::ClassColors(QObject *parent) : QObject(parent)
 {
-    // Populate some known colors
-    m_colors[0] = QColor(Qt::black);        // Also used as an invalid color
-    m_colors[1] = QColor(  0, 127,   0);    // vss medium green
-    m_colors[2] = QColor(192,   0,   0);    // vcc quite red
-    m_colors[3] = QColor(192,192,192);      // clk subdued white
-
-    m_colordefs.append({"clk", QColor(200, 200, 200)});
-    m_colordefs.append({"m", QColor(128, 192, 128)});
-    m_colordefs.append({"t", QColor(128, 128, 192)});
-    m_colordefs.append({"pla", QColor(128, 192, 192)});
-    m_colordefs.append({"dbus", QColor(0, 192, 0)});
-    m_colordefs.append({"ubus", QColor(128, 255, 0)});
-    m_colordefs.append({"vbus", QColor(0, 255, 128)});
-    m_colordefs.append({"abus", QColor(128, 128, 255)});
 }
 
 void ClassColors::onShutdown()
@@ -31,6 +19,79 @@ void ClassColors::onShutdown()
     Q_ASSERT(!path.isEmpty());
     if (m_colordefs.size()) // // Save the color definitions only if we have any
         save(path);
+}
+
+/*
+ * Updates internal color table (implemented as a hash) based on the colors specifications
+ * There are 3 methods that each net/bus can be matched to each coloring defintion:
+ * 0 .. Name has to match exactly the string in the definition
+ * 1 .. Name only has to start with the string in the definition (and may be longer)
+ * 2 .. Definition string is a regular expression trying to match each name
+ * 3 .. Definition string is an explicit net number to color (a pure decimal value like "42")
+ */
+void ClassColors::update()
+{
+    qInfo() << "Updating coloring table";
+    m_colors.clear();
+    // Pre-populate some important nets
+    m_colors[0] = QColor(Qt::black);        // Also used as an invalid color
+    m_colors[1] = QColor(  0, 127,   0);    // vss medium green
+    m_colors[2] = QColor(192,   0,   0);    // vcc quite red
+    m_colors[3] = QColor(192,192,192);      // clk subdued white
+
+    QRegularExpression re;
+    QStringList netNames = ::controller.getNetlist().getNetnames();
+
+    for (auto &colordef : m_colordefs)
+    {
+        re.setPattern(colordef.expr);
+        for (auto name : netNames)
+        {
+            bool matching = false;
+            if (colordef.method == 0)       // Method 0: name has to match exactly as specified
+                matching = colordef.expr == name;
+            else if (colordef.method == 1)  // Method 1: only the name start needs to match to the specified string
+                matching = name.startsWith(colordef.expr);
+            else if (colordef.method == 2)  // Method 2: uses regular expression to find a match
+            {
+                QRegularExpressionMatch match = re.match(name);
+                matching = match.hasMatch();
+            }
+            else if (colordef.method == 3)  // Method 3: specified string is an explicit net number to match
+            {
+                bool ok;
+                matching = (colordef.expr.toUInt(&ok) == ::controller.getNetlist().get(name)) && ok;
+            }
+            else
+            {
+                qWarning() << "Invalid coloring method" << colordef.method << "for net" << name;
+                return;
+            }
+
+            if (matching)
+            {
+                net_t net = ::controller.getNetlist().get(name);
+                if (net)
+                {
+                    // Remove any previously defined (duplicate) color; keep the last one
+                    if (m_colors.contains(net))
+                        m_colors.remove(net);
+                    m_colors[net] = colordef.color;
+                }
+                else
+                {
+                    QVector<net_t> bus = ::controller.getNetlist().getBus(name);
+                    for (auto n : bus)
+                    {
+                        // Remove any previously defined (duplicate) color; keep the last one
+                        if (m_colors.contains(n))
+                            m_colors.remove(n);
+                        m_colors[n] = colordef.color;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -65,8 +126,11 @@ bool ClassColors::load(QString dir)
                     if (s.count() == 4)
                         c.color = QColor(s[0].toInt(), s[1].toInt(), s[2].toUInt(), s[3].toInt());
                 }
+                if (obj.contains("method") && obj["method"].isDouble())
+                    c.method = obj["method"].toDouble();
                 m_colordefs.append(c);
             }
+            update();
             return true;
         }
         else
@@ -94,6 +158,7 @@ bool ClassColors::save(QString dir)
             QJsonObject obj;
             obj["expr"] = c.expr;
             obj["color"] = QString("%1,%2,%3,%4").arg(c.color.red()).arg(c.color.green()).arg(c.color.blue()).arg(c.color.alpha());
+            obj["method"] = int(c.method);
             jsonArray.append(obj);
         }
         json["colors"] = jsonArray;

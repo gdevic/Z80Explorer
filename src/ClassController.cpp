@@ -35,10 +35,8 @@ bool ClassController::init(QScriptEngine *sc)
     }
     settings.setValue("ResourceDir", path);
 
-    m_colors.load(path); // Needs to happen before we load chip resources to have colors available to the functions there
-
     // Initialize all global classes using the given path to resource
-    if (!m_simz80.loadResources(path) || !m_chip.loadChipResources(path) || !m_simz80.initChip())
+    if (!m_simz80.loadResources(path) || !m_colors.load(path) || !m_chip.loadChipResources(path) || !m_simz80.initChip())
     {
         qCritical() << "Unable to load chip resources from" << path;
         return false;
