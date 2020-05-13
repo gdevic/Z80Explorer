@@ -721,9 +721,9 @@ void WidgetImageView::netsDriving()
 {
     Q_ASSERT(m_drivingNets.count() >= 1);
     m_drivingNets.remove(1, m_drivingNets.count() - 1); // Leave only the primary selected node
-    m_drivingNets.append(::controller.getNetlist().netsDriving(m_drivingNets[0]));
-    QStringList list = ::controller.getNetlist().get(m_drivingNets);
-    list.removeFirst(); // Remove the first element which is the net we started at
+    QVector<net_t> driving = ::controller.getNetlist().netsDriving(m_drivingNets[0]);
+    m_drivingNets.append(driving);
+    QStringList list = ::controller.getNetlist().get(driving);
     qInfo() << "Net" << m_drivingNets[0] << "driving" << list.count() << "nets" << list;
 }
 
@@ -734,9 +734,9 @@ void WidgetImageView::netsDriven()
 {
     Q_ASSERT(m_drivingNets.count() >= 1);
     m_drivingNets.remove(1, m_drivingNets.count() - 1); // Leave only the primary selected node
-    m_drivingNets.append(::controller.getNetlist().netsDriven(m_drivingNets[0]));
-    QStringList list = ::controller.getNetlist().get(m_drivingNets);
-    list.removeFirst(); // Remove the first element which is the net we started at
+    QVector<net_t> driven = ::controller.getNetlist().netsDriven(m_drivingNets[0]);
+    m_drivingNets.append(driven);
+    QStringList list = ::controller.getNetlist().get(driven);
     qInfo() << "Net" << m_drivingNets[0] << "driven by" << list.count() << "nets" << list;
 }
 
