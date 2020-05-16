@@ -44,6 +44,7 @@ void ClassColors::rebuild()
     for (auto &colordef : m_colordefs)
     {
         re.setPattern(colordef.expr);
+        // Compare each colordef with all known (named) nets for the matching methods 0, 1 and 2
         for (auto name : netNames)
         {
             bool matching = false;
@@ -57,10 +58,7 @@ void ClassColors::rebuild()
                 matching = match.hasMatch();
             }
             else if (colordef.method == 3)  // Method 3: specified string is an explicit net number to match
-            {
-                bool ok;
-                matching = (colordef.expr.toUInt(&ok) == ::controller.getNetlist().get(name)) && ok;
-            }
+            {} // Will do later, below
             else
             {
                 qWarning() << "Invalid coloring method" << colordef.method << "for net" << name;
@@ -90,7 +88,31 @@ void ClassColors::rebuild()
                 }
             }
         }
+        // Directly assign nets for all colordefs with matching method 3
+        if (colordef.method == 3)
+        {
+            bool ok;
+            net_t net = colordef.expr.toUInt(&ok);
+            if (ok)
+            {
+                // Remove any previously defined (duplicate) color; keep the last one
+                if (m_colors.contains(net))
+                    m_colors.remove(net);
+                m_colors[net] = colordef.color;
+            }
+        }
     }
+}
+
+/*
+ * Sets a new colordefs array, used by the colors editor dialog
+ */
+void ClassColors::setColordefs(QVector<colordef> colordefs)
+{
+    m_colordefs = colordefs;
+    rebuild(); // Update internal color table
+    // Sending this signal will cause ClassChip to redraw its colorized image
+    ::controller.eventNetName(Netop::Changed, QString(), 0);
 }
 
 /*
@@ -119,14 +141,14 @@ bool ClassColors::load(QString dir)
                 QJsonObject obj = array[i].toObject();
                 if (obj.contains("expr") && obj["expr"].isString())
                     c.expr = obj["expr"].toString();
+                if (obj.contains("method") && obj["method"].isDouble())
+                    c.method = obj["method"].toDouble();
                 if (obj.contains("color") && obj["color"].isString())
                 {
                     QStringList s = obj["color"].toString().split(',');
                     if (s.count() == 4)
                         c.color = QColor(s[0].toInt(), s[1].toInt(), s[2].toUInt(), s[3].toInt());
                 }
-                if (obj.contains("method") && obj["method"].isDouble())
-                    c.method = obj["method"].toDouble();
                 m_colordefs.append(c);
             }
             rebuild();
@@ -156,8 +178,8 @@ bool ClassColors::save(QString dir)
         {
             QJsonObject obj;
             obj["expr"] = c.expr;
-            obj["color"] = QString("%1,%2,%3,%4").arg(c.color.red()).arg(c.color.green()).arg(c.color.blue()).arg(c.color.alpha());
             obj["method"] = int(c.method);
+            obj["color"] = QString("%1,%2,%3,%4").arg(c.color.red()).arg(c.color.green()).arg(c.color.blue()).arg(c.color.alpha());
             jsonArray.append(obj);
         }
         json["colors"] = jsonArray;

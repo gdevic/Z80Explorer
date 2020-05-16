@@ -44,6 +44,7 @@ SOURCES += \
     src/DockMonitor.cpp \
     src/DockWaveform.cpp \
     src/MainWindow.cpp \
+    src/WidgetEditColor.cpp \
     src/WidgetImageOverlay.cpp \
     src/WidgetImageView.cpp \
     src/WidgetToolbar.cpp \
@@ -76,6 +77,7 @@ HEADERS += \
     src/DockMonitor.h \
     src/DockWaveform.h \
     src/MainWindow.h \
+    src/WidgetEditColor.h \
     src/WidgetImageOverlay.h \
     src/WidgetImageView.h \
     src/WidgetToolbar.h \
@@ -94,6 +96,7 @@ FORMS += \
     src/DockMonitor.ui \
     src/DockWaveform.ui \
     src/MainWindow.ui \
+    src/WidgetEditColor.ui \
     src/WidgetImageOverlay.ui \
     src/WidgetToolbar.ui
 
