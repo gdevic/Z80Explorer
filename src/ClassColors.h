@@ -10,8 +10,8 @@
 struct colordef
 {
     QString expr;                       // Expression condition
-    QColor color {QColor(Qt::black)};   // Color
     uint method {1};                    // Name matching method
+    QColor color {QColor(Qt::black)};   // Color
 };
 
 /*
@@ -37,9 +37,12 @@ public:
                | ((uint16_t(c.green()) & 0xFC) << 3)
                | ((uint16_t(c.blue())) >> 3); }
 
-    void update();                      // Updates internal color table
+    void rebuild();                     // Updates internal color table
     bool load(QString dir);             // Loads color definitions
     bool save(QString dir);             // Saves color definitions
+
+    const QStringList getMatchingMethods()
+        { return {"Exact match", "Starts with", "Regex", "Net number"}; };
 
 public slots:
     void onShutdown();                  // Called when the app is closing
@@ -47,6 +50,8 @@ public slots:
 private:
     QHash<net_t, QColor> m_colors;      // Hash of net numbers to their custom colors
     QVector<colordef> m_colordefs;      // Coloring definitions
+
+    friend class DialogEditColors;
 };
 
 #endif // CLASSCOLORS_H

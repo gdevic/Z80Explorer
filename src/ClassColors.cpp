@@ -28,7 +28,7 @@ void ClassColors::onShutdown()
  * 2 .. Definition string is a regular expression trying to match each name
  * 3 .. Definition string is an explicit net number to color (a pure decimal value like "42")
  */
-void ClassColors::update()
+void ClassColors::rebuild()
 {
     qInfo() << "Updating coloring table";
     m_colors.clear();
@@ -129,7 +129,7 @@ bool ClassColors::load(QString dir)
                     c.method = obj["method"].toDouble();
                 m_colordefs.append(c);
             }
-            update();
+            rebuild();
             return true;
         }
         else
