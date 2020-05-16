@@ -3,42 +3,42 @@
         {
             "color": "200,200,200,255",
             "expr": "clk",
-            "method": 2
+            "method": 1
         },
         {
             "color": "128,192,128,255",
             "expr": "m",
-            "method": 2
+            "method": 1
         },
         {
             "color": "128,128,192,255",
             "expr": "t",
-            "method": 2
+            "method": 1
         },
         {
             "color": "128,192,192,255",
             "expr": "pla",
-            "method": 2
+            "method": 1
         },
         {
             "color": "0,192,0,255",
             "expr": "dbus",
-            "method": 2
+            "method": 1
         },
         {
             "color": "128,255,0,255",
             "expr": "ubus",
-            "method": 2
+            "method": 1
         },
         {
             "color": "0,255,128,255",
             "expr": "vbus",
-            "method": 2
+            "method": 1
         },
         {
             "color": "128,128,255,255",
             "expr": "abus",
-            "method": 2
+            "method": 1
         }
     ]
 }
