@@ -70,6 +70,8 @@ public:
 protected:
     QVector<trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
     QVector<net> m_netlist;                     // Array of nets, indexed by the net number
+    QVector<bool> m_pullups;                    // Nets that are pulled up (by a pull-up resistor), indexed by the net number
+    QVector<bool> m_pulldowns;                  // Nets that are connected to the ground via a transistor/inverter, indexed by the net number
     net_t ngnd {}, npwr {};                     // 'vss' and 'vcc' nets (expected values: 1 and 2)
 
     uint8_t readByte(const QString &name);      // Returns a byte value read from the netlist for a particular net bus

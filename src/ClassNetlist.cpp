@@ -8,7 +8,9 @@
 
 ClassNetlist::ClassNetlist():
     m_transdefs(MAX_TRANS),
-    m_netlist(MAX_NETS)
+    m_netlist(MAX_NETS),
+    m_pullups(MAX_NETS),
+    m_pulldowns(MAX_NETS)
 {
 }
 
@@ -230,9 +232,13 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                     p->c1 = list[2].toUInt();
                     p->c2 = list[3].toUInt();
 
-                    // Fixups for pull-up and pull-down transistors
-                    if ((p->c1 == ngnd) || (p->c1 == npwr))
+                    // Pull-up and pull-down transistors should always have their *second* connection to the power/ground
+                    if ((p->c1 == npwr) || (p->c1 == ngnd))
                         std::swap(p->c1, p->c2);
+                    if (p->c2 == npwr)
+                        m_pullups[p->c1] = true;
+                    if (p->c2 == ngnd)
+                        m_pulldowns[p->c1] = true;
                     max = std::max(max, std::max(p->c1, p->c2)); // Find the max net number
 
                     // ----- Add the transistor to the netlist -----
@@ -250,10 +256,13 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         file.close();
         qInfo() << "Loaded" << count << "transistor definitions";
         qInfo() << "Max net index" << max;
-        count = 0;
-        for (auto &net : m_netlist)
-            count += !!(net.gates.count() || net.c1c2s.count());
+        count = std::count_if(m_netlist.begin(), m_netlist.end(), [](net &net)
+            { return !!(net.gates.count() || net.c1c2s.count()); });
         qInfo() << "Number of nets" << count;
+        count = std::count_if(m_pullups.begin(), m_pullups.end(), [](bool p) { return p; });
+        qInfo() << "Number of pull-ups" << count;
+        count = std::count_if(m_pulldowns.begin(), m_pulldowns.end(), [](bool p) { return p; });
+        qInfo() << "Number of functional inverters" << count;
         return true;
     }
     qCritical() << "Error opening transdefs.js";
