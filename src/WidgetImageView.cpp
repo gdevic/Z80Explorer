@@ -506,7 +506,11 @@ void WidgetImageView::mouseDoubleClickEvent (QMouseEvent *event)
             QVector<net_t> nets = ::controller.getChip().getNetsAt<false>(imageCoords.x(), imageCoords.y());
             m_drivingNets.clear();
             if (nets.count() >= 1) // At least one valid net, set it as the base selected net
+            {
                 m_drivingNets.append(nets[0]);
+                QString s = ::controller.getNetlist().netInfo(nets[0]);
+                qInfo() << s.replace('\n', ' ');
+            }
             update();
         }
     }

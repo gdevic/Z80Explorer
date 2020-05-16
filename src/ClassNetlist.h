@@ -59,8 +59,8 @@ public:
     void eventNetName(Netop op, const QString name, const net_t);
     void onShutdown();                          // Called when the app is closing
 
-    QString netInfo(net_t net);                 // Returns basic net information as string
-    QString transInfo(tran_t t);                // Returns basic transistor information as string
+    const QString netInfo(net_t net);           // Returns basic net information as string
+    const QString transInfo(tran_t t);          // Returns basic transistor information as string
 
 #if 0 // XXX Test to see pullups
     inline bool netPullup(net_t net) { return m_netlist[net].pullup; }
