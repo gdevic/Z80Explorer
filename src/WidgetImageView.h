@@ -26,6 +26,7 @@ public:
 
 public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
+    void setImage(int i);               // Sets the image by its index, also considers alt key
 
 private slots:
     void onFind(QString text);          // Search for the named feature
@@ -38,7 +39,6 @@ private slots:
     void netsDriving();                 // Shows nets that the selected net is driving
     void netsDriven();                  // Shows nets that drive the selected net
     void editNetName();                 // Opens dialog to edit selected net name (alias)
-    void setImage(int i);               // Sets the image by its index, also considers alt key
 
 private:
     Ui::WidgetImageView *ui;
