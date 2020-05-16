@@ -19,6 +19,8 @@ public:
 
 private slots:
     void onAdd();
+    void onUp();
+    void onDown();
     void onEdit();
     void onRemove();
     void onSelectionChanged();
@@ -29,6 +31,7 @@ private:
     Ui::DialogEditColors *ui;
     QStringList m_methods;
 
+    void swap(int index, int delta);
     void addItem(const colordef &cdef);
 };
 

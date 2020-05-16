@@ -46,6 +46,26 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btUp">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Up</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btDown">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Down</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btEdit">
         <property name="enabled">
          <bool>false</bool>
@@ -98,9 +118,6 @@
      </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="gridStyle">
-      <enum>Qt::NoPen</enum>
      </property>
      <property name="columnCount">
       <number>3</number>

@@ -23,6 +23,8 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
         addItem(cdef);
 
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditColors::onAdd);
+    connect(ui->btUp, &QPushButton::clicked, this, &DialogEditColors::onUp);
+    connect(ui->btDown, &QPushButton::clicked, this, &DialogEditColors::onDown);
     connect(ui->btEdit, &QPushButton::clicked, this, &DialogEditColors::onEdit);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditColors::onRemove);
     connect(ui->table, &QTableWidget::cellDoubleClicked, this, &DialogEditColors::onDoubleClicked);
@@ -97,6 +99,54 @@ void DialogEditColors::onAdd()
     }
 }
 
+void DialogEditColors::swap(int index, int delta)
+{
+    QTableWidgetItem *i[3] { ui->table->takeItem(index+delta,0), ui->table->takeItem(index+delta,1), ui->table->takeItem(index+delta,2) };
+    ui->table->removeRow(index+delta);
+    ui->table->insertRow(index);
+    ui->table->setItem(index,0,i[0]);
+    ui->table->setItem(index,1,i[1]);
+    ui->table->setItem(index,2,i[2]);
+}
+
+/*
+ * Moves selected color items one slot up
+ */
+void DialogEditColors::onUp()
+{
+    Q_ASSERT(ui->table->selectedItems().count() >= 1);
+    QList<QTableWidgetItem *> sel = ui->table->selectedItems();
+    QVector<int> rows;
+    for (auto row : sel)
+        rows.append(row->row());
+    std::sort(rows.begin(), rows.end(), std::less<int>());
+    for (auto row : rows)
+    {
+        if (row == 0)
+            return;
+        swap(row, -1);
+    }
+}
+
+/*
+ * Moves selected color items one slot down
+ */
+void DialogEditColors::onDown()
+{
+    Q_ASSERT(ui->table->selectedItems().count() >= 1);
+    QList<QTableWidgetItem *> sel = ui->table->selectedItems();
+    QVector<int> rows;
+    for (auto row : sel)
+        rows.append(row->row());
+    std::sort(rows.begin(), rows.end(), std::greater<int>());
+    for (auto row : rows)
+    {
+        if (row == (ui->table->rowCount() - 1))
+            return;
+        swap(row, +1);
+    }
+}
+
 /*
  * Opens up a single entry edit dialog on the selected color entry
  */
@@ -146,6 +196,8 @@ void DialogEditColors::onRemove()
 void DialogEditColors::onSelectionChanged()
 {
     int selected = ui->table->selectedItems().count();
+    ui->btUp->setEnabled(selected >= 1);
+    ui->btDown->setEnabled(selected >= 1);
     ui->btEdit->setEnabled(selected == 1);
     ui->btRemove->setEnabled(selected > 0);
 }
