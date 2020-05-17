@@ -62,10 +62,8 @@ public:
     const QString netInfo(net_t net);           // Returns basic net information as string
     const QString transInfo(tran_t t);          // Returns basic transistor information as string
 
-#if 0 // XXX Test to see pullups
-    inline bool netPullup(net_t net) { return m_netlist[net].pullup; }
-    inline bool netPulldown(net_t net) { return m_netlist[net].pulldown; }
-#endif
+    inline bool netPullup(net_t net) { return m_pullups[net]; }
+    inline bool netPulldown(net_t net) { return m_pulldowns[net]; }
 
 protected:
     QVector<trans> m_transdefs;                 // Array of transistors, indexed by the transistor number

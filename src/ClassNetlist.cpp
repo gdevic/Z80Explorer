@@ -485,7 +485,8 @@ const QString ClassNetlist::netInfo(net_t net)
 {
     if (net < MAX_NETS)
     {
-        QString s = QString("%1: state:%2 floats:%3 pullup:%4 pulldown:%5").arg(net)
+        QString s = QString("%1: pullup:%2 inv:%3").arg(net).arg(netPullup(net)).arg(netPulldown(net));
+        s += QString("\nstate:%1 can float:%2 up:%3 down:%4")
                 .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].pullup).arg(m_netlist[net].pulldown);
 
         // List transistor numbers for which this net is either source or drain
