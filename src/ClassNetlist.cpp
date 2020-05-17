@@ -262,7 +262,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         count = std::count_if(m_pullups.begin(), m_pullups.end(), [](bool p) { return p; });
         qInfo() << "Number of pull-ups" << count;
         count = std::count_if(m_pulldowns.begin(), m_pulldowns.end(), [](bool p) { return p; });
-        qInfo() << "Number of functional inverters" << count;
+        qInfo() << "Number of pull-downs" << count;
         return true;
     }
     qCritical() << "Error opening transdefs.js";
@@ -485,8 +485,8 @@ const QString ClassNetlist::netInfo(net_t net)
 {
     if (net < MAX_NETS)
     {
-        QString s = QString("%1: pullup:%2 inv:%3").arg(net).arg(netPullup(net)).arg(netPulldown(net));
-        s += QString("\nstate:%1 can float:%2 up:%3 down:%4")
+        QString s = QString("%1: pulled-up:%2").arg(net).arg(netPullup(net));
+        s += QString(" state:%1 can-float:%2 is-high:%3 is-low:%4")
                 .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].pullup).arg(m_netlist[net].pulldown);
 
         // List transistor numbers for which this net is either source or drain

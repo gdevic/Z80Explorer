@@ -332,7 +332,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
 
     // Measure the drawing performance
     qreal ms = timer.elapsed();
-    if (ms > 200) // If the drawing takes more than this many milliseconds, it will be measured and shown
+    if (ms > 250) // Show the drawing perf impact if it takes more than this many milliseconds
     {
         m_perf.enqueue(ms);
         ms = 0; for (int i = 0; i < m_perf.count(); i++) ms += m_perf.at(i);
