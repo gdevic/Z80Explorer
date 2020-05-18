@@ -259,10 +259,12 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         count = std::count_if(m_netlist.begin(), m_netlist.end(), [](net &net)
             { return !!(net.gates.count() || net.c1c2s.count()); });
         qInfo() << "Number of nets" << count;
+        count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](trans &t) { return t.id; });
+        qInfo() << "Number of transistors" << count;
         count = std::count_if(m_pullups.begin(), m_pullups.end(), [](bool p) { return p; });
-        qInfo() << "Number of pull-ups" << count;
+        qInfo() << "Number of pass transistors to VCC" << count;
         count = std::count_if(m_pulldowns.begin(), m_pulldowns.end(), [](bool p) { return p; });
-        qInfo() << "Number of pull-downs" << count;
+        qInfo() << "Number of pass transistors to GND" << count;
         return true;
     }
     qCritical() << "Error opening transdefs.js";
@@ -485,24 +487,25 @@ const QString ClassNetlist::netInfo(net_t net)
 {
     if (net < MAX_NETS)
     {
-        QString s = QString("%1: pulled-up:%2").arg(net).arg(netPullup(net));
-        s += QString(" state:%1 can-float:%2 is-high:%3 is-low:%4")
-                .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].pullup).arg(m_netlist[net].pulldown);
-
-        // List transistor numbers for which this net is either source or drain
-        s += QString("\nsource/drain:");
+        // Transistor numbers for which this net is either a source or a drain
         QStringList c1c2s;
         for (auto &t : m_netlist[net].c1c2s)
             c1c2s.append( QString::number(t - &m_transdefs[0]) );
-        s += c1c2s.join(",");
-
-        // List transistor numbers for which this net is connected to their gate
-        s += QString("\nto-gates:");
+        // Transistor numbers for which this net is a gate
         QStringList gates;
         for (auto &t : m_netlist[net].gates)
             gates.append( QString::number(t - &m_transdefs[0]) );
-        s += gates.join(",");
 
+        QString s = ::controller.getNetlist().get(net);
+        if (!s.isEmpty())
+            s = s % ":";
+        s = s % QString("%1: pulled-up:%2 can-ground:%3").arg(net).arg(netPullup(net)).arg(netPulldown(net))
+        % QString("\nstate:%1 can-float:%2 is-high:%3 is-low:%4")
+                .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].pullup).arg(m_netlist[net].pulldown)
+        % "\nsource/drain:"
+        % c1c2s.join(",")
+        % "\nto-gates:"
+        % gates.join(",");
         return s;
     }
     return QString("Invalid net number");
