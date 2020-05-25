@@ -7,7 +7,6 @@ WidgetEditColor::WidgetEditColor(QWidget *parent, QStringList methods) :
     ui(new Ui::WidgetEditColor)
 {
     ui->setupUi(this);
-    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
 
     ui->comboBox->addItems(methods);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);

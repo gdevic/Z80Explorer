@@ -10,7 +10,7 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
     ui(new Ui::DialogEditBuses)
 {
     ui->setupUi(this);
-    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
     QSettings settings;
     restoreGeometry(settings.value("editBusesGeometry").toByteArray());
 

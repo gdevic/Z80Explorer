@@ -9,7 +9,7 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     ui(new Ui::DialogEditWaveform)
 {
     ui->setupUi(this);
-    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
     QSettings settings;
     restoreGeometry(settings.value("editWaveformGeometry").toByteArray());
 

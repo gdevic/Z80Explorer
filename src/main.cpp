@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
         QCoreApplication::setOrganizationDomain("BaltazarStudios.com");
         QCoreApplication::setOrganizationName("Baltazar Studios, LLC");
         QCoreApplication::setApplicationName("Z80Explorer");
+        QCoreApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
         // Initialize logging subsystem and register our handler
         applog = &Singleton<CAppLogHandler>::Instance();

@@ -8,7 +8,7 @@ DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
     ui(new Ui::DialogEditWatchlist)
 {
     ui->setupUi(this);
-    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
     QSettings settings;
     restoreGeometry(settings.value("editWatchlistGeometry").toByteArray());
 

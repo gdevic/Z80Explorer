@@ -10,7 +10,7 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
     ui(new Ui::DialogEditColors)
 {
     ui->setupUi(this);
-    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
     QSettings settings;
     restoreGeometry(settings.value("editColorsGeometry").toByteArray());
 

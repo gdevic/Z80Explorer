@@ -9,7 +9,7 @@ DialogEditAnnotations::DialogEditAnnotations(QWidget *parent) :
     ui(new Ui::DialogEditAnnotations)
 {
     ui->setupUi(this);
-    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+
     QSettings settings;
     restoreGeometry(settings.value("editAnnotationsGeometry").toByteArray());
 
