@@ -184,7 +184,6 @@ bool ClassChip::loadSegdefs(QString dir)
             else
                 qDebug() << "Skipping" << line;
         }
-        file.close();
         qInfo() << "Loaded" << m_segvdefs.count() << "segment visual definitions";
 
         // Optionally load processed and smoother paths; don't care if the file "segvdefs.bin" does not exist
@@ -242,7 +241,6 @@ bool ClassChip::loadTransdefs(QString dir)
             else
                 qDebug() << "Skipping" << line;
         }
-        file.close();
         qInfo() << "Loaded" << m_transvdefs.count() << "transistor visual definitions";
         return true;
     }

@@ -109,7 +109,6 @@ bool ClassNetlist::saveNetNames(const QString fileName)
             out << line;
         }
         out << "}\n";
-        file.close();
         return true;
     }
     return false;
@@ -182,7 +181,6 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
                     qWarning() << "Invalid line" << list;
             }
         }
-        file.close();
         return true;
     }
     qCritical() << "Error opening" << fileName;
@@ -247,7 +245,6 @@ bool ClassNetlist::loadTransdefs(const QString dir)
             else
                 qDebug() << "Skipping" << line;
         }
-        file.close();
         qInfo() << "Loaded" << count << "transistor definitions";
         qInfo() << "Max net index" << max;
         count = std::count_if(m_netlist.begin(), m_netlist.end(), [](net &net)
@@ -293,7 +290,6 @@ bool ClassNetlist::loadPullups(const QString dir)
                     qWarning() << "Invalid line" << line;
             }
         }
-        file.close();
         uint count = std::count_if(m_netlist.begin(), m_netlist.end(), [](net &net) { return net.hasPullup; });
         qInfo() << "Number of pullups" << count;
         return true;
