@@ -29,16 +29,18 @@ WidgetToolbar::~WidgetToolbar()
 void WidgetToolbar::onTimeout()
 {
     static uint phase = 0;
-    ui->btRun->setStyleSheet((++phase & 1) ? "background-color: lightgreen" : "");
     ui->btRun->setText("Running...");
+    ui->btRun->setStyleSheet((++phase & 1) ? "background-color: lightgreen" : "");
+    uint hcycle = ::controller.getSimZ80().getCurrentHCycle();
+    ui->labelCycle->setText("hcycle: " % QString::number(hcycle));
 }
 
 void WidgetToolbar::onRunStopped(uint hcycle)
 {
-    ui->labelCycle->setText("hcycle: " % QString::number(hcycle));
     m_timer.stop();
     ui->btRun->setText("Run");
     ui->btRun->setStyleSheet("");
+    ui->labelCycle->setText("hcycle: " % QString::number(hcycle));
 }
 
 /*
