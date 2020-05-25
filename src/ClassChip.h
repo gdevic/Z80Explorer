@@ -87,6 +87,7 @@ private:
     void edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y);
     uint edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir);
     bool scanForTransistor_4(uchar const *p, uint &offset);
+    QFont m_fixedFont { QFont("Consolas", 8) }; // Font for net names
 };
 
 #endif // CLASSCHIP_H

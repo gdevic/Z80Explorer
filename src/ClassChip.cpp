@@ -1094,7 +1094,6 @@ void ClassChip::expDynamicallyNameNets(QPainter &painter, const QRect &viewport,
     if (scale < 1.5) // Start naming nets only at the certain level of detail
         return;
 
-    static QFont m_fixedFont = QFont("Consolas", 8); // XXX m_fixedFont.setPixelSize(8);
     painter.setFont(m_fixedFont);
     painter.setPen(QPen(Qt::white, 1, Qt::SolidLine));
 
@@ -1106,8 +1105,7 @@ void ClassChip::expDynamicallyNameNets(QPainter &painter, const QRect &viewport,
         if ((nets.count() == 1) && (nets[0] != lastNet))
         {
             net_t net = nets[0];
-            QString name = ::controller.getNetlist().get(net);
-            painter.drawText(x, y, name);
+            painter.drawText(x, y, ::controller.getNetlist().get(net));
             lastNet = net;
             y -= 8;
         }
