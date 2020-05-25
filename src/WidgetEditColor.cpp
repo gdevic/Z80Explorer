@@ -7,6 +7,7 @@ WidgetEditColor::WidgetEditColor(QWidget *parent, QStringList methods) :
     ui(new Ui::WidgetEditColor)
 {
     ui->setupUi(this);
+    layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     ui->comboBox->addItems(methods);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
