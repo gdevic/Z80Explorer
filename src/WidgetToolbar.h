@@ -27,6 +27,7 @@ private slots:
 private:
     Ui::WidgetToolbar *ui;
     QTimer m_timer; // Timer to blink / indicate that the simulation is running
+    uint m_blinkPhase;
 };
 
 #endif // WIDGETTOOLBAR_H

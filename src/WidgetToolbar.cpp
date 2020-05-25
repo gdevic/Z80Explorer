@@ -11,8 +11,9 @@ WidgetToolbar::WidgetToolbar(QWidget *parent) :
     ui->setupUi(this);
 
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
+    connect(&::controller, &ClassController::onRunStarting, this, [this]() { m_timer.start(500); });
 
-    connect(ui->btRun, &QPushButton::clicked, &::controller, [this]() { m_timer.start(500); ::controller.doRunsim(INT_MAX); });
+    connect(ui->btRun, &QPushButton::clicked, &::controller, []() { ::controller.doRunsim(INT_MAX); });
     connect(ui->btStop, &QPushButton::clicked, &::controller, []() { ::controller.doRunsim(0); });
     connect(ui->btStep, &QPushButton::clicked, &::controller, [this]() { ::controller.doRunsim(ui->spinStep->value()); });
     connect(ui->btReset, &QPushButton::clicked, &::controller, []() { ::controller.doReset(); });
@@ -28,9 +29,8 @@ WidgetToolbar::~WidgetToolbar()
 
 void WidgetToolbar::onTimeout()
 {
-    static uint phase = 0;
     ui->btRun->setText("Running...");
-    ui->btRun->setStyleSheet((++phase & 1) ? "background-color: lightgreen" : "");
+    ui->btRun->setStyleSheet((++m_blinkPhase & 1) ? "background-color: lightgreen" : "");
     uint hcycle = ::controller.getSimZ80().getCurrentHCycle();
     ui->labelCycle->setText("hcycle: " % QString::number(hcycle));
 }

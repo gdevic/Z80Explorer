@@ -98,6 +98,7 @@ void ClassSimZ80::doRunsim(uint ticks)
         m_runcount = ticks;
     else
     {
+        emit ::controller.onRunStarting(ticks);
         if (ticks < 3) // Optimize for special cases of up to 2 half-cycle steps, makes the interaction more responsive
         {
             while (ticks--)
