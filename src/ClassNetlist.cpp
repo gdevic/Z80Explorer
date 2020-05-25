@@ -9,8 +9,7 @@
 ClassNetlist::ClassNetlist():
     m_transdefs(MAX_TRANS),
     m_netlist(MAX_NETS),
-    m_pullups(MAX_NETS),
-    m_pulldowns(MAX_NETS)
+    m_pullups(MAX_NETS)
 {
 }
 
@@ -235,10 +234,6 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                     // Pull-up and pull-down transistors should always have their *second* connection to the power/ground
                     if ((p->c1 == npwr) || (p->c1 == ngnd))
                         std::swap(p->c1, p->c2);
-                    if (p->c2 == npwr)
-                        m_pullups[p->c1] = true;
-                    if (p->c2 == ngnd)
-                        m_pulldowns[p->c1] = true;
                     max = std::max(max, std::max(p->c1, p->c2)); // Find the max net number
 
                     // ----- Add the transistor to the netlist -----
@@ -261,10 +256,6 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         qInfo() << "Number of nets" << count;
         count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](trans &t) { return t.id; });
         qInfo() << "Number of transistors" << count;
-        count = std::count_if(m_pullups.begin(), m_pullups.end(), [](bool p) { return p; });
-        qInfo() << "Number of pass transistors to VCC" << count;
-        count = std::count_if(m_pulldowns.begin(), m_pulldowns.end(), [](bool p) { return p; });
-        qInfo() << "Number of pass transistors to GND" << count;
         return true;
     }
     qCritical() << "Error opening transdefs.js";
@@ -296,12 +287,15 @@ bool ClassNetlist::loadPullups(const QString dir)
                     uint i = list[0].toUInt();
                     Q_ASSERT(i < MAX_NETS);
                     m_netlist[i].pullup = list[1].contains('+');
+                    m_pullups[i] = list[1].contains('+');
                 }
                 else
                     qWarning() << "Invalid line" << line;
             }
         }
         file.close();
+        uint count = std::count_if(m_pullups.begin(), m_pullups.end(), [](bool p) { return p; });
+        qInfo() << "Number of pullups" << count;
         return true;
     }
     qCritical() << "Error opening segdefs.js";
@@ -499,7 +493,7 @@ const QString ClassNetlist::netInfo(net_t net)
         QString s = ::controller.getNetlist().get(net);
         if (!s.isEmpty())
             s = s % ":";
-        s = s % QString("%1: pulled-up:%2 can-ground:%3").arg(net).arg(netPullup(net)).arg(netPulldown(net))
+        s = s % QString("%1: pulled-up:%2").arg(net).arg(netPullup(net))
         % QString("\nstate:%1 can-float:%2 is-high:%3 is-low:%4")
                 .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].pullup).arg(m_netlist[net].pulldown)
         % "\nsource/drain:"

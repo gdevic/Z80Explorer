@@ -684,10 +684,7 @@ void ClassChip::redrawNetsColorize(QString source, QString dest)
 
 #if 0 // XXX Test to see pullups
         bool pullup = ::controller.getNetlist().netPullup(i);
-        bool pulldown = ::controller.getNetlist().netPulldown(i);
         if (pullup) painter.setBrush(Qt::red);
-        if (pulldown)
-            painter.setBrush(Qt::blue);
 #endif
         for (const auto &path : ::controller.getChip().getSegment(i)->paths)
             painter.drawPath(path);
