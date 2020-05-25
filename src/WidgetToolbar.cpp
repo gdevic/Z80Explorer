@@ -12,11 +12,13 @@ WidgetToolbar::WidgetToolbar(QWidget *parent) :
 
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
 
-    connect(ui->btRun, &QPushButton::clicked, &::controller, []() { ::controller.doRunsim(INT_MAX); });
+    connect(ui->btRun, &QPushButton::clicked, &::controller, [this]() { m_timer.start(500); ::controller.doRunsim(INT_MAX); });
     connect(ui->btStop, &QPushButton::clicked, &::controller, []() { ::controller.doRunsim(0); });
     connect(ui->btStep, &QPushButton::clicked, &::controller, [this]() { ::controller.doRunsim(ui->spinStep->value()); });
     connect(ui->btReset, &QPushButton::clicked, &::controller, []() { ::controller.doReset(); });
     connect(ui->btRestart, &QPushButton::clicked, this, &WidgetToolbar::doRestart);
+
+    connect(&m_timer, &QTimer::timeout, this, &WidgetToolbar::onTimeout);
 }
 
 WidgetToolbar::~WidgetToolbar()
@@ -24,9 +26,19 @@ WidgetToolbar::~WidgetToolbar()
     delete ui;
 }
 
+void WidgetToolbar::onTimeout()
+{
+    static uint phase = 0;
+    ui->btRun->setStyleSheet((++phase & 1) ? "background-color: lightgreen" : "");
+    ui->btRun->setText("Running...");
+}
+
 void WidgetToolbar::onRunStopped(uint hcycle)
 {
     ui->labelCycle->setText("hcycle: " % QString::number(hcycle));
+    m_timer.stop();
+    ui->btRun->setText("Run");
+    ui->btRun->setStyleSheet("");
 }
 
 /*

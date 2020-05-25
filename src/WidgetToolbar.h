@@ -2,6 +2,7 @@
 #define WIDGETTOOLBAR_H
 
 #include <QWidget>
+#include <QTimer>
 
 namespace Ui { class WidgetToolbar; }
 
@@ -21,9 +22,11 @@ public slots:
 
 private slots:
     void doRestart();
+    void onTimeout();
 
 private:
     Ui::WidgetToolbar *ui;
+    QTimer m_timer; // Timer to blink / indicate that the simulation is running
 };
 
 #endif // WIDGETTOOLBAR_H
