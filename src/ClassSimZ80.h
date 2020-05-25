@@ -26,9 +26,6 @@ public:
         { return m_hcycletotal; }
     bool setPin(uint index, pin_t p);   // Sets an input pin to a value
 
-signals:
-    void runStopped(uint hcycle);       // Current simulation run completed at a given half-cycle
-
 public slots:
     void onShutdown()                   // Called when the app is closing
         { doRunsim(0); ClassNetlist::onShutdown(); }; // Stop the running sim and pass on the signal

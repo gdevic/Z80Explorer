@@ -102,7 +102,7 @@ void ClassSimZ80::doRunsim(uint ticks)
         {
             while (ticks--)
                 halfCycle();
-            emit runStopped(m_hcycletotal);
+            emit ::controller.onRunStopped(m_hcycletotal);
             onTimeout(); // XXX Can we get rid of this chain?
         }
         else // If the sim thread is not running, start it and set the tick count limiter
@@ -117,7 +117,7 @@ void ClassSimZ80::doRunsim(uint ticks)
                 while (m_runcount.fetchAndAddOrdered(-1) > 0)
                     halfCycle();
                 m_runcount = 0;
-                emit runStopped(m_hcycletotal);
+                emit ::controller.onRunStopped(m_hcycletotal);
             });
         }
     }

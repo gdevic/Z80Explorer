@@ -10,7 +10,6 @@ bool ClassController::init(QScriptEngine *sc)
     m_script.init(sc);
 
     connect(&m_trick, SIGNAL(echo(char)), this, SIGNAL(echo(char)));
-    connect(&m_simz80, SIGNAL(runStopped(uint)), this, SIGNAL(onRunStopped(uint)));
 
     connect(this, SIGNAL(shutdown()), &m_chip.annotate, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_chip.tips, SLOT(onShutdown()));
