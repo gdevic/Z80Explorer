@@ -6,7 +6,6 @@
 
 ClassSimZ80::ClassSimZ80()
 {
-    m_timer.setInterval(500);
     connect(&m_timer, &QTimer::timeout, this, &ClassSimZ80::onTimeout);
 }
 
@@ -109,7 +108,7 @@ void ClassSimZ80::doRunsim(uint ticks)
         else // If the sim thread is not running, start it and set the tick count limiter
         {
             m_runcount = ticks;
-            m_timer.start();
+            m_timer.start(500);
             m_elapsed.start();
             m_hcyclecnt = 0;
             // Code in this block will run in another thread

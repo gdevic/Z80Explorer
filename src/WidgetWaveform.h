@@ -54,7 +54,7 @@ private:
     bool    m_mousePressed;             // Mouse button is pressed
     int     m_fontheight;               // Cursor flag font height in pixels
 
-    QTimer m_timer;                     // Refresh graph every twice a second
+    QTimer m_timer;                     // Refresh graph twice per second
 };
 
 #endif // WIDGETWAVEFORM_H

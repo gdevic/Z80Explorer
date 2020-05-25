@@ -8,7 +8,6 @@
 
 WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 {
-    m_timer.setInterval(500);
     connect(&m_timer, &QTimer::timeout, this, &WidgetWaveform::onTimeout);
 
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
@@ -19,7 +18,7 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     setMouseTracking(true);
-    m_timer.start();
+    m_timer.start(500);
 }
 
 /*

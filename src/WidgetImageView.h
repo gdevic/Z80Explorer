@@ -2,6 +2,7 @@
 #define WIDGETIMAGEVIEW_H
 
 #include "AppTypes.h"
+#include <QTimer>
 #include <QWidget>
 #include <QQueue>
 
@@ -64,7 +65,7 @@ private:
     QRectF  m_imageView;                // Bounding rectangle in the texture space of the current screen viewport
     QQueue<qreal> m_perf;               // Helps calculate the rolling average of the painter's performance
     WidgetImageOverlay *m_ov;           // Image overlay class
-    QTimer *m_timer;                    // Image refresh timer
+    QTimer  m_timer;                    // Image refresh timer updates image every 1/2 seconds to show highlight blink
     uint    m_timer_tick;               // Timer timeout tick counter
 
     const segvdef *m_highlight_segment {}; // Segment to highlight in the current image

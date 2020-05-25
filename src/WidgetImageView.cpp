@@ -13,7 +13,6 @@
 #include <QRegularExpression>
 #include <QResizeEvent>
 #include <QGuiApplication>
-#include <QTimer>
 #include <QToolTip>
 
 WidgetImageView::WidgetImageView(QWidget *parent) :
@@ -32,12 +31,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     m_ov->move(10, 10);
     m_ov->show();
 
-    // Create a timer that updates image every 1/2 seconds to show highlight blink
-    m_timer = new QTimer(this);
-    m_timer->setInterval(500);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
-    m_timer->start();
-
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
     connect(m_ov, SIGNAL(actionSetImage(int)), this, SLOT(setImage(int)));
@@ -50,6 +43,9 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     });
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
+
+    connect(&m_timer, &QTimer::timeout, this, &WidgetImageView::onTimeout);
+    m_timer.start(500);
 }
 
 /*
