@@ -31,7 +31,7 @@ signals:
 
 public slots:
     void onShutdown()                   // Called when the app is closing
-        { ClassNetlist::onShutdown(); };// Subclassed netlist needs it more than we do
+        { doRunsim(0); ClassNetlist::onShutdown(); }; // Stop the running sim and pass on the signal
 
 private slots:
     void onTimeout();                   // Dump z80 state every 500ms when running the simulation
