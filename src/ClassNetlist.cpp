@@ -8,8 +8,7 @@
 
 ClassNetlist::ClassNetlist():
     m_transdefs(MAX_TRANS),
-    m_netlist(MAX_NETS),
-    m_pullups(MAX_NETS)
+    m_netlist(MAX_NETS)
 {
 }
 
@@ -286,15 +285,16 @@ bool ClassNetlist::loadPullups(const QString dir)
                 {
                     uint i = list[0].toUInt();
                     Q_ASSERT(i < MAX_NETS);
-                    m_netlist[i].pullup = list[1].contains('+');
-                    m_pullups[i] = list[1].contains('+');
+                    // Net has a (permanent) pull-up resistor and it is high on a power-up
+                    m_netlist[i].hasPullup = list[1].contains('+');
+                    m_netlist[i].isHigh = list[1].contains('+');
                 }
                 else
                     qWarning() << "Invalid line" << line;
             }
         }
         file.close();
-        uint count = std::count_if(m_pullups.begin(), m_pullups.end(), [](bool p) { return p; });
+        uint count = std::count_if(m_netlist.begin(), m_netlist.end(), [](net &net) { return net.hasPullup; });
         qInfo() << "Number of pullups" << count;
         return true;
     }
@@ -493,9 +493,9 @@ const QString ClassNetlist::netInfo(net_t net)
         QString s = ::controller.getNetlist().get(net);
         if (!s.isEmpty())
             s = s % ":";
-        s = s % QString("%1: pulled-up:%2").arg(net).arg(netPullup(net))
+        s = s % QString("%1: pulled-up:%2").arg(net).arg(m_netlist[net].hasPullup)
         % QString("\nstate:%1 can-float:%2 is-high:%3 is-low:%4")
-                .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].pullup).arg(m_netlist[net].pulldown)
+                .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].isHigh).arg(m_netlist[net].isLow)
         % "\nsource/drain:"
         % c1c2s.join(",")
         % "\nto-gates:"

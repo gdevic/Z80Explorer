@@ -257,8 +257,8 @@ inline void ClassSimZ80::setDB(uint8_t db)
 inline void ClassSimZ80::set(bool on, QString name)
 {
     net_t n = get(name);
-    m_netlist[n].pullup = on;
-    m_netlist[n].pulldown = !on;
+    m_netlist[n].isHigh = on;
+    m_netlist[n].isLow = !on;
 #if USE_MY_LISTS
     m_list[0] = n;
     m_listIndex = 1;
@@ -281,8 +281,8 @@ inline bool ClassSimZ80::getNetValue()
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
         net &net = m_netlist[*p];
-        if (net.pullup) return true;
-        if (net.pulldown) return false;
+        if (net.isHigh) return true;
+        if (net.isLow) return false;
     }
     // 3. resolve connected set of floating nodes
     // based on state of largest (by #connections) node
@@ -311,8 +311,8 @@ inline bool ClassSimZ80::getNetValue()
     for (auto i : group)
     {
         auto net = m_netlist[i];
-        if (net.pullup) return true;
-        if (net.pulldown) return false;
+        if (net.isHigh) return true;
+        if (net.isLow) return false;
     }
     // 3. resolve connected set of floating nodes
     // based on state of largest (by #connections) node

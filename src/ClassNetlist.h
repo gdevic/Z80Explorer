@@ -21,8 +21,9 @@ struct net
     QVector<trans *> c1c2s;             // The list of transistors for which this net is either a source or a drain
     bool state {false};                 // The voltage on the net is high (if not floating)
     bool floats {false};                // Net can float (used with ab, db, mreq, iorq, rd, wr to read hi-Z state)
-    bool pullup {false};                // Net is being pulled-up
-    bool pulldown {false};              // Net is being pulled-down
+    bool isHigh {false};                // Net is being pulled high
+    bool isLow {false};                 // Net is being pulled low
+    bool hasPullup {false};             // Net has a (permanent) pull-up resistor
 };
 
 /*
@@ -62,12 +63,9 @@ public:
     const QString netInfo(net_t net);           // Returns basic net information as string
     const QString transInfo(tran_t t);          // Returns basic transistor information as string
 
-    inline bool netPullup(net_t net) { return m_pullups[net]; }
-
 protected:
     QVector<trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
     QVector<net> m_netlist;                     // Array of nets, indexed by the net number
-    QVector<bool> m_pullups;                    // Nets that are pulled up (by a pull-up resistor), indexed by the net number
     net_t ngnd {}, npwr {};                     // 'vss' and 'vcc' nets (expected values: 1 and 2)
 
     uint8_t readByte(const QString &name);      // Returns a byte value read from the netlist for a particular net bus
