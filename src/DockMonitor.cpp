@@ -58,9 +58,8 @@ void DockMonitor::onEcho(char c)
  */
 void DockMonitor::onRunStopped(uint hcycle)
 {
-    z80state z80; // Get and display the chip state
+    Q_UNUSED(hcycle);
+    static z80state z80; // Get and display the chip state
     ::controller.readState(z80);
-    QString s = z80state::dumpState(z80);
-    s += QString("\nCurrent hcycle:%1\n").arg(hcycle);
-    ui->textStatus->setPlainText(s);
+    ui->textStatus->setPlainText(z80state::dumpState(z80));
 }
