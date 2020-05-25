@@ -10,9 +10,9 @@
 
 #include <stdint.h>
 
-typedef uint16_t net_t;                 // Type of an index to the net array
-typedef uint16_t tran_t;                // Type of an index to the transistor array
-typedef uint8_t  pin_t;                 // Type of the pin state (0, 1; or 2 for floating)
+typedef uint16_t net_t;  // Type of an index into the net array (type of a net id value)
+typedef uint16_t tran_t; // Type of an index into the transistor array (type of a transistor id value)
+typedef uint8_t  pin_t;  // Type of the pin state (0, 1; or 2 for floating)
 
 #if !defined (NETOP)
 #define NETOP
