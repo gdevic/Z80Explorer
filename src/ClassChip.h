@@ -74,13 +74,13 @@ private:
     void buildFeatureMap();             // Builds the feature map from individual layer images of a die
     void shrinkVias(QString source, QString dest); // Creates a via layer with 1x1 vias
     void createLayerMapImage(QString name, bool onlyVssVcc); // Creates a color image from the layer map data
-    // Experimental code
     void fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
     void drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id);
+    void fillLayerMap();                // Fills layer map with vss and vcc
+    void saveLayerMap();                // Saves layer map to a file
+    // Experimental code
     void drawAllNetsAsInactive(QString source, QString dest);
     void redrawNetsColorize(QString source, QString dest);
-    void experimental_1();              // 3D fill layer map with vss and vcc
-    void experimental_2();              // Save layer map to file
     void experimental_3();              // Creates transistors paths hinted by transdef bounding boxes
     void experimental_4();              // Creates transistors paths based on our feature bitmap
     bool scanForTransistor(uchar const *p, QRect t, uint &x, uint &y);

@@ -21,6 +21,7 @@ bool ClassController::init(QScriptEngine *sc)
     QSettings settings;
     QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
 
+#if HAVE_PREBUILT_LAYERMAP
     // Check if the current resource path contains required resource(s)
     qInfo() << "Checking for resource/layermap.bin";
     while (!QFile::exists(path + "/layermap.bin"))
@@ -34,6 +35,7 @@ bool ClassController::init(QScriptEngine *sc)
             return false;
     }
     settings.setValue("ResourceDir", path);
+#endif
 
     // Initialize all global classes using the given path to resource
     if (!m_simz80.loadResources(path) || !m_colors.load(path) || !m_chip.loadChipResources(path) || !m_simz80.initChip())
