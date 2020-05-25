@@ -1,9 +1,6 @@
 #include "WidgetImageOverlay.h"
 #include "ui_WidgetImageOverlay.h"
 
-#include <QPushButton>
-#include <QToolButton>
-
 WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::WidgetImageOverlay)
@@ -85,10 +82,15 @@ void WidgetImageOverlay::onFind()
 
 /*
  * Called when an image is selected to highlight the corresponding button
- * If compose is true, other buttons will not be reset (additive operation)
+ * If blend is true, other buttons will not be reset
  */
-void WidgetImageOverlay::selectImage(QString name, bool compose)
+void WidgetImageOverlay::selectImage(QString name, bool blend)
 {
     for (auto &pb : findChildren<QPushButton *>())
-        pb->setFlat((name == pb->text().mid(6)) || (pb->isFlat() & compose));
+    {
+        if (name == pb->text().mid(6))
+            pb->setFlat(!pb->isFlat() || !blend);
+        else if (!blend) // If we are not blending, reset other buttons
+            pb->setFlat(false);
+    }
 }

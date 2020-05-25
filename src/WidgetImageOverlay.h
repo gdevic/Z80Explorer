@@ -29,7 +29,7 @@ signals:
     void actionSetImage(int i);         // Set image by index
 
 public slots:
-    void selectImage(QString name, bool compose);
+    void selectImage(QString name, bool blend);
 
 private slots:
     void onFind();                      // Called by the editFind edit widget when the user presses the Enter key
