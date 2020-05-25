@@ -60,7 +60,7 @@ public slots:
 signals:
     void shutdown();                        // Application is shutting down, save your work!
     void echo(char e);                      // Echo a character onto the virtual console
-    uint onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
+    void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
     void eventNetName(Netop op, const QString name, const net_t); // Dispatches operations on net names
 
 private:
