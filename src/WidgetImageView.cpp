@@ -592,8 +592,8 @@ void WidgetImageView::setImage(int i)
 {
     if (i >= 0) // called from keyPressEvent() might not be selecting an image
     {
-        bool alt = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
-        if (alt) // Compositing multiple images
+        bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+        if (ctrl) // Compositing multiple images
         {
             QImage &image = ::controller.getChip().getImage(i);
             QPainter painter(&m_image);

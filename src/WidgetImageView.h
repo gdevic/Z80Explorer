@@ -27,7 +27,7 @@ public:
 
 public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
-    void setImage(int i);               // Sets the image by its index, also considers alt key
+    void setImage(int i);               // Sets the image by its index, also considers Ctrl key to blend images
 
 private slots:
     void onFind(QString text);          // Search for the named feature
