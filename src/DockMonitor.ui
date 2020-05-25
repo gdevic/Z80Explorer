@@ -73,29 +73,35 @@
      </widget>
     </item>
     <item>
-     <widget class="QPlainTextEdit" name="textStatus">
-      <property name="font">
-       <font>
-        <family>Courier New</family>
-        <pointsize>10</pointsize>
-       </font>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
       </property>
-      <property name="readOnly">
-       <bool>true</bool>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPlainTextEdit" name="textTerminal">
-      <property name="font">
-       <font>
-        <family>Courier New</family>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
+      <widget class="QPlainTextEdit" name="textStatus">
+       <property name="font">
+        <font>
+         <family>Courier New</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QPlainTextEdit" name="textTerminal">
+       <property name="font">
+        <font>
+         <family>Courier New</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>
