@@ -79,6 +79,9 @@ private:
     void fillLayerMap();                // Fills layer map with vss and vcc
     void saveLayerMap();                // Saves layer map to a file
     // Experimental code
+    void experimental_1();              // Merges net paths for a better visual display
+    bool saveSegvdefs(QString dir);     // Saves m_segvdefs
+    bool loadSegvdefs(QString dir);     // Loads m_segvdefs
     void drawAllNetsAsInactive(QString source, QString dest);
     void redrawNetsColorize(QString source, QString dest);
     void experimental_3();              // Creates transistors paths hinted by transdef bounding boxes

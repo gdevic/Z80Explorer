@@ -1,6 +1,7 @@
 #include "ClassChip.h"
 #include "ClassController.h"
 
+#include <QtConcurrent>
 #include <QDebug>
 #include <QDir>
 #include <QElapsedTimer>
@@ -186,18 +187,9 @@ bool ClassChip::loadSegdefs(QString dir)
         file.close();
         qInfo() << "Loaded" << m_segvdefs.count() << "segment visual definitions";
 
-#if 0 // XXX This code merges paths for each net so nets look better, but this process takes > 2 min on a fast PC
-        qInfo() << "Merging segment paths...";
-        QPainterPath path;
-        for (auto &seg : m_segvdefs)
-        {
-            path.clear();
-            for (auto &p : seg.paths)
-                path |= p;
-            seg.paths.clear();
-            seg.paths.append(path.simplified());
-        }
-#endif
+        // Optionally load processed and smoother paths; don't care if the file "segvdefs.bin" does not exist
+        loadSegvdefs(dir);
+
         return true;
     }
     else
@@ -865,11 +857,117 @@ void ClassChip::saveLayerMap()
  */
 void ClassChip::experimental(int n)
 {
-    if (n==1) return;
+    if (n==1) return experimental_1();
     if (n==2) return;
     if (n==3) return experimental_3();
     if (n==4) return experimental_4();
     qWarning() << "Invalid experimental function index" << n;
+}
+
+/******************************************************************************
+ * Experimental code
+ ******************************************************************************/
+
+/*
+ * Merges net paths for a better visual display
+ * This code merges paths for each net so nets look better, but this process can take > 2 min on a fast PC
+ * Hence, the merged nets have been cached in the file "segvdefs.bin"
+ */
+void ClassChip::experimental_1()
+{
+    qInfo() << "Experimental: merge visual segment paths. This process is running in the background and may take a few minutes to complete.";
+    qInfo() << "After it is done (you should see the message 'Saving segvdefs'), restart the application to use the new, smoother, paths.";
+
+    // Code in this block will run in another thread
+    QFuture<void> future = QtConcurrent::run([=]()
+    {
+        QPainterPath path;
+        for (auto &seg : m_segvdefs)
+        {
+            path.clear();
+            for (auto &p : seg.paths)
+                path |= p;
+            seg.paths.clear();
+            seg.paths.append(path.simplified());
+        }
+
+        // Save created visual paths to a file
+        {
+            QSettings settings;
+            QString path = settings.value("ResourceDir").toString();
+            Q_ASSERT(!path.isEmpty());
+            saveSegvdefs(path);
+        }
+    });
+}
+
+/*
+ * Saves visual paths to a file
+ */
+bool ClassChip::saveSegvdefs(QString dir)
+{
+    QString fileName = dir + "/segvdefs.bin";
+    qInfo() << "Saving segvdefs to" << fileName;
+    QFile saveFile(fileName);
+    if (saveFile.open(QIODevice::WriteOnly))
+    {
+        QDataStream out(&saveFile);
+        out << m_segvdefs.count();
+        for (auto &seg : m_segvdefs)
+        {
+            out << seg.nodenum;
+            out << seg.paths.count();
+            for (auto &path : seg.paths)
+                out << path;
+        }
+        return true;
+    }
+    qWarning() << "Unable to save" << fileName;
+    return false;
+}
+
+/*
+ * Loads visual paths from a file
+ */
+bool ClassChip::loadSegvdefs(QString dir)
+{
+    QString fileName = dir + "/segvdefs.bin";
+    qInfo() << "Loading segvdefs from" << fileName;
+    QFile loadFile(fileName);
+    if (loadFile.open(QIODevice::ReadOnly))
+    {
+        try // May throw an exception if the data is not formatted exactly as expected
+        {
+            QDataStream in(&loadFile);
+            int count, num_paths;
+            in >> count;
+            if (count == m_segvdefs.count())
+            {
+                while (count-- > 0)
+                {
+                    segvdef segvdef;
+                    in >> segvdef.nodenum >> num_paths;
+                    while (num_paths-- > 0)
+                    {
+                        QPainterPath path;
+                        in >> path;
+                        segvdef.paths.append(path);
+                    }
+
+                    if (m_segvdefs.contains(segvdef.nodenum))
+                        m_segvdefs.remove(segvdef.nodenum);
+                    m_segvdefs[segvdef.nodenum] = segvdef;
+                }
+                return true;
+            }
+            qWarning() << "Incorrect number of segvdefs!";
+        } catch (...)
+        {
+            qWarning() << "Invalid data format";
+        }
+    }
+    qWarning() << "Unable to load" << fileName;
+    return false;
 }
 
 /******************************************************************************
