@@ -28,11 +28,29 @@ void ClassScript::init(QScriptEngine *sc)
     m_engine->globalObject().setProperty("t", funTrans);
     QScriptValue funExperimental = m_engine->newFunction(&ClassScript::onExperimental);
     m_engine->globalObject().setProperty("ex", funExperimental);
+    QScriptValue funScript = m_engine->newFunction(&ClassScript::onScript);
+    m_engine->globalObject().setProperty("script", funScript);
 }
 
+/*
+ * Command line execution of built-in scripting
+ */
 void ClassScript::run(QString cmd)
 {
-    emit response(m_engine->evaluate(cmd).toString());
+    m_code += cmd + QLatin1Char('\n');
+    if (!m_engine->canEvaluate(m_code))
+        emit response("...");
+    else
+    {
+        // XXX I am not quite sure exactly how this should flow
+        QScriptValue result = m_engine->evaluate(cmd, cmd);
+        m_code.clear();
+        if (!result.isUndefined())
+            emit response(result.toString());
+        if (result.isError())
+            emit response( QString::fromLatin1("%0:%1: %2").arg(cmd).arg(result.property("lineNumber").toInt32()).arg(result.toString()));
+
+    }
 }
 
 QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
@@ -47,6 +65,7 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "driving(net)  - Shows a list of nets that the given net is driving\n";
     text << "driven(net)   - Shows a list of nets that drive the given net\n";
     text << "ex(n)         - Runs experimental function 'n'\n";
+    text << "script(file)  - Executes a script file ('script.js' by default)\n";
     emit ::controller.getScript().response(s);
     return "OK";
 }
@@ -118,5 +137,47 @@ QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
     uint n = ctx->argument(0).toNumber();
     qDebug() << n;
     ::controller.getChip().experimental(n);
+    return "OK";
+}
+
+/*
+ * Loads (imports) a script
+ * If no script name was given, load a default "script.js"
+ */
+QScriptValue ClassScript::onScript(QScriptContext *ctx, QScriptEngine *engine)
+{
+    QString fileName = ctx->argument(0).toString();
+    if (fileName == "undefined")
+        fileName = "script.js";
+    qDebug() << "Running script" << fileName;
+
+    QString error("OK");
+    QFile scriptFile(fileName);
+    if (scriptFile.open(QIODevice::ReadOnly))
+    {
+        QTextStream stream(&scriptFile);
+        QString contents = stream.readAll();
+        scriptFile.close();
+
+        QScriptContext *pc = ctx->parentContext();
+        ctx->setActivationObject(pc->activationObject());
+        ctx->setThisObject(pc->thisObject());
+
+        QScriptValue result = engine->evaluate(contents, fileName);
+        if (engine->hasUncaughtException())
+            return result;
+
+        // XXX I am not quite sure exactly how this should flow
+        if (result.isError())
+            error = QString::fromLatin1("%0:%1: %2").arg(fileName).arg(result.property("lineNumber").toInt32()).arg(result.toString());
+    }
+    else
+        return ctx->throwError(QString("Could not open %0 for reading").arg(fileName));
+
+    if (error != "OK")
+    {
+        qWarning() << error;
+        return -1;
+    }
     return "OK";
 }

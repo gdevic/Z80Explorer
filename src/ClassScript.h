@@ -17,7 +17,7 @@ signals:
     void response(QString);     // Write a response string to the command list
 
 public slots:
-    void run(QString cmd);      // Evaluates and runs command
+    void run(QString cmd);      // Evaluates and runs commands
 
 private:
     static QScriptValue onHelp(QScriptContext *ctx, QScriptEngine *eng);
@@ -29,9 +29,11 @@ private:
     static QScriptValue onNet(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onTrans(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onExperimental(QScriptContext *ctx, QScriptEngine *eng);
+    static QScriptValue onScript(QScriptContext *ctx, QScriptEngine *engine);
 
 private:
     QScriptEngine *m_engine;
+    QString m_code;
 };
 
 #endif // CLASSSCRIPT_H
