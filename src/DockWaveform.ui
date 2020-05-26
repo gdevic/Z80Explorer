@@ -22,7 +22,7 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
-     <number>0</number>
+     <number>6</number>
     </property>
     <property name="leftMargin">
      <number>0</number>
@@ -40,68 +40,63 @@
      <widget class="WidgetToolbar" name="widget" native="true"/>
     </item>
     <item>
-     <widget class="QFrame" name="frameMenu">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>9</number>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+      <property name="rightMargin">
+       <number>9</number>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout2">
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QToolButton" name="btFile">
-         <property name="text">
-          <string>File      </string>
-         </property>
-         <property name="popupMode">
-          <enum>QToolButton::InstantPopup</enum>
-         </property>
-         <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonFollowStyle</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="btEdit">
-         <property name="text">
-          <string>Edit...   </string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="btLink">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>5</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
+      <item>
+       <widget class="QToolButton" name="btFile">
+        <property name="text">
+         <string>File      </string>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonFollowStyle</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btEdit">
+        <property name="text">
+         <string>Edit...   </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btLink">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>5</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QFrame" name="frame">
@@ -195,7 +190,7 @@ color: rgb(255, 255, 255);</string>
             <x>0</x>
             <y>0</y>
             <width>604</width>
-            <height>447</height>
+            <height>444</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="layoutScroll">
