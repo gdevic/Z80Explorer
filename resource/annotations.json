@@ -1,0 +1,522 @@
+{
+    "annotations": [
+        {
+            "bar": true,
+            "pix": 51,
+            "text": "BUSRQ",
+            "x": 137,
+            "y": 262
+        },
+        {
+            "bar": true,
+            "pix": 64,
+            "text": "WAIT",
+            "x": 344,
+            "y": 223
+        },
+        {
+            "bar": true,
+            "pix": 52,
+            "text": "BUSAK",
+            "x": 553,
+            "y": 232
+        },
+        {
+            "bar": true,
+            "pix": 50,
+            "text": "RESET",
+            "x": 140,
+            "y": 470
+        },
+        {
+            "bar": true,
+            "pix": 126,
+            "text": "WR",
+            "x": 1776,
+            "y": 184
+        },
+        {
+            "bar": true,
+            "pix": 131,
+            "text": "RD",
+            "x": 2041,
+            "y": 184
+        },
+        {
+            "bar": true,
+            "pix": 63,
+            "text": "IORQ",
+            "x": 2388,
+            "y": 216
+        },
+        {
+            "bar": true,
+            "pix": 63,
+            "text": "MREQ",
+            "x": 2779,
+            "y": 215
+        },
+        {
+            "bar": true,
+            "pix": 64,
+            "text": "HALT",
+            "x": 3132,
+            "y": 217
+        },
+        {
+            "bar": true,
+            "pix": 85,
+            "text": "NMI",
+            "x": 3967,
+            "y": 216
+        },
+        {
+            "bar": true,
+            "pix": 85,
+            "text": "INT",
+            "x": 4174,
+            "y": 216
+        },
+        {
+            "bar": false,
+            "pix": 126,
+            "text": "D1",
+            "x": 4403,
+            "y": 186
+        },
+        {
+            "bar": false,
+            "pix": 125,
+            "text": "D0",
+            "x": 4391,
+            "y": 438
+        },
+        {
+            "bar": false,
+            "pix": 126,
+            "text": "D7",
+            "x": 4409,
+            "y": 1631
+        },
+        {
+            "bar": false,
+            "pix": 130,
+            "text": "D2",
+            "x": 4404,
+            "y": 1834
+        },
+        {
+            "bar": false,
+            "pix": 81,
+            "text": "+5V",
+            "x": 4390,
+            "y": 2482
+        },
+        {
+            "bar": false,
+            "pix": 136,
+            "text": "D6",
+            "x": 4398,
+            "y": 3138
+        },
+        {
+            "bar": false,
+            "pix": 128,
+            "text": "D5",
+            "x": 4406,
+            "y": 3858
+        },
+        {
+            "bar": false,
+            "pix": 127,
+            "text": "D3",
+            "x": 4407,
+            "y": 4066
+        },
+        {
+            "bar": false,
+            "pix": 126,
+            "text": "D4",
+            "x": 4407,
+            "y": 4398
+        },
+        {
+            "bar": false,
+            "pix": 86,
+            "text": "CLK",
+            "x": 4405,
+            "y": 4732
+        },
+        {
+            "bar": false,
+            "pix": 85,
+            "text": "A15",
+            "x": 3863,
+            "y": 4733
+        },
+        {
+            "bar": false,
+            "pix": 84,
+            "text": "A14",
+            "x": 3657,
+            "y": 4732
+        },
+        {
+            "bar": false,
+            "pix": 85,
+            "text": "A13",
+            "x": 3177,
+            "y": 4732
+        },
+        {
+            "bar": false,
+            "pix": 85,
+            "text": "A12",
+            "x": 2940,
+            "y": 4733
+        },
+        {
+            "bar": false,
+            "pix": 84,
+            "text": "A11",
+            "x": 2424,
+            "y": 4733
+        },
+        {
+            "bar": false,
+            "pix": 84,
+            "text": "A10",
+            "x": 2214,
+            "y": 4717
+        },
+        {
+            "bar": false,
+            "pix": 126,
+            "text": "A9",
+            "x": 1671,
+            "y": 4695
+        },
+        {
+            "bar": false,
+            "pix": 126,
+            "text": "A8",
+            "x": 1463,
+            "y": 4693
+        },
+        {
+            "bar": false,
+            "pix": 127,
+            "text": "A7",
+            "x": 974,
+            "y": 4694
+        },
+        {
+            "bar": false,
+            "pix": 126,
+            "text": "A6",
+            "x": 768,
+            "y": 4694
+        },
+        {
+            "bar": false,
+            "pix": 127,
+            "text": "A5",
+            "x": 286,
+            "y": 4693
+        },
+        {
+            "bar": false,
+            "pix": 130,
+            "text": "A4",
+            "x": 242,
+            "y": 4402
+        },
+        {
+            "bar": false,
+            "pix": 126,
+            "text": "A3",
+            "x": 244,
+            "y": 3910
+        },
+        {
+            "bar": false,
+            "pix": 127,
+            "text": "A2",
+            "x": 243,
+            "y": 3688
+        },
+        {
+            "bar": false,
+            "pix": 129,
+            "text": "A1",
+            "x": 243,
+            "y": 3174
+        },
+        {
+            "bar": false,
+            "pix": 129,
+            "text": "A0",
+            "x": 242,
+            "y": 2791
+        },
+        {
+            "bar": false,
+            "pix": 81,
+            "text": "GND",
+            "x": 204,
+            "y": 2559
+        },
+        {
+            "bar": true,
+            "pix": 64,
+            "text": "RFSH",
+            "x": 226,
+            "y": 1878
+        },
+        {
+            "bar": true,
+            "pix": 126,
+            "text": "M1",
+            "x": 227,
+            "y": 1638
+        },
+        {
+            "bar": false,
+            "pix": 401,
+            "text": "PLA",
+            "x": 2325,
+            "y": 1203
+        },
+        {
+            "bar": false,
+            "pix": 166,
+            "text": "Register File",
+            "x": 1227,
+            "y": 3709
+        },
+        {
+            "bar": false,
+            "pix": 300,
+            "text": "ALU",
+            "x": 3292,
+            "y": 3903
+        },
+        {
+            "bar": false,
+            "pix": 166,
+            "text": "IR",
+            "x": 4043,
+            "y": 1337
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "F",
+            "x": 2295,
+            "y": 3400
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "<i>F",
+            "x": 2241,
+            "y": 3400
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "C",
+            "x": 2162,
+            "y": 3400
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "<i>C",
+            "x": 2112,
+            "y": 3400
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "E",
+            "x": 2031,
+            "y": 3400
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "<i>E",
+            "x": 1985,
+            "y": 3400
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "L",
+            "x": 1900,
+            "y": 3400
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "<i>L",
+            "x": 1852,
+            "y": 3400
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "A",
+            "x": 2293,
+            "y": 4030
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "<i>A",
+            "x": 2250,
+            "y": 4030
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "B",
+            "x": 2161,
+            "y": 4030
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "<i>B",
+            "x": 2116,
+            "y": 4030
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "D",
+            "x": 2031,
+            "y": 4030
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "<i>D",
+            "x": 1981,
+            "y": 4030
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "H",
+            "x": 1899,
+            "y": 4030
+        },
+        {
+            "bar": false,
+            "pix": 75,
+            "text": "<i>H",
+            "x": 1853,
+            "y": 4030
+        },
+        {
+            "bar": false,
+            "pix": 87,
+            "text": "I<br>Y",
+            "x": 1722,
+            "y": 3350
+        },
+        {
+            "bar": false,
+            "pix": 88,
+            "text": "I<br>X",
+            "x": 1775,
+            "y": 3350
+        },
+        {
+            "bar": false,
+            "pix": 88,
+            "text": "S<br>P",
+            "x": 1637,
+            "y": 3350
+        },
+        {
+            "bar": false,
+            "pix": 88,
+            "text": "W<br>Z",
+            "x": 1563,
+            "y": 3350
+        },
+        {
+            "bar": false,
+            "pix": 88,
+            "text": "I<br>R",
+            "x": 1393,
+            "y": 3350
+        },
+        {
+            "bar": false,
+            "pix": 88,
+            "text": "P<br>C",
+            "x": 1347,
+            "y": 3350
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "text": "I0",
+            "x": 4110,
+            "y": 1226
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "text": "I1",
+            "x": 4110,
+            "y": 1278
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "text": "I2",
+            "x": 4110,
+            "y": 1330
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "text": "I6",
+            "x": 4110,
+            "y": 1383
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "text": "I7",
+            "x": 4110,
+            "y": 1435
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "text": "I3",
+            "x": 4110,
+            "y": 1487
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "text": "I4",
+            "x": 4110,
+            "y": 1538
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "text": "I5",
+            "x": 4110,
+            "y": 1590
+        }
+    ]
+}

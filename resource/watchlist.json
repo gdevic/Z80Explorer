@@ -1,0 +1,408 @@
+{
+    "watchlist": [
+        {
+            "name": "_busak",
+            "net": 41
+        },
+        {
+            "name": "_busrq",
+            "net": 25
+        },
+        {
+            "name": "_halt",
+            "net": 40
+        },
+        {
+            "name": "_instr0",
+            "net": 1348
+        },
+        {
+            "name": "_instr1",
+            "net": 1359
+        },
+        {
+            "name": "_instr2",
+            "net": 1365
+        },
+        {
+            "name": "_instr3",
+            "net": 1379
+        },
+        {
+            "name": "_instr4",
+            "net": 1387
+        },
+        {
+            "name": "_instr5",
+            "net": 1394
+        },
+        {
+            "name": "_instr6",
+            "net": 1369
+        },
+        {
+            "name": "_instr7",
+            "net": 1374
+        },
+        {
+            "name": "_int",
+            "net": 23
+        },
+        {
+            "name": "_iorq",
+            "net": 30
+        },
+        {
+            "name": "_ir0",
+            "net": 374
+        },
+        {
+            "name": "_ir1",
+            "net": 375
+        },
+        {
+            "name": "_ir2",
+            "net": 378
+        },
+        {
+            "name": "_ir3",
+            "net": 385
+        },
+        {
+            "name": "_ir4",
+            "net": 1386
+        },
+        {
+            "name": "_ir5",
+            "net": 1393
+        },
+        {
+            "name": "_ir6",
+            "net": 1371
+        },
+        {
+            "name": "_ir7",
+            "net": 1377
+        },
+        {
+            "name": "_load_ir",
+            "net": 326
+        },
+        {
+            "name": "_m1",
+            "net": 26
+        },
+        {
+            "name": "_mreq",
+            "net": 29
+        },
+        {
+            "name": "_nmi",
+            "net": 24
+        },
+        {
+            "name": "_rd",
+            "net": 27
+        },
+        {
+            "name": "_reset",
+            "net": 21
+        },
+        {
+            "name": "_rfsh",
+            "net": 31
+        },
+        {
+            "name": "_wait",
+            "net": 22
+        },
+        {
+            "name": "_wr",
+            "net": 28
+        },
+        {
+            "name": "AB",
+            "net": 0
+        },
+        {
+            "name": "ab0",
+            "net": 5
+        },
+        {
+            "name": "ab1",
+            "net": 6
+        },
+        {
+            "name": "ab10",
+            "net": 15
+        },
+        {
+            "name": "ab11",
+            "net": 16
+        },
+        {
+            "name": "ab12",
+            "net": 17
+        },
+        {
+            "name": "ab13",
+            "net": 18
+        },
+        {
+            "name": "ab14",
+            "net": 19
+        },
+        {
+            "name": "ab15",
+            "net": 20
+        },
+        {
+            "name": "ab2",
+            "net": 7
+        },
+        {
+            "name": "ab3",
+            "net": 8
+        },
+        {
+            "name": "ab4",
+            "net": 9
+        },
+        {
+            "name": "ab5",
+            "net": 10
+        },
+        {
+            "name": "ab6",
+            "net": 11
+        },
+        {
+            "name": "ab7",
+            "net": 12
+        },
+        {
+            "name": "ab8",
+            "net": 13
+        },
+        {
+            "name": "ab9",
+            "net": 14
+        },
+        {
+            "name": "clk",
+            "net": 3
+        },
+        {
+            "name": "DB",
+            "net": 0
+        },
+        {
+            "name": "db0",
+            "net": 32
+        },
+        {
+            "name": "db1",
+            "net": 33
+        },
+        {
+            "name": "db2",
+            "net": 34
+        },
+        {
+            "name": "db3",
+            "net": 35
+        },
+        {
+            "name": "db4",
+            "net": 36
+        },
+        {
+            "name": "db5",
+            "net": 37
+        },
+        {
+            "name": "db6",
+            "net": 38
+        },
+        {
+            "name": "db7",
+            "net": 39
+        },
+        {
+            "name": "DBUS",
+            "net": 0
+        },
+        {
+            "name": "dbus0",
+            "net": 138
+        },
+        {
+            "name": "dbus1",
+            "net": 196
+        },
+        {
+            "name": "dbus2",
+            "net": 412
+        },
+        {
+            "name": "dbus3",
+            "net": 480
+        },
+        {
+            "name": "dbus4",
+            "net": 485
+        },
+        {
+            "name": "dbus5",
+            "net": 486
+        },
+        {
+            "name": "dbus6",
+            "net": 380
+        },
+        {
+            "name": "dbus7",
+            "net": 370
+        },
+        {
+            "name": "INSTR",
+            "net": 0
+        },
+        {
+            "name": "int_reset",
+            "net": 95
+        },
+        {
+            "name": "IR",
+            "net": 0
+        },
+        {
+            "name": "M",
+            "net": 0
+        },
+        {
+            "name": "m1",
+            "net": 155
+        },
+        {
+            "name": "m2",
+            "net": 173
+        },
+        {
+            "name": "m3",
+            "net": 163
+        },
+        {
+            "name": "m4",
+            "net": 159
+        },
+        {
+            "name": "m5",
+            "net": 209
+        },
+        {
+            "name": "m6",
+            "net": 210
+        },
+        {
+            "name": "T",
+            "net": 0
+        },
+        {
+            "name": "t1",
+            "net": 115
+        },
+        {
+            "name": "t2",
+            "net": 137
+        },
+        {
+            "name": "t3",
+            "net": 144
+        },
+        {
+            "name": "t4",
+            "net": 166
+        },
+        {
+            "name": "t5",
+            "net": 134
+        },
+        {
+            "name": "t6",
+            "net": 168
+        },
+        {
+            "name": "UBUS",
+            "net": 0
+        },
+        {
+            "name": "ubus0",
+            "net": 545
+        },
+        {
+            "name": "ubus1",
+            "net": 528
+        },
+        {
+            "name": "ubus2",
+            "net": 526
+        },
+        {
+            "name": "ubus3",
+            "net": 770
+        },
+        {
+            "name": "ubus4",
+            "net": 779
+        },
+        {
+            "name": "ubus5",
+            "net": 790
+        },
+        {
+            "name": "ubus6",
+            "net": 716
+        },
+        {
+            "name": "ubus7",
+            "net": 525
+        },
+        {
+            "name": "VBUS",
+            "net": 0
+        },
+        {
+            "name": "vbus0",
+            "net": 755
+        },
+        {
+            "name": "vbus1",
+            "net": 772
+        },
+        {
+            "name": "vbus2",
+            "net": 783
+        },
+        {
+            "name": "vbus3",
+            "net": 796
+        },
+        {
+            "name": "vbus4",
+            "net": 803
+        },
+        {
+            "name": "vbus5",
+            "net": 808
+        },
+        {
+            "name": "vbus6",
+            "net": 836
+        },
+        {
+            "name": "vbus7",
+            "net": 839
+        }
+    ]
+}
