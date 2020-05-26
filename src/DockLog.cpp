@@ -19,7 +19,7 @@ DockLog::DockLog(QWidget *parent) :
     // Set the maximum number of lines (blocks) for the text widget to hold.
     // This should prevent reported faults when the buffer gets very large.
     QSettings settings;
-    int lines = settings.value("AppLogLines", 100).toInt();
+    int lines = settings.value("AppLogLines", 2000).toInt();
     ui->textEdit->setMaximumBlockCount(lines);
 
     // Alter the popup menu when user right clicks
@@ -90,7 +90,7 @@ void DockLog::onMaxLines()
     bool ok;
     // Get and change the number of lines that we keep in the log buffer
     QSettings settings;
-    int lines = settings.value("AppLogLines", 1000).toInt();
+    int lines = settings.value("AppLogLines").toInt();
 
     lines = QInputDialog::getInt(this, "Set log buffer size", "Enter the number of lines of text to keep in the log buffer [100-5000]:", lines, 100, 5000, 100, &ok);
     if (ok)
