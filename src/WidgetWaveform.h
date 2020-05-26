@@ -4,7 +4,6 @@
 #include "ClassWatch.h"
 #include "DockWaveform.h"
 #include <QWidget>
-#include <QTimer>
 
 class WidgetWaveform : public QWidget
 {
@@ -22,10 +21,6 @@ signals:
 public slots:
     void onLinked(bool isLinked);       // Links and unlinks the first two cursors
     void onZoom(bool isUp);             // Zooms in and out by a predefined step
-
-private slots:
-    void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
-    void onTimeout() { update(); }      // Refresh graph when running simulation
 
 private:
     DockWaveform *m_dock {};
@@ -53,8 +48,6 @@ private:
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
     bool    m_mousePressed;             // Mouse button is pressed
     int     m_fontheight;               // Cursor flag font height in pixels
-
-    QTimer m_timer;                     // Refresh graph twice per second
 };
 
 #endif // WIDGETWAVEFORM_H

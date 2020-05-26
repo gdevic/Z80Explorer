@@ -8,9 +8,9 @@
 
 WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 {
-    connect(&m_timer, &QTimer::timeout, this, &WidgetWaveform::onTimeout);
-
-    connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
+    // Refresh graph when running simulation and when stopped
+    connect(&::controller, &ClassController::onRunHeartbeat, this, [this](){ update(); });
+    connect(&::controller, &ClassController::onRunStopped, this, [this](){ update(); });
 
     // Set up two initial cursors
     m_cursors2x.append(1);
@@ -18,16 +18,6 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     setMouseTracking(true);
-    m_timer.start(500);
-}
-
-/*
- * Controller signals us that the current simulation run completed
- */
-void WidgetWaveform::onRunStopped(uint hcycle)
-{
-    Q_UNUSED(hcycle);
-    update(); // Repaint the view
 }
 
 void WidgetWaveform::paintEvent(QPaintEvent *pe)
