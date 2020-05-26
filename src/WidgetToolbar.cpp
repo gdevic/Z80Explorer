@@ -10,7 +10,7 @@ WidgetToolbar::WidgetToolbar(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
+    connect(&::controller, &ClassController::onRunStopped, this, &WidgetToolbar::onRunStopped);
     connect(&::controller, &ClassController::onRunStarting, this, [this]() { ui->btRun->setText("Running..."); });
     connect(&::controller, &ClassController::onRunHeartbeat, this, &WidgetToolbar::onHeartbeat);
 
