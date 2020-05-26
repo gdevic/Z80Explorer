@@ -53,8 +53,36 @@
             "net": 30
         },
         {
-            "name": "_irq",
-            "net": 23
+            "name": "_ir0",
+            "net": 374
+        },
+        {
+            "name": "_ir1",
+            "net": 375
+        },
+        {
+            "name": "_ir2",
+            "net": 378
+        },
+        {
+            "name": "_ir3",
+            "net": 385
+        },
+        {
+            "name": "_ir4",
+            "net": 1386
+        },
+        {
+            "name": "_ir5",
+            "net": 1393
+        },
+        {
+            "name": "_ir6",
+            "net": 1371
+        },
+        {
+            "name": "_ir7",
+            "net": 1377
         },
         {
             "name": "_load_ir",
@@ -238,6 +266,14 @@
         },
         {
             "name": "INSTR",
+            "net": 0
+        },
+        {
+            "name": "int_reset",
+            "net": 95
+        },
+        {
+            "name": "IR",
             "net": 0
         },
         {
