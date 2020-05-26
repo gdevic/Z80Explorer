@@ -146,12 +146,13 @@ bool ClassTrickbox::loadIntelHex(const QString fileName)
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "Unable to open" << fileName;
+        qWarning() << "Unable to open" << fileName;
         return false;
     }
 
     // Clear the RAM memory before loading any programs
     memset(m_mem, 0, sizeof(m_mem));
+    qInfo() << "Clearing simulator RAM";
 
     QTextStream in(&file);
     while (!in.atEnd())
@@ -163,7 +164,7 @@ bool ClassTrickbox::loadIntelHex(const QString fileName)
         QString c = in.read(1);
         if (c != ':')
         {
-            qDebug() << "Invalid starting character" << c;
+            qWarning() << "Invalid starting character" << c;
             break;
         }
         uint8_t count = in.read(2).toUtf8().toUInt(&bStatus, 16);
@@ -172,7 +173,7 @@ bool ClassTrickbox::loadIntelHex(const QString fileName)
         uint8_t type = in.read(2).toUtf8().toUInt(&bStatus, 16);
         if (type > 1) // 0 - "Data", 1 - "End Of file"
         {
-            qDebug() << "Unexpected type" << type;
+            qWarning() << "Unexpected type" << type;
             break;
         }
         uint16_t sum = count + addressL + addressH + type;
@@ -186,12 +187,12 @@ bool ClassTrickbox::loadIntelHex(const QString fileName)
         uint16_t checksum = in.read(2).toUtf8().toUInt(&bStatus, 16);
         if ((checksum + sum) & 0xFF)
         {
-            qDebug() << "Checksum mismatch";
+            qWarning() << "Checksum mismatch";
             break;
         }
     }
     if (in.atEnd())
-        qDebug() << "Loaded" << fileName << "into simulated RAM";
+        qInfo() << "Loaded" << fileName << "into simulator RAM";
 
     return in.atEnd();
 }
