@@ -2,7 +2,6 @@
 #include "ui_WidgetToolbar.h"
 #include "ClassController.h"
 #include <QStringBuilder>
-#include <QDebug>
 
 WidgetToolbar::WidgetToolbar(QWidget *parent) :
     QWidget(parent),
@@ -28,7 +27,7 @@ WidgetToolbar::~WidgetToolbar()
 
 void WidgetToolbar::onHeartbeat(uint hcycle)
 {
-    ui->btRun->setStyleSheet((++m_blinkPhase & 1) ? "background-color: lightgreen" : "");
+    ui->btRun->setStyleSheet(ui->btRun->styleSheet().isEmpty() ? "background-color: lightgreen" : "");
 
     ui->labelCycle->setText("hcycle: " % QString::number(hcycle));
 

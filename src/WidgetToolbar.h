@@ -23,7 +23,6 @@ private slots:
 
 private:
     Ui::WidgetToolbar *ui;
-    uint m_blinkPhase;
 };
 
 #endif // WIDGETTOOLBAR_H
