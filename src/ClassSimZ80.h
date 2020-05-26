@@ -24,6 +24,7 @@ public:
     void doRunsim(uint ticks);          // Run the simulation for the given number of clocks
     uint getCurrentHCycle()             // Returns the current simulation half-cycle count
         { return m_hcycletotal; }
+    uint getEstHz() { return m_estHz; } // Returns estimated simulated frequency
     bool setPin(uint index, pin_t p);   // Sets an input pin to a value
 
 public slots:
@@ -71,7 +72,8 @@ private:
     QVector<net_t> group;
 #endif
     //----------------------------------------------------------
-    QTimer m_timer;                     // Timer to dump z80 state every 500ms when running the simulation
+    QTimer m_timer;                     // Simulation heartbeat timer (500 ms)
+    uint m_estHz {};                    // Estimated simulated frequency
     QElapsedTimer m_elapsed;            // Calculates elapsed time during a simulation thread run
     QAtomicInt m_runcount {};           // Simulation thread down-counts this to exit
     QAtomicInt m_hcyclecnt {};          // Simulation half-cycle count (resets on each runstart event)

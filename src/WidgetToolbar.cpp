@@ -11,15 +11,14 @@ WidgetToolbar::WidgetToolbar(QWidget *parent) :
     ui->setupUi(this);
 
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
-    connect(&::controller, &ClassController::onRunStarting, this, [this]() { m_timer.start(500); });
+    connect(&::controller, &ClassController::onRunStarting, this, [this]() { ui->btRun->setText("Running..."); });
+    connect(&::controller, &ClassController::onRunHeartbeat, this, &WidgetToolbar::onHeartbeat);
 
     connect(ui->btRun, &QPushButton::clicked, &::controller, []() { ::controller.doRunsim(INT_MAX); });
     connect(ui->btStop, &QPushButton::clicked, &::controller, []() { ::controller.doRunsim(0); });
     connect(ui->btStep, &QPushButton::clicked, &::controller, [this]() { ::controller.doRunsim(ui->spinStep->value()); });
     connect(ui->btReset, &QPushButton::clicked, &::controller, []() { ::controller.doReset(); });
     connect(ui->btRestart, &QPushButton::clicked, this, &WidgetToolbar::doRestart);
-
-    connect(&m_timer, &QTimer::timeout, this, &WidgetToolbar::onTimeout);
 }
 
 WidgetToolbar::~WidgetToolbar()
@@ -27,17 +26,18 @@ WidgetToolbar::~WidgetToolbar()
     delete ui;
 }
 
-void WidgetToolbar::onTimeout()
+void WidgetToolbar::onHeartbeat(uint hcycle)
 {
-    ui->btRun->setText("Running...");
     ui->btRun->setStyleSheet((++m_blinkPhase & 1) ? "background-color: lightgreen" : "");
-    uint hcycle = ::controller.getSimZ80().getCurrentHCycle();
+
     ui->labelCycle->setText("hcycle: " % QString::number(hcycle));
+
+    uint hz = ::controller.getSimZ80().getEstHz();
+    ui->labelFreq->setText("~" % QString::number(hz) % " Hz");
 }
 
 void WidgetToolbar::onRunStopped(uint hcycle)
 {
-    m_timer.stop();
     ui->btRun->setText("Run");
     ui->btRun->setStyleSheet("");
     ui->labelCycle->setText("hcycle: " % QString::number(hcycle));

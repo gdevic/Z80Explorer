@@ -72,8 +72,13 @@ uint ClassController::doReset()
 void ClassController::doRunsim(uint ticks)
 {
     m_simz80.doRunsim(ticks);
-    if (ticks != INT_MAX)
-        qDebug() << "Chip run for" << ticks << "half-clocks";
+
+    if (ticks == INT_MAX)
+        qInfo() << "Starting simulation";
+    else if (ticks)
+        qInfo() << "Simulation run for" << ticks << "half-clocks";
+    else
+        qInfo() << "Simulation stopped";
 }
 
 /*

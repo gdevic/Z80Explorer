@@ -63,13 +63,18 @@ bool ClassSimZ80::initChip()
     return true;
 }
 
-// XXX Remove this timer here and implement it somewhere else (?)
+
+/*
+ * Simulation heartbeat timer (500ms)
+ */
 void ClassSimZ80::onTimeout()
 {
-    qreal hz = (uint(m_hcyclecnt) / 2.0) / (m_elapsed.elapsed() / 1000.0);
-    qDebug() << "Half-Cycles:" << uint(m_hcycletotal) << "~" << ((hz < 100) ? 0 : hz) << " Hz";
+    // Estimate simulated frequency of the running netlist
+    m_estHz = (uint(m_hcyclecnt) / 2.0) / (m_elapsed.elapsed() / 1000.0);
     if (m_runcount <= 0)
         m_timer.stop();
+    else
+        emit ::controller.onRunHeartbeat(m_hcyclecnt);
 }
 
 /*
@@ -104,7 +109,6 @@ void ClassSimZ80::doRunsim(uint ticks)
             while (ticks--)
                 halfCycle();
             emit ::controller.onRunStopped(m_hcycletotal);
-            onTimeout(); // XXX Can we get rid of this chain?
         }
         else // If the sim thread is not running, start it and set the tick count limiter
         {
