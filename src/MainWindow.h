@@ -27,7 +27,7 @@ private slots:
     void onEditWatchlist();             // Edits watchlist
     void onNewImageView();              // Open a new view to the chip data
     void onNewWaveformView();           // Open a new view to the waveforms
-    void onOnlineManual();              // Open the online user's manual
+    void onOnlineRef();                 // Open the online reference web page
     void onAbout();                     // Shows the About dialog
     void onExit();                      // Exit the application
     void closeEvent(QCloseEvent *event);// Called on application close event

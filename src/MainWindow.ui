@@ -77,6 +77,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionOnlineManual"/>
+    <addaction name="actionScriptingReference"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -135,9 +136,6 @@
    <property name="text">
     <string>Watchlist...</string>
    </property>
-   <property name="toolTip">
-    <string>Edit Watchlist</string>
-   </property>
    <property name="statusTip">
     <string>Edit list of nets to watch</string>
    </property>
@@ -148,9 +146,6 @@
   <action name="actionEditBuses">
    <property name="text">
     <string>Buses...</string>
-   </property>
-   <property name="toolTip">
-    <string>Edit Buses</string>
    </property>
    <property name="statusTip">
     <string>Edit nets and buses</string>
@@ -163,13 +158,13 @@
    <property name="text">
     <string>About...</string>
    </property>
+   <property name="statusTip">
+    <string>Open the About box</string>
+   </property>
   </action>
   <action name="actionEditAnnotations">
    <property name="text">
     <string>Annotations...</string>
-   </property>
-   <property name="toolTip">
-    <string>Edit Annotations</string>
    </property>
    <property name="statusTip">
     <string>Edit custom annotations</string>
@@ -185,19 +180,30 @@
    <property name="statusTip">
     <string>Open the user's manual online</string>
    </property>
+   <property name="whatsThis">
+    <string>https://baltazarstudios.com/z80explorer</string>
+   </property>
   </action>
   <action name="actionEditColors">
    <property name="text">
     <string>Colors...</string>
-   </property>
-   <property name="toolTip">
-    <string>Edit colors</string>
    </property>
    <property name="statusTip">
     <string>Edit custom net coloring</string>
    </property>
    <property name="shortcut">
     <string>F4</string>
+   </property>
+  </action>
+  <action name="actionScriptingReference">
+   <property name="text">
+    <string>Scripting reference...</string>
+   </property>
+   <property name="statusTip">
+    <string>Open the scripting reference online</string>
+   </property>
+   <property name="whatsThis">
+    <string>https://doc.qt.io/archives/qsa-1.2.2/language.html</string>
    </property>
   </action>
  </widget>

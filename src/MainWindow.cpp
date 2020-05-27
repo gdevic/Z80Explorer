@@ -72,7 +72,8 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
-    connect(ui->actionOnlineManual, SIGNAL(triggered()), this, SLOT(onOnlineManual()));
+    connect(ui->actionOnlineManual, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
+    connect(ui->actionScriptingReference, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
 
     // Do the initial simulated chip reset so that we wake up the app in some useful state
@@ -182,9 +183,10 @@ void MainWindow::onNewWaveformView()
         QMessageBox::critical(this, "New Waveform", "You can create up to 4 waveform views. Please switch to one of those that are already created.");
 }
 
-void MainWindow::onOnlineManual()
+void MainWindow::onOnlineRef()
 {
-    QString link = "https://baltazarstudios.com/z80explorer";
+    QAction *sender = qobject_cast<QAction *>(QObject::sender());
+    QString link = sender->whatsThis();
     QDesktopServices::openUrl(QUrl(link));
 }
 
