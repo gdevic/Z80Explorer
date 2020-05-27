@@ -22,10 +22,13 @@ public:
     void readState(z80state &z);        // Reads chip state into a state structure
     uint doReset();                     // Run chip reset sequence
     void doRunsim(uint ticks);          // Run the simulation for the given number of clocks
-    uint getCurrentHCycle()             // Returns the current simulation half-cycle count
-        { return m_hcycletotal; }
-    uint getEstHz() { return m_estHz; } // Returns estimated simulated frequency
     bool setPin(uint index, pin_t p);   // Sets an input pin to a value
+
+public slots:
+    uint getCurrentHCycle()             //* Returns the current simulation half-cycle count
+        { return m_hcycletotal; }
+    uint getEstHz() { return m_estHz; } //* Returns estimated simulated frequency
+    //                                  //* <- Methods of the scripting object "sim"
 
 public slots:
     void onShutdown()                   // Called when the app is closing
