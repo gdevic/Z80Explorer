@@ -66,6 +66,7 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "driven(net)   - Shows a list of nets that drive the given net\n";
     text << "ex(n)         - Runs experimental function 'n'\n";
     text << "script(file)  - Executes a script file ('script.js' by default)\n";
+    text << "In addition, objects 'control', 'sim', 'monitor' and 'script' provide methods described in the documentation.";
     emit ::controller.getScript().response(s);
     return "OK";
 }
