@@ -23,6 +23,7 @@ bool ClassController::init(QScriptEngine *sc)
 
     QSettings settings;
     QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
+    QDir::setCurrent(path);
 
 #if HAVE_PREBUILT_LAYERMAP
     // Check if the current resource path contains required resource(s)
@@ -50,9 +51,8 @@ bool ClassController::init(QScriptEngine *sc)
     m_watch.load(path);
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
-    // Load the "hello world" sample executable file
-    if (!m_trick.loadHex(path + "/hello_world.hex"))
-        qWarning() << "Unable to load example Z80 hex file";
+    // Execute init.js initialization script
+    QTimer::singleShot(1000, [=](){ m_script.run("load(\"init.js\")"); } );
 
     return true;
 }
