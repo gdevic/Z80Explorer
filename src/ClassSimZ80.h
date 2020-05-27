@@ -23,11 +23,12 @@ public:
     uint doReset();                     // Run chip reset sequence
     void doRunsim(uint ticks);          // Run the simulation for the given number of clocks
     bool setPin(uint index, pin_t p);   // Sets an input pin to a value
-
-public slots:
-    uint getCurrentHCycle()             //* Returns the current simulation half-cycle count
+    uint getCurrentHCycle()             // Returns the current simulation half-cycle count
         { return m_hcycletotal; }
-    uint getEstHz() { return m_estHz; } //* Returns estimated simulated frequency
+    uint getEstHz()                     // Returns estimated simulated frequency
+        { return m_estHz; }
+    Q_PROPERTY(uint hcycle READ getCurrentHCycle) //* Returns the current simulation half-cycle count
+    Q_PROPERTY(uint hz READ getEstHz)   //*
     //                                  //* <- Methods of the scripting object "sim"
 
 public slots:
