@@ -5,6 +5,12 @@
 
 /*
  * This class provides scripting functionality to the app
+ *
+ * Good scripting reference:
+ * https://stuff.mit.edu/afs/athena/software/texmaker_v5.0.2/qt57/doc/qtscript/qtscript-index.html
+ *
+ * Qt's scripting language reference:
+ * https://doc.qt.io/archives/qsa-1.2.2/language.html
  */
 class ClassScript : public QObject
 {

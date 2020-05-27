@@ -47,9 +47,8 @@ void ClassScript::run(QString cmd)
         m_code.clear();
         if (!result.isUndefined())
             emit response(result.toString());
-        if (result.isError())
-            emit response( QString::fromLatin1("%0:%1: %2").arg(cmd).arg(result.property("lineNumber").toInt32()).arg(result.toString()));
-
+//        if (result.isError())
+//            emit response( QString::fromLatin1("%0:%1: %2").arg(cmd).arg(result.property("lineNumber").toInt32()).arg(result.toString()));
     }
 }
 
@@ -152,7 +151,7 @@ QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
         fileName = "script.js";
     qDebug() << "Running script" << fileName;
 
-    QString error("OK");
+    QString error;
     QFile scriptFile(fileName);
     if (scriptFile.open(QIODevice::ReadOnly))
     {
@@ -175,10 +174,7 @@ QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
     else
         return ctx->throwError(QString("Could not open %0 for reading").arg(fileName));
 
-    if (error != "OK")
-    {
+    if (!error.isEmpty())
         qWarning() << error;
-        return -1;
-    }
-    return "OK";
+    return error;
 }
