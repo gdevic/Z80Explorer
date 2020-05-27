@@ -54,11 +54,14 @@ public: // API
     void deleteNetName(const net_t);        // Deletes the current name of a specified net
 
 public slots:
-    uint doReset();                         // Run the chip reset sequence, returns the number of clocks thet reset took
-    void doRunsim(uint ticks);              // Runs the simulation for the given number of clocks
+    uint doReset();                         //* Run the chip reset sequence, returns the number of clocks thet reset took
+    void doRunsim(uint ticks);              //* Runs the simulation for the given number of clocks
 
 signals:
-    void shutdown();                        // Application is shutting down, save your work!
+    void shutdown();                        //* Application is shutting down, save your work!
+    //                                      //* <- Methods of the scripting object "control"
+
+signals:
     void onRunStarting(uint);               // Called by the sim when it is starting the simulation
     void onRunHeartbeat(uint);              // Called by the sim every 500ms when running
     void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle

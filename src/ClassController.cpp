@@ -11,7 +11,6 @@ bool ClassController::init(QScriptEngine *sc)
     m_script.init(sc);
 
     sc->globalObject().setProperty("control", sc->newQObject(this));
-    sc->globalObject().setProperty("c", sc->newQObject(this)); // Alias of "control"
     sc->globalObject().setProperty("chip", sc->newQObject(&m_chip));
     sc->globalObject().setProperty("script", sc->newQObject(&m_script));
     sc->globalObject().setProperty("sim", sc->newQObject(&m_simz80));
