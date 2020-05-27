@@ -28,8 +28,8 @@ void ClassScript::init(QScriptEngine *sc)
     m_engine->globalObject().setProperty("t", funTrans);
     QScriptValue funExperimental = m_engine->newFunction(&ClassScript::onExperimental);
     m_engine->globalObject().setProperty("ex", funExperimental);
-    QScriptValue funScript = m_engine->newFunction(&ClassScript::onScript);
-    m_engine->globalObject().setProperty("script", funScript);
+    QScriptValue funLoad = m_engine->newFunction(&ClassScript::onLoad);
+    m_engine->globalObject().setProperty("load", funLoad);
 }
 
 /*
@@ -65,7 +65,7 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "driving(net)  - Shows a list of nets that the given net is driving\n";
     text << "driven(net)   - Shows a list of nets that drive the given net\n";
     text << "ex(n)         - Runs experimental function 'n'\n";
-    text << "script(file)  - Executes a script file ('script.js' by default)\n";
+    text << "load(file)    - Executes a script file ('script.js' by default)\n";
     text << "In addition, objects 'control', 'sim', 'monitor' and 'script' provide methods described in the documentation.";
     emit ::controller.getScript().response(s);
     return "OK";
@@ -145,7 +145,7 @@ QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
  * Loads (imports) a script
  * If no script name was given, load a default "script.js"
  */
-QScriptValue ClassScript::onScript(QScriptContext *ctx, QScriptEngine *engine)
+QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
 {
     QString fileName = ctx->argument(0).toString();
     if (fileName == "undefined")

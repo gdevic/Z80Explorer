@@ -30,7 +30,7 @@ private:
     static QScriptValue onNet(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onTrans(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onExperimental(QScriptContext *ctx, QScriptEngine *eng);
-    static QScriptValue onScript(QScriptContext *ctx, QScriptEngine *engine);
+    static QScriptValue onLoad(QScriptContext *ctx, QScriptEngine *engine);
 
 private:
     QScriptEngine *m_engine;
