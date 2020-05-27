@@ -14,10 +14,11 @@ public:
     void init(QScriptEngine *sc);
 
 signals:
-    void response(QString);     // Write a response string to the command list
+    void response(QString);         //* Write a response string to the command list
 
 public slots:
-    void run(QString cmd);      // Evaluates and runs commands
+    void run(QString cmd);          //* Evaluates and runs commands
+    //                              //* <- Methods of the scripting object "script"
 
 private:
     static QScriptValue onHelp(QScriptContext *ctx, QScriptEngine *eng);
