@@ -42,13 +42,10 @@ void ClassScript::run(QString cmd)
         emit response("...");
     else
     {
-        // XXX I am not quite sure exactly how this should flow
         QScriptValue result = m_engine->evaluate(cmd, cmd);
         m_code.clear();
         if (!result.isUndefined())
             emit response(result.toString());
-//        if (result.isError())
-//            emit response( QString::fromLatin1("%0:%1: %2").arg(cmd).arg(result.property("lineNumber").toInt32()).arg(result.toString()));
     }
 }
 
@@ -67,26 +64,26 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "load(file)    - Executes a script file ('script.js' by default)\n";
     text << "In addition, objects 'control', 'sim', 'monitor' and 'script' provide methods described in the documentation.";
     emit ::controller.getScript().response(s);
-    return "OK";
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onRun(QScriptContext *ctx, QScriptEngine *)
 {
     uint cycles = ctx->argument(0).toNumber();
     ::controller.doRunsim(cycles);
-    return "OK";
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onStop(QScriptContext *, QScriptEngine *)
 {
     ::controller.doRunsim(0);
-    return "OK";
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onReset(QScriptContext *, QScriptEngine *)
 {
     ::controller.doReset();
-    return "OK";
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onDriving(QScriptContext *ctx, QScriptEngine *)
@@ -98,7 +95,7 @@ QScriptValue ClassScript::onDriving(QScriptContext *ctx, QScriptEngine *)
     QVector<net_t> nets = ::controller.getNetlist().netsDriving(net);
     QStringList list = ::controller.getNetlist().get(nets);
     emit ::controller.getScript().response(list.join(" "));
-    return "OK";
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onDriven(QScriptContext *ctx, QScriptEngine *)
@@ -110,7 +107,7 @@ QScriptValue ClassScript::onDriven(QScriptContext *ctx, QScriptEngine *)
     QVector<net_t> nets = ::controller.getNetlist().netsDriven(net);
     QStringList list = ::controller.getNetlist().get(nets);
     emit ::controller.getScript().response(list.join(" "));
-    return "OK";
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onNet(QScriptContext *ctx, QScriptEngine *)
@@ -121,7 +118,7 @@ QScriptValue ClassScript::onNet(QScriptContext *ctx, QScriptEngine *)
         net = ::controller.getNetlist().get(name);
     QString s = ::controller.getNetlist().netInfo(net);
     emit ::controller.getScript().response(s);
-    return "OK";
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onTrans(QScriptContext *ctx, QScriptEngine *)
@@ -129,7 +126,7 @@ QScriptValue ClassScript::onTrans(QScriptContext *ctx, QScriptEngine *)
     uint trans = ctx->argument(0).toNumber();
     QString s = ::controller.getNetlist().transInfo(trans);
     emit ::controller.getScript().response(s);
-    return "OK";
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
@@ -137,7 +134,7 @@ QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
     uint n = ctx->argument(0).toNumber();
     qDebug() << n;
     ::controller.getChip().experimental(n);
-    return "OK";
+    return QScriptValue();
 }
 
 /*
@@ -149,9 +146,8 @@ QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
     QString fileName = ctx->argument(0).toString();
     if (fileName == "undefined")
         fileName = "script.js";
-    qDebug() << "Running script" << fileName;
+    qInfo() << "Loading script" << fileName;
 
-    QString error;
     QFile scriptFile(fileName);
     if (scriptFile.open(QIODevice::ReadOnly))
     {
@@ -166,15 +162,9 @@ QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
         QScriptValue result = engine->evaluate(contents, fileName);
         if (engine->hasUncaughtException())
             return result;
-
-        // XXX I am not quite sure exactly how this should flow
         if (result.isError())
-            error = QString::fromLatin1("%0:%1: %2").arg(fileName).arg(result.property("lineNumber").toInt32()).arg(result.toString());
+            return QString("%0:%1: %2").arg(fileName).arg(result.property("lineNumber").toInt32()).arg(result.toString());
+        return QScriptValue();
     }
-    else
-        return ctx->throwError(QString("Could not open %0 for reading").arg(fileName));
-
-    if (!error.isEmpty())
-        qWarning() << error;
-    return error;
+    return ctx->throwError(QString("Could not open %0 for reading").arg(fileName));
 }
