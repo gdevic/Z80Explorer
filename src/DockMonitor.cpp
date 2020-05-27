@@ -11,7 +11,8 @@ DockMonitor::DockMonitor(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(&::controller, SIGNAL(echo(char)), this, SLOT(onEcho(char)));
+    connect(&::controller.getTrickbox(), SIGNAL(echo(char)), this, SLOT(onEcho(char)));
+    connect(&::controller.getTrickbox(), SIGNAL(echo(QString)), this, SLOT(onEcho(QString)));
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
     connect(ui->btLoad, &QPushButton::clicked, this, &DockMonitor::onLoad);
     connect(ui->btReload, &QPushButton::clicked, this, &DockMonitor::onReload);
@@ -44,12 +45,22 @@ void DockMonitor::onReload()
 }
 
 /*
- * Controller signals us that a new character is ready to print into the virtual terminal
+ * Write out a character to the virtual console
  */
 void DockMonitor::onEcho(char c)
 {
     ui->textTerminal->moveCursor (QTextCursor::End);
     ui->textTerminal->insertPlainText(QChar(c));
+    ui->textTerminal->moveCursor (QTextCursor::End);
+}
+
+/*
+ * Write out a string to the virtual console
+ */
+void DockMonitor::onEcho(QString s)
+{
+    ui->textTerminal->moveCursor (QTextCursor::End);
+    ui->textTerminal->insertPlainText(s);
     ui->textTerminal->moveCursor (QTextCursor::End);
 }
 

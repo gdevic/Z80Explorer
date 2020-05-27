@@ -36,7 +36,8 @@ public:
     void writeIO(uint16_t ab, uint8_t db);  // Writes to simulated IO space
 
 signals:
-    void echo(char c);                      // Character to a terminal
+    void echo(char c);                      // Request to write out a character to a terminal
+    void echo(QString s);                   // Request to write out a string to a terminal
 
 private:
     bool readHex(QString fileName);

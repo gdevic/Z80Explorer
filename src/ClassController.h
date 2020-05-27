@@ -59,7 +59,6 @@ public slots:
 
 signals:
     void shutdown();                        // Application is shutting down, save your work!
-    void echo(char e);                      // Echo a character onto the virtual console
     void onRunStarting(uint);               // Called by the sim when it is starting the simulation
     void onRunHeartbeat(uint);              // Called by the sim every 500ms when running
     void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
