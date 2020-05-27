@@ -23,7 +23,7 @@ void ClassTrickbox::reset()
 /*
  * Reads from simulated RAM
  */
-uint8_t ClassTrickbox::readMem(uint16_t ab)
+quint8 ClassTrickbox::readMem(quint16 ab)
 {
     return m_mem[ab];
 }
@@ -31,7 +31,7 @@ uint8_t ClassTrickbox::readMem(uint16_t ab)
 /*
  * Writes to simulated RAM
  */
-void ClassTrickbox::writeMem(uint16_t ab, uint8_t db)
+void ClassTrickbox::writeMem(quint16 ab, quint8 db)
 {
     // Writing to address 0 immediately stops the simulation
     if (ab == 0)
@@ -79,7 +79,7 @@ void ClassTrickbox::writeMem(uint16_t ab, uint8_t db)
 /*
  * Reads from simulated IO space
  */
-uint8_t ClassTrickbox::readIO(uint16_t ab)
+quint8 ClassTrickbox::readIO(quint16 ab)
 {
     Q_UNUSED(ab);
     return 0; // Read from any IO address returns 0x00
@@ -88,7 +88,7 @@ uint8_t ClassTrickbox::readIO(uint16_t ab)
 /*
  * Writes to simulated IO space
  */
-void ClassTrickbox::writeIO(uint16_t ab, uint8_t db)
+void ClassTrickbox::writeIO(quint16 ab, quint8 db)
 {
     // Terminal write address
     if (ab == 0x0800)
@@ -141,7 +141,7 @@ void ClassTrickbox::onTick(uint ticks)
 }
 
 // https://en.wikipedia.org/wiki/Intel_HEX
-bool ClassTrickbox::loadIntelHex(const QString fileName)
+bool ClassTrickbox::loadHex(const QString fileName)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))

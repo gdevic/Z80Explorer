@@ -7,9 +7,15 @@
 bool ClassController::init(QScriptEngine *sc)
 {
     qInfo() <<  "App init...";
+
     m_script.init(sc);
 
-    connect(&m_trick, SIGNAL(echo(char)), this, SIGNAL(echo(char)));
+    sc->globalObject().setProperty("control", sc->newQObject(this));
+    sc->globalObject().setProperty("c", sc->newQObject(this)); // Alias of "control"
+    sc->globalObject().setProperty("chip", sc->newQObject(&m_chip));
+    sc->globalObject().setProperty("script", sc->newQObject(&m_script));
+    sc->globalObject().setProperty("sim", sc->newQObject(&m_simz80));
+    sc->globalObject().setProperty("monitor", sc->newQObject(&m_trick));
 
     connect(this, SIGNAL(shutdown()), &m_chip.annotate, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_chip.tips, SLOT(onShutdown()));
@@ -47,7 +53,7 @@ bool ClassController::init(QScriptEngine *sc)
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
     // Load the "hello world" sample executable file
-    if (!m_trick.loadIntelHex(path + "/hello_world.hex"))
+    if (!m_trick.loadHex(path + "/hello_world.hex"))
         qWarning() << "Unable to load example Z80 hex file";
 
     return true;

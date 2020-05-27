@@ -26,18 +26,19 @@ class ClassTrickbox : public QObject
 public:
     explicit ClassTrickbox(QObject *parent = nullptr);
 
-    bool loadIntelHex(const QString fileName); // Loads RAM memory with the content of an Intel HEX file
     void reset();                           // Reset the control counters etc.
     void onTick(uint ticks);                // Called by the simulator on every half-clock tick
 
-    uint8_t readMem(uint16_t ab);           // Reads from simulated RAM
-    void writeMem(uint16_t ab, uint8_t db); // Writes to simulated RAM
-    uint8_t readIO(uint16_t ab);            // Reads from simulated IO space
-    void writeIO(uint16_t ab, uint8_t db);  // Writes to simulated IO space
+public slots:
+    bool loadHex(const QString fileName);   //* Loads a HEX file into simulated RAM
+    quint8 readMem(quint16 ab);             //* Reads from simulated RAM
+    void writeMem(quint16 ab, quint8 db);   //* Writes to simulated RAM
+    quint8 readIO(quint16 ab);              //* Reads from simulated IO space
+    void writeIO(quint16 ab, quint8 db);    //* Writes to simulated IO space
 
 signals:
-    void echo(char c);                      // Request to write out a character to a terminal
-    void echo(QString s);                   // Request to write out a string to a terminal
+    void echo(char c);                      //* Request to write out a character to a terminal
+    void echo(QString s);                   //* Request to write out a string to a terminal
 
 private:
     bool readHex(QString fileName);
@@ -45,5 +46,6 @@ private:
     trick *m_trick;                         // Start of the trickbox memory arena
     bool m_enableTrick {};                  // Enable trickbox's sim flow control
 };
+//                                          //* <- Methods of the scripting object "monitor"
 
 #endif // CLASSTRICKBOX_H

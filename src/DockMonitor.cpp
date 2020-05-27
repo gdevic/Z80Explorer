@@ -28,7 +28,7 @@ void DockMonitor::onLoad()
     QString fileName = QFileDialog::getOpenFileName(this, "Select Intel HEX file to load into simulated RAM", "", "File (*.hex);;All files (*.*)");
     if (!fileName.isEmpty())
     {
-        if (!::controller.loadIntelHex(fileName))
+        if (!::controller.loadHex(fileName))
             QMessageBox::critical(this, "Error", "Error loading" + fileName);
         else
             m_lastLoadedHex = fileName;
@@ -39,7 +39,7 @@ void DockMonitor::onReload()
 {
     if (!m_lastLoadedHex.isEmpty())
     {
-        if (!::controller.loadIntelHex(m_lastLoadedHex))
+        if (!::controller.loadHex(m_lastLoadedHex))
             QMessageBox::critical(this, "Error", "Error loading" + m_lastLoadedHex);
     }
 }
