@@ -21,7 +21,7 @@ private slots:
     void onReload();                    // Reloads last loaded user program
     void onEcho(char);                  // Write out a character to the virtual console
     void onEcho(QString);               // Write out a string to the virtual console
-    void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
+    void refresh();                     // Refresh the monitor information box
 
 private:
     Ui::DockMonitor *ui;

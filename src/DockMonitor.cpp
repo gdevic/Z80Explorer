@@ -13,7 +13,8 @@ DockMonitor::DockMonitor(QWidget *parent) :
 
     connect(&::controller.getTrickbox(), SIGNAL(echo(char)), this, SLOT(onEcho(char)));
     connect(&::controller.getTrickbox(), SIGNAL(echo(QString)), this, SLOT(onEcho(QString)));
-    connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
+    connect(&::controller.getTrickbox(), SIGNAL(refresh()), this, SLOT(refresh()));
+    connect(&::controller, &ClassController::onRunStopped, this, &DockMonitor::refresh);
     connect(ui->btLoad, &QPushButton::clicked, this, &DockMonitor::onLoad);
     connect(ui->btReload, &QPushButton::clicked, this, &DockMonitor::onReload);
 }
@@ -60,12 +61,13 @@ void DockMonitor::onEcho(QString s)
 }
 
 /*
- * Controller signals us that the current simulation run completed
+ * Refresh the monitor information box
+ * Also, called by the sim when the current run stops at a given half-cycle
  */
-void DockMonitor::onRunStopped(uint hcycle)
+void DockMonitor::refresh()
 {
-    Q_UNUSED(hcycle);
-    static z80state z80; // Get and display the chip state
+    static z80state z80;
     ::controller.readState(z80);
-    ui->textStatus->setPlainText(z80state::dumpState(z80));
+    const QString monitor = ::controller.readMonitor();
+    ui->textStatus->setPlainText(z80state::dumpState(z80) % monitor);
 }
