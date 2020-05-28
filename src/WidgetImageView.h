@@ -67,6 +67,7 @@ private:
     WidgetImageOverlay *m_ov;           // Image overlay class
     QTimer  m_timer;                    // Image refresh timer updates image every 1/2 seconds to show highlight blink
     uint    m_timer_tick;               // Timer timeout tick counter
+    bool    m_enable_ctrl {};           // Initial disable of Ctrl key until we have fully constructed our view
 
     const segvdef *m_highlight_segment {}; // Segment to highlight in the current image
     const QRect *m_highlight_trans {};  // Transistor bounding rectangle to highlight in the current image
