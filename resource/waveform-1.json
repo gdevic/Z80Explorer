@@ -69,6 +69,12 @@
         {
             "color": "0,255,0,255",
             "format": 0,
+            "name": "_nmi",
+            "net": 24
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
             "name": "_load_ir",
             "net": 326
         },
