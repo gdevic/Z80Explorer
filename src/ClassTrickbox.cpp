@@ -7,6 +7,8 @@
 #define TRICKBOX_START 0xD000
 #define TRICKBOX_END   (TRICKBOX_START + sizeof(trick) - 1)
 
+const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
+
 ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 {
     static_assert(sizeof(trick) == (2 + 5*4 + 4), "unexpected trick struct size (packing?)");
@@ -44,8 +46,6 @@ void ClassTrickbox::writeMem(quint16 ab, quint8 db)
     // Trickbox control address space
     if ((ab >= TRICKBOX_START) && (ab <= TRICKBOX_END))
     {
-        const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
-
         // We let the value already be written in RAM, which is a backing store for the trickbox
         // counters anyways; here we check the validity of cycle values but only on the second
         // memory access of each 2-byte word. Likewise, we disable trickbox control in between
@@ -56,7 +56,7 @@ void ClassTrickbox::writeMem(quint16 ab, quint8 db)
 
         uint current = ::controller.getSimZ80().getCurrentHCycle();
 
-        for (uint i = 0; i < 5; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
+        for (uint i = 0; i < MAX_PIN_CTRL; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
         {
             if (m_trick->pinCtrl[i].cycle && (m_trick->pinCtrl[i].cycle <= current)) // Zero is non-active
             {
@@ -106,6 +106,17 @@ void ClassTrickbox::writeIO(quint16 ab, quint8 db)
 }
 
 /*
+ * Reads sim monitor state as strings
+ */
+const QString ClassTrickbox::readState()
+{
+    QString s = QString("hcycle:%1\nstop-at:%2\n").arg(m_trick->curCycle).arg(m_trick->cycleStop);
+    for (int i = 0; i < MAX_PIN_CTRL; i++)
+        s += QString("%1 at: %2 hold-for: %3\n").arg(pins[i],7).arg(m_trick->pinCtrl[i].cycle).arg(m_trick->pinCtrl[i].count);
+    return s;
+}
+
+/*
  * Called by the simulator on every clock with the current half-clock upcounter value
  */
 void ClassTrickbox::onTick(uint ticks)
@@ -121,7 +132,7 @@ void ClassTrickbox::onTick(uint ticks)
         return ::controller.getSimZ80().doRunsim(0);
     }
 
-    for (uint i = 0; i < 5; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
+    for (uint i = 0; i < MAX_PIN_CTRL; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
     {
         if ((m_trick->pinCtrl[i].cycle == 0) || (m_trick->pinCtrl[i].cycle > ticks))
             continue;
@@ -138,6 +149,43 @@ void ClassTrickbox::onTick(uint ticks)
             }
         }
     }
+}
+
+/*
+ * Sets named pin to a value (0,1,2)
+ * Value is optional and, if not given, it will be '0', which means "activate" for the NMOS input pads
+ */
+void ClassTrickbox::set(QString pin, quint8 value)
+{
+    int i = pins.indexOf(pin);
+    if (i >= 0)
+    {
+        if (value <= 2)
+        {
+            ::controller.getSimZ80().setPin(i, value);
+            emit refresh();
+        }
+        else
+            qWarning() << "Invalid value. Permitted values are 0, 1 and 2";
+    }
+    else
+        qWarning() << "Invalid pin name. Only input pads can be set:" << pins;
+}
+
+/*
+ * Activates (sets to 0) named pin at the specified hcycle and holds it for the count number of cycles
+ */
+void ClassTrickbox::setAt(QString pin, quint16 hcycle, quint16 count)
+{
+    int i = pins.indexOf(pin);
+    if (i >= 0)
+    {
+        m_trick->pinCtrl[i].cycle = hcycle;
+        m_trick->pinCtrl[i].count = count;
+        emit refresh();
+    }
+    else
+        qWarning() << "Invalid pin name. Only input pads can be set:" << pins;
 }
 
 /*

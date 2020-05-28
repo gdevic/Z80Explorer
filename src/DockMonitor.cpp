@@ -68,6 +68,6 @@ void DockMonitor::refresh()
 {
     static z80state z80;
     ::controller.readState(z80);
-    const QString monitor = ::controller.readMonitor();
+    const QString monitor = ::controller.getTrickbox().readState();
     ui->textStatus->setPlainText(z80state::dumpState(z80) % monitor);
 }
