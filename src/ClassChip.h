@@ -4,8 +4,9 @@
 #include "AppTypes.h"
 #include "ClassAnnotate.h"
 #include "ClassTip.h"
-#include <QImage>
 #include <QHash>
+#include <QImage>
+#include <QPainterPath>
 
 // Contains visual definition of a transistor
 struct transvdef

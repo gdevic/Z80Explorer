@@ -6,8 +6,6 @@
 #include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
-#include <QImage>
-#include <QPainter>
 #include <QSettings>
 
 // --- Feature map bits ---
