@@ -30,7 +30,7 @@ public:
     void onTick(uint ticks);                // Called by the simulator on every half-clock tick
 
 public slots:
-    bool loadHex(const QString fileName);   //* Loads a HEX file into simulated RAM
+    bool loadHex(const QString fileName);   //* Loads a HEX file into simulated RAM; empty name for last loaded
     quint8 readMem(quint16 ab);             //* Reads from simulated RAM
     void writeMem(quint16 ab, quint8 db);   //* Writes to simulated RAM
     quint8 readIO(quint16 ab);              //* Reads from simulated IO space
@@ -45,6 +45,7 @@ private:
     uint8_t m_mem[65536] {};                // Simulated 64K memory
     trick *m_trick;                         // Start of the trickbox memory arena
     bool m_enableTrick {};                  // Enable trickbox's sim flow control
+    QString m_lastLoadedHex;                // File name of the last loaded hex code
 };
 //                                          //* <- Methods of the scripting object "monitor"
 

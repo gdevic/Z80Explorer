@@ -29,19 +29,14 @@ void DockMonitor::onLoad()
     if (!fileName.isEmpty())
     {
         if (!::controller.loadHex(fileName))
-            QMessageBox::critical(this, "Error", "Error loading" + fileName);
-        else
-            m_lastLoadedHex = fileName;
+            QMessageBox::critical(this, "Error", "Error loading " + fileName);
     }
 }
 
 void DockMonitor::onReload()
 {
-    if (!m_lastLoadedHex.isEmpty())
-    {
-        if (!::controller.loadHex(m_lastLoadedHex))
-            QMessageBox::critical(this, "Error", "Error loading" + m_lastLoadedHex);
-    }
+    if (!::controller.loadHex(QString()))
+        QMessageBox::critical(this, "Error", "Error loading HEX file");
 }
 
 /*

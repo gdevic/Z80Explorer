@@ -35,7 +35,7 @@ public: // API
         { return m_trick.readIO(ab); }
     inline void writeIO(uint16_t ab, uint8_t db)  // Writes to simulated IO space
         { m_trick.writeIO(ab, db); }
-    bool loadHex(QString fileName)                // Loads file into simulated RAM memory
+    bool loadHex(QString fileName)                // Loads file into simulated RAM memory; empty name for last loaded
         { return m_trick.loadHex(fileName); }
     void readState(z80state &state)               // Reads chip state structure
         { m_simz80.readState(state); }

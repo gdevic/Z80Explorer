@@ -25,7 +25,6 @@ private slots:
 
 private:
     Ui::DockMonitor *ui;
-    QString m_lastLoadedHex;            // Path and file name of the last loaded user program
 };
 
 #endif // DOCKMONITOR_H

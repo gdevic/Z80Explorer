@@ -140,13 +140,18 @@ void ClassTrickbox::onTick(uint ticks)
     }
 }
 
-// https://en.wikipedia.org/wiki/Intel_HEX
+/*
+ * Loads a HEX file into simulated RAM; empty name for last loaded
+ *
+ * https://en.wikipedia.org/wiki/Intel_HEX
+ */
 bool ClassTrickbox::loadHex(const QString fileName)
-{
-    QFile file(fileName);
+{    
+    QString name = fileName.isEmpty() ? m_lastLoadedHex : fileName;
+    QFile file(name);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qWarning() << "Unable to open" << fileName;
+        qWarning() << "Unable to open" << name;
         return false;
     }
 
@@ -192,7 +197,10 @@ bool ClassTrickbox::loadHex(const QString fileName)
         }
     }
     if (in.atEnd())
-        qInfo() << "Loaded" << fileName << "into simulator RAM";
-
-    return in.atEnd();
+    {
+        qInfo() << "Loaded" << name << "into simulator RAM";
+        m_lastLoadedHex = name;
+        return true;
+    }
+    return false;
 }
