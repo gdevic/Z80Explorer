@@ -611,11 +611,6 @@ void ClassSimZ80::readState(z80state &z)
     z.wz = (readByte("reg_w") << 8) | readByte("reg_z");
     z.pc = (readByte("reg_pch") << 8) | readByte("reg_pcl");
 
-    for (int i=0; i<6; i++)
-    {
-        z.m[i] = readBit("m" % QString::number(i+1));
-        z.t[i] = readBit("t" % QString::number(i+1));
-    }
     z.instr = readByte("_instr");
     z.nED = readBit(265); // Decode ED
     z.nCB = readBit(263); // Decode CB

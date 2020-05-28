@@ -20,7 +20,6 @@ struct z80state
     uint16_t af2, bc2, de2, hl2;        // Alternative set of general purpose registers
     uint16_t ix, iy, sp, ir, wz, pc;    // Indexing and sytem registers
 
-    bool m[6], t[6];                    // M and T cycles
     uint8_t instr;                      // Instruction register value
     pin_t nED;                          // ED prefix is active (net 265)
     pin_t nCB;                          // CB prefix is active (net 263)
@@ -41,10 +40,6 @@ struct z80state
                 (pin(z.clk),pin(z.intr),pin(z.nmi),pin(z.halt),pin(z.mreq),pin(z.iorq),pin(z.rd),pin(z.wr));
         s += QString("busak:%1 wait:%2 busrq:%3 reset:%4 m1:%5 rfsh:%6\n").arg
                 (pin(z.busak),pin(z.wait),pin(z.busrq),pin(z.reset),pin(z.m1),pin(z.rfsh));
-    #define MT(x,c) (x==0 ? "_" : ((x==1) ? c : "?"))
-        s += QString("M:%1%2%3%4%5%6 ").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
-        s += QString("T:%1%2%3%4%5%6\n").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
-    #undef MT
         s += QString("Instr:%1 %2\n").arg(hex(z.instr,2),disasm(z.instr, z.nED, z.nCB));
         return s;
     }
