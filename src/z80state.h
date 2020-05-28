@@ -45,7 +45,7 @@ struct z80state
         s += QString("M:%1%2%3%4%5%6 ").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
         s += QString("T:%1%2%3%4%5%6\n").arg(MT(z.m[0],"1"),MT(z.m[1],"2"),MT(z.m[2],"3"),MT(z.m[3],"4"),MT(z.m[4],"5"),MT(z.m[5],"6"));
     #undef MT
-        s += QString("Instr:%1 %2").arg(hex(z.instr,2),disasm(z.instr, z.nED, z.nCB));
+        s += QString("Instr:%1 %2\n").arg(hex(z.instr,2),disasm(z.instr, z.nED, z.nCB));
         return s;
     }
 
