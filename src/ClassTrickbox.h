@@ -41,6 +41,7 @@ public slots:
         { m_trick->cycleStop = hcycle; emit refresh(); }
     void set(QString pin, quint8 value = 0);//* Sets named pin to a value (0,1,2)
     void setAt(QString pin, quint16 hcycle, quint16 count = 6); //* Activates (sets to 0) named pin at the specified hcycle
+    void breakWhen(quint16 net, quint8 value); //* Stops running when the given net number's state equals the value
 
 signals:
     void echo(char c);                      //* Request to write out a character to a terminal
@@ -53,6 +54,8 @@ private:
     trick *m_trick;                         // Start of the trickbox memory arena
     bool m_enableTrick {true};              // Enable trickbox's sim flow control
     QString m_lastLoadedHex;                // File name of the last loaded hex code
+    quint16 m_bpnet {};                     // Net number to check for break
+    quint8 m_bpval {};                      // Value to break at
 };
 //                                          //* <- Methods of the scripting object "monitor"
 

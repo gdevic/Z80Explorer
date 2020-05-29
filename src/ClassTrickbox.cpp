@@ -110,7 +110,8 @@ void ClassTrickbox::writeIO(quint16 ab, quint8 db)
  */
 const QString ClassTrickbox::readState()
 {
-    QString s = QString("hcycle:%1\nstop-at:%2\n").arg(m_trick->curCycle).arg(m_trick->cycleStop);
+    QString s = QString("hcycle:%1\nstopAt:%2\n").arg(m_trick->curCycle).arg(m_trick->cycleStop);
+    s += QString("breakWhen:%1 is %2\n").arg(m_bpnet).arg(m_bpval);
     for (int i = 0; i < MAX_PIN_CTRL; i++)
         s += QString("%1 at: %2 hold-for: %3\n").arg(pins[i],7).arg(m_trick->pinCtrl[i].cycle).arg(m_trick->pinCtrl[i].count);
     return s;
@@ -122,6 +123,13 @@ const QString ClassTrickbox::readState()
 void ClassTrickbox::onTick(uint ticks)
 {
     m_trick->curCycle = ticks;
+
+    // Check for explicit break on a net value
+    if (m_bpnet && (::controller.getSimZ80().getNetState(m_bpnet) == !!m_bpval))
+    {
+        qInfo() << "Trickbox: Break on a net value condition";
+        return ::controller.getSimZ80().doRunsim(0);
+    }
 
     if (!m_enableTrick)
         return;
@@ -186,6 +194,22 @@ void ClassTrickbox::setAt(QString pin, quint16 hcycle, quint16 count)
     }
     else
         qWarning() << "Invalid pin name. Only input pads can be set:" << pins;
+}
+
+/*
+ * Stops running when the given net number's state equals the value
+ * If the net is 0, clears the last break setup
+ */
+void ClassTrickbox::breakWhen(quint16 net, quint8 value)
+{
+    if (value <= 1)
+    {
+        m_bpnet = net;
+        m_bpval = value;
+        emit refresh();
+    }
+    else
+        qWarning() << "Invalid value. Permitted values are 0 or 1";
 }
 
 /*
