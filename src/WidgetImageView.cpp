@@ -43,6 +43,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     });
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
     connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
+    connect(&::controller, &ClassController::syncView, this, &WidgetImageView::syncView);
 
     connect(&m_timer, &QTimer::timeout, this, &WidgetImageView::onTimeout);
     m_timer.start(500);
@@ -659,6 +660,10 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     QAction actionEditAnnotation("Edit annotations...", this);
     connect(&actionEditAnnotation, SIGNAL(triggered()), this, SLOT(editAnnotations()));
     contextMenu.addAction(&actionEditAnnotation);
+
+    QAction actionSyncViews("Sync image views", this);
+    connect(&actionSyncViews, &QAction::triggered, this, [=]() { emit ::controller.syncView(m_tex, m_scale); });
+    contextMenu.addAction(&actionSyncViews);
 
     contextMenu.exec(mapToGlobal(pos));
 

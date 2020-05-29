@@ -28,6 +28,8 @@ public:
 public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
     void setImage(int i);               // Sets the image by its index, also considers Ctrl key to blend images
+    void syncView(QPointF pos, qreal zoom)
+        { moveTo(pos); setZoom(zoom); } // Handle broadcast to sync all image views
 
 private slots:
     void onFind(QString text);          // Search for the named feature

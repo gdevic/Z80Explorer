@@ -66,6 +66,7 @@ signals:
     void onRunHeartbeat(uint);              // Called by the sim every 500ms when running
     void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
     void eventNetName(Netop op, const QString name, const net_t); // Dispatches operations on net names
+    void syncView(QPointF pos, qreal zoom); // Broadcast to all image views to sync their views
 
 private:
     ClassChip     m_chip;       // Global chip resource class
