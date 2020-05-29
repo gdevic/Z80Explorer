@@ -730,7 +730,10 @@ void WidgetImageView::netsDriving()
     QVector<net_t> driving = ::controller.getNetlist().netsDriving(m_drivingNets[0]);
     m_drivingNets.append(driving);
     QStringList list = ::controller.getNetlist().get(driving);
-    qInfo() << "Net" << m_drivingNets[0] << "driving" << list.count() << "nets" << list;
+    QString name = ::controller.getNetlist().get(m_drivingNets[0]);
+    if (name.isEmpty())
+        name = QString::number(m_drivingNets[0]);
+    qInfo() << "Net" << name << "driving" << list.count() << "nets" << list;
 }
 
 /*
@@ -743,7 +746,10 @@ void WidgetImageView::netsDriven()
     QVector<net_t> driven = ::controller.getNetlist().netsDriven(m_drivingNets[0]);
     m_drivingNets.append(driven);
     QStringList list = ::controller.getNetlist().get(driven);
-    qInfo() << "Net" << m_drivingNets[0] << "driven by" << list.count() << "nets" << list;
+    QString name = ::controller.getNetlist().get(m_drivingNets[0]);
+    if (name.isEmpty())
+        name = QString::number(m_drivingNets[0]);
+    qInfo() << "Net" << name << "driven by" << list.count() << "nets" << list;
 }
 
 /*
