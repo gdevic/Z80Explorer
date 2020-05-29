@@ -42,7 +42,8 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
         keyPressEvent(&event);
     });
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
-    connect(&::controller, SIGNAL(onRunStopped(uint)), this, SLOT(onRunStopped(uint)));
+    // Called by the sim when the current run stops at a given half-cycle
+    connect(&::controller, &ClassController::onRunStopped, this, [=]() { update(); });
     connect(&::controller, &ClassController::syncView, this, &WidgetImageView::syncView);
 
     connect(&m_timer, &QTimer::timeout, this, &WidgetImageView::onTimeout);
@@ -68,14 +69,6 @@ void WidgetImageView::onTimeout()
 {
     if (m_timer_tick)
         m_timer_tick--;
-    update();
-}
-
-/*
- * Controller signals us that the current simulation run completed
- */
-void WidgetImageView::onRunStopped(uint)
-{
     update();
 }
 

@@ -34,7 +34,6 @@ public slots:
 private slots:
     void onFind(QString text);          // Search for the named feature
     void onTimeout();                   // Timer timeout handler
-    void onRunStopped(uint);            // Called by the sim when the current run stops at a given half-cycle
     void contextMenu(const QPoint &pos);// Mouse context menu handler
     void editAnnotations();             // Opens dialog to edit annotations
     void addAnnotation();               // Adds a new annotation within the selected box and opens dialog to edit it
