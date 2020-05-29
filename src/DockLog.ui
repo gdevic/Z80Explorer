@@ -38,7 +38,7 @@
        <enum>Qt::CustomContextMenu</enum>
       </property>
       <property name="lineWrapMode">
-       <enum>QPlainTextEdit::NoWrap</enum>
+       <enum>QPlainTextEdit::WidgetWidth</enum>
       </property>
       <property name="readOnly">
        <bool>true</bool>
