@@ -2,5 +2,5 @@
 
 // Load "Hello, World" program into the simulated memory
 
-script.response("Loading example Z80 program\n");
+script.response("Loading 'Hello, world' Z80 program\n");
 monitor.loadHex("hello_world.hex");
