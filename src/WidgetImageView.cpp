@@ -201,7 +201,11 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             if (::controller.getSimZ80().getNetState(i) == 1)
             {
                 for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-                    painter.drawPath(path);
+                {
+                    // Draw only paths that are not completely outside the viewing area
+                    if (m_imageView.intersects(path.boundingRect()))
+                        painter.drawPath(path);
+                }
             }
         }
         painter.restore();
