@@ -51,8 +51,8 @@ private:
     //----------------------- Simulator ------------------------
     void halfCycle();
     bool getNetValue();
-    void setTransOn(struct trans *t);
-    void setTransOff(struct trans *t);
+    void setTransOn(struct Trans *t);
+    void setTransOff(struct Trans *t);
     void addRecalcNet(net_t n);
     void recalcNet(net_t n);
     void getNetGroup(net_t n);

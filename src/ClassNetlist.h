@@ -6,7 +6,7 @@
 #include <QHash>
 
 // Contains individual transistor definition
-struct trans
+struct Trans
 {
     tran_t id;                          // Transistor number
     net_t gate;                         // Net connected to its gate
@@ -17,8 +17,8 @@ struct trans
 // Contains netlist net definition: net is a trace with equal potential and it connects a number of transistors
 struct net
 {
-    QVector<trans *> gates;             // The list of transistors for which this net is a gate
-    QVector<trans *> c1c2s;             // The list of transistors for which this net is either a source or a drain
+    QVector<Trans *> gates;             // The list of transistors for which this net is a gate
+    QVector<Trans *> c1c2s;             // The list of transistors for which this net is either a source or a drain
     bool state {false};                 // The voltage on the net is high (if not floating)
     bool floats {false};                // Net can float (used with ab, db, mreq, iorq, rd, wr to read hi-Z state)
     bool isHigh {false};                // Net is being pulled high
@@ -64,7 +64,7 @@ public:
     const QString transInfo(tran_t t);          // Returns basic transistor information as string
 
 protected:
-    QVector<trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
+    QVector<Trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
     QVector<net> m_netlist;                     // Array of nets, indexed by the net number
     net_t ngnd {}, npwr {};                     // 'vss' and 'vcc' nets (expected values: 1 and 2)
 

@@ -203,7 +203,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         QTextStream in(&file);
         QString line;
         QStringList list;
-        m_transdefs.fill(trans{}); // Clear the array with the defaults
+        m_transdefs.fill(Trans{}); // Clear the array with the defaults
         uint count = 0;
         m_netlist.fill(net{});
 
@@ -221,7 +221,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                     QString tnum = list[0].mid(3, list[0].length() - 4);
                     tran_t i = tnum.toUInt();
                     Q_ASSERT(i < MAX_TRANS);
-                    trans *p = &m_transdefs[i];
+                    Trans *p = &m_transdefs[i];
 
                     p->id = i;
                     p->gate = list[1].toUInt();
@@ -250,7 +250,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         count = std::count_if(m_netlist.begin(), m_netlist.end(), [](net &net)
             { return !!(net.gates.count() || net.c1c2s.count()); });
         qInfo() << "Number of nets" << count;
-        count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](trans &t) { return t.id; });
+        count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](Trans &t) { return t.id; });
         qInfo() << "Number of transistors" << count;
         return true;
     }
@@ -369,7 +369,7 @@ const QStringList ClassNetlist::get(const QVector<net_t> &nets)
 const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 {
     QVector<net_t> nets;
-    const QVector<trans *> &gates = m_netlist[n].gates;
+    const QVector<Trans *> &gates = m_netlist[n].gates;
 
     for (const auto t : gates)
     {

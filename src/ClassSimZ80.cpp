@@ -481,7 +481,7 @@ QVector<net_t> ClassSimZ80::allNets()
 }
 #endif
 
-inline void ClassSimZ80::setTransOn(struct trans *t)
+inline void ClassSimZ80::setTransOn(struct Trans *t)
 {
     if (t->on) return;
 #if EARLY_LOOP_DETECTION
@@ -491,7 +491,7 @@ inline void ClassSimZ80::setTransOn(struct trans *t)
     addRecalcNet(t->c1);
 }
 
-inline void ClassSimZ80::setTransOff(struct trans *t)
+inline void ClassSimZ80::setTransOff(struct Trans *t)
 {
     if (!t->on) return;
 #if EARLY_LOOP_DETECTION
