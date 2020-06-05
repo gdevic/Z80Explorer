@@ -285,7 +285,7 @@ inline bool ClassSimZ80::getNetValue()
     // 2. deal with pullup/pulldowns next
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
-        net &net = m_netlist[*p];
+        Net &net = m_netlist[*p];
         if (net.isHigh) return true;
         if (net.isLow) return false;
     }
@@ -296,7 +296,7 @@ inline bool ClassSimZ80::getNetValue()
     auto max_conn = 0;
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
-        net &net = m_netlist[*p];
+        Net &net = m_netlist[*p];
         auto conn = net.gates.count() + net.c1c2s.count();
         if (conn > max_conn)
         {
@@ -422,7 +422,7 @@ inline void ClassSimZ80::recalcNet(net_t n)
     bool newState = getNetValue();
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
-        net &net = m_netlist[*p];
+        Net &net = m_netlist[*p];
         if (net.state == newState) continue;
         net.state = newState;
         for (int i=0; i<net.gates.count(); i++)
@@ -442,7 +442,7 @@ inline void ClassSimZ80::recalcNet(net_t n)
     bool newState = getNetValue();
     for (auto i : group)
     {
-        net &net = m_netlist[i];
+        Net &net = m_netlist[i];
         if (net.state == newState) continue;
         net.state = newState;
         for (int i=0; i<net.gates.count(); i++)

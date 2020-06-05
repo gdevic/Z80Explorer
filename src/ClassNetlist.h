@@ -15,7 +15,7 @@ struct Trans
 };
 
 // Contains netlist net definition: net is a trace with equal potential and it connects a number of transistors
-struct net
+struct Net
 {
     QVector<Trans *> gates;             // The list of transistors for which this net is a gate
     QVector<Trans *> c1c2s;             // The list of transistors for which this net is either a source or a drain
@@ -65,7 +65,7 @@ public:
 
 protected:
     QVector<Trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
-    QVector<net> m_netlist;                     // Array of nets, indexed by the net number
+    QVector<Net> m_netlist;                     // Array of nets, indexed by the net number
     net_t ngnd {}, npwr {};                     // 'vss' and 'vcc' nets (expected values: 1 and 2)
 
     uint8_t readByte(const QString &name);      // Returns a byte value read from the netlist for a particular net bus
