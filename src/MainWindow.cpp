@@ -93,6 +93,12 @@ MainWindow::~MainWindow()
  */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    // Don't inadvertently exit
+    if (::controller.isSimRunning() &&
+       (QMessageBox::warning(this, "Exit", "Simulation is currently running. Do you want to stop it and exit the application?",
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No))
+        return event->ignore();
+
     qInfo() << "App shutdown...";
     emit ::controller.shutdown();
 

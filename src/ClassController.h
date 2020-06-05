@@ -39,6 +39,8 @@ public: // API
         { return m_trick.loadHex(fileName); }
     void readState(z80state &state)               // Reads chip state structure
         { m_simz80.readState(state); }
+    bool isSimRunning()                           // Returns true is the simulation is currently running
+        { return m_simz80.isRunning(); }
 
     const QStringList getFormats(QString name); // Returns a list of formats applicable to the signal name (a net or a bus)
     enum FormatNet { Logic, TransUp, TransDown, TransAny };
