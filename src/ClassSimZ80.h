@@ -33,6 +33,8 @@ public:
     //                                  //* <- Methods of the scripting object "sim"
 
 public slots:
+    QString eq(int n)                   //* Returns a logic equation driving a given net
+        { return ClassNetlist::equation(n); }
     void onShutdown()                   // Called when the app is closing
         { doRunsim(0); ClassNetlist::onShutdown(); }; // Stop the running sim and pass on the signal
 

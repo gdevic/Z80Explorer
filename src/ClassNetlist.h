@@ -26,6 +26,22 @@ struct Net
     bool hasPullup {false};             // Net has a (permanent) pull-up resistor
 };
 
+enum class LogicOp : unsigned char { Nop, Inverter, Nand, Nor, And };
+
+// Contains a node in a logic bipartite tree
+struct Logic
+{
+    net_t net;                          // Net number
+    QString name;                       // Equivalent net name (or the net number as a string)
+    bool leaf {};                       // True if this node is the leaf
+    LogicOp op {LogicOp::Nop};          // Specifies the logic operation on children
+    QVector<Logic *> children {};       // Pointers to the child nodes
+
+    Logic() = delete;
+    Logic(net_t n) : Logic(n, LogicOp::Nop) {}
+    Logic(net_t n, LogicOp op);
+};
+
 /*
  * This class represents netlist data and operations on it
  */
@@ -73,6 +89,8 @@ protected:
     pin_t readBit(const net_t n);               // Returns a bit value read from the netlist for a particular net, by net number
     uint16_t readAB();                          // Returns the value on the address bus
 
+    QString equation(net_t);                    // Generates a logic equations driving a net
+
 private:
     bool loadNetNames(const QString fileName, bool);
     bool loadTransdefs(const QString dir);
@@ -84,6 +102,12 @@ private:
     QHash<QString, net_t> m_netnums {};         // Hash of net names to their net numbers; key is the net name string
     bool m_netoverrides[MAX_NETS] {};           // Net names that are overriden or new
     QHash<QString, QVector<net_t>> m_buses {};  // Hash of bus names to their list (vector) of nets
+
+    // Generates a logic equation driving a net
+    void parse(Logic *node);                    // Recursive parse of the netlist starting with the given node
+    QString combine(Logic *root);               // Recursive recombination of the logic tree
+    void purge(Logic *root);                    // Recursive tree deletion
+    Logic *m_lroot {};                          // Root of the logic bipartite tree
 };
 
 #endif // CLASSNETLIST_H

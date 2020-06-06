@@ -510,3 +510,179 @@ const QString ClassNetlist::transInfo(tran_t t)
         return QString("gate:%2 c1:%3 c2:%4 ON:%5").arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(m_transdefs[t].c2).arg(m_transdefs[t].on);
     return QString("Invalid transistor number");
 }
+
+/*
+ * Generates logic equations for a net
+ * Parses the netlist, starting at the given wire, and creates a logic equation formula
+ * that includes all the nets driving it. The tree stops with nets that are chosen as
+ * meaningful end points: clk, t1..t6, m1..m6 and all pla signals.
+ */
+QVector<net_t> visited; // Avoid loops by keeping nets that are already visited
+
+QString ClassNetlist::equation(net_t n)
+{
+    purge(m_lroot); // Delete previous tree
+    m_lroot = new Logic(n); // Create root node
+    visited.clear();
+    parse(m_lroot); // Create bipartite tree with the root at the entry net n
+    QString equation = m_lroot->name % " = " % combine(m_lroot);
+    qDebug() << equation;
+    return equation;
+}
+
+void ClassNetlist::purge(Logic *root)
+{
+    if (root)
+    {
+        for (auto k : root->children)
+            purge(k);
+        delete root;
+    }
+}
+
+QString ClassNetlist::combine(Logic *root)
+{
+    QString eq;
+
+    if (root->op == LogicOp::Nop) eq = root->name;
+    else if (root->op == LogicOp::Inverter) eq = "INV";
+    else if (root->op == LogicOp::Nor) eq = "NOR";
+    else if (root->op == LogicOp::Nand) eq = "NAND";
+    else if (root->op == LogicOp::And) eq = "AND";
+    else Q_ASSERT(0);
+
+    if (root->children.count())
+    {
+        eq.append('(');
+        QStringList terms;
+        for (auto k : root->children)
+            terms.append(combine(k));
+        eq.append(terms.join(','));
+        eq.append(')');
+    }
+    return eq;
+}
+
+void ClassNetlist::parse(Logic *root)
+{
+    net_t net0id = root->net;
+    Net &net0 = m_netlist[net0id];
+
+    if (root->leaf)
+        return;
+
+    // Loop over transistors for which the current net is the source/drain
+    for (auto t1 : net0.c1c2s)
+    {       
+        Trans *t2, *t3;
+        net_t net2id, net3id;
+
+        qDebug() << "Processing net" << net0id << "at transistor" << t1->id;
+        net_t net1id = t1->gate;
+
+        Logic *node = new Logic(net1id);
+        root->children.append(node);
+
+        net_t netMid12id = (t1->c2 == net0id) ? t1->c1 : t1->c2; // Pick the "other" net
+        Net &netMid12 = m_netlist[netMid12id];
+        qDebug() << "Transistor" << t1->id << "to net" << netMid12id << "gated by" << net1id;
+
+        if (t1->c2 == ngnd) // Inverter
+        {
+            qDebug() << "Gated to ngnd: Inverter" << t1->c1;
+            root->op = LogicOp::Inverter;
+            parse(node);
+            continue;
+        }
+
+        if (t1->c2 == npwr)
+        {
+            qDebug() << "Connection to npwr ignored";
+            continue;
+        }
+
+        // Free floating "other" net creates a NAND gate
+        if (netMid12.c1c2s.count() == 2)
+        {
+            // Detect clk gating: the second net is pulled up
+            if (netMid12.hasPullup && (net1id == 3))
+            {
+                qDebug() << "AND gate with clk across to" << netMid12id;
+                node->op = LogicOp::And;
+                node->children.append(new Logic(netMid12id));
+
+                // Recurse into each of the contributing nets
+                parse(node->children[0]);
+                continue;
+            }
+
+            // This code looks at transistors two steps away from the root net
+            t2 = (netMid12.c1c2s[0]->id == t1->id) ? netMid12.c1c2s[1] : netMid12.c1c2s[0]; // Pick the "other" transistor
+            net2id = t2->gate;
+
+            if (t2->c2 == npwr)
+            {
+                qDebug() << "Connection to npwr ignored";
+                continue;
+            }
+
+            if (t2->c2 == ngnd) // The NAND gate contains 2 inputs
+            {
+                qDebug() << "NAND gate with 2 input nets" << net1id << net2id;
+                node->op = LogicOp::Nand;
+                node->children.append(new Logic(net1id));
+                node->children.append(new Logic(net2id));
+
+                // Recurse into each of the contributing nets
+                parse(node->children[0]);
+                parse(node->children[1]);
+                continue;
+            }
+
+            Net &netMid23 = m_netlist[t2->c2];
+
+            if (netMid23.c1c2s.count() == 2)
+            {
+                // This code looks at transistors three steps away from the root net
+                t3 = (netMid23.c1c2s[0]->id == t2->id) ? netMid23.c1c2s[1] : netMid23.c1c2s[0]; // Pick the "other" transistor
+                net3id = t3->gate;
+
+                Q_ASSERT(t3->c2 != npwr);
+
+                if (t3->c2 == ngnd) // The NAND gate contains 3 inputs
+                {
+                    qDebug() << "NAND gate with 3 input nets" << net1id << net2id << net3id;
+                    node->op = LogicOp::Nand;
+                    node->children.append(new Logic(net1id));
+                    node->children.append(new Logic(net2id));
+                    node->children.append(new Logic(net3id));
+
+                    // Recurse into each of the contributing nets
+                    parse(node->children[0]);
+                    parse(node->children[1]);
+                    parse(node->children[2]);
+                    continue;
+                }
+            }
+        }
+        qDebug() << "TODO: Junction not handled at transistor" << t1->id;
+    }
+    // Join parallel transistors into NOR gates
+    if (root->children.count() > 1)
+        root->op = LogicOp::Nor;
+}
+
+Logic::Logic(net_t n, LogicOp op) : net(n), op(op)
+{
+    // Terminating nets: ngnd,npwr,clk, t1..t6,m1..m6, int_reset, ... any pla wire (below)
+    const static QVector<net_t> term {0,1,2,3, 115,137,144,166,134,168,155,173,163,159,209,210, 95};
+    name = ::controller.getNetlist().get(n);
+    if (name.isEmpty())
+        name = QString::number(n);
+    // We stop processing nodes at a leaf node which is either one of the predefined nodes or a detected loop
+    leaf = term.contains(n) || name.startsWith("pla");
+    if (visited.contains(n))
+        leaf = true;
+    else
+        visited.append(n);
+}
