@@ -15,9 +15,9 @@ class DialogSchematic : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogSchematic(QWidget *parent, net_t net, Logic *lr);
+    explicit DialogSchematic(QWidget *parent, Logic *lr);
     ~DialogSchematic();
-    net_t id() { return m_net; }        // Returns the net number that this view shows
+    net_t id() { return m_logic->net; } // Returns the net number that this view shows
 
 private:
     void reject() override { hide(); }  // Do not delete this dialog on [X] close, just hide it
@@ -25,7 +25,6 @@ private:
 private:
     Ui::DialogSchematic *ui;
 
-    net_t m_net;                        // Net number that this schematic view shows
     Logic *m_logic;                     // Logic tree
 };
 

@@ -829,7 +829,7 @@ void WidgetImageView::viewSchematic()
     Logic *lr = ::controller.getNetlist().getLogicTree(net);
     qInfo() << ::controller.getNetlist().dumpLogicTree(lr);
 
-    DialogSchematic *sch = new DialogSchematic(this, net, lr);
+    DialogSchematic *sch = new DialogSchematic(this, lr);
     sch->show();
     m_sch.append(sch);
 }
