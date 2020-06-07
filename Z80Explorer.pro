@@ -60,6 +60,7 @@ HEADERS += \
     src/ClassColors.h \
     src/ClassController.h \
     src/ClassException.h \
+    src/ClassLogic.h \
     src/ClassNetlist.h \
     src/ClassScript.h \
     src/ClassSimZ80.h \
