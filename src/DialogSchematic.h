@@ -2,6 +2,7 @@
 #define DIALOGSCHEMATIC_H
 
 #include "AppTypes.h"
+#include "ClassLogic.h"
 #include <QDialog>
 
 namespace Ui { class DialogSchematic; }
@@ -14,7 +15,7 @@ class DialogSchematic : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogSchematic(QWidget *parent, net_t net);
+    explicit DialogSchematic(QWidget *parent, net_t net, Logic *lr);
     ~DialogSchematic();
     net_t id() { return m_net; }        // Returns the net number that this view shows
 
@@ -25,6 +26,7 @@ private:
     Ui::DialogSchematic *ui;
 
     net_t m_net;                        // Net number that this schematic view shows
+    Logic *m_logic;                     // Logic tree
 };
 
 #endif // DIALOGSCHEMATIC_H

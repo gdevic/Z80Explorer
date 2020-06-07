@@ -3,10 +3,11 @@
 #include "ClassController.h"
 #include <QStringBuilder>
 
-DialogSchematic::DialogSchematic(QWidget *parent, net_t net) :
+DialogSchematic::DialogSchematic(QWidget *parent, net_t net, Logic *lr) :
     QDialog(parent),
     ui(new Ui::DialogSchematic),
-    m_net(net)
+    m_net(net),
+    m_logic(lr)
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, false); // We never delete this view, just hide it

@@ -63,6 +63,9 @@ public:
 
     const QString netInfo(net_t net);           // Returns basic net information as string
     const QString transInfo(tran_t t);          // Returns basic transistor information as string
+    Logic *getLogicTree(net_t net);             // Returns the bipartite tree describing the logic connections of a net
+    QString dumpLogicTree(Logic *root);         // Collapse logic tree into a string
+    QString equation(net_t net);                // Returns a string describing the logic connections of a net
 
 protected:
     QVector<Trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
@@ -73,8 +76,6 @@ protected:
     pin_t readBit(const QString &name);         // Returns a bit value read from the netlist for a particular net, by net name
     pin_t readBit(const net_t n);               // Returns a bit value read from the netlist for a particular net, by net number
     uint16_t readAB();                          // Returns the value on the address bus
-
-    QString equation(net_t);                    // Generates a logic equations driving a net
 
 private:
     bool loadNetNames(const QString fileName, bool);
@@ -90,9 +91,7 @@ private:
 
     // Generates a logic equation driving a net
     void parse(Logic *node);                    // Recursive parse of the netlist starting with the given node
-    QString combine(Logic *root);               // Recursive recombination of the logic tree
     void purge(Logic *root);                    // Recursive tree deletion
-    Logic *m_lroot {};                          // Root of the logic bipartite tree
 };
 
 #endif // CLASSNETLIST_H

@@ -824,7 +824,12 @@ void WidgetImageView::viewSchematic()
         }
     }
     qInfo() << "Creating schematic for net" << net;
-    DialogSchematic *sch = new DialogSchematic(this, net);
+
+    // Calculate the logic equation for the net
+    Logic *lr = ::controller.getNetlist().getLogicTree(net);
+    qInfo() << ::controller.getNetlist().dumpLogicTree(lr);
+
+    DialogSchematic *sch = new DialogSchematic(this, net, lr);
     sch->show();
     m_sch.append(sch);
 }

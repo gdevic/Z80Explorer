@@ -519,13 +519,19 @@ const QString ClassNetlist::transInfo(tran_t t)
  */
 QVector<net_t> visited; // Avoid loops by keeping nets that are already visited
 
-QString ClassNetlist::equation(net_t n)
+Logic *ClassNetlist::getLogicTree(net_t net)
 {
-    purge(m_lroot); // Delete previous tree
-    m_lroot = new Logic(n); // Create root node
+    Logic *root = new Logic(net); // Create root node
     visited.clear();
-    parse(m_lroot); // Create bipartite tree with the root at the entry net n
-    QString equation = m_lroot->name % " = " % combine(m_lroot);
+    parse(root);
+    return root;
+}
+
+QString ClassNetlist::equation(net_t net)
+{
+    Logic *lr = getLogicTree(net);
+    QString equation = lr->name % " = " % dumpLogicTree(lr);
+    purge(lr);
     qDebug() << equation;
     return equation;
 }
@@ -540,7 +546,7 @@ void ClassNetlist::purge(Logic *root)
     }
 }
 
-QString ClassNetlist::combine(Logic *root)
+QString ClassNetlist::dumpLogicTree(Logic *root)
 {
     QString eq;
 
@@ -556,7 +562,7 @@ QString ClassNetlist::combine(Logic *root)
         eq.append('(');
         QStringList terms;
         for (auto k : root->children)
-            terms.append(combine(k));
+            terms.append(dumpLogicTree(k));
         eq.append(terms.join(','));
         eq.append(')');
     }
