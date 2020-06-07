@@ -812,8 +812,19 @@ void WidgetImageView::viewSchematic()
 {
     Q_ASSERT(m_drivingNets.count() == 1);
     net_t net = m_drivingNets[0];
+
+    // If the schematic for this net was already created, do not create a new one
+    for (auto w : m_sch)
+    {
+        if (w->id() == net)
+        {
+            w->show();
+            w->activateWindow();
+            return;
+        }
+    }
     qInfo() << "Creating schematic for net" << net;
-    DialogSchematic *sch = new DialogSchematic(this);
+    DialogSchematic *sch = new DialogSchematic(this, net);
     sch->show();
     m_sch.append(sch);
 }
