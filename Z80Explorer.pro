@@ -38,6 +38,7 @@ SOURCES += \
     src/DialogEditColors.cpp \
     src/DialogEditWatchlist.cpp \
     src/DialogEditWaveform.cpp \
+    src/DialogSchematic.cpp \
     src/DockCommand.cpp \
     src/DockImageView.cpp \
     src/DockLog.cpp \
@@ -71,6 +72,7 @@ HEADERS += \
     src/DialogEditColors.h \
     src/DialogEditWatchlist.h \
     src/DialogEditWaveform.h \
+    src/DialogSchematic.h \
     src/DockCommand.h \
     src/DockImageView.h \
     src/DockLog.h \
@@ -90,6 +92,7 @@ FORMS += \
     src/DialogEditColors.ui \
     src/DialogEditWatchlist.ui \
     src/DialogEditWaveform.ui \
+    src/DialogSchematic.ui \
     src/DockCommand.ui \
     src/DockImageView.ui \
     src/DockLog.ui \

@@ -662,6 +662,12 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     connect(&actionSyncViews, &QAction::triggered, this, [=]() { emit ::controller.syncView(m_tex, m_scale); });
     contextMenu.addAction(&actionSyncViews);
 
+    // "Schematic" option, only if the user picked a single net node but not selection area (less confusing)
+    QAction actionSchematic("Schematic...", this);
+    connect(&actionSchematic, SIGNAL(triggered()), this, SLOT(viewSchematic()));
+    if ((m_drivingNets.count() == 1) && !m_areaRect.width())
+        contextMenu.addAction(&actionSchematic);
+
     contextMenu.exec(mapToGlobal(pos));
 
     m_drawSelection = false;
@@ -797,6 +803,19 @@ void WidgetImageView::editNetName()
         else
             ::controller.renameNet(newName, newNet);
     }
+}
+
+/*
+ * Creates a new Schematic window using the selected net
+ */
+void WidgetImageView::viewSchematic()
+{
+    Q_ASSERT(m_drivingNets.count() == 1);
+    net_t net = m_drivingNets[0];
+    qInfo() << "Creating schematic for net" << net;
+    DialogSchematic *sch = new DialogSchematic(this);
+    sch->show();
+    m_sch.append(sch);
 }
 
 /*

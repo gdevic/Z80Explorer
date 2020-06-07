@@ -2,6 +2,7 @@
 #define WIDGETIMAGEVIEW_H
 
 #include "AppTypes.h"
+#include "DialogSchematic.h"
 #include <QTimer>
 #include <QWidget>
 #include <QQueue>
@@ -41,9 +42,12 @@ private slots:
     void netsDriving();                 // Shows nets that the selected net is driving
     void netsDriven();                  // Shows nets that drive the selected net
     void editNetName();                 // Opens dialog to edit selected net name (alias)
+    void viewSchematic();               // Creates a new Schematic window using the selected net
 
 private:
     Ui::WidgetImageView *ui;
+
+    QVector<DialogSchematic *> m_sch {};// List of schematic views bound to this image view
 
     QImage  m_image;                    // Current image
     QSize   m_panelSize;                // View panel size, drawable area
