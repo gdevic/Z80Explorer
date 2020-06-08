@@ -5,36 +5,31 @@
 
 #include <QtGui>
 
-/*
- * DockCommand constructor.
- */
 DockCommand::DockCommand(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockCommand)
 {
     ui->setupUi(this);
 
-    // Set the shortucut to the text widget for simplicity
-    m_edit = ui->textEdit;
+    // Set up shortucuts to the widgets for simplicity
+    m_text = ui->textEdit;
+    m_cmd = ui->lineEdit;
 
     // Set the maximum number of lines (blocks) for the text widget to hold.
     // This should prevent reported faults when the buffer gets very large.
     // This value might change, or be part of some sw setting.
-    m_edit->setMaximumBlockCount(4000);   // This many lines max
+    m_text->setMaximumBlockCount(4000);   // Max number of lines
 
-    // Install the event filter to capture Return key
-    // This method avoids the need to subclass QTextEdit
-    m_edit->installEventFilter(this);
+    // Install the event filter to capture keys for history buffer etc.
+    m_cmd->installEventFilter(this);
 
-    connect(this, SIGNAL(run(QString)), &::controller.getScript(), SLOT(run(QString)));
-    connect(&::controller.getScript(), SIGNAL(response(QString)), this, SLOT(appendText(QString)));
+    connect(ui->lineEdit, &QLineEdit::returnPressed, this, &DockCommand::returnPressed);
+    connect(&::controller.getScript(), &ClassScript::response, this, [=](QString str) { m_text->appendPlainText(str); });
 
-    m_edit->appendPlainText("Type help() to list available commands\n");
+    m_text->appendPlainText("Type help() to list available commands\n");
+//    m_text->setFocusProxy(m_cmd); XXX This could be one way to handle focus
 }
 
-/*
- * DockCommand destructor.
- */
 DockCommand::~DockCommand()
 {
     delete ui;
@@ -42,31 +37,58 @@ DockCommand::~DockCommand()
 
 /*
  * The event filter is installed into the textEdit object and calls this
- * function every time there is a event, including user pressed on a Return key
+ * function every time there is an event such ashel user pressed on keys:
+ *
+ * ESC - clears the entered text
+ * UP/DOWN - cycles through the history
+ * PGUP - dumps the command history to the application log window
  */
 bool DockCommand::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == m_edit && event->type() == QEvent::KeyPress)
+    if ((object == m_cmd) && (event->type() == QEvent::KeyPress))
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (keyEvent->key() == Qt::Key_Return)
+        if (keyEvent->key() == Qt::Key_PageUp)
+            qInfo() << m_history;
+        if (keyEvent->key() == Qt::Key_Escape)
+            m_cmd->clear();
+        if ((keyEvent->key() == Qt::Key_Up) && m_history.count())
         {
-            // Get the line of text that the cursor is positioned at
-            QString text = m_edit->textCursor().block().text().trimmed().toLatin1() ;
-            // If there was any text in the current line, issue a command
-            if (text.length()>0)
-                emit run(text);
+            m_cmd->setText(m_history.at(m_index));
+            if (m_index > 0)
+                m_index--;
+        }
+        if (keyEvent->key() == Qt::Key_Down)
+        {
+            if (m_index < (m_history.size() - 1))
+            {
+                m_index++;
+                m_cmd->setText(m_history.at(m_index));
+            }
+            else
+                m_cmd->clear();
         }
     }
     return QDockWidget::eventFilter(object, event);
 }
 
 /*
- * Appends text to the text window
+ * Called when the user completes a command and presses Enter
  */
-void DockCommand::appendText(QString str)
+void DockCommand::returnPressed()
 {
-    m_edit->moveCursor(QTextCursor::End);
-    m_edit->insertPlainText("\n" + str);
-    m_edit->moveCursor(QTextCursor::End);
+    QString text = m_cmd->text().trimmed().toLatin1();
+    ::controller.getScript().run(text);
+    m_cmd->clear();
+
+    // If the command is not empty, add it to the history, if unique
+    if (!text.isEmpty())
+    {
+        // If the history already contains this command, make sure it is appended last
+        m_history.removeAll(text);
+        m_history.append(text);
+        if (m_history.size() > 50) // Keep the history a manageable size
+            m_history.removeFirst();
+        m_index = m_history.size() - 1;
+    }
 }

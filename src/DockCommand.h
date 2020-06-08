@@ -4,12 +4,13 @@
 #include <QDockWidget>
 
 class QPlainTextEdit;
+class QLineEdit;
 
 namespace Ui { class DockCommand; }
 
 /*
- * DockCommand implements a docking window widget that contains text field where
- * user can issue internal commands and read the output from these commands.
+ * DockCommand implements a docking window widget that contains a line edit field where
+ * user can issue internal commands and a text panel to read the output of these commands.
  */
 class DockCommand : public QDockWidget
 {
@@ -19,17 +20,19 @@ public:
     explicit DockCommand(QWidget *parent);
     ~DockCommand();
 
-signals:
-    void run(QString);
-
 private slots:
-    void appendText(QString);
+    void returnPressed();
 
 private:
     bool eventFilter(QObject *, QEvent *);
 
+private:
     Ui::DockCommand *ui;
-    QPlainTextEdit *m_edit;
+
+    QPlainTextEdit *m_text;             // Command output pane
+    QLineEdit *m_cmd;                   // Command input line edit widget
+    QStringList m_history;              // Command history list
+    int m_index {};                     // Current index into history when selecting it with up/down keys
 };
 
 #endif // DOCKCOMMAND_H
