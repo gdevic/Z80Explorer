@@ -36,19 +36,26 @@ bool ClassNetlist::loadResources(const QString dir)
 
         ngnd = get("vss");
         npwr = get("vcc");
+        nclk = get("clk");
 
+        qInfo() << "Checking that vss,vcc,clk nets are numbered 1,2,3";
         if (strings == m_netnums.count())
         {
             if (ngnd == 1)
             {
                 if (npwr == 2)
                 {
-                    if (loadTransdefs(dir) && loadPullups(dir))
+                    if (nclk == 3)
                     {
-                        qInfo() << "Completed loading netlist resources";
-                        return true;
+                        if (loadTransdefs(dir) && loadPullups(dir))
+                        {
+                            qInfo() << "Completed loading netlist resources";
+                            return true;
+                        }
+                        qCritical() << "Loading transistor resource failed";
                     }
-                    qCritical() << "Loading transistor resource failed";
+                    else
+                        qCritical() << "clk expected to be net number 3 but it is" << nclk;
                 }
                 else
                     qCritical() << "vcc expected to be net number 2 but it is" << npwr;
@@ -548,12 +555,12 @@ void ClassNetlist::parse(Logic *root)
     //-------------------------------------------------------------------------------
     // Detect clock gating
     //-------------------------------------------------------------------------------
-    if ((net0.c1c2s.count() == 1) && (net0.c1c2s[0]->gate == 3))
+    if ((net0.c1c2s.count() == 1) && (net0.c1c2s[0]->gate == nclk))
     {
         net_t netid = (net0.c1c2s[0]->c1 == net0id) ? net0.c1c2s[0]->c2 : net0.c1c2s[0]->c1; // Pick the "other" net
         qDebug() << net0id << "Clock gate to" << netid;
         Logic *node = new Logic(netid);
-        root->children.append(new Logic(3)); // Add clk subnet
+        root->children.append(new Logic(nclk)); // Add clk subnet
         root->children.append(node);
         root->op = LogicOp::And;
         parse(node);

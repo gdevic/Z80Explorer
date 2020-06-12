@@ -69,7 +69,7 @@ public:
 protected:
     QVector<Trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
     QVector<Net> m_netlist;                     // Array of nets, indexed by the net number
-    net_t ngnd {}, npwr {};                     // 'vss' and 'vcc' nets (expected values: 1 and 2)
+    net_t ngnd {}, npwr {}, nclk {};            // 'vss', 'vcc' and 'clk' nets (expected values: 1, 2 and 3)
 
     uint8_t readByte(const QString &name);      // Returns a byte value read from the netlist for a particular net bus
     pin_t readBit(const QString &name);         // Returns a bit value read from the netlist for a particular net, by net name
