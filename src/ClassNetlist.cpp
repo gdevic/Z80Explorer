@@ -512,17 +512,17 @@ const QString ClassNetlist::transInfo(tran_t t)
 }
 
 /*
- * Generates logic equations for a net
- * Parses the netlist, starting at the given wire, and creates a logic equation formula
- * that includes all the nets driving it. The tree stops with nets that are chosen as
- * meaningful end points: clk, t1..t6, m1..m6 and all pla signals.
+ * Generates a logic equation for a net
+ * Parses the netlist, starting at the given node, and creates a logic equation
+ * that includes all the nets driving it. The tree stops with the nets that are
+ * chosen as meaningful end points: clk, t1..t6, m1..m6 and the PLA signals.
  */
 QVector<net_t> visited; // Avoid loops by keeping nets that are already visited
 
 Logic *ClassNetlist::getLogicTree(net_t net)
 {
-    Logic *root = new Logic(net); // Create root node
     visited.clear();
+    Logic *root = new Logic(net);
     parse(root);
     return root;
 }
@@ -530,150 +530,168 @@ Logic *ClassNetlist::getLogicTree(net_t net)
 QString ClassNetlist::equation(net_t net)
 {
     Logic *lr = getLogicTree(net);
-    QString equation = lr->name % " = " % dumpLogicTree(lr);
-    purge(lr);
+    QString equation = lr->name % " = " % Logic::flatten(lr);
+    Logic::purge(lr);
     qDebug() << equation;
     return equation;
 }
 
-void ClassNetlist::purge(Logic *root)
-{
-    if (root)
-    {
-        for (auto k : root->children)
-            purge(k);
-        delete root;
-    }
-}
-
-QString ClassNetlist::dumpLogicTree(Logic *root)
-{
-    QString eq;
-
-    if (root->op == LogicOp::Nop) eq = root->name;
-    else if (root->op == LogicOp::Inverter) eq = "INV";
-    else if (root->op == LogicOp::Nor) eq = "NOR";
-    else if (root->op == LogicOp::Nand) eq = "NAND";
-    else if (root->op == LogicOp::And) eq = "AND";
-    else Q_ASSERT(0);
-
-    if (root->children.count())
-    {
-        eq.append('(');
-        QStringList terms;
-        for (auto k : root->children)
-            terms.append(dumpLogicTree(k));
-        eq.append(terms.join(','));
-        eq.append(')');
-    }
-    return eq;
-}
-
 void ClassNetlist::parse(Logic *root)
 {
-    net_t net0id = root->net;
-    Net &net0 = m_netlist[net0id];
-
     if (root->leaf)
         return;
 
-    // Loop over transistors for which the current net is the source/drain
+    net_t net0id = root->net;
+    Net &net0 = m_netlist[net0id];
+
+    // Recognize some common patterns:
+    //-------------------------------------------------------------------------------
+    // Detect clock gating
+    //-------------------------------------------------------------------------------
+    if ((net0.c1c2s.count() == 1) && (net0.c1c2s[0]->gate == 3))
+    {
+        net_t netid = (net0.c1c2s[0]->c1 == net0id) ? net0.c1c2s[0]->c2 : net0.c1c2s[0]->c1; // Pick the "other" net
+        qDebug() << net0id << "Clock gate to" << netid;
+        Logic *node = new Logic(netid);
+        root->children.append(new Logic(3)); // Add clk subnet
+        root->children.append(node);
+        root->op = LogicOp::And;
+        parse(node);
+        return;
+    }
+
+    //-------------------------------------------------------------------------------
+    // Detect a lone Inverter driver
+    //-------------------------------------------------------------------------------
+    if ((net0.c1c2s.count() == 1) && (net0.c1c2s[0]->c2 == ngnd))
+    {
+        net_t netid = net0.c1c2s[0]->gate;
+        qDebug() << net0id << "Inverter to" << netid;
+        Logic *node = new Logic(netid);
+        root->children.append(node);
+        root->op = LogicOp::Inverter;
+        parse(node);
+        return;
+    }
+
+    //-------------------------------------------------------------------------------
+    // Detect Pulled-up Inverter driver (ex. 1304)
+    //-------------------------------------------------------------------------------
+    if ((net0.gates.count() == 0) && (net0.c1c2s.count() == 2) && net0.hasPullup)
+    {
+        // No gates but two source/drain connections: we need to find out which transistor we need to follow
+        net_t netid = 0;
+        bool x11 = visited.contains(net0.c1c2s[0]->c1);
+        bool x12 = visited.contains(net0.c1c2s[0]->c2);
+        bool x21 = visited.contains(net0.c1c2s[1]->c1);
+        bool x22 = visited.contains(net0.c1c2s[1]->c2);
+        bool g1 = net0.c1c2s[0]->c2 == ngnd;
+        bool g2 = net0.c1c2s[1]->c2 == ngnd;
+
+        if (g1 && x21 && x22)
+            netid = net0.c1c2s[0]->gate;
+        if (g2 && x11 && x12)
+            netid = net0.c1c2s[1]->gate;
+        Q_ASSERT(netid);
+        qDebug() << net0id << "Pulled-up Inverted to" << netid;
+        Logic *node = new Logic(netid);
+        root->children.append(node);
+        root->op = LogicOp::Inverter;
+        parse(node);
+        return;
+    }
+
+    //-------------------------------------------------------------------------------
+    // Detect Push-Pull driver
+    //-------------------------------------------------------------------------------
+    if (net0.c1c2s.count() == 2)
+    {
+        Q_ASSERT((ngnd == 1) && (npwr == 2));
+        if ((net0.c1c2s[0]->c2 <= npwr) && (net0.c1c2s[1]->c2 <= npwr))
+        {
+            net_t netid = 0;
+            net_t net01id = net0.c1c2s[0]->gate;
+            net_t net02id = net0.c1c2s[1]->gate;
+            Net &net01 = m_netlist[net01id];
+            Net &net02 = m_netlist[net02id];
+            // Identify the "short" side
+            if ((net01.gates.count() == 1) && (net01.c1c2s.count() == 1) && (net01.c1c2s[0]->c2 == ngnd) && (net01.c1c2s[0]->gate == net02id))
+                netid = net02id;
+            if ((net02.gates.count() == 1) && (net02.c1c2s.count() == 1) && (net02.c1c2s[0]->c2 == ngnd) && (net02.c1c2s[0]->gate == net01id))
+                netid = net01id;
+            if (netid)
+            {
+                qDebug() << "Push-Pull driver" << net01id << net02id << "source net" << netid;
+                Logic *node = new Logic(netid);
+                root->children.append(node);
+                root->op = LogicOp::Inverter;
+                parse(node);
+                return;
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------------
+    // *All* source/drain connections could simply form a NOR gate with 2 or more inputs
+    // This is a shortcut to a more generic case handled below (with mixed NOR/NAND/AND gates)
+    //-------------------------------------------------------------------------------
+    auto i = std::count_if(net0.c1c2s.begin(), net0.c1c2s.end(), [=](Trans *t) { return t->c2 == ngnd; } );
+    if (i == net0.c1c2s.count())
+    {
+        qDebug() << "NOR gate" << net0id << "with fan-in of" << i;
+        for (auto k : net0.c1c2s)
+        {
+            Logic *node = new Logic(k->gate);
+            root->children.append(node);
+        }
+        root->op = LogicOp::Nor;
+        return;
+    }
+
+    // Loop over all transistors for which the current net is the source/drain
     for (auto t1 : net0.c1c2s)
     {       
-        Trans *t2, *t3;
-        net_t net2id, net3id;
-
-        qDebug() << "Processing net" << net0id << "at transistor" << t1->id;
         net_t net1id = t1->gate;
-
-        Logic *node = new Logic(net1id);
-        root->children.append(node);
-
-        net_t netMid12id = (t1->c2 == net0id) ? t1->c1 : t1->c2; // Pick the "other" net
-        Net &netMid12 = m_netlist[netMid12id];
-        qDebug() << "Transistor" << t1->id << "to net" << netMid12id << "gated by" << net1id;
-
-        if (t1->c2 == ngnd) // Inverter
-        {
-            qDebug() << "Gated to ngnd: Inverter" << t1->c1;
-            root->op = LogicOp::Inverter;
-            parse(node);
-            continue;
-        }
-
+        qDebug() << "Processing net" << net0id << "at transistor" << t1->id;
+        //-------------------------------------------------------------------------------
+        // Ignore pull-up inputs
+        //-------------------------------------------------------------------------------
         if (t1->c2 == npwr)
         {
             qDebug() << "Connection to npwr ignored";
             continue;
         }
 
-        // Free floating "other" net creates a NAND gate
-        if (netMid12.c1c2s.count() == 2)
+        Logic *node = new Logic(net1id);
+        root->children.append(node);
+
+        //-------------------------------------------------------------------------------
+        // Single input to a (root) NOR gate
+        //-------------------------------------------------------------------------------
+        // This could be an inverter but it's not since we already detected a lone input inverter driver
+        // So, this is one NOR gate input in a mixed net configuration
+        if (t1->c2 == ngnd)
         {
-            // Detect clk gating: the second net is pulled up
-            if (netMid12.hasPullup && (net1id == 3))
-            {
-                qDebug() << "AND gate with clk across to" << netMid12id;
-                node->op = LogicOp::And;
-                node->children.append(new Logic(netMid12id));
-
-                // Recurse into each of the contributing nets
-                parse(node->children[0]);
-                continue;
-            }
-
-            // This code looks at transistors two steps away from the root net
-            t2 = (netMid12.c1c2s[0]->id == t1->id) ? netMid12.c1c2s[1] : netMid12.c1c2s[0]; // Pick the "other" transistor
-            net2id = t2->gate;
-
-            if (t2->c2 == npwr)
-            {
-                qDebug() << "Connection to npwr ignored";
-                continue;
-            }
-
-            if (t2->c2 == ngnd) // The NAND gate contains 2 inputs
-            {
-                qDebug() << "NAND gate with 2 input nets" << net1id << net2id;
-                node->op = LogicOp::Nand;
-                node->children.append(new Logic(net1id));
-                node->children.append(new Logic(net2id));
-
-                // Recurse into each of the contributing nets
-                parse(node->children[0]);
-                parse(node->children[1]);
-                continue;
-            }
-
-            Net &netMid23 = m_netlist[t2->c2];
-
-            if (netMid23.c1c2s.count() == 2)
-            {
-                // This code looks at transistors three steps away from the root net
-                t3 = (netMid23.c1c2s[0]->id == t2->id) ? netMid23.c1c2s[1] : netMid23.c1c2s[0]; // Pick the "other" transistor
-                net3id = t3->gate;
-
-                Q_ASSERT(t3->c2 != npwr);
-
-                if (t3->c2 == ngnd) // The NAND gate contains 3 inputs
-                {
-                    qDebug() << "NAND gate with 3 input nets" << net1id << net2id << net3id;
-                    node->op = LogicOp::Nand;
-                    node->children.append(new Logic(net1id));
-                    node->children.append(new Logic(net2id));
-                    node->children.append(new Logic(net3id));
-
-                    // Recurse into each of the contributing nets
-                    parse(node->children[0]);
-                    parse(node->children[1]);
-                    parse(node->children[2]);
-                    continue;
-                }
-            }
+            qDebug() << "NOR gate input" << net1id;
+            parse(node);
+            continue;
         }
-        qDebug() << "TODO: Junction not handled at transistor" << t1->id;
+
+        //-------------------------------------------------------------------------------
+        // Transistor is in AND gate configuration
+        //-------------------------------------------------------------------------------
+        net_t net2id = (t1->c1 == net0id) ? t1->c2 : t1->c1; // Pick the "other" net
+
+        qDebug() << "AND gate with 2 input nets" << net1id << net2id;
+        node->op = LogicOp::And;
+        node->children.append(new Logic(net1id));
+        node->children.append(new Logic(net2id));
+
+        // Recurse into each of the contributing nets
+        parse(node->children[0]);
+        parse(node->children[1]);
     }
-    // Join parallel transistors into NOR gates
+    // Join parallel transistors into a (root) NOR gate
     if (root->children.count() > 1)
         root->op = LogicOp::Nor;
 }

@@ -18,10 +18,27 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGraphicsView" name="view"/>
+    <widget class="WidgetGraphicsView" name="view">
+     <property name="renderHints">
+      <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::TextAntialiasing</set>
+     </property>
+     <property name="dragMode">
+      <enum>QGraphicsView::ScrollHandDrag</enum>
+     </property>
+     <property name="cacheMode">
+      <set>QGraphicsView::CacheBackground</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WidgetGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">WidgetGraphicsView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

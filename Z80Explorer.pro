@@ -46,6 +46,7 @@ SOURCES += \
     src/DockWaveform.cpp \
     src/MainWindow.cpp \
     src/WidgetEditColor.cpp \
+    src/WidgetGraphicsView.cpp \
     src/WidgetImageOverlay.cpp \
     src/WidgetImageView.cpp \
     src/WidgetToolbar.cpp \
@@ -81,6 +82,7 @@ HEADERS += \
     src/DockWaveform.h \
     src/MainWindow.h \
     src/WidgetEditColor.h \
+    src/WidgetGraphicsView.h \
     src/WidgetImageOverlay.h \
     src/WidgetImageView.h \
     src/WidgetToolbar.h \

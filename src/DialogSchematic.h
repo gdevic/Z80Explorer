@@ -4,6 +4,7 @@
 #include "AppTypes.h"
 #include "ClassLogic.h"
 #include <QDialog>
+#include <QGraphicsScene>
 
 namespace Ui { class DialogSchematic; }
 
@@ -20,12 +21,16 @@ public:
     net_t id() { return m_logic->net; } // Returns the net number that this view shows
 
 private:
-    void reject() override { hide(); }  // Do not delete this dialog on [X] close, just hide it
+    void reject() override { hide(); }  // Do not delete this dialog on close, just hide it
+    void createDrawing();               // Creates drawing outside of the constructor
+    void drawSymbol(QPointF loc, Logic *lr); // Recursively draws symbols
+    int preBuild(Logic *lr);            // Pre-builds the tree to calculate screen positions
 
 private:
     Ui::DialogSchematic *ui;
 
     Logic *m_logic;                     // Logic tree
+    QGraphicsScene *m_scene;            // Graphics scene we are painting to
 };
 
 #endif // DIALOGSCHEMATIC_H
