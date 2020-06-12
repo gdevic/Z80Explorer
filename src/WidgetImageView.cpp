@@ -662,10 +662,10 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     connect(&actionSyncViews, &QAction::triggered, this, [=]() { emit ::controller.syncView(m_tex, m_scale); });
     contextMenu.addAction(&actionSyncViews);
 
-    // "Schematic" option, only if the user picked a single net node but not selection area (less confusing)
+    // "Schematic" option, only if the user selected a node but not selection area (less confusing)
     QAction actionSchematic("Schematic...", this);
     connect(&actionSchematic, SIGNAL(triggered()), this, SLOT(viewSchematic()));
-    if ((m_drivingNets.count() == 1) && !m_areaRect.width())
+    if ((m_drivingNets.count() >= 1) && !m_areaRect.width())
         contextMenu.addAction(&actionSchematic);
 
     contextMenu.exec(mapToGlobal(pos));
@@ -806,11 +806,11 @@ void WidgetImageView::editNetName()
 }
 
 /*
- * Creates a new Schematic window using the selected net
+ * Creates a new Schematic window using the primary selected net
  */
 void WidgetImageView::viewSchematic()
 {
-    Q_ASSERT(m_drivingNets.count() == 1);
+    Q_ASSERT(m_drivingNets.count() >= 1);
     net_t net = m_drivingNets[0];
 
     // If the schematic for this net was already created, do not create a new one
@@ -827,7 +827,7 @@ void WidgetImageView::viewSchematic()
 
     // Calculate the logic equation for the net
     Logic *lr = ::controller.getNetlist().getLogicTree(net);
-    qInfo() << ::controller.getNetlist().dumpLogicTree(lr);
+    qInfo() << Logic::flatten(lr);
 
     DialogSchematic *sch = new DialogSchematic(this, lr);
     sch->show();
