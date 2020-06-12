@@ -30,7 +30,7 @@ DialogSchematic::~DialogSchematic()
 }
 
 /*
- * Recursively draws symbols
+ * Recursively draws symbols in a tree structure
  */
 void DialogSchematic::drawSymbol(QPointF loc, Logic *lr)
 {
@@ -38,15 +38,21 @@ void DialogSchematic::drawSymbol(QPointF loc, Logic *lr)
     m_scene->addItem(l0);
     l0->setPos(loc);
 
-    for (auto i=0; i < lr->children.count(); i++)
-        drawSymbol(loc + QPointF(50, i * 50), lr->children[i]);
+    QPointF childLoc(loc.x() + 50, loc.y());
+    for (auto &k : lr->children)
+    {
+        drawSymbol(childLoc, k);
+        childLoc += QPointF(0, k->tag * 50);
+    }
 }
 
 /*
- * Pre-builds the tree to calculate screen positions by adding the sizes of child nodes
+ * Pre-builds the nodes to calculate screen positions by adding the number of child nodes
  */
 int DialogSchematic::preBuild(Logic *lr)
 {
+    if (lr->children.count() == 0)
+        lr->tag = 1;
     for (auto k : lr->children)
         lr->tag += preBuild(k);
     return lr->tag;
