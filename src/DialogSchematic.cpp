@@ -38,7 +38,7 @@ void DialogSchematic::drawSymbol(QPointF loc, Logic *lr)
     m_scene->addItem(l0);
     l0->setPos(loc);
 
-    QPointF childLoc(loc.x() + 50, loc.y());
+    QPointF childLoc(loc.x() + 50 + 10, loc.y());
     for (auto &k : lr->children)
     {
         drawSymbol(childLoc, k);
@@ -61,6 +61,7 @@ int DialogSchematic::preBuild(Logic *lr)
 void DialogSchematic::createDrawing()
 {
     preBuild(m_logic);
-    drawSymbol(QPointF(0,0), m_logic);
+    drawSymbol(QPointF(0, 0), m_logic);
     ui->view->setScene(m_scene);
+    ui->view->ensureVisible(QRect());
 }
