@@ -818,6 +818,11 @@ void WidgetImageView::viewSchematic()
     Logic *lr = ::controller.getNetlist().getLogicTree(net);
     qInfo() << Logic::flatten(lr);
 
+    // If the user pressed Ctrl key, we will optimize logic tree network
+    bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+    if (ctrl)
+        ::controller.getNetlist().optimizeLogicTree(lr);
+
     DialogSchematic *sch = new DialogSchematic(this, lr);
     sch->show();
 }

@@ -543,6 +543,36 @@ QString ClassNetlist::equation(net_t net)
     return equation;
 }
 
+/*
+ * Optimizes, in place, logic tree by coalescing suitable nodes
+ */
+void ClassNetlist::optimizeLogicTree(Logic *lr)
+{
+    if ((lr->children.count() == 1) && (lr->op == LogicOp::Inverter))
+    {
+        Logic *next = lr->children[0];
+        LogicOp nextOp;
+        switch (next->op)
+        {
+            case LogicOp::And: nextOp = LogicOp::Nand; break;
+            case LogicOp::Nand: nextOp = LogicOp::And; break;
+            case LogicOp::Or: nextOp = LogicOp::Nor; break;
+            case LogicOp::Nor: nextOp = LogicOp::Or; break;
+            default: nextOp = LogicOp::Nop; break;
+        }
+        if (nextOp != LogicOp::Nop)
+        {
+            lr->op = nextOp;
+            lr->tag = next->tag;
+            lr->leaf = next->leaf;
+            lr->children = next->children;
+            delete next;
+        }
+    }
+    for (auto &k : lr->children)
+        optimizeLogicTree(k);
+}
+
 void ClassNetlist::parse(Logic *root)
 {
     if (root->leaf)
