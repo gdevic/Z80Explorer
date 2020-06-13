@@ -2,7 +2,6 @@
 #define WIDGETIMAGEVIEW_H
 
 #include "AppTypes.h"
-#include "DialogSchematic.h"
 #include <QTimer>
 #include <QWidget>
 #include <QQueue>
@@ -46,8 +45,6 @@ private slots:
 
 private:
     Ui::WidgetImageView *ui;
-
-    QVector<DialogSchematic *> m_sch {};// List of schematic views bound to this image view
 
     QImage  m_image;                    // Current image
     QSize   m_panelSize;                // View panel size, drawable area

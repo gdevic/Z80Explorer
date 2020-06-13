@@ -3,6 +3,7 @@
 #include "ClassController.h"
 #include "ClassSimZ80.h"
 #include "DialogEditAnnotations.h"
+#include "DialogSchematic.h"
 #include "WidgetImageOverlay.h"
 
 #include <QDebug>
@@ -806,24 +807,12 @@ void WidgetImageView::editNetName()
 }
 
 /*
- * Creates a new Schematic window using the primary selected net
+ * Creates a new Schematic window showing the primary selected net's logic diagram
  */
 void WidgetImageView::viewSchematic()
 {
     Q_ASSERT(m_drivingNets.count() >= 1);
     net_t net = m_drivingNets[0];
-
-    // If the schematic for this net was already created, do not create a new one
-    for (auto w : m_sch)
-    {
-        if (w->id() == net)
-        {
-            w->show();
-            w->activateWindow();
-            return;
-        }
-    }
-    qInfo() << "Creating schematic for net" << net;
 
     // Calculate the logic equation for the net
     Logic *lr = ::controller.getNetlist().getLogicTree(net);
@@ -831,7 +820,6 @@ void WidgetImageView::viewSchematic()
 
     DialogSchematic *sch = new DialogSchematic(this, lr);
     sch->show();
-    m_sch.append(sch);
 }
 
 /*

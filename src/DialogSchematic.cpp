@@ -10,7 +10,6 @@ DialogSchematic::DialogSchematic(QWidget *parent, Logic *lr) :
     m_logic(lr)
 {
     ui->setupUi(this);
-    setAttribute(Qt::WA_DeleteOnClose, false); // We never delete this view; we just hide it
 
     net_t net = lr->net;
     QString name = ::controller.getNetlist().get(net);
@@ -26,6 +25,7 @@ DialogSchematic::DialogSchematic(QWidget *parent, Logic *lr) :
 
 DialogSchematic::~DialogSchematic()
 {
+    Logic::purge(m_logic);
     delete ui;
 }
 
