@@ -572,9 +572,9 @@ void ClassNetlist::parse(Logic *root)
     //-------------------------------------------------------------------------------
     if ((net0.c1c2s.count() == 1) && (net0.c1c2s[0]->c2 == ngnd))
     {
-        net_t netid = net0.c1c2s[0]->gate;
-        qDebug() << net0id << "Inverter to" << netid;
-        Logic *node = new Logic(netid);
+        net_t netgt = net0.c1c2s[0]->gate;
+        qDebug() << net0id << "Inverter to" << netgt;
+        Logic *node = new Logic(netgt);
         root->children.append(node);
         root->op = LogicOp::Inverter;
         parse(node);
@@ -592,12 +592,12 @@ void ClassNetlist::parse(Logic *root)
         bool x12 = visited.contains(net0.c1c2s[0]->c2);
         bool x21 = visited.contains(net0.c1c2s[1]->c1);
         bool x22 = visited.contains(net0.c1c2s[1]->c2);
-        bool g1 = net0.c1c2s[0]->c2 == ngnd;
-        bool g2 = net0.c1c2s[1]->c2 == ngnd;
-
-        if (g1 && x21 && x22)
+        bool gnd1 = net0.c1c2s[0]->c2 == ngnd;
+        bool gnd2 = net0.c1c2s[1]->c2 == ngnd;
+        // Identify which way we go
+        if (gnd1 && x21 && x22)
             netid = net0.c1c2s[0]->gate;
-        if (g2 && x11 && x12)
+        if (gnd2 && x11 && x12)
             netid = net0.c1c2s[1]->gate;
         Q_ASSERT(netid);
         qDebug() << net0id << "Pulled-up Inverted to" << netid;
@@ -613,7 +613,6 @@ void ClassNetlist::parse(Logic *root)
     //-------------------------------------------------------------------------------
     if (net0.c1c2s.count() == 2)
     {
-        Q_ASSERT((ngnd == 1) && (npwr == 2));
         if ((net0.c1c2s[0]->c2 <= npwr) && (net0.c1c2s[1]->c2 <= npwr))
         {
             net_t netid = 0;
@@ -621,7 +620,7 @@ void ClassNetlist::parse(Logic *root)
             net_t net02id = net0.c1c2s[1]->gate;
             Net &net01 = m_netlist[net01id];
             Net &net02 = m_netlist[net02id];
-            // Identify the "short" side
+            // Identify the "short" path
             if ((net01.gates.count() == 1) && (net01.c1c2s.count() == 1) && (net01.c1c2s[0]->c2 == ngnd) && (net01.c1c2s[0]->gate == net02id))
                 netid = net02id;
             if ((net02.gates.count() == 1) && (net02.c1c2s.count() == 1) && (net02.c1c2s[0]->c2 == ngnd) && (net02.c1c2s[0]->gate == net01id))
@@ -658,7 +657,10 @@ void ClassNetlist::parse(Logic *root)
     // Loop over all transistors for which the current net is the source/drain
     for (auto t1 : net0.c1c2s)
     {       
-        net_t net1id = t1->gate;
+        net_t net1gt = t1->gate;
+        net_t net1id = (t1->c1 == net0id) ? t1->c2 : t1->c1; // Pick the "other" net
+        Net &net1 = m_netlist[net1id];
+
         qDebug() << "Processing net" << net0id << "at transistor" << t1->id;
         //-------------------------------------------------------------------------------
         // Ignore pull-up inputs
@@ -669,7 +671,7 @@ void ClassNetlist::parse(Logic *root)
             continue;
         }
 
-        Logic *node = new Logic(net1id);
+        Logic *node = new Logic(net1gt);
         root->children.append(node);
 
         //-------------------------------------------------------------------------------
@@ -679,26 +681,78 @@ void ClassNetlist::parse(Logic *root)
         // So, this is one NOR gate input in a mixed net configuration
         if (t1->c2 == ngnd)
         {
-            qDebug() << "NOR gate input" << net1id;
+            qDebug() << "NOR gate input" << net1gt;
             parse(node);
             continue;
         }
 
         //-------------------------------------------------------------------------------
-        // Transistor is in AND gate configuration
+        // Complex NAND gate extends for 2 pass-transistor nets (ex. net 215)
         //-------------------------------------------------------------------------------
-        net_t net2id = (t1->c1 == net0id) ? t1->c2 : t1->c1; // Pick the "other" net
+        if ((net1.gates.count() == 0) && (net1.c1c2s.count() == 2) && (net1.hasPullup == false))
+        {
+            Trans *t2 = (net1.c1c2s[0]->id == t1->id) ? net1.c1c2s[1] : net1.c1c2s[0];
+            net_t net2gt = t2->gate;
+            net_t net2id = (t2->c1 == net1id) ? t2->c2 : t2->c1; // Pick the "other" net
+            Net &net2 = m_netlist[net2id];
 
-        qDebug() << "AND gate with 2 input nets" << net1id << net2id;
+            if (net2id == ngnd)
+            {
+                qDebug() << "NAND gate with 2 inputs" << net1gt << net2gt;
+
+                node->op = LogicOp::Nand;
+                node->children.append(new Logic(net1gt));
+                node->children.append(new Logic(net2gt));
+
+                // Recurse into each of the contributing nets
+                parse(node->children[0]);
+                parse(node->children[1]);
+                continue;
+            }
+            //-------------------------------------------------------------------------------
+            // Complex NAND gate extends for 3 pass-transistor nets (ex. net 235)
+            //-------------------------------------------------------------------------------
+            if ((net2.gates.count() == 0) && (net2.c1c2s.count() == 2) && (net2.hasPullup == false))
+            {
+                Trans *t3 = (net2.c1c2s[0]->id == t2->id) ? net2.c1c2s[1] : net2.c1c2s[0];
+                net_t net3gt = t3->gate;
+                net_t net3id = (t3->c1 == net2id) ? t3->c2 : t3->c1; // Pick the "other" net
+
+                if (net3id == ngnd)
+                {
+                    qDebug() << "NAND gate with 3 inputs" << net1gt << net2gt << net3gt;
+
+                    node->op = LogicOp::Nand;
+                    node->children.append(new Logic(net1gt));
+                    node->children.append(new Logic(net2gt));
+                    node->children.append(new Logic(net3gt));
+
+                    // Recurse into each of the contributing nets
+                    parse(node->children[0]);
+                    parse(node->children[1]);
+                    parse(node->children[2]);
+                    continue;
+                }
+                // Have not seen a 4 pass-transistor NAND gate in Z80, yet
+                Q_ASSERT(0);
+            }
+            // Any other topological features that start as 2 pass-transistor nets?
+            Q_ASSERT(0);
+        }
+
+        //-------------------------------------------------------------------------------
+        // Transistor is a simple AND gate
+        //-------------------------------------------------------------------------------
+        qDebug() << "AND gate with 2 input nets" << net1gt << net1id;
         node->op = LogicOp::And;
+        node->children.append(new Logic(net1gt));
         node->children.append(new Logic(net1id));
-        node->children.append(new Logic(net2id));
 
         // Recurse into each of the contributing nets
         parse(node->children[0]);
         parse(node->children[1]);
     }
-    // Join parallel transistors into a (root) NOR gate
+    // Join parallel transistors into one (root) NOR gate
     if (root->children.count() > 1)
         root->op = LogicOp::Nor;
 }
