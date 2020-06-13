@@ -49,13 +49,11 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
             path.lineTo(20.0,  0.0);
             path.arcTo(QRectF(10, -5, 10, 10), 0, -180);
             break;
-        case LogicOp::Nor:
-            path.moveTo(10, 0);
-            path.arcTo(0, -5, 10, 10, 0, 360);
-            path.closeSubpath();
+        case LogicOp::And:
+            path.lineTo(10, 0);
             path.arcTo(QRectF(10, -25, 50, 50), 180, -90);
             path.lineTo(50, -25);
-            path.arcTo(QRectF(40, -35, 70, 70), 140, 86);
+            path.lineTo(50, 25);
             path.arcTo(QRectF(10, -25, 50, 50), -90, -90);
             break;
         case LogicOp::Nand:
@@ -67,11 +65,20 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
             path.lineTo(50, 25);
             path.arcTo(QRectF(10, -25, 50, 50), -90, -90);
             break;
-        case LogicOp::And:
+        case LogicOp::Or:
             path.lineTo(10, 0);
             path.arcTo(QRectF(10, -25, 50, 50), 180, -90);
             path.lineTo(50, -25);
-            path.lineTo(50, 25);
+            path.arcTo(QRectF(40, -35, 70, 70), 140, 86);
+            path.arcTo(QRectF(10, -25, 50, 50), -90, -90);
+            break;
+        case LogicOp::Nor:
+            path.moveTo(10, 0);
+            path.arcTo(0, -5, 10, 10, 0, 360);
+            path.closeSubpath();
+            path.arcTo(QRectF(10, -25, 50, 50), 180, -90);
+            path.lineTo(50, -25);
+            path.arcTo(QRectF(40, -35, 70, 70), 140, 86);
             path.arcTo(QRectF(10, -25, 50, 50), -90, -90);
             break;
     }
@@ -93,9 +100,10 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     {
         case LogicOp::Nop: type = ""; break;
         case LogicOp::Inverter: type = "INV"; break;
-        case LogicOp::Nand: type = "NAND"; break;
-        case LogicOp::Nor: type = "NOR"; break;
         case LogicOp::And: type = "AND"; break;
+        case LogicOp::Nand: type = "NAND"; break;
+        case LogicOp::Or: type = "OR"; break;
+        case LogicOp::Nor: type = "NOR"; break;
     }
 
     QRect r(0, -25, 48, 50);
