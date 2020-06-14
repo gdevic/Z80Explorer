@@ -85,9 +85,9 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
     m_poly = path.toFillPolygon();
 
     setPolygon(m_poly);
-    setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
-    setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+    // Items are not movable but this is useful to keep for debug
+    //setFlag(QGraphicsItem::ItemIsMovable, true);
 }
 
 /*
