@@ -59,7 +59,6 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
         case LogicOp::Nand:
             path.moveTo(10, 0);
             path.arcTo(0, -5, 10, 10, 0, 360);
-            path.closeSubpath();
             path.arcTo(QRectF(10, -25, 50, 50), 180, -90);
             path.lineTo(50, -25);
             path.lineTo(50, 25);
@@ -75,7 +74,6 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
         case LogicOp::Nor:
             path.moveTo(10, 0);
             path.arcTo(0, -5, 10, 10, 0, 360);
-            path.closeSubpath();
             path.arcTo(QRectF(10, -25, 50, 50), 180, -90);
             path.lineTo(50, -25);
             path.arcTo(QRectF(40, -35, 70, 70), 140, 86);
