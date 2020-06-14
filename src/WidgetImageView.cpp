@@ -818,14 +818,16 @@ void WidgetImageView::viewSchematic()
     Logic *lr = ::controller.getNetlist().getLogicTree(net);
     qInfo() << Logic::flatten(lr);
 
-    // If the user pressed Ctrl key, we will optimize logic tree network
+    // If the user pressed Ctrl key, we will *not* optimize logic tree network
     bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
-    if (ctrl)
+    if (!ctrl)
         ::controller.getNetlist().optimizeLogicTree(lr);
 
     DialogSchematic *sch = new DialogSchematic(this, lr);
     connect(sch, SIGNAL(doShow(QString)), this, SLOT(onFind(QString)));
     connect(sch, &DialogSchematic::doNewSchematic, this, [=](net_t net) { m_drivingNets.prepend(net); viewSchematic(); } );
+    if (ctrl) // Update schematic's window title if the net we passed to it was not optimized
+        sch->setWindowTitle(sch->windowTitle() + " (not optimized)");
     sch->show();
 }
 
