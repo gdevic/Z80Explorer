@@ -16,7 +16,7 @@ DialogSchematic::DialogSchematic(QWidget *parent, Logic *lr) :
     if (name.isEmpty())
         setWindowTitle(QString("Schematic for net %1").arg(net));
     else
-        setWindowTitle(QString("Schematic for net %1 \"%2\"").arg(net).arg(name));
+        setWindowTitle(QString("Schematic for net %1:%2").arg(name).arg(net));
 
     m_scene = new QGraphicsScene(this);
 
