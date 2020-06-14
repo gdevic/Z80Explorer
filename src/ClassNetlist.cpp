@@ -802,7 +802,12 @@ Logic::Logic(net_t n, LogicOp op) : net(n), op(op)
     if (name.isEmpty())
         name = QString::number(n);
     // We stop processing nodes at a leaf node which is either one of the predefined nodes or a detected loop
-    leaf = term.contains(n) || name.startsWith("pla");
+    leaf = term.contains(n) ||
+            name.startsWith("pla") ||
+            name.startsWith("ab") ||
+            name.startsWith("db") ||
+            name.startsWith("ubus") ||
+            name.startsWith("vbus");
     if (visited.contains(n))
         leaf = true;
     else
