@@ -30,20 +30,37 @@ DialogSchematic::~DialogSchematic()
 }
 
 /*
- * Recursively draws symbols in a tree structure
+ * Recursively draws symbols and connecting lines of a logic tree structure
  */
-void DialogSchematic::drawSymbol(QPointF loc, Logic *lr)
+void DialogSchematic::drawSymbol(QPoint loc, Logic *lr)
 {
-    SymbolItem *l0 = new SymbolItem(lr);
-    m_scene->addItem(l0);
-    l0->setPos(loc);
+    SymbolItem *sym = new SymbolItem(lr);
+    m_scene->addItem(sym);
+    sym->setPos(loc);
 
-    QPointF childLoc(loc.x() + 50 + 10, loc.y());
-    for (auto &k : lr->children)
+    QPoint childLoc(loc.x() + 50 + 10, loc.y());
+    QPoint lineStart(loc.x() + 50 + 5, loc.y());
+    QLine line(lineStart, childLoc);
+    int lastY;
+
+    for (auto k : lr->children)
     {
         drawSymbol(childLoc, k);
-        childLoc += QPointF(0, k->tag * 50);
+
+        m_scene->addLine(line);
+        lastY = childLoc.y();
+        QPoint nextDown(0, k->tag * 50);
+        childLoc += nextDown;
+        line.translate(nextDown);
     }
+
+    // Draw the horizontal line from the end of this node to the first child
+    if (lr->children.count())
+        m_scene->addLine(loc.x() + 50, loc.y(), lineStart.x(), loc.y());
+
+    // Draw the vertical line connecting all the children
+    if (lr->children.count() > 1)
+        m_scene->addLine(QLine(lineStart, QPoint(lineStart.x(), lastY)));
 }
 
 /*
@@ -61,7 +78,7 @@ int DialogSchematic::preBuild(Logic *lr)
 void DialogSchematic::createDrawing()
 {
     preBuild(m_logic);
-    drawSymbol(QPointF(0, 0), m_logic);
+    drawSymbol(QPoint(0, 0), m_logic);
     // XXX Need to find out how to set an adequate top-left margin
     m_scene->addRect(QRectF(-20,-50,0,0), QPen(Qt::white));
     ui->view->setScene(m_scene);

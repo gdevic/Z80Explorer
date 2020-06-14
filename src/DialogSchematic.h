@@ -22,7 +22,7 @@ public:
 
 private:
     void createDrawing();               // Creates drawing outside of the constructor
-    void drawSymbol(QPointF loc, Logic *lr); // Recursively draws symbols
+    void drawSymbol(QPoint loc, Logic *lr); // Recursively draws symbols and connecting lines
     int preBuild(Logic *lr);            // Pre-builds the tree to calculate screen positions
 
 private:
