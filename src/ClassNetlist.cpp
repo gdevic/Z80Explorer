@@ -531,6 +531,13 @@ Logic *ClassNetlist::getLogicTree(net_t net)
     visited.clear();
     Logic *root = new Logic(net);
     parse(root);
+    // Fixup for the root node which might have been reused for a NOR gate
+    if (root->op != LogicOp::Nop)
+    {
+        Logic *root2 = new Logic(net);
+        root2->children.append(root);
+        return root2;
+    }
     return root;
 }
 
