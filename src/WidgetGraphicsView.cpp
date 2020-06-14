@@ -68,7 +68,10 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
             path.lineTo(10, 0);
             path.arcTo(QRectF(10, -25, 50, 50), 180, -90);
             path.lineTo(50, -25);
-            path.arcTo(QRectF(40, -35, 70, 70), 140, 86);
+            path.arcTo(QRectF(40, -35, 70, 70), 140, 40);
+            path.lineTo(50, 0);
+            path.lineTo(40, 0);
+            path.arcTo(QRectF(40, -35, 70, 70), 183, 43);
             path.arcTo(QRectF(10, -25, 50, 50), -90, -90);
             break;
         case LogicOp::Nor:
@@ -76,7 +79,10 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
             path.arcTo(0, -5, 10, 10, 0, 360);
             path.arcTo(QRectF(10, -25, 50, 50), 180, -90);
             path.lineTo(50, -25);
-            path.arcTo(QRectF(40, -35, 70, 70), 140, 86);
+            path.arcTo(QRectF(40, -35, 70, 70), 140, 40);
+            path.lineTo(50, 0);
+            path.lineTo(40, 0);
+            path.arcTo(QRectF(40, -35, 70, 70), 183, 43);
             path.arcTo(QRectF(10, -25, 50, 50), -90, -90);
             break;
     }
@@ -94,19 +100,20 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
 void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QString type;
+    int textRightEnd = 48;
     switch (m_lr->op)
     {
         case LogicOp::Nop: type = ""; break;
         case LogicOp::Inverter: type = "INV"; break;
         case LogicOp::And: type = "AND"; break;
         case LogicOp::Nand: type = "NAND"; break;
-        case LogicOp::Or: type = "OR"; break;
-        case LogicOp::Nor: type = "NOR"; break;
+        case LogicOp::Or: type = "OR", textRightEnd = 40; break;
+        case LogicOp::Nor: type = "NOR", textRightEnd = 40; break;
     }
 
-    QRect r(0, -25, 48, 50);
-    painter->drawText(r, Qt::AlignVCenter | Qt::AlignRight, m_lr->name);
-    painter->drawText(r, Qt::AlignBottom, type);
+    QRect bounds(0, -25, textRightEnd, 50);
+    painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, m_lr->name);
+    painter->drawText(bounds, Qt::AlignBottom, type);
 
     QGraphicsPolygonItem::paint(painter, option, widget);
 }
