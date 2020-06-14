@@ -1,5 +1,7 @@
 #include "WidgetGraphicsView.h"
 #include <QDebug>
+#include <QGraphicsSceneContextMenuEvent>
+#include <QMenu>
 #include <QPainterPath>
 #include <QWheelEvent>
 
@@ -26,9 +28,10 @@ void WidgetGraphicsView::wheelEvent(QWheelEvent *event)
 /*
  * Constructor creates logic symbols for the logic type it is constructed
  */
-SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
+SymbolItem::SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent) :
     QGraphicsPolygonItem(parent),
-    m_lr(lr)
+    m_lr(lr),
+    m_menu(menu)
 {
     QPainterPath path;
 
@@ -95,12 +98,12 @@ SymbolItem::SymbolItem(Logic *lr, QGraphicsItem *parent) :
 }
 
 /*
- * Do additional painting on each symbol
+ * Do additional painting on each symbol: draw the logic net name and the symbol function
  */
 void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QString type;
-    int textRightEnd = 48;
+    int textRightEnd = 48; // Shift the text a little bit to the left for OR and NOR symbols
     switch (m_lr->op)
     {
         case LogicOp::Nop: type = ""; break;
@@ -116,4 +119,25 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->drawText(bounds, Qt::AlignBottom, type);
 
     QGraphicsPolygonItem::paint(painter, option, widget);
+}
+
+/*
+ * Context menu handler, called when the user right-clicks on the symbol
+ * The symbol does not own the menu; the menu is created and implemented in DialogSchematic class
+ */
+void SymbolItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    // Make sure that only one - this symbol - is selected in the scene
+    scene()->clearSelection();
+    setSelected(true);
+    m_menu->exec(event->screenPos());
+}
+
+void SymbolItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *)
+{
+    // Make sure that only one - this symbol - is selected in the scene
+    scene()->clearSelection();
+    setSelected(true);
+    // Hard-coded action[0] to be the menu's "Show" action
+    m_menu->actions()[0]->trigger();
 }

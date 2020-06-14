@@ -824,6 +824,8 @@ void WidgetImageView::viewSchematic()
         ::controller.getNetlist().optimizeLogicTree(lr);
 
     DialogSchematic *sch = new DialogSchematic(this, lr);
+    connect(sch, SIGNAL(doShow(QString)), this, SLOT(onFind(QString)));
+    connect(sch, &DialogSchematic::doNewSchematic, this, [=](net_t net) { m_drivingNets.prepend(net); viewSchematic(); } );
     sch->show();
 }
 

@@ -23,20 +23,26 @@ private:
 };
 
 /*
- * This class, based on QGraphicsPolygonItem, contains code to instantiate our logic symbols
+ * This class, based on QGraphicsPolygonItem, contains code to instantiate each of our logic symbol types
  */
 class SymbolItem : public QGraphicsPolygonItem
 {
 public:
-    enum { Type = UserType + 15 };
-
-    SymbolItem(Logic *lr, QGraphicsItem *parent = nullptr);
-    int type() const override { return Type; }
+    SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent = nullptr);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    const QString get()                 // Returns the net name that this logic symbol represents
+        { return m_lr->name; }
+    net_t getNet()                      // Returns the net number that this logic symbol represents
+        { return m_lr->net; }
+
+protected:
+    void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) override;
 
 private:
     QPolygonF m_poly;                   // Prebuilt basic symbol shape
     Logic *m_lr;                        // Link to the logic structure it represents
+    QMenu *m_menu;                      // Context menu used by this schematic object
 };
 
 #endif // WIDGETGRAPHICSVIEW_H

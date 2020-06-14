@@ -5,6 +5,7 @@
 #include "ClassLogic.h"
 #include <QDialog>
 #include <QGraphicsScene>
+#include <QMenu>
 
 namespace Ui { class DialogSchematic; }
 
@@ -18,7 +19,10 @@ class DialogSchematic : public QDialog
 public:
     explicit DialogSchematic(QWidget *parent, Logic *lr);
     ~DialogSchematic();
-    net_t id() { return m_logic->net; } // Returns the net number that this view shows
+
+signals:
+    void doShow(QString net);           // Signal back to the image view widget to show the named net
+    void doNewSchematic(net_t net);     // Signal back to the image view widget to create a new schematic view
 
 private:
     void createDrawing();               // Creates drawing outside of the constructor
@@ -30,6 +34,7 @@ private:
 
     Logic *m_logic;                     // Logic tree
     QGraphicsScene *m_scene;            // Graphics scene we are painting to
+    QMenu *m_menu;                      // Context menu used by all schematic objects
 };
 
 #endif // DIALOGSCHEMATIC_H
