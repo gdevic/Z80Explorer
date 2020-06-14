@@ -28,6 +28,12 @@
      <property name="cacheMode">
       <set>QGraphicsView::CacheBackground</set>
      </property>
+     <property name="transformationAnchor">
+      <enum>QGraphicsView::AnchorUnderMouse</enum>
+     </property>
+     <property name="resizeAnchor">
+      <enum>QGraphicsView::AnchorUnderMouse</enum>
+     </property>
     </widget>
    </item>
   </layout>
