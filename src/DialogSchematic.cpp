@@ -62,6 +62,8 @@ void DialogSchematic::createDrawing()
 {
     preBuild(m_logic);
     drawSymbol(QPointF(0, 0), m_logic);
+    // XXX Need to find out how to set an adequate top-left margin
+    m_scene->addRect(QRectF(-20,-50,0,0), QPen(Qt::white));
     ui->view->setScene(m_scene);
     ui->view->ensureVisible(QRect());
 }
