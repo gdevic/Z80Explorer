@@ -94,7 +94,7 @@ void DockWaveform::onPng()
 {
     QPixmap pixmap = this->grab(QRect(QPoint(0, 0), this->size()));
 
-    QString fileName = QFileDialog::getSaveFileName(this, "Save waveform as image", "image.png", "png file (*.png);;All files (*.*)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Save waveform as image", "", "PNG file (*.png);;All files (*.*)");
     if (!fileName.isEmpty() && !pixmap.toImage().save(fileName))
         QMessageBox::critical(this, "Error", "Unable to save image file " + fileName);
 }
