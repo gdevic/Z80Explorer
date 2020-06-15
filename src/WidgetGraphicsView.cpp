@@ -134,25 +134,14 @@ SymbolItem::SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent) :
 }
 
 /*
- * Do additional painting on each symbol: draw the logic net name and the symbol function
+ * Do additional painting on each symbol and draw the logic net name
  */
 void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    QString type;
-    int textRightEnd = 48; // Shift the text a little bit to the left for OR and NOR symbols
-    switch (m_lr->op)
-    {
-        case LogicOp::Nop: type = ""; break;
-        case LogicOp::Inverter: type = "INV"; break;
-        case LogicOp::And: type = "AND"; break;
-        case LogicOp::Nand: type = "NAND"; break;
-        case LogicOp::Or: type = "OR", textRightEnd = 40; break;
-        case LogicOp::Nor: type = "NOR", textRightEnd = 40; break;
-    }
-
-    QRect bounds(0, -25, textRightEnd, 50);
+    QRect bounds(0, -25, 48, 50);
+    if ((m_lr->op == LogicOp::Or) || (m_lr->op == LogicOp::Nor))
+        bounds.setRight(39); // Shift the text a little bit to the left for OR and NOR symbols
     painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, m_lr->name);
-    painter->drawText(bounds, Qt::AlignBottom, type);
 
     QGraphicsPolygonItem::paint(painter, option, widget);
 }
