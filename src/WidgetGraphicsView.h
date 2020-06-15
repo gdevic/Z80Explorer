@@ -7,7 +7,8 @@
 
 /*
  * This class, based on QGraphicsView, contains code to implement logic diagram view
- * It extends the base class with mouse (wheel zoom) handling
+ * It extends the base class with mouse (wheel zoom) handling and pinch-to-zoom on
+ * touch displays
  */
 class WidgetGraphicsView : public QGraphicsView
 {
@@ -17,6 +18,7 @@ public:
 
 private:
     void wheelEvent(QWheelEvent *event) override;
+    bool viewportEvent(QEvent *event) override;
 
 private:
     qreal m_scale {1.0};                // View zoom / scale factor

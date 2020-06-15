@@ -7,6 +7,7 @@
 
 WidgetGraphicsView::WidgetGraphicsView(QWidget *parent) : QGraphicsView(parent)
 {
+    setAttribute(Qt::WA_AcceptTouchEvents);
 }
 
 /*
@@ -15,14 +16,49 @@ WidgetGraphicsView::WidgetGraphicsView(QWidget *parent) : QGraphicsView(parent)
 void WidgetGraphicsView::wheelEvent(QWheelEvent *event)
 {
     if (event->delta() > 0)
-        m_scale = qMin(3.0, m_scale * 1.1);
+        m_scale = m_scale * 1.1;
     else
-        m_scale = qMax(0.2, m_scale / 1.1);
+        m_scale = m_scale / 1.1;
+    m_scale = qBound(0.2, m_scale, 3.0);
+    setTransform(QTransform::fromScale(m_scale, m_scale));
+}
 
-    QTransform oldMatrix = transform();
-    resetTransform();
-    translate(oldMatrix.dx(), oldMatrix.dy());
-    scale(m_scale, m_scale);
+/*
+ * Handle pinch-to-zoom on touch displays
+ */
+bool WidgetGraphicsView::viewportEvent(QEvent *event)
+{
+    switch (event->type())
+    {
+    case QEvent::TouchBegin:
+    case QEvent::TouchUpdate:
+    case QEvent::TouchEnd:
+    {
+        QTouchEvent *touchEvent = static_cast<QTouchEvent *>(event);
+        QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
+        if (touchPoints.count() == 2)
+        {
+            // Determine the current scale factor independently of m_scale
+            const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
+            const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
+            qreal currentScaleFactor =
+                    QLineF(touchPoint0.pos(), touchPoint1.pos()).length() /
+                    QLineF(touchPoint0.startPos(), touchPoint1.startPos()).length();
+            if (touchEvent->touchPointStates() & Qt::TouchPointReleased)
+            {
+                m_scale *= currentScaleFactor;
+                m_scale = qBound(0.2, m_scale, 3.0);
+                currentScaleFactor = 1;
+            }
+            setTransform(QTransform::fromScale(qMin(m_scale * currentScaleFactor, 3.0),
+                                               qMin(m_scale * currentScaleFactor, 3.0)));
+        }
+        return true;
+    }
+    default:
+        break;
+    }
+    return QGraphicsView::viewportEvent(event);
 }
 
 /*
