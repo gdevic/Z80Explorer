@@ -1,6 +1,8 @@
 #include "DialogSchematic.h"
 #include "ui_DialogSchematic.h"
 #include "ClassController.h"
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QStringBuilder>
 #include <QTimer>
 
@@ -24,24 +26,15 @@ DialogSchematic::DialogSchematic(QWidget *parent, Logic *lr) :
     m_menu = new QMenu();
     QAction *actionShow = new QAction("Show", this);
     QAction *actionNew = new QAction("Schematic...", this);
+    QAction *actionPng = new QAction("Export PNG...", this);
     m_menu->addAction(actionShow);
     m_menu->addAction(actionNew);
+    m_menu->addAction(actionPng);
 
-    // Define menu handlers
     // Note: The very first menu item should be "Show" since it is hard-coded in SymbolItem::mouseDoubleClickEvent
-    connect(actionShow, &QAction::triggered, this, [=]()
-    {
-        SymbolItem *item = qgraphicsitem_cast<SymbolItem *>(m_scene->selectedItems().first());
-        Q_ASSERT(item);
-        doShow(item->get());
-    });
-
-    connect(actionNew, &QAction::triggered, this, [=]()
-    {
-        SymbolItem *item = qgraphicsitem_cast<SymbolItem *>(m_scene->selectedItems().first());
-        Q_ASSERT(item);
-        doNewSchematic(item->getNet());
-    });
+    connect(actionShow, &QAction::triggered, this, &DialogSchematic::onShow);
+    connect(actionNew, &QAction::triggered, this, &DialogSchematic::onNewSchematic);
+    connect(actionPng, &QAction::triggered, this, &DialogSchematic::onPng);
 
     QTimer::singleShot(0, this, &DialogSchematic::createDrawing);
 }
@@ -50,6 +43,34 @@ DialogSchematic::~DialogSchematic()
 {
     Logic::purge(m_logic);
     delete ui;
+}
+
+void DialogSchematic::onShow()
+{
+    SymbolItem *item = qgraphicsitem_cast<SymbolItem *>(m_scene->selectedItems().first());
+    Q_ASSERT(item);
+    doShow(item->get());
+}
+
+void DialogSchematic::onNewSchematic()
+{
+    SymbolItem *item = qgraphicsitem_cast<SymbolItem *>(m_scene->selectedItems().first());
+    Q_ASSERT(item);
+    doNewSchematic(item->getNet());
+}
+
+void DialogSchematic::onPng()
+{
+    m_scene->clearSelection();
+    QImage image(m_scene->sceneRect().size().toSize(), QImage::Format_ARGB32);
+    image.fill(Qt::white);
+
+    QPainter painter(&image);
+    m_scene->render(&painter);
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Save diagram as image", "", "PNG file (*.png);;All files (*.*)");
+    if (!fileName.isEmpty() && !image.save(fileName))
+        QMessageBox::critical(this, "Error", "Unable to save image file " + fileName);
 }
 
 /*

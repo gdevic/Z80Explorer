@@ -24,6 +24,11 @@ signals:
     void doShow(QString net);           // Signal back to the image view widget to show the named net
     void doNewSchematic(net_t net);     // Signal back to the image view widget to create a new schematic view
 
+private slots:
+    void onShow();                      // Menu handler to show selected net
+    void onNewSchematic();              // Menu handler to create a new schematic view
+    void onPng();                       // Menu handler to export diagram view as a PNG image file
+
 private:
     void createDrawing();               // Creates drawing outside of the constructor
     void drawSymbol(QPoint loc, Logic *lr); // Recursively draws symbols and connecting lines
