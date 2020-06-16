@@ -24,6 +24,7 @@ DialogEditAnnotations::DialogEditAnnotations(QWidget *parent) :
     connect(ui->spinX, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onXChanged);
     connect(ui->spinY, QOverload<int>::of(&QSpinBox::valueChanged), this, &DialogEditAnnotations::onYChanged);
     connect(ui->checkBar, &QCheckBox::toggled, this, &DialogEditAnnotations::onBarChanged);
+    connect(ui->checkRect, &QCheckBox::toggled, this, &DialogEditAnnotations::onRectChanged);
     connect(ui->btApply, &QPushButton::clicked, this, &DialogEditAnnotations::onApply);
 
     m_orig = ::controller.getChip().annotate.get();
@@ -141,7 +142,7 @@ void DialogEditAnnotations::onDown()
 
 void DialogEditAnnotations::onAdd()
 {
-    annotation a("new");
+    annotation a("NEW");
     append(a);
 }
 
@@ -173,6 +174,7 @@ void DialogEditAnnotations::selChanged()
     ui->spinX->setEnabled(sel.count() > 0);
     ui->spinY->setEnabled(sel.count() > 0);
     ui->checkBar->setEnabled(sel.count() > 0);
+    ui->checkRect->setEnabled(sel.count() > 0);
     ui->btUp->setEnabled(sel.count() > 0);
     ui->btDown->setEnabled(sel.count() > 0);
     ui->btDuplicate->setEnabled(sel.count() == 1);
@@ -190,6 +192,7 @@ void DialogEditAnnotations::selChanged()
         ui->spinX->setValue(annot.pos.x());
         ui->spinY->setValue(annot.pos.y());
         ui->checkBar->setCheckState(annot.overline ? Qt::Checked : Qt::Unchecked);
+        ui->checkRect->setCheckState(annot.drawrect ? Qt::Checked : Qt::Unchecked);
     }
 }
 
@@ -251,6 +254,18 @@ void DialogEditAnnotations::onBarChanged()
     {
         annotation a = get(i);
         a.overline = value;
+        set(i, a);
+    }
+}
+
+void DialogEditAnnotations::onRectChanged()
+{
+    QList<QListWidgetItem *> sel = ui->listAll->selectedItems();
+    bool value = ui->checkRect->checkState() == Qt::Checked;
+    for (auto i : sel)
+    {
+        annotation a = get(i);
+        a.drawrect = value;
         set(i, a);
     }
 }

@@ -9,12 +9,14 @@
 // Contains individual annotation object
 struct annotation
 {
-    QStaticText text;   // Annotation text, supports subset of HTML
-    QPoint pos;         // Coordinates of the text in the texture space
-    uint pix;           // Text size in pixels
-    bool overline {};   // Signal is inverted and needs a line on top of text
+    QStaticText text;       // Annotation text, supports subset of HTML
+    QRect rect;             // Annotation bounding rectangle in the texture space
+    QPoint pos;             // Coordinates of the text in the texture space
+    uint pix;               // Text size in pixels
+    bool overline {};       // Signal is inverted and needs a line on top of text
+    bool drawrect {true};   // Draw the bounding rectangle as part of the annotation
 
-    annotation(const QString t = QString()): text(t) {}
+    annotation(const QString t = QString(), const QRect r = QRect()): text(t), rect(r) {}
     bool operator==(const annotation &b) { return text == b.text; }
 };
 Q_DECLARE_METATYPE(annotation);

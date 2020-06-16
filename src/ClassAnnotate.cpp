@@ -26,7 +26,7 @@ void ClassAnnotate::onShutdown()
  */
 void ClassAnnotate::add(QString text, QRect box)
 {
-    annotation a(text);
+    annotation a(text, box);
 
     qreal pixX = qreal(box.width()) / (textLength(a.text) / m_someXFactor);
     qreal pixY = box.height();
@@ -102,6 +102,8 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
         painter.setFont(m_fixedFont);
         //painter.drawRect(a.pos.x(), a.pos.y(), a.pix * textLength(a.text) / m_someXFactor, a.pix); // Testing: Draw box around the text
         painter.drawStaticText(a.pos, a.text);
+        if (a.drawrect)
+            painter.drawRect(a.rect);
     }
 }
 
