@@ -212,40 +212,6 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
-    // Draw two optional features on top of the image: a box (a transistor) and
-    // a segment (a signal), both of which were selected via the "Find" dialog
-    //------------------------------------------------------------------------
-    {
-        painter.save();
-        qreal guideLineScale = 1.0 / m_scale + 1;
-        painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
-        if (m_timer_tick & 1)
-        {
-            painter.setBrush(QColor(255,255,0));
-            painter.setCompositionMode(QPainter::CompositionMode_Clear);
-        }
-        else
-        {
-            painter.setBrush(QColor(100,200,200));
-            painter.setCompositionMode(QPainter::CompositionMode_Plus);
-        }
-        if (m_highlight_trans)
-        {
-            painter.drawRect(*m_highlight_trans);
-            painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
-            painter.drawLine(QPoint(0,0), m_highlight_trans->topLeft());
-            painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
-        }
-        if (m_highlight_segment)
-        {
-            for (const auto &path : m_highlight_segment->paths)
-                painter.drawPath(path);
-            painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
-            painter.drawLine(QPoint(0,0), m_highlight_segment[0].paths[0].elementAt(0));
-        }
-        painter.restore();
-    }
-    //------------------------------------------------------------------------
     // Draw nodes picked by the mouse double-click and then expanded
     //------------------------------------------------------------------------
     if (m_drivingNets.count())
@@ -295,6 +261,40 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     {
         painter.save();
         ::controller.getChip().expDrawTransistors(painter, m_imageView.toAlignedRect(), m_drawAllTransistors);
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
+    // Highlight two features on top of the image: a box (a transistor) and
+    // a segment (a signal), both of which were selected via the "Find" dialog
+    //------------------------------------------------------------------------
+    {
+        painter.save();
+        qreal guideLineScale = 1.0 / m_scale + 1;
+        painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
+        if (m_timer_tick & 1)
+        {
+            painter.setBrush(QColor(255,255,0));
+            painter.setCompositionMode(QPainter::CompositionMode_Clear);
+        }
+        else
+        {
+            painter.setBrush(QColor(100,200,200));
+            painter.setCompositionMode(QPainter::CompositionMode_Plus);
+        }
+        if (m_highlight_trans)
+        {
+            painter.drawRect(*m_highlight_trans);
+            painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
+            painter.drawLine(QPoint(0,0), m_highlight_trans->topLeft());
+            painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
+        }
+        if (m_highlight_segment)
+        {
+            for (const auto &path : m_highlight_segment->paths)
+                painter.drawPath(path);
+            painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
+            painter.drawLine(QPoint(0,0), m_highlight_segment[0].paths[0].elementAt(0));
+        }
         painter.restore();
     }
     //------------------------------------------------------------------------
