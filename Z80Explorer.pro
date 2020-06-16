@@ -27,6 +27,7 @@ SOURCES += \
     src/ClassChip.cpp \
     src/ClassColors.cpp \
     src/ClassController.cpp \
+    src/ClassLogic.cpp \
     src/ClassNetlist.cpp \
     src/ClassScript.cpp \
     src/ClassSimZ80.cpp \

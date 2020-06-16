@@ -7,8 +7,8 @@
 enum class LogicOp : unsigned char { Nop, Inverter, And, Nand, Or, Nor };
 
 /*
- * This structure contains definition and some code that describe a bipartite tree
- * of logic nodes, making the logic diagram of a net
+ * This structure contains definition and code that describes a bipartite tree
+ * of logic nodes for making the logic diagram of a net
  */
 struct Logic
 {
