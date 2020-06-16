@@ -34,7 +34,6 @@ void ClassAnnotate::add(QString text, QRect box)
 
     a.pix = pix;
     a.pos = box.topLeft();
-    a.overline = false;
 
     if (pixX < pixY) // Center the text vertically
         a.pos += QPoint(0, (pixY - pixX) / 2);

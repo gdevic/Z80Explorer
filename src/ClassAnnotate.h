@@ -12,10 +12,9 @@ struct annotation
     QStaticText text;   // Annotation text, supports subset of HTML
     QPoint pos;         // Coordinates of the text in the texture space
     uint pix;           // Text size in pixels
-    bool overline;      // Signal is inverted and needs a line on top of text
+    bool overline {};   // Signal is inverted and needs a line on top of text
 
-    annotation(const QString t): text(t) {}
-    annotation() {};
+    annotation(const QString t = QString()): text(t) {}
     bool operator==(const annotation &b) { return text == b.text; }
 };
 Q_DECLARE_METATYPE(annotation);
