@@ -137,10 +137,20 @@ bool ClassAnnotate::load(QString dir)
                     a.pos.setX(obj["x"].toInt());
                 if (obj.contains("y") && obj["y"].isDouble())
                     a.pos.setY(obj["y"].toInt());
+                if (obj.contains("rx") && obj["rx"].isDouble())
+                    a.rect.setX(obj["rx"].toInt());
+                if (obj.contains("ry") && obj["ry"].isDouble())
+                    a.rect.setY(obj["ry"].toInt());
+                if (obj.contains("rw") && obj["rw"].isDouble())
+                    a.rect.setWidth(obj["rw"].toInt());
+                if (obj.contains("rh") && obj["rh"].isDouble())
+                    a.rect.setHeight(obj["rh"].toInt());
                 if (obj.contains("pix") && obj["pix"].isDouble())
                     a.pix = obj["pix"].toInt();
                 if (obj.contains("bar") && obj["bar"].isBool())
                     a.overline = obj["bar"].toBool();
+                if (obj.contains("rect") && obj["rect"].isBool())
+                    a.drawrect = obj["rect"].toBool();
                 m_annot.append(a);
             }
             return true;
@@ -171,8 +181,13 @@ bool ClassAnnotate::save(QString dir)
             obj["text"] = a.text.text();
             obj["x"] = a.pos.x();
             obj["y"] = a.pos.y();
+            obj["rx"] = a.rect.x();
+            obj["ry"] = a.rect.y();
+            obj["rw"] = a.rect.width();
+            obj["rh"] = a.rect.height();
             obj["pix"] = int(a.pix);
             obj["bar"] = a.overline;
+            obj["rect"] = a.drawrect;
             jsonArray.append(obj);
         }
         json["annotations"] = jsonArray;
