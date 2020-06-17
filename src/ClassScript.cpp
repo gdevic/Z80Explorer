@@ -37,12 +37,15 @@ void ClassScript::init(QScriptEngine *sc)
  */
 void ClassScript::run(QString cmd)
 {
-    m_code += cmd + QLatin1Char('\n');
-    if (!m_engine->canEvaluate(m_code))
-        emit response("...");
+    m_code += cmd;
+    // Add an explicit newline since otherwise the Qt Script parser would automatically insert a semi-colon
+    // character at the end of the input, and this could cause canEvaluate() to produce different results
+    if (!m_engine->canEvaluate(m_code + QLatin1Char('\n')))
+        emit response(cmd + " ...");
     else
     {
-        QScriptValue result = m_engine->evaluate(cmd, cmd);
+        emit response(cmd);
+        QScriptValue result = m_engine->evaluate(m_code, m_code);
         m_code.clear();
         if (!result.isUndefined())
             emit response(result.toString());
