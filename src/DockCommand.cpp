@@ -78,7 +78,7 @@ bool DockCommand::eventFilter(QObject *object, QEvent *event)
 void DockCommand::returnPressed()
 {
     QString text = m_cmd->text().trimmed().toLatin1();
-    ::controller.getScript().run(text);
+    ::controller.getScript().exec(text);
     m_cmd->clear();
 
     // If the command is not empty, add it to the history, if unique

@@ -53,7 +53,7 @@ bool ClassController::init(QScriptEngine *sc)
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
     // Execute init.js initialization script
-    QTimer::singleShot(1000, [=](){ m_script.run("load(\"init.js\")"); } );
+    QTimer::singleShot(1000, [=](){ m_script.exec("load(\"init.js\")"); } );
 
     return true;
 }

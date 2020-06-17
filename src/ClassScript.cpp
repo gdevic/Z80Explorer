@@ -43,7 +43,7 @@ void ClassScript::stop()
 /*
  * Command line execution of built-in scripting
  */
-void ClassScript::run(QString cmd)
+void ClassScript::exec(QString cmd)
 {
     m_code += cmd;
     QScriptSyntaxCheckResult check = m_engine->checkSyntax(m_code);

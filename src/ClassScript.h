@@ -18,7 +18,7 @@ signals:
 
 public slots:
     void stop();                    // Stops any running script evaluation
-    void run(QString cmd);          //* Evaluates and runs commands
+    void exec(QString cmd);         //* Evaluates and runs commands
     //                              //* <- Methods of the scripting object "script"
 
 private:
