@@ -51,7 +51,6 @@ private:
     QPointF m_tex;                      // Texture coordinate to map to view center (normalized)
     qreal   m_scale;                    // Scaling value
     ZoomType m_view_mode;               // Current zoom mode
-    bool    m_drawActiveNets {true};    // Draw active nets
 
     QPoint  m_mousePos;                 // Current mouse position
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
@@ -73,6 +72,7 @@ private:
 
     const segvdef *m_highlight_segment {}; // Segment to highlight in the current image
     const QRect *m_highlight_trans {};  // Transistor bounding rectangle to highlight in the current image
+    bool m_drawActiveNets {true};       // Draw active nets
     bool m_drawAnnotations {true};      // Draw image annotations
     bool m_drawActiveTransistors {true};// Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
@@ -80,9 +80,9 @@ private:
 
     QVector<net_t> m_drivingNets;       // List of nets expanded by the driving/driven heuristic
 
+    bool event(QEvent *) override;
     void paintEvent(QPaintEvent *) override;
     void resizeEvent(QResizeEvent *) override;
-    bool event(QEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
