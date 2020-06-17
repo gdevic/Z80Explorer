@@ -46,10 +46,15 @@ void ClassScript::stop()
 void ClassScript::run(QString cmd)
 {
     m_code += cmd;
-    // Add an explicit newline since otherwise the Qt Script parser would automatically insert a semi-colon
-    // character at the end of the input, and this could cause canEvaluate() to produce different results
-    if (!m_engine->canEvaluate(m_code + QLatin1Char('\n')))
+    QScriptSyntaxCheckResult check = m_engine->checkSyntax(m_code);
+    if (check.state() == QScriptSyntaxCheckResult::Intermediate)
         emit response(cmd + " ...");
+    else if (check.state() == QScriptSyntaxCheckResult::Error)
+    {
+        emit response(cmd);
+        emit response(QString("Error:%1 line:%2 col: %3").arg(check.errorMessage()).arg(check.errorLineNumber()).arg(check.errorColumnNumber()));
+        m_code.clear();
+    }
     else
     {
         emit response(cmd);
@@ -145,12 +150,16 @@ QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
         ctx->setActivationObject(pc->activationObject());
         ctx->setThisObject(pc->thisObject());
 
+        QScriptSyntaxCheckResult check = engine->checkSyntax(contents);
+        if (check.state() == QScriptSyntaxCheckResult::Error)
+            return ctx->throwError(QString("Error:%1 line:%2 col: %3").arg(check.errorMessage()).arg(check.errorLineNumber()).arg(check.errorColumnNumber()));
+
         engine->setProcessEventsInterval(50); // Do not block the GUI
         QScriptValue result = engine->evaluate(contents, fileName);
         if (engine->hasUncaughtException())
             return result;
         if (result.isError())
-            return QString("%0:%1: %2").arg(fileName).arg(result.property("lineNumber").toInt32()).arg(result.toString());
+            return ctx->throwError(QString("%0:%1: %2").arg(fileName).arg(result.property("lineNumber").toInt32()).arg(result.toString()));
         return QScriptValue();
     }
     return ctx->throwError(QString("Could not open %0 for reading").arg(fileName));
