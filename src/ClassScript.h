@@ -26,8 +26,6 @@ private:
     static QScriptValue onRun(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onStop(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onReset(QScriptContext *ctx, QScriptEngine *eng);
-    static QScriptValue onDriving(QScriptContext *ctx, QScriptEngine *eng);
-    static QScriptValue onDriven(QScriptContext *ctx, QScriptEngine *eng);    
     static QScriptValue onNet(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onTrans(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onExperimental(QScriptContext *ctx, QScriptEngine *eng);

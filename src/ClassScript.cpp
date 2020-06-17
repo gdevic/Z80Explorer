@@ -18,10 +18,6 @@ void ClassScript::init(QScriptEngine *sc)
     m_engine->globalObject().setProperty("stop", funStop);
     QScriptValue funReset = m_engine->newFunction(&ClassScript::onReset);
     m_engine->globalObject().setProperty("reset", funReset);
-    QScriptValue funDriving = m_engine->newFunction(&ClassScript::onDriving);
-    m_engine->globalObject().setProperty("driving", funDriving);
-    QScriptValue funDriven = m_engine->newFunction(&ClassScript::onDriven);
-    m_engine->globalObject().setProperty("driven", funDriven);
     QScriptValue funNet = m_engine->newFunction(&ClassScript::onNet);
     m_engine->globalObject().setProperty("n", funNet);
     QScriptValue funTrans = m_engine->newFunction(&ClassScript::onTrans);
@@ -74,8 +70,6 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "reset()       - Resets the simulation state\n";
     text << "t(t)          - Shows a transistor state\n";
     text << "n(net)        - Shows a net state by net number or \"name\"\n";
-    text << "driving(net)  - Shows a list of nets that the given net is driving\n";
-    text << "driven(net)   - Shows a list of nets that drive the given net\n";
     text << "ex(n)         - Runs experimental function 'n'\n";
     text << "load(file)    - Executes a script file ('script.js' by default)\n";
     text << "In addition, objects 'control', 'sim', 'monitor' and 'script' provide methods described in the documentation.";
@@ -99,30 +93,6 @@ QScriptValue ClassScript::onStop(QScriptContext *, QScriptEngine *)
 QScriptValue ClassScript::onReset(QScriptContext *, QScriptEngine *)
 {
     ::controller.doReset();
-    return QScriptValue();
-}
-
-QScriptValue ClassScript::onDriving(QScriptContext *ctx, QScriptEngine *)
-{
-    net_t net = ctx->argument(0).toNumber();
-    QString name = ctx->argument(0).toString();
-    if (!net)
-        net = ::controller.getNetlist().get(name);
-    QVector<net_t> nets = ::controller.getNetlist().netsDriving(net);
-    QStringList list = ::controller.getNetlist().get(nets);
-    emit ::controller.getScript().response(list.join(" "));
-    return QScriptValue();
-}
-
-QScriptValue ClassScript::onDriven(QScriptContext *ctx, QScriptEngine *)
-{
-    net_t net = ctx->argument(0).toNumber();
-    QString name = ctx->argument(0).toString();
-    if (!net)
-        net = ::controller.getNetlist().get(name);
-    QVector<net_t> nets = ::controller.getNetlist().netsDriven(net);
-    QStringList list = ::controller.getNetlist().get(nets);
-    emit ::controller.getScript().response(list.join(" "));
     return QScriptValue();
 }
 
