@@ -20,6 +20,7 @@ bool ClassController::init(QScriptEngine *sc)
     connect(this, SIGNAL(shutdown()), &m_colors, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_simz80, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_script, SLOT(stop()));
 
     QSettings settings;
     QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();

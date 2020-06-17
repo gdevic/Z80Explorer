@@ -17,6 +17,7 @@ signals:
     void response(QString);         //* Write a response string to the command list
 
 public slots:
+    void stop();                    // Stops any running script evaluation
     void run(QString cmd);          //* Evaluates and runs commands
     //                              //* <- Methods of the scripting object "script"
 

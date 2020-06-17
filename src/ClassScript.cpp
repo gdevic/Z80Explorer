@@ -33,6 +33,18 @@ void ClassScript::init(QScriptEngine *sc)
 }
 
 /*
+ * Stops any running script evaluation (kills long-running scripts)
+ */
+void ClassScript::stop()
+{
+    if (m_engine->isEvaluating())
+    {
+        qInfo() << "Stopping script evaluation";
+        m_engine->abortEvaluation();
+    }
+}
+
+/*
  * Command line execution of built-in scripting
  */
 void ClassScript::run(QString cmd)
@@ -45,6 +57,7 @@ void ClassScript::run(QString cmd)
     else
     {
         emit response(cmd);
+        m_engine->setProcessEventsInterval(50); // Do not block the GUI
         QScriptValue result = m_engine->evaluate(m_code, m_code);
         m_code.clear();
         if (!result.isUndefined())
@@ -162,6 +175,7 @@ QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
         ctx->setActivationObject(pc->activationObject());
         ctx->setThisObject(pc->thisObject());
 
+        engine->setProcessEventsInterval(50); // Do not block the GUI
         QScriptValue result = engine->evaluate(contents, fileName);
         if (engine->hasUncaughtException())
             return result;
