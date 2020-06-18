@@ -588,12 +588,12 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     setImage(i);
 }
 
-void WidgetImageView::setImage(int i)
+void WidgetImageView::setImage(int i, bool forceCtrl)
 {
     if (i >= 0) // called from keyPressEvent() might not be selecting an image
     {
         bool ctrl = m_enable_ctrl && QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
-        if (ctrl) // Compositing multiple images
+        if (forceCtrl || ctrl) // Compositing multiple images
         {
             QImage &image = ::controller.getChip().getImage(i);
             QPainter painter(&m_image);
@@ -885,4 +885,13 @@ void WidgetImageView::onFind(QString text)
         }
     }
     update();
+}
+
+/*
+ * Prints the img view state as commands which can be later used to restore the state
+ */
+void WidgetImageView::state()
+{
+    QString s = QString("img.setZoom(%1); img.setPos(%2,%3)").arg(m_scale).arg(m_tex.x() * m_image.width()).arg(m_tex.y() * m_image.height());
+    qInfo() << s;
 }

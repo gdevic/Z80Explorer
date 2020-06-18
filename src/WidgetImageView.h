@@ -27,9 +27,17 @@ public:
 
 public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
-    void setImage(int i);               // Sets the image by its index, also considers Ctrl key to blend images
     void syncView(QPointF pos, qreal zoom)
         { moveTo(pos); setZoom(zoom); } // Handle broadcast to sync all image views
+    void setImage(int, bool f = false); //* Sets the image by its index, also considers Ctrl key to blend images
+    void setZoom(qreal);                //* Sets the zoom value
+    void setPos(uint x, uint y)         //* Sets the image position
+        { moveTo(QPointF(qreal(x) / m_image.width(), qreal(y) / m_image.height())); }
+    void find(QString s) { onFind(s); } //* Finds and shows the named feature
+    void show(uint x, uint y, uint w, uint h) //* Highlight a rectangle
+        { m_r = QRect(x,y,w,h); m_highlight_trans = &m_r; m_timer_tick = 10; }
+    void state();                       //* Prints the img view state
+    //                                  //* <- Methods of the scripting object "img"
 
 private slots:
     void onFind(QString text);          // Search for the named feature
@@ -72,6 +80,7 @@ private:
 
     const segvdef *m_highlight_segment {}; // Segment to highlight in the current image
     const QRect *m_highlight_trans {};  // Transistor bounding rectangle to highlight in the current image
+    QRect m_r;                          // Rectangle used by the show() scripting command to highlight a rectangle
     bool m_drawActiveNets {false};      // Draw active nets
     bool m_drawAnnotations {true};      // Draw image annotations
     bool m_drawActiveTransistors {true};// Draw currently active transistors
@@ -93,8 +102,7 @@ private:
 
     void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
     void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
-    void setZoomMode(ZoomType);         // Set the view mode
-    void setZoom(qreal);                // Set the zoom value
+    void setZoomMode(ZoomType);         // Sets the view mode
 
     void calcTransform();
     void clampImageCoords(QPointF &tex, qreal xmax = 1.0, qreal ymax = 1.0);
