@@ -15,6 +15,7 @@
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QNetworkReply>
 #include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc) :
@@ -76,7 +77,9 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc) :
     connect(ui->actionOnlineManual, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
     connect(ui->actionScriptingReference, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
-
+#ifdef QT_NO_DEBUG
+    versionCheck({"http://baltazarstudios.com/uc/Z80Explorer/index.php"});
+#endif
     // Do the initial simulated chip reset so that we wake up the app in some useful state
     ::controller.doReset();
 }
@@ -203,4 +206,23 @@ void MainWindow::onAbout()
             .arg(APP_VERSION / 100)
             .arg(APP_VERSION % 100, 2, 10, QChar('0'));
     QMessageBox::about(this, "About Z80 Explorer", version + "<br>Goran Devic<br><a href='https://baltazarstudios.com'>https://baltazarstudios.com</a><br>");
+}
+
+void MainWindow::versionCheck(const QUrl &url)
+{
+    // Code based on: https://github.com/KubaO/stackoverflown/blob/master/questions/html-get-24965972/main.cpp
+    QScopedPointer<QNetworkAccessManager> manager(new QNetworkAccessManager);
+    QNetworkReply *response = manager->get(QNetworkRequest(QUrl(url)));
+    QObject::connect(response, &QNetworkReply::finished, [response]
+    {
+        response->deleteLater();
+        response->manager()->deleteLater();
+        if (response->error() != QNetworkReply::NoError)
+            return;
+        auto const html = QString::fromUtf8(response->readAll()).trimmed();
+        bool ok;
+        uint version = html.toUInt(&ok);
+        if (ok && (version > APP_VERSION))
+            qInfo() << "\n\n*** New version of the application is available ***\n";
+    }) && manager.take();
 }

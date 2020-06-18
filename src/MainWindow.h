@@ -20,6 +20,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc);
     ~MainWindow();
+    void versionCheck(const QUrl &url);
 
 private slots:
     void onEditAnnotations();           // Edits custom annotations
