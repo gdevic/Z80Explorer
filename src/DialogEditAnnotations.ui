@@ -46,6 +46,9 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="tabChangesFocus">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="1" column="0">
@@ -289,6 +292,23 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>listAll</tabstop>
+  <tabstop>textEdit</tabstop>
+  <tabstop>checkBar</tabstop>
+  <tabstop>checkRect</tabstop>
+  <tabstop>spinSize</tabstop>
+  <tabstop>spinX</tabstop>
+  <tabstop>spinY</tabstop>
+  <tabstop>btUp</tabstop>
+  <tabstop>btDown</tabstop>
+  <tabstop>btAdd</tabstop>
+  <tabstop>btDuplicate</tabstop>
+  <tabstop>btDelete</tabstop>
+  <tabstop>btApply</tabstop>
+  <tabstop>btOk</tabstop>
+  <tabstop>btCancel</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -239,6 +239,13 @@ color: rgb(255, 255, 255);</string>
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>btFile</tabstop>
+  <tabstop>btEdit</tabstop>
+  <tabstop>btLink</tabstop>
+  <tabstop>list</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

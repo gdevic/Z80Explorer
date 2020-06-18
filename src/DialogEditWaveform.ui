@@ -216,6 +216,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>listAll</tabstop>
+  <tabstop>listView</tabstop>
+  <tabstop>btAdd</tabstop>
+  <tabstop>btRemove</tabstop>
+  <tabstop>btUp</tabstop>
+  <tabstop>btDown</tabstop>
+  <tabstop>comboFormat</tabstop>
+  <tabstop>btColor</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

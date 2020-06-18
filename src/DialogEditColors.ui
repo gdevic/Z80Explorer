@@ -137,6 +137,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>table</tabstop>
+  <tabstop>btAdd</tabstop>
+  <tabstop>btUp</tabstop>
+  <tabstop>btDown</tabstop>
+  <tabstop>btEdit</tabstop>
+  <tabstop>btRemove</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

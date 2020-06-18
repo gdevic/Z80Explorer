@@ -178,6 +178,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>btA</tabstop>
+  <tabstop>btB</tabstop>
+  <tabstop>btC</tabstop>
+  <tabstop>btD</tabstop>
+  <tabstop>editFind</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

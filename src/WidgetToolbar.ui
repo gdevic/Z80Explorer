@@ -124,6 +124,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>btRun</tabstop>
+  <tabstop>btStop</tabstop>
+  <tabstop>spinStep</tabstop>
+  <tabstop>btStep</tabstop>
+  <tabstop>btReset</tabstop>
+  <tabstop>btRestart</tabstop>
+  <tabstop>spinRestart</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

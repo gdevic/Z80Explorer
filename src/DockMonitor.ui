@@ -87,6 +87,12 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>btLoad</tabstop>
+  <tabstop>btReload</tabstop>
+  <tabstop>textStatus</tabstop>
+  <tabstop>textTerminal</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

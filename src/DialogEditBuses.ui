@@ -148,6 +148,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>listNets</tabstop>
+  <tabstop>listBuses</tabstop>
+  <tabstop>btCreate</tabstop>
+  <tabstop>btDelete</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
