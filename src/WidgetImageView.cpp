@@ -57,7 +57,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
 void WidgetImageView::init()
 {
     m_ov->setImageNames(::controller.getChip().getImageNames());
-    setImage(0); // Display the very first image
+    setImage(1); // Display the second image (colored nets)
     m_scale = 0.19; // Arbitrary initial scaling.. looks perfect on my monitor ;-)
     setZoomMode(Value);
     m_enable_ctrl = true; // Now it is safe to enable Ctrl modifier key

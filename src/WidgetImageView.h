@@ -72,7 +72,7 @@ private:
 
     const segvdef *m_highlight_segment {}; // Segment to highlight in the current image
     const QRect *m_highlight_trans {};  // Transistor bounding rectangle to highlight in the current image
-    bool m_drawActiveNets {true};       // Draw active nets
+    bool m_drawActiveNets {false};      // Draw active nets
     bool m_drawAnnotations {true};      // Draw image annotations
     bool m_drawActiveTransistors {true};// Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
