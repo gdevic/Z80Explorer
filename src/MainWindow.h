@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QScriptEngine>
 
 class DockCommand;
 class DockLog;
@@ -17,7 +18,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent, DockLog *logWindow);
+    MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc);
     ~MainWindow();
 
 private slots:

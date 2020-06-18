@@ -17,7 +17,7 @@
 #include <QMessageBox>
 #include <QSettings>
 
-MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
+MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow) :
 
     // Initialize image view that is embedded within the central pane
     ui->widgetImageView->init();
+    sc->globalObject().setProperty("img", sc->newQObject(ui->widgetImageView));
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");

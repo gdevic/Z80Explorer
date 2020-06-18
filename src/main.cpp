@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
             wndInit->hide(); // Hide the initialization log window
 
             // Create, show and run main application window
-            mainWindow = new MainWindow(nullptr, logWindow);
+            mainWindow = new MainWindow(nullptr, logWindow, &scriptEngine);
             mainWindow->show();
             retCode = a.exec();
 
