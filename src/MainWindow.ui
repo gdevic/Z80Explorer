@@ -181,7 +181,7 @@
     <string>Open the user's manual online</string>
    </property>
    <property name="whatsThis">
-    <string>https://baltazarstudios.com/z80explorer</string>
+    <string>https://baltazarstudios.com/Z80Explorer</string>
    </property>
   </action>
   <action name="actionEditColors">
