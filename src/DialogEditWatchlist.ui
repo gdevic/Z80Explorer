@@ -74,6 +74,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="btAdd">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>&gt;&gt;</string>
          </property>
@@ -81,6 +84,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="btRemove">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Remove</string>
          </property>

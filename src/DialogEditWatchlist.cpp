@@ -12,9 +12,10 @@ DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
     QSettings settings;
     restoreGeometry(settings.value("editWatchlistGeometry").toByteArray());
 
+    connect(ui->listAll, &QListWidget::itemSelectionChanged, this, [=]() { ui->btAdd->setEnabled(ui->listAll->selectedItems().count() > 0); });
+    connect(ui->listSelected, &QListWidget::itemSelectionChanged, this, &DialogEditWatchlist::listSelChanged);
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditWatchlist::onAdd);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditWatchlist::onRemove);
-    connect(ui->listSelected, &QListWidget::itemSelectionChanged, this, &DialogEditWatchlist::listSelChanged);
 }
 
 DialogEditWatchlist::~DialogEditWatchlist()
@@ -81,11 +82,12 @@ void DialogEditWatchlist::onRemove()
 }
 
 /*
- * Use bus listbox selection changed signal to net names of a bus
+ * Use listbox selection changed signal to show bus names and to enable Remove button
  */
 void DialogEditWatchlist::listSelChanged()
 {
     QVector<QListWidgetItem *> sel = ui->listSelected->selectedItems().toVector();
+    ui->btRemove->setEnabled(sel.size() > 0);
     if (sel.size())
         ui->labelNets->setText(sel[0]->toolTip());
     else
