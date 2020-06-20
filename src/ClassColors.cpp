@@ -6,7 +6,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
-#include <QSettings>
 
 ClassColors::ClassColors(QObject *parent) : QObject(parent)
 {
@@ -14,9 +13,7 @@ ClassColors::ClassColors(QObject *parent) : QObject(parent)
 
 void ClassColors::onShutdown()
 {
-    QSettings settings;
-    QString resDir = settings.value("ResourceDir").toString();
-    save(resDir); // Always save color definitions on exit, even if empty
+    save(m_jsonFile);
 }
 
 /*
@@ -117,9 +114,10 @@ void ClassColors::setColordefs(QVector<colordef> colordefs)
 /*
  * Loads color definitions from a file
  */
-bool ClassColors::load(QString dir)
+bool ClassColors::load(QString fileName)
 {
-    QString fileName = dir + "/colors.json";
+    if (m_jsonFile.isEmpty()) // Set the initial file name
+        m_jsonFile = fileName;
     qInfo() << "Loading color definitions from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
@@ -151,6 +149,7 @@ bool ClassColors::load(QString dir)
                 m_colordefs.append(c);
             }
             rebuild();
+            m_jsonFile = fileName;
             return true;
         }
         else
@@ -164,9 +163,8 @@ bool ClassColors::load(QString dir)
 /*
  * Saves color definitions to a file
  */
-bool ClassColors::save(QString dir)
+bool ClassColors::save(QString fileName)
 {
-    QString fileName = dir + "/colors.json";
     qInfo() << "Saving color definitions to" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))

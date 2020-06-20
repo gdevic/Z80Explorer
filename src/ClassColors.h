@@ -38,8 +38,8 @@ public:
                | ((uint16_t(c.blue())) >> 3); }
 
     void rebuild();                     // Updates internal color table
-    bool load(QString dir);             // Loads color definitions
-    bool save(QString dir);             // Saves color definitions
+    bool load(QString fileName);        // Loads color definitions
+    bool save(QString fileName);        // Saves color definitions
 
     const QStringList getMatchingMethods()
         { return {"Exact match", "Starts with", "Regex", "Net number"}; };
@@ -53,6 +53,7 @@ public slots:
 private:
     QHash<net_t, QColor> m_colors;      // Hash of net numbers to their custom colors
     QVector<colordef> m_colordefs;      // Coloring definitions
+    QString m_jsonFile;                 // File name used to load colors
 };
 
 #endif // CLASSCOLORS_H

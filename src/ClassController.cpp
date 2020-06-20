@@ -44,7 +44,7 @@ bool ClassController::init(QScriptEngine *sc)
     QDir::setCurrent(resDir);
 
     // Initialize all global classes using the given path to resource
-    if (!m_simz80.loadResources(resDir) || !m_colors.load(resDir) || !m_chip.loadChipResources(resDir) || !m_simz80.initChip())
+    if (!m_simz80.loadResources(resDir) || !m_colors.load(resDir + "/colors.json") || !m_chip.loadChipResources(resDir) || !m_simz80.initChip())
     {
         qCritical() << "Unable to load chip resources from" << resDir;
         return false;
