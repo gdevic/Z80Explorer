@@ -124,7 +124,6 @@ watch *ClassWatch::find(QString name)
 
 /*
  * Returns a watch containing a given net number or nullptr
- * XXX make m_watchlist a hash
  */
 watch *ClassWatch::find(net_t net)
 {
