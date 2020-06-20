@@ -16,7 +16,6 @@ void ClassColors::onShutdown()
 {
     QSettings settings;
     QString resDir = settings.value("ResourceDir").toString();
-    Q_ASSERT(!resDir.isEmpty());
     save(resDir); // Always save color definitions on exit, even if empty
 }
 

@@ -16,7 +16,6 @@ void ClassAnnotate::onShutdown()
 {
     QSettings settings;
     QString resDir = settings.value("ResourceDir").toString();
-    Q_ASSERT(!resDir.isEmpty());
     if (m_annot.count()) // Save the annotations only if we have any defined
         save(resDir);
 }

@@ -12,7 +12,6 @@ void ClassNetlist::onShutdown()
 {
     QSettings settings;
     QString resDir = settings.value("ResourceDir").toString();
-    Q_ASSERT(!resDir.isEmpty());
     saveNetNames(resDir + "/netnames.js");
 }
 

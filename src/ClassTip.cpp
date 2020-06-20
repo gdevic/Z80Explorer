@@ -15,7 +15,6 @@ void ClassTip::onShutdown()
 {
     QSettings settings;
     QString resDir = settings.value("ResourceDir").toString();
-    Q_ASSERT(!resDir.isEmpty());
     if (m_tips.size()) // // Save the tips only if we have any
         save(resDir);
 }

@@ -884,7 +884,6 @@ void ClassChip::experimental_1()
         {
             QSettings settings;
             QString resDir = settings.value("ResourceDir").toString();
-            Q_ASSERT(!resDir.isEmpty());
             saveSegvdefs(resDir);
         }
     });
