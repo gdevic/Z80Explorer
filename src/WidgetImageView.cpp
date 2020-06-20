@@ -24,6 +24,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     setAttribute(Qt::WA_AcceptTouchEvents);
     setFocusPolicy(Qt::ClickFocus);
     setCursor(QCursor(Qt::CrossCursor));
+    setAcceptDrops(true);
 
     // Create and set the image overlay widget
     m_ov = new WidgetImageOverlay(this);
@@ -893,4 +894,29 @@ void WidgetImageView::state()
 {
     QString s = QString("img.setZoom(%1); img.setPos(%2,%3)").arg(m_scale).arg(m_tex.x() * m_image.width()).arg(m_tex.y() * m_image.height());
     qInfo() << s;
+}
+
+/*
+ * Supporting drag-and-drop of json files
+ */
+void WidgetImageView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls())
+    {
+        QList<QUrl> urls = event->mimeData()->urls();
+        if (urls.count() != 1)
+            return;
+        QFileInfo fi(urls.first().toLocalFile());
+        if (fi.suffix().toLower() != "json")
+            return;
+        m_dropppedFile = fi.absoluteFilePath();
+        qDebug() << m_dropppedFile;
+        event->setDropAction(Qt::LinkAction);
+        event->accept();
+    }
+}
+
+void WidgetImageView::dropEvent(QDropEvent *event)
+{
+    Q_UNUSED(event);
 }

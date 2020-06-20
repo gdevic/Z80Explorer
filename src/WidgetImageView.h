@@ -51,6 +51,10 @@ private slots:
     void editNetName();                 // Opens dialog to edit selected net name (alias)
     void viewSchematic();               // Creates a new Schematic window using the selected net
 
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+
 private:
     Ui::WidgetImageView *ui;
 
@@ -86,6 +90,7 @@ private:
     bool m_drawActiveTransistors {true};// Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
     bool m_drawNetNames {true};         // Dynamically write nearby net names (experimental)
+    QString m_dropppedFile;             // File name of the file being dropped by a drag-and-drop operation
 
     QVector<net_t> m_drivingNets;       // List of nets expanded by the driving/driven heuristic
 
