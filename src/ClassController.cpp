@@ -15,12 +15,13 @@ bool ClassController::init(QScriptEngine *sc)
     sc->globalObject().setProperty("sim", sc->newQObject(&m_simz80));
     sc->globalObject().setProperty("monitor", sc->newQObject(&m_trick));
 
-    connect(this, SIGNAL(shutdown()), &m_chip.annotate, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_chip.tips, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_annotate, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_chip, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_colors, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_simz80, SLOT(onShutdown()));
     connect(this, SIGNAL(shutdown()), &m_script, SLOT(stop()));
+    connect(this, SIGNAL(shutdown()), &m_simz80, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_tips, SLOT(onShutdown()));
+    connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));
 
     QSettings settings;
     QString resDir = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
@@ -51,6 +52,9 @@ bool ClassController::init(QScriptEngine *sc)
 
     m_watch.load(resDir);
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
+
+    m_annotate.load(resDir);
+    m_tips.load(resDir);
 
     // Execute init.js initialization script
     QTimer::singleShot(1000, [=](){ m_script.exec("load(\"init.js\")"); } );

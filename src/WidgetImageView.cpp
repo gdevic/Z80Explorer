@@ -322,7 +322,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawAnnotations)
     {
         painter.save();
-        ::controller.getChip().annotate.draw(painter, m_scale);
+        ::controller.getAnnotation().draw(painter, m_scale);
         painter.restore();
     }
 
@@ -366,7 +366,7 @@ bool WidgetImageView::event(QEvent *event)
         QVector<net_t> nets = ::controller.getChip().getNetsAt<false>(pos.x(), pos.y());
         if (nets.count() == 1)
         {
-            QStringList tooltip { ::controller.getNetlist().get(nets[0]), ::controller.getChip().tips.get(nets[0]) };
+            QStringList tooltip { ::controller.getNetlist().get(nets[0]), ::controller.getTip().get(nets[0]) };
             tooltip.removeAll({}); // Remove empty components (from the above, if none defined)
             QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
             QToolTip::showText(helpEvent->globalPos(), tooltip.join("<br>"));
@@ -453,7 +453,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             netNames.removeDuplicates(); // Don't you simply love Qt?
             m_ov->setInfoLine(1, netNames.join(", "));
 
-            QString tip = nets.count() ? ::controller.getChip().tips.get(nets[0]) : QString();
+            QString tip = nets.count() ? ::controller.getTip().get(nets[0]) : QString();
             m_ov->setInfoLine(2, trans ? ::controller.getNetlist().transInfo(trans) : tip);
         }
         else
@@ -685,9 +685,9 @@ void WidgetImageView::addAnnotation()
     QString text = QInputDialog::getText(this, "Add annotation", "Annotation text:", QLineEdit::Normal, "", &ok);
     if (ok && !text.isEmpty())
     {
-        ::controller.getChip().annotate.add(text, m_areaRect);
+        ::controller.getAnnotation().add(text, m_areaRect);
         DialogEditAnnotations dlg(this);
-        QVector<uint> sel { ::controller.getChip().annotate.count() - 1 };
+        QVector<uint> sel { ::controller.getAnnotation().count() - 1 };
         dlg.selectRows(sel); // Selects the last annotation (the newly added one)
         dlg.exec();
     }
@@ -702,9 +702,9 @@ void WidgetImageView::editAnnotations()
     QVector<uint> sel;
     QPoint pos = m_invtx.map(m_pinMousePos);
     if (m_areaRect.isEmpty())
-        sel = ::controller.getChip().annotate.get(pos);
+        sel = ::controller.getAnnotation().get(pos);
     else
-        sel = ::controller.getChip().annotate.get(m_areaRect);
+        sel = ::controller.getAnnotation().get(m_areaRect);
     dlg.selectRows(sel); // Selects annotations under the mouse pointer
     dlg.exec();
 }
@@ -717,11 +717,11 @@ void WidgetImageView::editTip()
     Q_ASSERT(m_drivingNets.count() == 1);
     net_t net = m_drivingNets[0];
     QString name = ::controller.getNetlist().get(net);
-    QString oldTip = ::controller.getChip().tips.get(net);
+    QString oldTip = ::controller.getTip().get(net);
     bool ok;
     QString tip = QInputDialog::getText(this, "Edit tip", QString("Enter the tip for the selected net %1 (%2)").arg(name,QString::number(net)), QLineEdit::Normal, oldTip, &ok);
     if (ok)
-        ::controller.getChip().tips.set(tip, net);
+        ::controller.getTip().set(tip, net);
 }
 
 /*

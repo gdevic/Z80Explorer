@@ -27,9 +27,9 @@ DialogEditAnnotations::DialogEditAnnotations(QWidget *parent) :
     connect(ui->checkRect, &QCheckBox::toggled, this, &DialogEditAnnotations::onRectChanged);
     connect(ui->btApply, &QPushButton::clicked, this, &DialogEditAnnotations::onApply);
 
-    m_orig = ::controller.getChip().annotate.get();
+    m_orig = ::controller.getAnnotation().get();
     // Populate the main list widget with the given list of annotation items
-    for (auto &i : ::controller.getChip().annotate.get())
+    for (auto &i : ::controller.getAnnotation().get())
         append(i);
 }
 
@@ -60,7 +60,7 @@ void DialogEditAnnotations::onApply()
     for (int i=0; i < ui->listAll->count(); i++)
         list.append(get(ui->listAll->item(i)));
 
-    ::controller.getChip().annotate.set(list);
+    ::controller.getAnnotation().set(list);
 }
 
 /*
@@ -77,7 +77,7 @@ void DialogEditAnnotations::accept()
  */
 void DialogEditAnnotations::reject()
 {
-    ::controller.getChip().annotate.set(m_orig);
+    ::controller.getAnnotation().set(m_orig);
     QDialog::done(QDialog::Rejected);
 }
 

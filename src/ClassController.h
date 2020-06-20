@@ -1,10 +1,12 @@
 #ifndef CLASSCONTROLLER_H
 #define CLASSCONTROLLER_H
 
+#include "ClassAnnotate.h"
 #include "ClassChip.h"
 #include "ClassColors.h"
 #include "ClassScript.h"
 #include "ClassSimZ80.h"
+#include "ClassTip.h"
 #include "ClassTrickbox.h"
 #include "ClassWatch.h"
 
@@ -19,13 +21,16 @@ public:
     bool init(QScriptEngine *); // Initialize controller classes and variables
 
 public: // API
-    inline ClassChip     &getChip()     { return m_chip; }   // Returns a reference to the chip class
-    inline ClassColors   &getColors()   { return m_colors; } // Returns a reference to the colors class
-    inline ClassScript   &getScript()   { return m_script; } // Returns a reference to the script class
-    inline ClassSimZ80   &getSimZ80()   { return m_simz80; } // Returns a reference to the Z80 simulator class
-    inline ClassWatch    &getWatch()    { return m_watch; }  // Returns a reference to the watch class
-    inline ClassNetlist  &getNetlist()  { return m_simz80; } // Returns a reference to the netlist class (a subclass)
-    inline ClassTrickbox &getTrickbox() { return m_trick; }  // Returns a reference to the Trickbox class
+    inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
+    inline ClassChip     &getChip()       { return m_chip; }      // Returns a reference to the chip class
+    inline ClassColors   &getColors()     { return m_colors; }    // Returns a reference to the colors class
+    inline ClassScript   &getScript()     { return m_script; }    // Returns a reference to the script class
+    inline ClassSimZ80   &getSimZ80()     { return m_simz80; }    // Returns a reference to the Z80 simulator class
+    inline ClassWatch    &getWatch()      { return m_watch; }     // Returns a reference to the watch class
+    inline ClassNetlist  &getNetlist()    { return m_simz80; }    // Returns a reference to the netlist class (a subclass)
+    inline ClassTip      &getTip()        { return m_tips; }      // Returns a reference to the tips class
+    inline ClassTrickbox &getTrickbox()   { return m_trick; }     // Returns a reference to the Trickbox class
+
 
     inline uint8_t readMem(uint16_t ab)           // Reads from simulated RAM
         { return m_trick.readMem(ab); }
@@ -71,11 +76,13 @@ signals:
     void syncView(QPointF pos, qreal zoom); // Broadcast to all image views to sync their views
 
 private:
+    ClassAnnotate m_annotate;   // Global annotations
     ClassChip     m_chip;       // Global chip resource class
     ClassColors   m_colors;     // Global application colors
     ClassScript   m_script;     // Global scripting support
     ClassSimZ80   m_simz80;     // Global Z80 simulator class
     ClassWatch    m_watch;      // Global watchlist
+    ClassTip      m_tips;       // Global tips
     ClassTrickbox m_trick;      // Global trickbox supporting environment
 };
 

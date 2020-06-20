@@ -91,7 +91,7 @@ bool ClassNetlist::saveNetNames(const QString fileName)
         std::sort(names.begin(), names.end(), collator);
         for (auto &n : names)
         {
-            QString tip = ::controller.getChip().tips.get(m_netnums[n]);
+            QString tip = ::controller.getTip().get(m_netnums[n]);
             if (tip.isEmpty())
                 out << n << ": " << m_netnums[n] << ",\n";
             else

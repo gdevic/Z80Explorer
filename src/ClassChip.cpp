@@ -69,9 +69,6 @@ bool ClassChip::loadChipResources(QString dir)
         setFirstImage("vss.vcc.nets.col");
         setFirstImage("vss.vcc.nets");
 
-        annotate.load(dir); // Load custom annotations
-        tips.load(dir);     // Load custom tips
-
         qInfo() << "Completed loading chip resources";
         return true;
     }
