@@ -7,9 +7,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
-#include <QSettings>
 #include <QVBoxLayout>
-#include <QtScript>
 
 // Global objects
 MainWindow *mainWindow = nullptr; // Window: main window class

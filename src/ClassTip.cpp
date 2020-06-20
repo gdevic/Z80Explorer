@@ -14,10 +14,10 @@ ClassTip::ClassTip(QObject *parent) : QObject(parent)
 void ClassTip::onShutdown()
 {
     QSettings settings;
-    QString path = settings.value("ResourceDir").toString();
-    Q_ASSERT(!path.isEmpty());
+    QString resDir = settings.value("ResourceDir").toString();
+    Q_ASSERT(!resDir.isEmpty());
     if (m_tips.size()) // // Save the tips only if we have any
-        save(path);
+        save(resDir);
 }
 
 /*

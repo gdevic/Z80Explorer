@@ -11,9 +11,9 @@ ClassNetlist::ClassNetlist():
 void ClassNetlist::onShutdown()
 {
     QSettings settings;
-    QString path = settings.value("ResourceDir").toString();
-    Q_ASSERT(!path.isEmpty());
-    saveNetNames(path + "/netnames.js");
+    QString resDir = settings.value("ResourceDir").toString();
+    Q_ASSERT(!resDir.isEmpty());
+    saveNetNames(resDir + "/netnames.js");
 }
 
 bool ClassNetlist::loadResources(const QString dir)

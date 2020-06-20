@@ -23,33 +23,33 @@ bool ClassController::init(QScriptEngine *sc)
     connect(this, SIGNAL(shutdown()), &m_script, SLOT(stop()));
 
     QSettings settings;
-    QString path = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
+    QString resDir = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
 
 #if HAVE_PREBUILT_LAYERMAP
     // Check if the current resource path contains required resource(s)
     qInfo() << "Checking for resource/layermap.bin";
-    while (!QFile::exists(path + "/layermap.bin"))
+    while (!QFile::exists(resDir + "/layermap.bin"))
     {
         // Prompts the user to select the chip resource folder
         QString fileName = QFileDialog::getOpenFileName(nullptr,
         "Select the application resource folder with layermap.bin file extracted from layermap.7z", "layermap.bin", "Any file (*.*)");
         if (!fileName.isEmpty())
-            path = QFileInfo(fileName).path();
+            resDir = QFileInfo(fileName).path();
         else
             return false;
     }
-    settings.setValue("ResourceDir", path);
+    settings.setValue("ResourceDir", resDir);
 #endif
-    QDir::setCurrent(path);
+    QDir::setCurrent(resDir);
 
     // Initialize all global classes using the given path to resource
-    if (!m_simz80.loadResources(path) || !m_colors.load(path) || !m_chip.loadChipResources(path) || !m_simz80.initChip())
+    if (!m_simz80.loadResources(resDir) || !m_colors.load(resDir) || !m_chip.loadChipResources(resDir) || !m_simz80.initChip())
     {
-        qCritical() << "Unable to load chip resources from" << path;
+        qCritical() << "Unable to load chip resources from" << resDir;
         return false;
     }
 
-    m_watch.load(path);
+    m_watch.load(resDir);
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
     // Execute init.js initialization script

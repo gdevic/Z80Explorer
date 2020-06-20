@@ -15,10 +15,10 @@ ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 void ClassAnnotate::onShutdown()
 {
     QSettings settings;
-    QString path = settings.value("ResourceDir").toString();
-    Q_ASSERT(!path.isEmpty());
+    QString resDir = settings.value("ResourceDir").toString();
+    Q_ASSERT(!resDir.isEmpty());
     if (m_annot.count()) // Save the annotations only if we have any defined
-        save(path);
+        save(resDir);
 }
 
 /*

@@ -11,10 +11,10 @@ ClassWatch::ClassWatch()
 void ClassWatch::onShutdown()
 {
     QSettings settings;
-    QString path = settings.value("ResourceDir").toString();
-    Q_ASSERT(!path.isEmpty());
+    QString resDir = settings.value("ResourceDir").toString();
+    Q_ASSERT(!resDir.isEmpty());
     if (m_watchlist.count()) // Save the watchlist only if it is not empty
-        save(path);
+        save(resDir);
 }
 
 /*

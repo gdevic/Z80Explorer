@@ -15,9 +15,9 @@ ClassColors::ClassColors(QObject *parent) : QObject(parent)
 void ClassColors::onShutdown()
 {
     QSettings settings;
-    QString path = settings.value("ResourceDir").toString();
-    Q_ASSERT(!path.isEmpty());
-    save(path); // Always save color definitions on exit, even if empty
+    QString resDir = settings.value("ResourceDir").toString();
+    Q_ASSERT(!resDir.isEmpty());
+    save(resDir); // Always save color definitions on exit, even if empty
 }
 
 /*

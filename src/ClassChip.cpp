@@ -883,9 +883,9 @@ void ClassChip::experimental_1()
         // Save created visual paths to a file
         {
             QSettings settings;
-            QString path = settings.value("ResourceDir").toString();
-            Q_ASSERT(!path.isEmpty());
-            saveSegvdefs(path);
+            QString resDir = settings.value("ResourceDir").toString();
+            Q_ASSERT(!resDir.isEmpty());
+            saveSegvdefs(resDir);
         }
     });
 }
