@@ -26,7 +26,6 @@ DockCommand::DockCommand(QWidget *parent) :
     connect(&::controller.getScript(), &ClassScript::response, this, [=](QString str) { m_text->appendPlainText(str); });
 
     m_text->appendPlainText("Type help() to list available commands\n");
-//    m_text->setFocusProxy(m_cmd); XXX This could be one way to handle focus
 }
 
 DockCommand::~DockCommand()
