@@ -1,5 +1,4 @@
 #include "ClassTip.h"
-
 #include <QDebug>
 #include <QFile>
 #include <QJsonArray>

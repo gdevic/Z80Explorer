@@ -5,7 +5,6 @@
 #include "DialogEditAnnotations.h"
 #include "DialogSchematic.h"
 #include "WidgetImageOverlay.h"
-
 #include <QDebug>
 #include <QInputDialog>
 #include <QMenu>

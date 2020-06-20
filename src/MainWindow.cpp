@@ -10,7 +10,6 @@
 #include "DockImageView.h"
 #include "DockMonitor.h"
 #include "DockLog.h"
-
 #include <QCloseEvent>
 #include <QDesktopServices>
 #include <QFileDialog>

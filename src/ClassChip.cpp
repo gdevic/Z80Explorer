@@ -1,6 +1,5 @@
 #include "ClassChip.h"
 #include "ClassController.h"
-
 #include <QtConcurrent>
 #include <QDebug>
 #include <QDir>

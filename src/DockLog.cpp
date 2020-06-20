@@ -2,7 +2,6 @@
 #include "ui_DockLog.h"
 #include "ClassApplog.h"
 #include "ClassSingleton.h"
-
 #include <QInputDialog>
 #include <QMenu>
 #include <QtGui>

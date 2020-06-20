@@ -3,7 +3,6 @@
 #include "ClassController.h"
 #include "ClassSingleton.h"
 #include "DockLog.h"
-
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>

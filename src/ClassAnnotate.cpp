@@ -1,5 +1,4 @@
 #include "ClassAnnotate.h"
-
 #include <QDebug>
 #include <QFile>
 #include <QJsonArray>
