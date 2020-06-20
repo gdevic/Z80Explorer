@@ -4,7 +4,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QSettings>
 
 ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 {
@@ -13,10 +12,8 @@ ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 
 void ClassAnnotate::onShutdown()
 {
-    QSettings settings;
-    QString resDir = settings.value("ResourceDir").toString();
     if (m_annot.count()) // Save the annotations only if we have any defined
-        save(resDir);
+        save(m_jsonFile);
 }
 
 /*
@@ -108,9 +105,10 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
 /*
  * Loads user annotations from a file
  */
-bool ClassAnnotate::load(QString dir)
+bool ClassAnnotate::load(QString fileName)
 {
-    QString fileName = dir + "/annotations.json";
+    if (m_jsonFile.isEmpty()) // Set the initial file name
+        m_jsonFile = fileName;
     qInfo() << "Loading annotations from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
@@ -151,6 +149,7 @@ bool ClassAnnotate::load(QString dir)
                     a.drawrect = obj["rect"].toBool();
                 m_annot.append(a);
             }
+            m_jsonFile = fileName;
             return true;
         }
         else
@@ -164,9 +163,8 @@ bool ClassAnnotate::load(QString dir)
 /*
  * Saves user annotations to a file
  */
-bool ClassAnnotate::save(QString dir)
+bool ClassAnnotate::save(QString fileName)
 {
-    QString fileName = dir + "/annotations.json";
     qInfo() << "Saving annotations to" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))

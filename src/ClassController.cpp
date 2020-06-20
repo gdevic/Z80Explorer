@@ -53,7 +53,7 @@ bool ClassController::init(QScriptEngine *sc)
     m_watch.load(resDir);
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
-    m_annotate.load(resDir);
+    m_annotate.load(resDir + "/annotations.json");
     m_tips.load(resDir);
 
     // Execute init.js initialization script

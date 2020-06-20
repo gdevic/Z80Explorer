@@ -37,6 +37,8 @@ public slots:
     void show(uint x, uint y, uint w, uint h) //* Highlight a rectangle
         { m_r = QRect(x,y,w,h); m_highlight_trans = &m_r; m_timer_tick = 10; }
     void state();                       //* Prints the img view state
+    void annot(QString fileName)        //* Loads custom annotation file
+        { m_dropppedFile = fileName; dropEvent(nullptr); }
     //                                  //* <- Methods of the scripting object "img"
 
 private slots:
@@ -53,7 +55,7 @@ private slots:
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
-    void dropEvent(QDropEvent *event) override;
+    void dropEvent(QDropEvent *) override;
 
 private:
     Ui::WidgetImageView *ui;

@@ -38,14 +38,15 @@ public:
     uint count() { return m_annot.count(); } // Returns the total number of annotations
 
     void draw(QPainter &painter, qreal scale);
-    bool load(QString dir);             // Loads user annotations
-    bool save(QString dir);             // Saves user annotations
+    bool load(QString fileName);        // Loads user annotations
+    bool save(QString fileName);        // Saves user annotations
 
 public slots:
     void onShutdown();                  // Called when the app is closing
 
 private:
     QVector<annotation> m_annot;        // List of annotations
+    QString m_jsonFile;                 // File name used to load the annotations
     QFont m_fixedFont;                  // Font used to render annotations
     const qreal m_someXFactor = 1.8;    // Depending on a font, we need to stretch its rendering
 

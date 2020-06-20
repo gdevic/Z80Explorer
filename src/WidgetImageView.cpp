@@ -916,7 +916,8 @@ void WidgetImageView::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void WidgetImageView::dropEvent(QDropEvent *event)
+void WidgetImageView::dropEvent(QDropEvent *)
 {
-    Q_UNUSED(event);
+    ::controller.getAnnotation().load(m_dropppedFile);
+    update();
 }
