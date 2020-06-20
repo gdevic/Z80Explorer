@@ -10,10 +10,7 @@ ClassWatch::ClassWatch()
 
 void ClassWatch::onShutdown()
 {
-    QSettings settings;
-    QString resDir = settings.value("ResourceDir").toString();
-    if (m_watchlist.count()) // Save the watchlist only if it is not empty
-        save(resDir);
+    save(m_jsonFile);
 }
 
 /*
@@ -208,9 +205,10 @@ void ClassWatch::updateWatchlist(QStringList list)
 /*
  * Loads a watchlist from a file
  */
-bool ClassWatch::load(QString dir)
+bool ClassWatch::load(QString fileName)
 {
-    QString fileName = dir + "/watchlist.json";
+    if (m_jsonFile.isEmpty()) // Set the initial file name
+        m_jsonFile = fileName;
     qInfo() << "Loading watchlist from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
@@ -235,6 +233,7 @@ bool ClassWatch::load(QString dir)
                     name = obj["name"].toString();
                 m_watchlist.append( {name, net} );
             }
+            m_jsonFile = fileName;
             return true;
         }
         else
@@ -248,9 +247,8 @@ bool ClassWatch::load(QString dir)
 /*
  * Saves the current watchlist to a file
  */
-bool ClassWatch::save(QString dir)
+bool ClassWatch::save(QString fileName)
 {
-    QString fileName = dir + "/watchlist.json";
     qInfo() << "Saving watchlist to" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))

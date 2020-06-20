@@ -50,7 +50,7 @@ bool ClassController::init(QScriptEngine *sc)
         return false;
     }
 
-    m_watch.load(resDir);
+    m_watch.load(resDir + "/watchlist.json");
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
     m_annotate.load(resDir + "/annotations.json");

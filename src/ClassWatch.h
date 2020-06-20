@@ -46,8 +46,8 @@ public:
     uint at(watch *w, uint hcycle, uint &ok); // Returns bus watch data at the specified cycle position
     uint gethstart() { return m_hring_start; } // Returns the absolute hcycle of the start of our buffers
 
-    bool load(QString dir);             // Loads a watchlist
-    bool save(QString dir) ;            // Saves a watchlist
+    bool load(QString fileName);        // Loads a watchlist
+    bool save(QString fileName);        // Saves a watchlist
 
 public slots:
     void onShutdown();                  // Called when the app is closing
@@ -57,6 +57,7 @@ private:
     watch *find(net_t net);             // Returns a watch containing a given net number or nullptr
 
     QVector<watch> m_watchlist;         // The list of watch items that are tracked
+    QString m_jsonFile;                 // File name used to load watchlist
     uint m_hcycle_last {};              // Last cycle number for which we got data stored
     uint m_hring_start {};              // Buffer start maps to this absolute cycle
 };
