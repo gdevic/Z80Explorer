@@ -7,7 +7,7 @@ WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->editFind, SIGNAL(returnPressed()), this, SLOT(onFind()));
+    connect(ui->editFind, &QLineEdit::returnPressed, this, &WidgetImageOverlay::onFind);
     connect(ui->btCoords, &QPushButton::clicked, this, &WidgetImageOverlay::actionCoords);
     connect(ui->btA, &QToolButton::clicked, this, [this](){ emit actionButton(0); } );
     connect(ui->btB, &QToolButton::clicked, this, [this](){ emit actionButton(1); } );

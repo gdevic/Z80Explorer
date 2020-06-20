@@ -14,7 +14,7 @@ DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
 
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditWatchlist::onAdd);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditWatchlist::onRemove);
-    connect(ui->listSelected, SIGNAL(itemSelectionChanged()), this, SLOT(listSelChanged()));
+    connect(ui->listSelected, &QListWidget::itemSelectionChanged, this, &DialogEditWatchlist::listSelChanged);
 }
 
 DialogEditWatchlist::~DialogEditWatchlist()

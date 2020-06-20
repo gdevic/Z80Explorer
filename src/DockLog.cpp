@@ -23,12 +23,11 @@ DockLog::DockLog(QWidget *parent) :
 
     // Alter the popup menu when user right clicks
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->textEdit,SIGNAL(customContextMenuRequested(const QPoint&)), this,SLOT(showContextMenu(const QPoint &)));
+    connect(ui->textEdit, &QLineEdit::customContextMenuRequested, this, &DockLog::showContextMenu);
 
     // Connect log message slot
     CAppLogHandler *applog = &Singleton<CAppLogHandler>::Instance();
-
-    QObject::connect(applog, SIGNAL(NewLogMessage(QString, bool)), this, SLOT(processNewMessage(QString, bool)));
+    connect(applog, &CAppLogHandler::NewLogMessage, this, &DockLog::processNewMessage);
 }
 
 DockLog::~DockLog()

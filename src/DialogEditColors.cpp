@@ -17,7 +17,7 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
     m_methods = ::controller.getColors().getMatchingMethods();
 
     ui->table->setMouseTracking(true);
-    connect(ui->table, SIGNAL(itemSelectionChanged()), this, SLOT(onSelectionChanged()));
+    connect(ui->table, &QTableWidget::itemSelectionChanged, this, &DialogEditColors::onSelectionChanged);
 
     for (const auto &cdef : ::controller.getColors().getColordefs())
         addItem(cdef);

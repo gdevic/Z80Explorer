@@ -32,8 +32,8 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
 
     connect(ui->btCreate, &QPushButton::clicked, this, &DialogEditBuses::onCreate);
     connect(ui->btDelete, &QPushButton::clicked, this, &DialogEditBuses::onDelete);
-    connect(ui->listBuses, SIGNAL(itemSelectionChanged()), this, SLOT(busSelChanged()));
-    connect(ui->listNets, SIGNAL(itemSelectionChanged()), this, SLOT(netSelChanged()));
+    connect(ui->listBuses, &QListWidget::itemSelectionChanged, this, &DialogEditBuses::busSelChanged);
+    connect(ui->listNets, &QListWidget::itemSelectionChanged, this, &DialogEditBuses::netSelChanged);
 }
 
 DialogEditBuses::~DialogEditBuses()

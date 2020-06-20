@@ -29,8 +29,8 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     ui->btFile->setMenu(menu);
 
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
-    connect(ui->widgetWaveform, SIGNAL(cursorChanged(uint)), this, SLOT(cursorChanged(uint)));
-    connect(ui->widgetWaveform, SIGNAL(scroll(int)), this, SLOT(scroll(int)));
+    connect(ui->widgetWaveform, &WidgetWaveform::cursorChanged, this, &DockWaveform::cursorChanged);
+    connect(ui->widgetWaveform, &WidgetWaveform::scroll, this, &DockWaveform::scroll);
     connect(ui->widgetWaveform, &WidgetWaveform::setLink, this, [this](int value) { ui->btLink->setText(QString::number(value)); }  );
     connect(ui->btLink, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onLinked);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);

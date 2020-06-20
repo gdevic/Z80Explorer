@@ -17,8 +17,8 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     watches.sort();
     ui->listAll->addItems(watches);
 
-    connect(ui->listAll, SIGNAL(itemSelectionChanged()), this, SLOT(allSelChanged()));
-    connect(ui->listView, SIGNAL(itemSelectionChanged()), this, SLOT(viewSelChanged()));
+    connect(ui->listAll, &QListWidget::itemSelectionChanged, this, &DialogEditWaveform::allSelChanged);
+    connect(ui->listView, &QListWidget::itemSelectionChanged, this, &DialogEditWaveform::viewSelChanged);
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditWaveform::onAdd);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditWaveform::onRemove);
     connect(ui->btUp, &QPushButton::clicked, this, &DialogEditWaveform::onUp);

@@ -13,7 +13,7 @@ DialogEditAnnotations::DialogEditAnnotations(QWidget *parent) :
     QSettings settings;
     restoreGeometry(settings.value("editAnnotationsGeometry").toByteArray());
 
-    connect(ui->listAll, SIGNAL(itemSelectionChanged()), this, SLOT(selChanged()));
+    connect(ui->listAll, &QListWidget::itemSelectionChanged, this, &DialogEditAnnotations::selChanged);
     connect(ui->btUp, &QPushButton::clicked, this, &DialogEditAnnotations::onUp);
     connect(ui->btDown, &QPushButton::clicked, this, &DialogEditAnnotations::onDown);
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditAnnotations::onAdd);
