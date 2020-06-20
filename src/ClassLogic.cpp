@@ -175,7 +175,7 @@ void ClassNetlist::parse(Logic *root)
         return;
     }
 
-    // Loop over all transistors for which the current net is the source/drain
+    // Loop over all remaining transistors for which the current net is the source/drain
     for (auto t1 : net0.c1c2s)
     {
         net_t net1gt = t1->gate;
@@ -221,6 +221,7 @@ void ClassNetlist::parse(Logic *root)
             {
                 qDebug() << "NAND gate with 2 inputs" << net1gt << net2gt;
 
+                node->rename(net1id);
                 node->op = LogicOp::Nand;
                 node->children.append(new Logic(net1gt));
                 node->children.append(new Logic(net2gt));
@@ -243,6 +244,7 @@ void ClassNetlist::parse(Logic *root)
                 {
                     qDebug() << "NAND gate with 3 inputs" << net1gt << net2gt << net3gt;
 
+                    node->rename(net2id);
                     node->op = LogicOp::Nand;
                     node->children.append(new Logic(net1gt));
                     node->children.append(new Logic(net2gt));
@@ -265,6 +267,7 @@ void ClassNetlist::parse(Logic *root)
         // Transistor is a simple AND gate
         //-------------------------------------------------------------------------------
         qDebug() << "AND gate with 2 input nets" << net1gt << net1id;
+
         node->op = LogicOp::And;
         node->children.append(new Logic(net1gt));
         node->children.append(new Logic(net1id));
@@ -296,4 +299,12 @@ Logic::Logic(net_t n, LogicOp op) : net(n), op(op)
         leaf = true;
     else
         visited.append(n);
+}
+
+void Logic::rename(net_t n)
+{
+    net = n;
+    name = ::controller.getNetlist().get(n);
+    if (name.isEmpty())
+        name = QString::number(n);
 }

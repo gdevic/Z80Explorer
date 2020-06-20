@@ -22,6 +22,7 @@ struct Logic
     Logic() = delete;
     Logic(net_t n) : Logic(n, LogicOp::Nop) {}
     Logic(net_t n, LogicOp op);
+    void rename(net_t n);               // Retargets n and name fields
 
     // Deletes the complete logic tree
     static void purge(Logic *ptr)
