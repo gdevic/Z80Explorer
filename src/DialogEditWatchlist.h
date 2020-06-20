@@ -26,6 +26,7 @@ private:
 private slots:
     void onAdd();
     void onRemove();
+    void allSelChanged();
     void listSelChanged();
 
 private:

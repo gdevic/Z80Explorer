@@ -12,7 +12,7 @@ DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
     QSettings settings;
     restoreGeometry(settings.value("editWatchlistGeometry").toByteArray());
 
-    connect(ui->listAll, &QListWidget::itemSelectionChanged, this, [=]() { ui->btAdd->setEnabled(ui->listAll->selectedItems().count() > 0); });
+    connect(ui->listAll, &QListWidget::itemSelectionChanged, this, &DialogEditWatchlist::allSelChanged);
     connect(ui->listSelected, &QListWidget::itemSelectionChanged, this, &DialogEditWatchlist::listSelChanged);
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditWatchlist::onAdd);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditWatchlist::onRemove);
@@ -28,8 +28,22 @@ DialogEditWatchlist::~DialogEditWatchlist()
 
 void DialogEditWatchlist::setNodeList(QStringList nodeList)
 {
-    nodeList.sort();
-    ui->listAll->addItems(nodeList);
+    nodeList.sort(); // Sort the incoming list of nets and buses to place buses at the top (they are uppercased)
+    ClassNetlist &Net = ::controller.getNetlist();
+    // Loop over the list and for each bus add its constituent nets to the tooltip field so we can show it
+    for (auto &name : nodeList)
+    {
+        QListWidgetItem *li = new QListWidgetItem(name);
+        if (!Net.get(name)) // Zero net number is a bus
+        {
+            const QVector<net_t> bus = Net.getBus(name);
+            QStringList nets;
+            for (auto n : bus)
+                nets.append(Net.get(n));
+            li->setToolTip(nets.join(','));
+        }
+        ui->listAll->addItem(li);
+    }
 }
 
 void DialogEditWatchlist::setWatchlist(QStringList nodeList)
@@ -81,15 +95,28 @@ void DialogEditWatchlist::onRemove()
         delete ui->listSelected->takeItem(ui->listSelected->row(item));
 }
 
-/*
- * Use listbox selection changed signal to show bus names and to enable Remove button
- */
+void DialogEditWatchlist::allSelChanged()
+{
+    QVector<QListWidgetItem *> sel = ui->listAll->selectedItems().toVector();
+    ui->btAdd->setEnabled(sel.size() > 0);
+    if (sel.size())
+    {
+        ui->labelNets->setText(sel[0]->toolTip());
+        ui->labelNets->setAlignment(Qt::AlignLeft);
+    }
+    else
+        ui->labelNets->clear();
+}
+
 void DialogEditWatchlist::listSelChanged()
 {
     QVector<QListWidgetItem *> sel = ui->listSelected->selectedItems().toVector();
     ui->btRemove->setEnabled(sel.size() > 0);
     if (sel.size())
+    {
         ui->labelNets->setText(sel[0]->toolTip());
+        ui->labelNets->setAlignment(Qt::AlignRight);
+    }
     else
         ui->labelNets->clear();
 }
