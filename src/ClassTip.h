@@ -19,14 +19,15 @@ public:
     void set(const QString tip, net_t n)// Sets up the tip for a given net number
         { m_tips[n] = tip.trimmed(); }
 
-    bool load(QString dir);             // Loads user tips
-    bool save(QString dir);             // Saves user tips
+    bool load(QString fileName);        // Loads user tips
+    bool save(QString fileName);        // Saves user tips
 
 public slots:
     void onShutdown();                  // Called when the app is closing
 
 private:
     QMap<net_t, QString> m_tips;        // Map of nets to their tips; key is the net number
+    QString m_jsonFile;                 // File name used to load the tips
 };
 
 #endif // CLASSTIP_H

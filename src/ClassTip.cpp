@@ -4,7 +4,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QSettings>
 
 ClassTip::ClassTip(QObject *parent) : QObject(parent)
 {
@@ -12,18 +11,17 @@ ClassTip::ClassTip(QObject *parent) : QObject(parent)
 
 void ClassTip::onShutdown()
 {
-    QSettings settings;
-    QString resDir = settings.value("ResourceDir").toString();
-    if (m_tips.size()) // // Save the tips only if we have any
-        save(resDir);
+    if (m_tips.count()) // Save the tips only if we have any defined
+        save(m_jsonFile);
 }
 
 /*
  * Loads user tips from a file
  */
-bool ClassTip::load(QString dir)
+bool ClassTip::load(QString fileName)
 {
-    QString fileName = dir + "/tips.json";
+    if (m_jsonFile.isEmpty()) // Set the initial file name
+        m_jsonFile = fileName;
     qInfo() << "Loading custom tips from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
@@ -49,6 +47,7 @@ bool ClassTip::load(QString dir)
                 if (net)
                     m_tips[net] = tip;
             }
+            m_jsonFile = fileName;
             return true;
         }
         else
@@ -62,9 +61,8 @@ bool ClassTip::load(QString dir)
 /*
  * Saves user tips to a file
  */
-bool ClassTip::save(QString dir)
+bool ClassTip::save(QString fileName)
 {
-    QString fileName = dir + "/tips.json";
     qInfo() << "Saving custom tips to" << fileName;
     QFile saveFile(fileName);
     if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
