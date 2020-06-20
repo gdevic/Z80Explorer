@@ -301,6 +301,8 @@ template<bool includeVssVcc>
 const QVector<net_t> ClassChip::getNetsAt(int x, int y)
 {
     QVector<net_t> list;
+    if ((uint(x) >= m_sx) || (uint(y) >= m_sy))
+        return list;
     // Use our layer map to read vss, vcc since they are the largest, already mapped, areas
     uint offset = x + y * m_sx;
 #if HAVE_PREBUILT_LAYERMAP
@@ -368,6 +370,8 @@ const transvdef *ClassChip::getTrans(tran_t id)
  */
 tran_t ClassChip::getTransistorAt(int x, int y)
 {
+    if ((uint(x) >= m_sx) || (uint(y) >= m_sy))
+        return 0;
     // Early exit if there are no transistors at this location
     uint offset = x + y * m_sx;
     if (m_fmap[offset] & TRANSISTOR)
