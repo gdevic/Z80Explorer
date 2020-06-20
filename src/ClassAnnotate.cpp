@@ -12,8 +12,7 @@ ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 
 void ClassAnnotate::onShutdown()
 {
-    if (m_annot.count()) // Save the annotations only if we have any defined
-        save(m_jsonFile);
+    save(m_jsonFile);
 }
 
 /*

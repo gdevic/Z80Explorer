@@ -11,8 +11,7 @@ ClassTip::ClassTip(QObject *parent) : QObject(parent)
 
 void ClassTip::onShutdown()
 {
-    if (m_tips.count()) // Save the tips only if we have any defined
-        save(m_jsonFile);
+    save(m_jsonFile);
 }
 
 /*
