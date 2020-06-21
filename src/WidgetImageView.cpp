@@ -135,7 +135,8 @@ void WidgetImageView::moveTo(QPointF pos)
 void WidgetImageView::onCoords()
 {
     bool ok;
-    QString coords = QInputDialog::getText(this, "Center Image", "Enter the coordinates x,y", QLineEdit::Normal, "", &ok);
+    QString coords = QInputDialog::getText(this, "Center Image", "Enter the coordinates x,y",
+                                           QLineEdit::Normal, "", &ok, Qt::MSWindowsFixedSizeDialogHint);
     if (ok && !coords.isEmpty())
     {
         QRegularExpression re("(\\d+)\\s*,\\s*(\\d+)");
@@ -682,8 +683,9 @@ void WidgetImageView::contextMenu(const QPoint& pos)
 void WidgetImageView::addAnnotation()
 {   
     bool ok;
-    QString text = QInputDialog::getText(this, "Add annotation", "Annotation text:", QLineEdit::Normal, "", &ok);
-    if (ok && !text.isEmpty())
+    QString text = QInputDialog::getText(this, "Add annotation", "Annotation text:",
+                                         QLineEdit::Normal, "", &ok, Qt::MSWindowsFixedSizeDialogHint);
+    if (ok && text.trimmed().length() > 0)
     {
         ::controller.getAnnotation().add(text, m_areaRect);
         DialogEditAnnotations dlg(this);
@@ -719,7 +721,8 @@ void WidgetImageView::editTip()
     QString name = ::controller.getNetlist().get(net);
     QString oldTip = ::controller.getTip().get(net);
     bool ok;
-    QString tip = QInputDialog::getText(this, "Edit tip", QString("Enter the tip for the selected net %1 (%2)").arg(name,QString::number(net)), QLineEdit::Normal, oldTip, &ok);
+    QString tip = QInputDialog::getText(this, "Edit tip", QString("Enter the tip for the selected net %1 (%2)").arg(name,QString::number(net)),
+                                        QLineEdit::Normal, oldTip, &ok, Qt::MSWindowsFixedSizeDialogHint);
     if (ok)
         ::controller.getTip().set(tip, net);
 }
@@ -780,7 +783,8 @@ void WidgetImageView::editNetName()
     QStringList allNames = ::controller.getNetlist().getNetnames();
     QString oldName = ::controller.getNetlist().get(newNet);
     bool ok;
-    QString newName = QInputDialog::getText(this, "Edit net name", "Enter the name (alias) of the selected net " + QString::number(newNet) + "\n", QLineEdit::Normal, oldName, &ok);
+    QString newName = QInputDialog::getText(this, "Edit net name", "Enter the name (alias) of the selected net " + QString::number(newNet) + "\n",
+                                            QLineEdit::Normal, oldName, &ok, Qt::MSWindowsFixedSizeDialogHint);
     newName = newName.trimmed().toLower(); // Trim spaces and keep net names lowercased
     if (!ok || (newName == oldName))
         return;
