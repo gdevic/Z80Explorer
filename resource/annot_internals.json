@@ -848,9 +848,141 @@
             "rw": 100,
             "rx": 642,
             "ry": 1131,
-            "text": "m1 ff",
+            "text": "<center>m1<br>latch",
             "x": 642,
-            "y": 1176
+            "y": 1149
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "rect": true,
+            "rh": 96,
+            "rw": 171,
+            "rx": 828,
+            "ry": 643,
+            "text": "m2 latch",
+            "x": 828,
+            "y": 671
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "rect": true,
+            "rh": 131,
+            "rw": 117,
+            "rx": 846,
+            "ry": 779,
+            "text": "<center>m3<br>latch",
+            "x": 855,
+            "y": 804
+        },
+        {
+            "bar": false,
+            "pix": 25,
+            "rect": true,
+            "rh": 97,
+            "rw": 113,
+            "rx": 1133,
+            "ry": 804,
+            "text": "m4 latch",
+            "x": 1133,
+            "y": 839
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "rect": true,
+            "rh": 116,
+            "rw": 111,
+            "rx": 1017,
+            "ry": 790,
+            "text": "<center>m5<br>latch",
+            "x": 1023,
+            "y": 811
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "rect": true,
+            "rh": 90,
+            "rw": 172,
+            "rx": 1442,
+            "ry": 1040,
+            "text": "m6 latch",
+            "x": 1442,
+            "y": 1065
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "rect": true,
+            "rh": 163,
+            "rw": 124,
+            "rx": 1456,
+            "ry": 508,
+            "text": "<center>t1<br>latch",
+            "x": 1462,
+            "y": 557
+        },
+        {
+            "bar": false,
+            "pix": 34,
+            "rect": true,
+            "rh": 113,
+            "rw": 106,
+            "rx": 1344,
+            "ry": 667,
+            "text": "<center>t2<br>latch",
+            "x": 1344,
+            "y": 696
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "rect": true,
+            "rh": 76,
+            "rw": 184,
+            "rx": 1863,
+            "ry": 512,
+            "text": "t3 latch",
+            "x": 1863,
+            "y": 529
+        },
+        {
+            "bar": false,
+            "pix": 30,
+            "rect": true,
+            "rh": 79,
+            "rw": 123,
+            "rx": 1694,
+            "ry": 1020,
+            "text": "t4 latch",
+            "x": 1694,
+            "y": 1045
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "rect": true,
+            "rh": 152,
+            "rw": 108,
+            "rx": 525,
+            "ry": 645,
+            "text": "<center>t5<br>latch",
+            "x": 525,
+            "y": 678
+        },
+        {
+            "bar": false,
+            "pix": 36,
+            "rect": true,
+            "rh": 82,
+            "rw": 165,
+            "rx": 732,
+            "ry": 433,
+            "text": "t6 latch",
+            "x": 732,
+            "y": 455
         }
     ]
 }
