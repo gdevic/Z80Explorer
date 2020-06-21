@@ -63,9 +63,7 @@ public: // API
 public slots:
     uint doReset();                         //* Run the chip reset sequence, returns the number of clocks thet reset took
     void doRunsim(uint ticks);              //* Runs the simulation for the given number of clocks
-
-signals:
-    void shutdown();                        //* Application is shutting down, save your work!
+    void save() { emit shutdown(); }        //* Save all modified files
     //                                      //* <- Methods of the scripting object "control"
 
 signals:
@@ -74,6 +72,7 @@ signals:
     void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
     void eventNetName(Netop op, const QString name, const net_t); // Dispatches operations on net names
     void syncView(QPointF pos, qreal zoom); // Broadcast to all image views to sync their views
+    void shutdown();                        // Application is shutting down; save all modified app data
 
 private:
     ClassAnnotate m_annotate;   // Global annotations
