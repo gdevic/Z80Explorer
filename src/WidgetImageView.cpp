@@ -442,6 +442,9 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         m_areaRect.setTopLeft(pos1);
         m_areaRect.setBottomRight(pos2);
 
+        QString coords = QString("%1,%2 +%3+%4").arg(m_pinMousePos.x()).arg(m_pinMousePos.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
+        m_ov->setCoords(coords);
+
         update();
     }
     else
@@ -449,8 +452,8 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         // With no buttons pushed, update information on which nets or objects the mouse is pointing to
         QPoint imageCoords = m_invtx.map(event->pos());
         if (m_image.valid(imageCoords.x(), imageCoords.y()))
-        {            
-            m_ov->setCoords(imageCoords.x(), imageCoords.y());
+        {
+            m_ov->setCoords(QString("%1,%2").arg(imageCoords.x()).arg(imageCoords.y()));
 
             const QVector<net_t> nets = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
             QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
@@ -498,7 +501,11 @@ void WidgetImageView::mouseReleaseEvent (QMouseEvent *event)
     m_drawSelection = event->button() == Qt::RightButton;
     // Releasing the right mouse button opens a custom context menu
     if (event->button() == Qt::RightButton)
+    {
+        qInfo() << "Bounding rectangle:" << QString("%1,%2,%3,%4")
+                   .arg(m_pinMousePos.x()).arg(m_pinMousePos.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
         contextMenu(event->pos());
+    }
 }
 
 /*

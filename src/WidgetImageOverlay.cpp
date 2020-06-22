@@ -48,11 +48,10 @@ void WidgetImageOverlay::setButton(uint i, bool checked)
 }
 
 /*
- * Shows the coordinate pointed to by a mouse location
+ * Shows the text shown on the coordinate button
  */
-void WidgetImageOverlay::setCoords(int x, int y)
+void WidgetImageOverlay::setCoords(const QString coords)
 {
-    QString coords = QString("%1,%2").arg(x).arg(y);
     ui->btCoords->setText(coords);
 }
 

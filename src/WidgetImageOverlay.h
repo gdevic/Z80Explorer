@@ -19,7 +19,7 @@ public:
     void setInfoLine(uint index, QString text);
     void clearInfoLine(uint index);
     void setButton(uint i, bool checked);
-    void setCoords(int x, int y);
+    void setCoords(const QString coords);
     void setImageNames(QStringList images);
 
 signals:
