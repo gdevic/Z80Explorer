@@ -7,6 +7,7 @@
 
 ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
 {
+    // Set the font family of the annotation text
     m_fixedFont = QFont("Consolas");
 }
 
@@ -44,8 +45,7 @@ QVector<uint> ClassAnnotate::get(QPoint &pos)
     for (int i = 0; i < m_annot.count(); i++)
     {
         annotation &a = m_annot[i];
-        QRect r = QRect(a.pos.x(), a.pos.y(), a.pix * textLength(a.text) / m_someXFactor, a.pix);
-        if (r.contains(pos))
+        if (a.rect.contains(pos))
             sel.append(i);
     }
     return sel;
@@ -60,7 +60,7 @@ QVector<uint> ClassAnnotate::get(QRect r)
     for (int i = 0; i < m_annot.count(); i++)
     {
         annotation &a = m_annot[i];
-        if (r.contains(a.pos))
+        if (r.contains(a.rect))
             sel.append(i);
     }
     return sel;
@@ -78,11 +78,20 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
     {
         // Selective rendering hides annotations that are too large or too small for the given scale
         qreal apparent = a.pix * scale;
-        if (apparent > 200 || apparent < 8)
-            continue;
+        bool show = (apparent < 200) && (apparent > 8);
+
+        // First, dim the area rectangle proportional to the scale and the text size
+        if (show && a.drawrect)
+        {
+            painter.save();
+            painter.setBrush(QColor(0,0,0, qBound(0.0, apparent * 2 + 50, 255.0)));
+            painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+            painter.drawRect(a.rect);
+            painter.restore();
+        }
 
         // Draw the overline (bar) if needed
-        if (a.overline)
+        if (show && a.overline)
         {
             qreal thickness = a.pix / 10.0;
             pen.setWidthF(thickness);
@@ -91,13 +100,22 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
             painter.drawLine(a.pos + QPoint(thickness, thickness), a.pos + QPoint(dx - thickness, thickness));
         }
 
-        // drawStaticText() anchor is at the top-left point (drawText() is on the bottom-left)
-        m_fixedFont.setPixelSize(a.pix); // Base all text on the same font family; set the size
-        painter.setFont(m_fixedFont);
-        //painter.drawRect(a.pos.x(), a.pos.y(), a.pix * textLength(a.text) / m_someXFactor, a.pix); // Testing: Draw box around the text
-        painter.drawStaticText(a.pos, a.text);
+        // Draw the text of the annotation
+        if (show)
+        {
+            m_fixedFont.setPixelSize(a.pix); // Set the text size
+            painter.setFont(m_fixedFont);
+            painter.drawStaticText(a.pos, a.text);
+        }
+
+        // Finally, draw the outline of a rectangle with a line less thick than the overline
+        // We will draw the outlines at any scale factor to hint that there are annotations there
         if (a.drawrect)
-            painter.drawRect(a.rect);
+        {
+            pen.setWidthF(show ? a.pix / 15.0 : 1);
+            painter.setPen(pen);
+            painter.drawRoundedRect(a.rect, 5, 5);
+        }
     }
 }
 

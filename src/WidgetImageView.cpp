@@ -432,6 +432,13 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
     {
         QPoint pos1 = m_invtx.map(m_pinMousePos);
         QPoint pos2 = m_invtx.map(event->pos());
+        // If a shift key has been pressed, align the mouse coordinates to a grid in the texture space
+        bool shift = QGuiApplication::keyboardModifiers().testFlag(Qt::ShiftModifier);
+        if (shift)
+        {
+            pos2.setX((pos2.x() + 4) & ~7);
+            pos2.setY((pos2.y() + 4) & ~7);
+        }
         m_areaRect.setTopLeft(pos1);
         m_areaRect.setBottomRight(pos2);
 
@@ -469,6 +476,16 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
 void WidgetImageView::mousePressEvent(QMouseEvent *event)
 {
     m_pinMousePos = event->pos();
+    // If a shift key has been pressed, align the mouse coordinates to a grid in the texture space
+    bool shift = QGuiApplication::keyboardModifiers().testFlag(Qt::ShiftModifier);
+    if (shift)
+    {
+        // First, we have to map it to texture coordinates so we can snap it to a grid, and then back to screen space
+        QPoint pos = m_invtx.map(m_pinMousePos);
+        pos.setX((pos.x() + 4) & ~7);
+        pos.setY((pos.y() + 4) & ~7);
+        m_pinMousePos = m_tx.map(pos);
+    }
     m_mouseLeftPressed = event->button() == Qt::LeftButton;
     m_mouseRightPressed = event->button() == Qt::RightButton;
     m_drawSelection = m_mouseRightPressed;
