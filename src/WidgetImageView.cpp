@@ -186,12 +186,14 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
     painter.drawImage(size, m_image, size);
 
+    // Avoid flicker by not drawing certain features if the mouse is selecting or moving the image
+    bool mouseOff = !(::controller.isSimRunning() && (m_mouseRightPressed || m_mouseLeftPressed));
     //------------------------------------------------------------------------
     // Base image is "vss.vcc.nets" with all the nets drawn as inactive
     // This method is faster since we only draw active nets (over the base
     // image which already has all the nets pre-drawn as inactive)
     //------------------------------------------------------------------------
-    if (m_drawActiveNets)
+    if (m_drawActiveNets && mouseOff)
     {
         painter.save();
         painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
@@ -258,7 +260,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     //------------------------------------------------------------------------
     // Draw transistors
     //------------------------------------------------------------------------
-    if (m_drawActiveTransistors || m_drawAllTransistors)
+    if ((m_drawActiveTransistors || m_drawAllTransistors) && mouseOff)
     {
         painter.save();
         ::controller.getChip().expDrawTransistors(painter, m_imageView.toAlignedRect(), m_drawAllTransistors);
@@ -494,7 +496,7 @@ void WidgetImageView::mousePressEvent(QMouseEvent *event)
     m_drawSelection = m_mouseRightPressed;
 }
 
-void WidgetImageView::mouseReleaseEvent (QMouseEvent *event)
+void WidgetImageView::mouseReleaseEvent(QMouseEvent *event)
 {
     m_mouseLeftPressed = false;
     m_mouseRightPressed = false;
@@ -506,13 +508,14 @@ void WidgetImageView::mouseReleaseEvent (QMouseEvent *event)
                    .arg(m_pinMousePos.x()).arg(m_pinMousePos.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
         contextMenu(event->pos());
     }
+    update();
 }
 
 /*
  * Double-clicking the mouse on a point in the image selects a net to trace
  * Selecting a point with no valid nets clears the selection
  */
-void WidgetImageView::mouseDoubleClickEvent (QMouseEvent *event)
+void WidgetImageView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     m_pinMousePos = QPoint();
     m_areaRect.setRect(0,0,0,0);
