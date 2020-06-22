@@ -444,7 +444,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         m_areaRect.setTopLeft(pos1);
         m_areaRect.setBottomRight(pos2);
 
-        QString coords = QString("%1,%2 +%3+%4").arg(m_pinMousePos.x()).arg(m_pinMousePos.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
+        QString coords = QString::asprintf("%d,%d %+d%+d", pos1.x(), pos1.y(), m_areaRect.width(), m_areaRect.height());
         m_ov->setCoords(coords);
 
         update();
@@ -474,6 +474,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
             // Oops - the pointer is in this widget, but it's not currently over
             // the image, so we have no data to report.
             m_ov->clearInfoLine(0);
+            m_ov->setCoords(QString());
         }
     }
 }
@@ -504,8 +505,9 @@ void WidgetImageView::mouseReleaseEvent(QMouseEvent *event)
     // Releasing the right mouse button opens a custom context menu
     if (event->button() == Qt::RightButton)
     {
-        qInfo() << "Bounding rectangle:" << QString("%1,%2,%3,%4")
-                   .arg(m_pinMousePos.x()).arg(m_pinMousePos.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
+        QPoint pos1 = m_invtx.map(m_pinMousePos);
+        qInfo() << "Selected area:" << QString("%1,%2,%3,%4")
+                   .arg(pos1.x()).arg(pos1.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
         contextMenu(event->pos());
     }
     update();
