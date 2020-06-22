@@ -436,8 +436,8 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         bool shift = QGuiApplication::keyboardModifiers().testFlag(Qt::ShiftModifier);
         if (shift)
         {
-            pos2.setX((pos2.x() + 4) & ~7);
-            pos2.setY((pos2.y() + 4) & ~7);
+            pos2.setX(((pos2.x() + 7) & ~7) - 1); // "Greedy" selection
+            pos2.setY(((pos2.y() + 7) & ~7) - 1);
         }
         m_areaRect.setTopLeft(pos1);
         m_areaRect.setBottomRight(pos2);
@@ -485,8 +485,8 @@ void WidgetImageView::mousePressEvent(QMouseEvent *event)
     {
         // First, we have to map it to texture coordinates so we can snap it to a grid, and then back to screen space
         QPoint pos = m_invtx.map(m_pinMousePos);
-        pos.setX((pos.x() + 4) & ~7);
-        pos.setY((pos.y() + 4) & ~7);
+        pos.setX(pos.x() & ~7); // Initial pixel will always be included
+        pos.setY(pos.y() & ~7);
         m_pinMousePos = m_tx.map(pos);
     }
     m_mouseLeftPressed = event->button() == Qt::LeftButton;
