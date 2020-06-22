@@ -126,6 +126,8 @@ bool ClassAnnotate::load(QString fileName)
 {
     if (m_jsonFile.isEmpty()) // Set the initial file name
         m_jsonFile = fileName;
+    else
+        save(m_jsonFile);     // Otherwise, save current annotations so the changes are not lost
     qInfo() << "Loading annotations from" << fileName;
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
