@@ -72,13 +72,16 @@ QVector<uint> ClassAnnotate::get(QRect r)
  */
 void ClassAnnotate::draw(QPainter &painter, qreal scale)
 {
-    QPen pen(Qt::white);
-    painter.setPen(pen);
+    QPen pens[] { QPen(Qt::white), QPen(Qt::black) };
     for (auto &a : m_annot)
     {
+        // Annotations outside the image area are always shown, and drawn with black pen
+        bool isOutside = !m_imgRect.intersects(a.rect);
+        QPen &pen = pens[isOutside];
+        painter.setPen(pen);
         // Selective rendering hides annotations that are too large or too small for the given scale
         qreal apparent = a.pix * scale;
-        bool show = (apparent < 200) && (apparent > 8);
+        bool show = isOutside || ((apparent < 200) && (apparent > 8));
 
         // First, dim the area rectangle proportional to the scale and the text size
         if (show && a.drawrect)

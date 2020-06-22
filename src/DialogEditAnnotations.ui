@@ -108,8 +108,11 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="minimum">
+            <number>-5000</number>
+           </property>
            <property name="maximum">
-            <number>5000</number>
+            <number>15000</number>
            </property>
            <property name="singleStep">
             <number>100</number>
@@ -121,8 +124,11 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="minimum">
+            <number>-5000</number>
+           </property>
            <property name="maximum">
-            <number>5000</number>
+            <number>15000</number>
            </property>
            <property name="singleStep">
             <number>100</number>
