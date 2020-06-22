@@ -310,6 +310,15 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
+    // Draw text annotations
+    //------------------------------------------------------------------------
+    if (m_drawAnnotations)
+    {
+        painter.save();
+        ::controller.getAnnotation().draw(painter, m_scale);
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
     // Draw the mouse selected area
     //------------------------------------------------------------------------
     if (m_drawSelection)
@@ -317,15 +326,6 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.save();
         painter.setPen(QPen(Qt::white, 3.0 / m_scale, Qt::DashLine));
         painter.drawRect(m_areaRect);
-        painter.restore();
-    }
-    //------------------------------------------------------------------------
-    // Draw text annotations
-    //------------------------------------------------------------------------
-    if (m_drawAnnotations)
-    {
-        painter.save();
-        ::controller.getAnnotation().draw(painter, m_scale);
         painter.restore();
     }
 
