@@ -4,7 +4,7 @@
 #include "AppTypes.h"
 #include <QObject>
 
-enum class LogicOp : unsigned char { Nop, Inverter, And, Nand, Or, Nor };
+enum class LogicOp : unsigned char { Nop, Inverter, And, Nand, Or, Nor, ClkGate };
 
 /*
  * This structure contains definition and code that describes a bipartite tree

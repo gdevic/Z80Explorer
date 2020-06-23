@@ -124,6 +124,14 @@ SymbolItem::SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent) :
             path.arcTo(QRectF(40, -35, 70, 70), 183, 43);
             path.arcTo(QRectF(10, -25, 50, 50), -90, -90);
             break;
+        case LogicOp::ClkGate:
+            path.lineTo(10, 0);
+            path.lineTo(10, -20);
+            path.lineTo(50, 20);
+            path.lineTo(50, -20);
+            path.lineTo(10, 20);
+            path.lineTo(10, 0);
+        break;
     }
     m_poly = path.toFillPolygon();
 
@@ -141,6 +149,8 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     QRect bounds(0, -25, 48, 50);
     if ((m_lr->op == LogicOp::Or) || (m_lr->op == LogicOp::Nor))
         bounds.setRight(39); // Shift the text a little bit to the left for OR and NOR symbols
+    if (m_lr->op == LogicOp::ClkGate)
+        bounds.setBottomRight(QPoint(35, 50)); // Clock gate has "clk" written on the bottom
     painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, m_lr->name);
 
     QGraphicsPolygonItem::paint(painter, option, widget);

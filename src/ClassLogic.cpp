@@ -99,9 +99,9 @@ void ClassNetlist::parse(Logic *root)
         net_t netid = (net0.c1c2s[0]->c1 == net0id) ? net0.c1c2s[0]->c2 : net0.c1c2s[0]->c1; // Pick the "other" net
         qDebug() << net0id << "Clock gate to" << netid;
         Logic *node = new Logic(netid);
-        root->children.append(new Logic(nclk)); // Add clk subnet
         root->children.append(node);
-        root->op = LogicOp::And;
+        root->op = LogicOp::ClkGate;
+        root->name = "clk";
         parse(node);
         return;
     }
@@ -228,6 +228,21 @@ void ClassNetlist::parse(Logic *root)
         if (t1->c2 == ngnd)
         {
             qDebug() << "NOR gate input" << net1gt;
+            parse(node);
+            continue;
+        }
+
+        //-------------------------------------------------------------------------------
+        // Clock gate
+        //-------------------------------------------------------------------------------
+        if (net1gt == nclk)
+        {
+            visitedTran.append(t1->id);
+            qDebug() << net0id << "Clock gate to" << net1id;
+            Logic *node = new Logic(net1id);
+            root->children.append(node);
+            root->op = LogicOp::ClkGate;
+            root->name = "clk";
             parse(node);
             continue;
         }
