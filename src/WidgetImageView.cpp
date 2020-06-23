@@ -921,11 +921,11 @@ void WidgetImageView::onFind(QString text)
 }
 
 /*
- * Prints the img view state as commands which can be later used to restore the state
+ * Prints the img view zoom and position state as JavaScript commands which can be later used to restore it
  */
 void WidgetImageView::state()
 {
-    QString s = QString("img.setZoom(%1); img.setPos(%2,%3)").arg(m_scale).arg(m_tex.x() * m_image.width()).arg(m_tex.y() * m_image.height());
+    QString s = QString::asprintf("img.setZoom(%.3f); img.setPos(%d,%d)", m_scale, int(m_tex.x() * m_image.width()), int(m_tex.y() * m_image.height()));
     qInfo() << s;
 }
 
