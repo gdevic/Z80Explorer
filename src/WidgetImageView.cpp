@@ -697,7 +697,12 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     QAction actionSchematic("Schematic...", this);
     connect(&actionSchematic, SIGNAL(triggered()), this, SLOT(viewSchematic()));
     if ((m_drivingNets.count() >= 1) && !m_areaRect.width())
-        contextMenu.addAction(&actionSchematic);
+    {
+        // In addition, you can only ask for schematic of a net that is actually driving some gates
+        // XXX move this check somewhere else
+        if (::controller.getNetlist().netsDriving(m_drivingNets[0]).count())
+            contextMenu.addAction(&actionSchematic);
+    }
 
     contextMenu.exec(mapToGlobal(pos));
 
