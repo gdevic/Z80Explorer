@@ -8,11 +8,13 @@
  * that includes all the nets driving it. The tree stops with the nets that are
  * chosen as meaningful end points: clk, t1..t6, m1..m6 and the PLA signals.
  */
-QVector<net_t> visited; // Avoid loops by keeping nets that are already visited
+QVector<net_t> visitedNets; // Avoid loops by keeping nets that are already visited
+QVector<tran_t> visitedTran; // Avoid path duplication by keeping transistors that are already visited
 
 Logic *ClassNetlist::getLogicTree(net_t net)
 {
-    visited.clear();
+    visitedNets.clear();
+    visitedTran.clear();
     Logic *root = new Logic(net);
     parse(root);
     // Fixup for the root node which might have been reused for a NOR gate
@@ -37,31 +39,46 @@ QString ClassNetlist::equation(net_t net)
 /*
  * Optimizes, in place, logic tree by coalescing suitable nodes
  */
-void ClassNetlist::optimizeLogicTree(Logic *lr)
+void ClassNetlist::optimizeLogicTree(Logic **plr)
 {
-    if ((lr->children.count() == 1) && (lr->op == LogicOp::Inverter))
+    Logic *lr = *plr;
+
+    // Collapse inverters
+    if (lr->op == LogicOp::Inverter)
     {
+        Q_ASSERT(lr->children.count() == 1);
+        // Detect two inverters back to back: cancel them out by bypassing them
         Logic *next = lr->children[0];
+        if (next->op == LogicOp::Inverter)
+        {
+            Q_ASSERT(next->children.count() == 1);
+            *plr = next->children[0];
+            delete lr;
+            delete next;
+
+            return optimizeLogicTree(plr);
+        }
+
+        // Detect inverter followed by a gate and rewrite the gate operation, bypassing the inverter
         LogicOp nextOp;
         switch (next->op)
         {
-            case LogicOp::And: nextOp = LogicOp::Nand; break;
+            case LogicOp::And:  nextOp = LogicOp::Nand; break;
             case LogicOp::Nand: nextOp = LogicOp::And; break;
-            case LogicOp::Or: nextOp = LogicOp::Nor; break;
-            case LogicOp::Nor: nextOp = LogicOp::Or; break;
+            case LogicOp::Or:   nextOp = LogicOp::Nor; break;
+            case LogicOp::Nor:  nextOp = LogicOp::Or; break;
             default: nextOp = LogicOp::Nop; break;
         }
         if (nextOp != LogicOp::Nop)
         {
-            lr->op = nextOp;
-            lr->tag = next->tag;
-            lr->leaf = next->leaf;
-            lr->children = next->children;
-            delete next;
+            next->op = nextOp;
+            delete lr;
+            *plr = next;
+            lr = next;
         }
     }
-    for (auto &k : lr->children)
-        optimizeLogicTree(k);
+    for (int i = 0; i < lr->children.count(); i++)
+        optimizeLogicTree(&lr->children[i]);
 }
 
 void ClassNetlist::parse(Logic *root)
@@ -78,6 +95,7 @@ void ClassNetlist::parse(Logic *root)
     //-------------------------------------------------------------------------------
     if ((net0.c1c2s.count() == 1) && (net0.c1c2s[0]->gate == nclk))
     {
+        visitedTran.append(net0.c1c2s[0]->id);
         net_t netid = (net0.c1c2s[0]->c1 == net0id) ? net0.c1c2s[0]->c2 : net0.c1c2s[0]->c1; // Pick the "other" net
         qDebug() << net0id << "Clock gate to" << netid;
         Logic *node = new Logic(netid);
@@ -109,10 +127,10 @@ void ClassNetlist::parse(Logic *root)
     {
         // No gates but two source/drain connections: we need to find out which transistor we need to follow
         net_t netid = 0;
-        bool x11 = visited.contains(net0.c1c2s[0]->c1);
-        bool x12 = visited.contains(net0.c1c2s[0]->c2);
-        bool x21 = visited.contains(net0.c1c2s[1]->c1);
-        bool x22 = visited.contains(net0.c1c2s[1]->c2);
+        bool x11 = visitedNets.contains(net0.c1c2s[0]->c1);
+        bool x12 = visitedNets.contains(net0.c1c2s[0]->c2);
+        bool x21 = visitedNets.contains(net0.c1c2s[1]->c1);
+        bool x22 = visitedNets.contains(net0.c1c2s[1]->c2);
         bool gnd1 = net0.c1c2s[0]->c2 == ngnd;
         bool gnd2 = net0.c1c2s[1]->c2 == ngnd;
         // Identify which way we go
@@ -120,13 +138,15 @@ void ClassNetlist::parse(Logic *root)
             netid = net0.c1c2s[0]->gate;
         if (gnd2 && x11 && x12)
             netid = net0.c1c2s[1]->gate;
-        Q_ASSERT(netid);
-        qDebug() << net0id << "Pulled-up Inverted to" << netid;
-        Logic *node = new Logic(netid);
-        root->children.append(node);
-        root->op = LogicOp::Inverter;
-        parse(node);
-        return;
+        if (netid)
+        {
+            qDebug() << net0id << "Pulled-up Inverter to" << netid;
+            Logic *node = new Logic(netid);
+            root->children.append(node);
+            root->op = LogicOp::Inverter;
+            parse(node);
+            return;
+        }
     }
 
     //-------------------------------------------------------------------------------
@@ -183,6 +203,11 @@ void ClassNetlist::parse(Logic *root)
         Net &net1 = m_netlist[net1id];
 
         qDebug() << "Processing net" << net0id << "at transistor" << t1->id;
+        //-------------------------------------------------------------------------------
+        // Ignore transistors already processed (like in a clk gating)
+        //-------------------------------------------------------------------------------
+        if (visitedTran.contains(t1->id))
+            continue;
         //-------------------------------------------------------------------------------
         // Ignore pull-up inputs
         //-------------------------------------------------------------------------------
@@ -295,10 +320,10 @@ Logic::Logic(net_t n, LogicOp op) : net(n), op(op)
             name.startsWith("db") ||
             name.startsWith("ubus") ||
             name.startsWith("vbus");
-    if (visited.contains(n))
+    if (visitedNets.contains(n))
         leaf = true;
     else
-        visited.append(n);
+        visitedNets.append(n);
 }
 
 void Logic::rename(net_t n)

@@ -854,7 +854,7 @@ void WidgetImageView::viewSchematic()
     // If the user pressed Ctrl key, we will *not* optimize logic tree network
     bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
     if (!ctrl)
-        ::controller.getNetlist().optimizeLogicTree(lr);
+        ::controller.getNetlist().optimizeLogicTree(&lr);
 
     DialogSchematic *sch = new DialogSchematic(this, lr);
     connect(sch, SIGNAL(doShow(QString)), this, SLOT(onFind(QString)));
