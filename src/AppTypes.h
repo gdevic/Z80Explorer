@@ -8,6 +8,8 @@
 
 #define HAVE_PREBUILT_LAYERMAP 1 // We have extracted a fully prebuilt layermap.bin and can use it
 
+#define FIX_Z80_LAYERMAP_TO_VISUAL_ENUM 1 // Fix to prebuilt layermap incorrectly counting nets between 1559 and 1710
+
 #include <stdint.h>
 
 typedef uint16_t net_t;  // Type of an index into the net array (type of a net id value)
