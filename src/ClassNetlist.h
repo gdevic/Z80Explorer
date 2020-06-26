@@ -44,6 +44,7 @@ public:
     const QStringList get(const QVector<net_t> &nets); // Returns sorted net names for each net on the list
     const QVector<net_t> &getBus(QString &name) // Returns nets that comprise a bus
         { static const QVector<net_t>x {}; return m_buses.contains(name) ? m_buses[name] : x; }
+    bool getTnet(tran_t t, net_t &c1, net_t &c2); // Returns a transistor's source and drain connections
 
     const QVector<net_t> netsDriving(net_t n);  // Returns a sorted list of nets that the given net is driving
     const QVector<net_t> netsDriven(net_t n);   // Returns a sorted list of nets that the given net is being driven by

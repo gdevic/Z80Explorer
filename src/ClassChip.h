@@ -11,7 +11,7 @@
 struct transvdef
 {
     tran_t id;                          // Transistor number
-    net_t gatenode;                     // Node (segment) connected to its gate
+    net_t gatenode;                     // Node (segment) connected to its gate XXX rename to gatenet
     QRect box;                          // Rectangle where it is (roughly) located
     QPainterPath path;                  // Outline of the transistor topology as a single QPainter path
 };
@@ -19,8 +19,16 @@ struct transvdef
 // Contains visual definition of a segment (paths connected together into a single trace)
 struct segvdef
 {
-    net_t nodenum {};                   // A non-zero net number
+    net_t nodenum {};                   // A non-zero net number XXX rename to netnum or net
     QVector<QPainterPath> paths {};     // Outline of the segment topology as a set of QPainter paths
+};
+
+// Contains information about a detected latch
+struct latchdef
+{
+    tran_t t1, t2;                      // Two transistors that make up a latch
+    net_t n1, n2;                       // Two nets that inter-connect into a latch
+    QRect box;                          // Rectangle where it is (roughly) located
 };
 
 /*
@@ -47,12 +55,14 @@ public:
 
 public slots:
     void experimental(int n);           // Runs experimental function number n
+    void expDrawLatches(QPainter &painter, const QRect &viewport);
     void expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll);
     void expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale); // Maps nearby net names
 
 private:
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
     QHash<net_t, segvdef> m_segvdefs;   // Hash of segment visual definitions, key is the segment net number
+    QVector<latchdef> m_latches;        // Array of latches
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps
@@ -82,6 +92,7 @@ private:
     bool loadSegvdefs(QString dir);     // Loads m_segvdefs
     void drawAllNetsAsInactive(QString source, QString dest);
     void redrawNetsColorize(QString source, QString dest);
+    void experimental_2();              // Detects latches
     void experimental_3();              // Creates transistors paths hinted by transdef bounding boxes
     void experimental_4();              // Creates transistors paths based on our feature bitmap
     bool scanForTransistor(uchar const *p, QRect t, uint &x, uint &y);

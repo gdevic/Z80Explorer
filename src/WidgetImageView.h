@@ -91,6 +91,7 @@ private:
     bool m_drawAnnotations {true};      // Draw image annotations
     bool m_drawActiveTransistors {true};// Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
+    bool m_drawLatches {false};         // Draw latches
     bool m_drawNetNames {true};         // Dynamically write nearby net names (experimental)
     QString m_dropppedFile;             // File name of the file being dropped by a drag-and-drop operation
 

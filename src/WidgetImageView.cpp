@@ -258,6 +258,15 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
+    // Draw latches
+    //------------------------------------------------------------------------
+    if (m_drawLatches)
+    {
+        painter.save();
+        ::controller.getChip().expDrawLatches(painter, m_imageView.toAlignedRect());
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
     // Draw transistors
     //------------------------------------------------------------------------
     if ((m_drawActiveTransistors || m_drawAllTransistors) && mouseOff)
@@ -564,7 +573,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     int i = -1;
     if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_9)
         i = event->key() - Qt::Key_1;
-    else if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_Z)
+    else if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_K)
         i = event->key() - Qt::Key_A + 9;
     else
     switch (event->key())
@@ -607,6 +616,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         m_drawNetNames = !m_drawNetNames;
         m_ov->setButton(3, m_drawNetNames);
         break;
+    case Qt::Key_L: m_drawLatches = !m_drawLatches; break;
     case Qt::Key_Left: moveBy(QPointF(dx,0)); break;
     case Qt::Key_Right: moveBy(QPointF(-dx,0)); break;
     case Qt::Key_Up: moveBy(QPointF(0,dy)); break;

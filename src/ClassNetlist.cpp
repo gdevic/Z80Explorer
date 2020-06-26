@@ -512,3 +512,17 @@ const QString ClassNetlist::transInfo(tran_t t)
         return QString("gate:%2 c1:%3 c2:%4 ON:%5").arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(m_transdefs[t].c2).arg(m_transdefs[t].on);
     return QString("Invalid transistor number");
 }
+
+/*
+ * Returns a transistor's source and drain connections
+ */
+bool ClassNetlist::getTnet(tran_t t, net_t &c1, net_t &c2)
+{
+    if ((t < MAX_TRANS) && m_transdefs[t].id)
+    {
+        c1 = m_transdefs[t].c1;
+        c2 = m_transdefs[t].c2;
+        return true;
+    }
+    return false;
+}

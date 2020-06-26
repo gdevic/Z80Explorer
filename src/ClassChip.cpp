@@ -63,6 +63,7 @@ bool ClassChip::loadChipResources(QString dir)
         redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); // Using the vss.vcc as a base, colorize selected buses
         connect(&::controller, &ClassController::eventNetName, this, [this]() // May need different colors for renamed nets
             { redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); } ); // Dynamically rebuild the colorized image
+        experimental_2(); // Detect latches
         experimental_4(); // Create transistor paths
 
         setFirstImage("vss.vcc.nets.col");
@@ -857,7 +858,7 @@ void ClassChip::saveLayerMap()
 void ClassChip::experimental(int n)
 {
     if (n==1) return experimental_1();
-    if (n==2) return;
+    if (n==2) return experimental_2();
     if (n==3) return experimental_3();
     if (n==4) return experimental_4();
     qWarning() << "Invalid experimental function index" << n;
@@ -966,6 +967,112 @@ bool ClassChip::loadSegvdefs(QString dir)
     }
     qWarning() << "Unable to load" << fileName;
     return false;
+}
+
+/******************************************************************************
+ * Experimental code
+ ******************************************************************************/
+
+/*
+ * Detect latches
+ * This code detects immediate loops in transistor gate nets to its source/drain nets
+ * via one extra net (obtained by calling netsDriven). This detects a good number
+ * of latches - but not all: some latches are separated by 2 nets/transistor steps,
+ * such are eight Instruction Register latches (which have an additional driver/inverter
+ * in the loop). We append those by hard-coding them.
+ */
+void ClassChip::experimental_2()
+{
+    m_latches.clear();
+    for (auto &t : m_transvdefs)
+    {
+        net_t c1c2[2];
+        bool validnet = ::controller.getNetlist().getTnet(t.id, c1c2[0], c1c2[1]);
+        if (validnet)
+        {
+            const QVector<net_t> driven = ::controller.getNetlist().netsDriven(t.gatenode);
+            int index = -1;
+            if (driven.contains(c1c2[0])) index = 0;
+            if (driven.contains(c1c2[1])) index = 1;
+
+            if (index >= 0)
+            {
+                bool completed = false;
+                for (auto &l : m_latches)
+                {
+                    if (l.n1 == c1c2[index])
+                    {
+                        l.t2 = t.id;
+                        completed = true;
+                        break;
+                    }
+                }
+                if (!completed)
+                {
+                    latchdef latch;
+                    latch.t1 = t.id;
+                    latch.n1 = t.gatenode;
+                    latch.t2 = 0;
+                    latch.n2 = c1c2[index];
+
+                    m_latches.append(latch);
+                }
+            }
+        }
+    }
+    qDebug() << "Detected" << m_latches.count() << "latches";
+
+    // XXX Hard-coded latches; load from a resource file?
+    qDebug() << "Adding additional latches";
+    m_latches.append({4243,4272, 357,374, QRect()}); // IR0
+    m_latches.append({4392,4452, 373,375, QRect()}); // IR1
+    m_latches.append({4665,4777, 376,378, QRect()}); // IR2
+    m_latches.append({5452,5510, 388,385, QRect()}); // IR3
+    m_latches.append({5662,5744, 392,1386, QRect()}); // IR4
+    m_latches.append({5839,5974, 397,1393, QRect()}); // IR5
+    m_latches.append({4975,5033, 379,1371, QRect()}); // IR6
+    m_latches.append({5280,5360, 382,1377, QRect()}); // IR7
+
+    // Initialize latch bounding boxes - spanning both latch transistors
+    for (auto &latch : m_latches)
+    {
+        if (latch.t2 == 0)
+        {
+            qDebug() << "Not complete latch at transistor" << latch.t1;
+            latch.box = QRect();
+        }
+        else
+        {
+            // Create a bounding box around the two transistors
+            const transvdef *vdef1 = getTrans(latch.t1);
+            const transvdef *vdef2 = getTrans(latch.t2);
+            Q_ASSERT(vdef1 && vdef2);
+            latch.box = vdef1->box.united(vdef2->box);
+        }
+        // Remove latches that are visually too large
+        if (latch.box.width() > 150 || latch.box.height() > 150)
+        {
+            qDebug() << "Removing latch bounds" << latch.box;
+            latch.box = QRect();
+        }
+    }
+}
+
+void ClassChip::expDrawLatches(QPainter &painter, const QRect &viewport)
+{
+    const static QBrush brush[2] = { Qt::gray, Qt::yellow };
+    const static QPen pens[2] = { QPen(QColor(), 0, Qt::NoPen), QPen(QColor(255, 0, 255), 1, Qt::SolidLine) };
+
+    painter.setBrush(Qt::blue);
+    painter.setPen(Qt::yellow);
+    for (auto &l : m_latches)
+    {
+        // Speed up rendering by clipping to the viewport's image rectangle
+        if (l.box.intersected(viewport) != QRect())
+        {
+            painter.drawRect(l.box);
+        }
+    }
 }
 
 /******************************************************************************
