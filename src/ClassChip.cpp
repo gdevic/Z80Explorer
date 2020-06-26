@@ -1060,18 +1060,13 @@ void ClassChip::experimental_2()
 
 void ClassChip::expDrawLatches(QPainter &painter, const QRect &viewport)
 {
-    const static QBrush brush[2] = { Qt::gray, Qt::yellow };
-    const static QPen pens[2] = { QPen(QColor(), 0, Qt::NoPen), QPen(QColor(255, 0, 255), 1, Qt::SolidLine) };
-
     painter.setBrush(Qt::blue);
     painter.setPen(Qt::yellow);
     for (auto &l : m_latches)
     {
         // Speed up rendering by clipping to the viewport's image rectangle
         if (l.box.intersected(viewport) != QRect())
-        {
             painter.drawRect(l.box);
-        }
     }
 }
 
