@@ -494,9 +494,9 @@ const QString ClassNetlist::netInfo(net_t net)
         s = s % QString("%1: pulled-up:%2").arg(net).arg(m_netlist[net].hasPullup)
         % QString("\nstate:%1 can-float:%2 is-high:%3 is-low:%4")
                 .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].isHigh).arg(m_netlist[net].isLow)
-        % "\nsource/drain:"
+        % "\nsource/drain (t):"
         % c1c2s.join(",")
-        % "\nto-gates:"
+        % "\nto-gates (t):"
         % gates.join(",");
         return s;
     }
