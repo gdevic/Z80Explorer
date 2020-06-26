@@ -70,7 +70,7 @@
       <item>
        <widget class="QToolButton" name="btA">
         <property name="toolTip">
-         <string>Show active nets&lt;br&gt;Key: space</string>
+         <string>Show active nets&lt;br&gt;Key: X</string>
         </property>
         <property name="toolTipDuration">
          <number>5000</number>
@@ -89,7 +89,7 @@
       <item>
        <widget class="QToolButton" name="btB">
         <property name="toolTip">
-         <string>Show annotations&lt;br&gt;Key: comma</string>
+         <string>Show annotations&lt;br&gt;Key: space</string>
         </property>
         <property name="toolTipDuration">
          <number>5000</number>
@@ -108,7 +108,7 @@
       <item>
        <widget class="QToolButton" name="btC">
         <property name="toolTip">
-         <string>Show transistors&lt;br&gt;Key: period</string>
+         <string>Show transistors&lt;br&gt;Key: T / period</string>
         </property>
         <property name="toolTipDuration">
          <number>5000</number>
@@ -127,18 +127,15 @@
       <item>
        <widget class="QToolButton" name="btD">
         <property name="toolTip">
-         <string>Show net names&lt;br&gt;Key: slash</string>
+         <string>Show latches&lt;br&gt;Key: L</string>
         </property>
         <property name="toolTipDuration">
          <number>5000</number>
         </property>
         <property name="text">
-         <string>N</string>
+         <string>L</string>
         </property>
         <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
          <bool>true</bool>
         </property>
        </widget>

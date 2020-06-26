@@ -38,7 +38,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     // Map overlay buttons directly to our keyboard handler and pass the corresponding key commands
     connect(m_ov, &WidgetImageOverlay::actionButton, this, [this](int i)
     {
-        static const int key[4] = { Qt::Key_Space, Qt::Key_Comma, Qt::Key_Period, Qt::Key_Slash };
+        static const int key[4] = { Qt::Key_X, Qt::Key_Space, Qt::Key_T, Qt::Key_L };
         QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
         keyPressEvent(&event);
     });
@@ -598,25 +598,26 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
             case Value: setZoomMode(Fit); break;
         }
         break;
-    case Qt::Key_Space:
+    case Qt::Key_X:
         m_drawActiveNets = !m_drawActiveNets;
         m_ov->setButton(0, m_drawActiveNets);
         break;
-    case Qt::Key_Comma:
+    case Qt::Key_Space:
         m_drawAnnotations = !m_drawAnnotations;
         m_ov->setButton(1, m_drawAnnotations);
         break;
-    case Qt::Key_Period:
+    case Qt::Key_T:
         m_drawActiveTransistors = !m_drawActiveTransistors;
         m_drawAllTransistors = false;
         m_ov->setButton(2, m_drawActiveTransistors);
         break;
-    case Qt::Key_Greater: m_drawAllTransistors = !m_drawAllTransistors; break;
-    case Qt::Key_Slash:
-        m_drawNetNames = !m_drawNetNames;
-        m_ov->setButton(3, m_drawNetNames);
+    case Qt::Key_Period:
+        m_drawAllTransistors = !m_drawAllTransistors; break;
+    case Qt::Key_L:
+        m_drawLatches = !m_drawLatches;
+        m_ov->setButton(3, m_drawLatches);
         break;
-    case Qt::Key_L: m_drawLatches = !m_drawLatches; break;
+    case Qt::Key_N: m_drawNetNames = !m_drawNetNames; break;
     case Qt::Key_Left: moveBy(QPointF(dx,0)); break;
     case Qt::Key_Right: moveBy(QPointF(-dx,0)); break;
     case Qt::Key_Up: moveBy(QPointF(0,dy)); break;
