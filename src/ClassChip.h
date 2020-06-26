@@ -11,7 +11,7 @@
 struct transvdef
 {
     tran_t id;                          // Transistor number
-    net_t gatenode;                     // Node (segment) connected to its gate XXX rename to gatenet
+    net_t gatenet;                      // Net (segment) connected to its gate
     QRect box;                          // Rectangle where it is (roughly) located
     QPainterPath path;                  // Outline of the transistor topology as a single QPainter path
 };
@@ -19,7 +19,7 @@ struct transvdef
 // Contains visual definition of a segment (paths connected together into a single trace)
 struct segvdef
 {
-    net_t nodenum {};                   // A non-zero net number XXX rename to netnum or net
+    net_t netnum {};                    // A non-zero net number
     QVector<QPainterPath> paths {};     // Outline of the segment topology as a set of QPainter paths
 };
 

@@ -910,19 +910,19 @@ void WidgetImageView::onFind(QString text)
         else // Search the nets, next...
         {
             // Search nets by number and then by name
-            net_t nodenum = text.toUInt(&ok);
+            net_t netnum = text.toUInt(&ok);
             if (!ok) // Check if the input is a net name
             {
-                nodenum = ::controller.getNetlist().get(text);
-                ok = nodenum > 0;
+                netnum = ::controller.getNetlist().get(text);
+                ok = netnum > 0;
             }
             if (ok)
             {
-                const segvdef *seg = ::controller.getChip().getSegment(nodenum);
-                if (seg->nodenum)
+                const segvdef *seg = ::controller.getChip().getSegment(netnum);
+                if (seg->netnum)
                 {
                     m_highlight_segment = seg;
-                    qInfo() << "Found net" << nodenum << text;
+                    qInfo() << "Found net" << netnum << text;
                     m_timer_tick = 10;
                 }
                 else

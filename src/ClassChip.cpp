@@ -166,7 +166,7 @@ bool ClassChip::loadSegdefs(QString dir)
 
                     if (!m_segvdefs.contains(key))
                     {
-                        s.nodenum = key;
+                        s.netnum = key;
                         s.paths.append(path);
                         m_segvdefs[key] = s;
                     }
@@ -223,7 +223,7 @@ bool ClassChip::loadTransdefs(QString dir)
 
                     transvdef t;
                     t.id = i;
-                    t.gatenode = list[1].toUInt();
+                    t.gatenet = list[1].toUInt();
                     // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
                     // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
                     t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt() - 1, y - list[6].toInt() - 1));
@@ -332,12 +332,12 @@ const QVector<net_t> ClassChip::getNetsAt(int x, int y)
     }
     for (const auto &s : m_segvdefs)
     {
-        if (s.nodenum > 2) // Skip vss and vcc segments
+        if (s.netnum > 2) // Skip vss and vcc segments
         {
             for (const auto &path : s.paths)
             {
-                if (path.contains(QPointF(x, y)) && !list.contains(s.nodenum))
-                    list.append(s.nodenum);
+                if (path.contains(QPointF(x, y)) && !list.contains(s.netnum))
+                    list.append(s.netnum);
             }
         }
     }
@@ -914,7 +914,7 @@ bool ClassChip::saveSegvdefs(QString dir)
         out << m_segvdefs.count();
         for (auto &seg : m_segvdefs)
         {
-            out << seg.nodenum;
+            out << seg.netnum;
             out << seg.paths.count();
             for (auto &path : seg.paths)
                 out << path;
@@ -945,7 +945,7 @@ bool ClassChip::loadSegvdefs(QString dir)
                 while (count-- > 0)
                 {
                     segvdef segvdef;
-                    in >> segvdef.nodenum >> num_paths;
+                    in >> segvdef.netnum >> num_paths;
                     while (num_paths-- > 0)
                     {
                         QPainterPath path;
@@ -953,9 +953,9 @@ bool ClassChip::loadSegvdefs(QString dir)
                         segvdef.paths.append(path);
                     }
 
-                    if (m_segvdefs.contains(segvdef.nodenum))
-                        m_segvdefs.remove(segvdef.nodenum);
-                    m_segvdefs[segvdef.nodenum] = segvdef;
+                    if (m_segvdefs.contains(segvdef.netnum))
+                        m_segvdefs.remove(segvdef.netnum);
+                    m_segvdefs[segvdef.netnum] = segvdef;
                 }
                 return true;
             }
@@ -990,7 +990,7 @@ void ClassChip::experimental_2()
         bool validnet = ::controller.getNetlist().getTnet(t.id, c1c2[0], c1c2[1]);
         if (validnet)
         {
-            const QVector<net_t> driven = ::controller.getNetlist().netsDriven(t.gatenode);
+            const QVector<net_t> driven = ::controller.getNetlist().netsDriven(t.gatenet);
             int index = -1;
             if (driven.contains(c1c2[0])) index = 0;
             if (driven.contains(c1c2[1])) index = 1;
@@ -1011,7 +1011,7 @@ void ClassChip::experimental_2()
                 {
                     latchdef latch;
                     latch.t1 = t.id;
-                    latch.n1 = t.gatenode;
+                    latch.n1 = t.gatenet;
                     latch.t2 = 0;
                     latch.n2 = c1c2[index];
 
@@ -1189,7 +1189,7 @@ void ClassChip::expDrawTransistors(QPainter &painter, const QRect &viewport, boo
         // Speed up rendering by clipping to the viewport's image rectangle
         if (t.box.intersected(viewport) != QRect())
         {
-            bool state = ::controller.getSimZ80().getNetState(t.gatenode);
+            bool state = ::controller.getSimZ80().getNetState(t.gatenet);
             painter.setPen(pens[state]);
             painter.setBrush(brush[state || highlightAll]);
             painter.drawPath(t.path);
