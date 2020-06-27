@@ -3,6 +3,7 @@
 #include "ClassController.h"
 #include "ClassSingleton.h"
 #include "DockLog.h"
+#include <signal.h>
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
@@ -13,9 +14,18 @@ MainWindow *mainWindow = nullptr; // Window: main window class
 CAppLogHandler *applog = nullptr; // Application logging subsystem
 ClassController controller {}; // Application-wide controller class
 
+static void crashMessage(std::string e = "Oh, no!")
+{
+    QMessageBox::critical(nullptr, "App crashed", QString::fromStdString(e) + "\n"
+                          "Application has unexpectedly terminated. Please report this as a bug. "
+                          "If you can also reproduce the issue, please provide the steps. Thank you!");
+}
+
 int main(int argc, char *argv[])
 {
     int retCode = -1;
+    // Handle faults that try..catch can't capture, by a low-level signal handler
+    signal(SIGSEGV, [](int signum) { ::signal(signum, SIG_DFL); crashMessage(); });
     QApplication a(argc, argv);
     QScriptEngine scriptEngine;
 
@@ -67,12 +77,11 @@ int main(int argc, char *argv[])
 #ifdef QT_NO_DEBUG
     catch(std::exception& e)
     {
-        QString s = QString::fromStdString(e.what()) + "\nPlease report this incident as a bug!";
-        QMessageBox::critical(0, "Application exception", s);
+        crashMessage(e.what());
     }
     catch(...)
     {
-        QMessageBox::critical(0, "Application exception", "Unexpected error. Please report this incident as a bug!");
+        crashMessage();
     }
 #endif // QT_NO_DEBUG
 
