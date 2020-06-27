@@ -30,6 +30,7 @@ private:
     static QScriptValue onTrans(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onExperimental(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onLoad(QScriptContext *ctx, QScriptEngine *engine);
+    static QScriptValue onRelatch(QScriptContext *ctx, QScriptEngine *engine);
 
 private:
     QScriptEngine *m_engine;

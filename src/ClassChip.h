@@ -58,6 +58,7 @@ public slots:
     void expDrawLatches(QPainter &painter, const QRect &viewport);
     void expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll);
     void expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale); // Maps nearby net names
+    void detectLatches();               // Detects latches and also loads custom latch definitions
 
 private:
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
@@ -92,7 +93,7 @@ private:
     bool loadSegvdefs(QString dir);     // Loads m_segvdefs
     void drawAllNetsAsInactive(QString source, QString dest);
     void redrawNetsColorize(QString source, QString dest);
-    void experimental_2();              // Detects latches
+    bool loadLatches();                 // Helper to load custom latch definitions
     void experimental_3();              // Creates transistors paths hinted by transdef bounding boxes
     void experimental_4();              // Creates transistors paths based on our feature bitmap
     bool scanForTransistor(uchar const *p, QRect t, uint &x, uint &y);

@@ -63,7 +63,7 @@ bool ClassChip::loadChipResources(QString dir)
         redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); // Using the vss.vcc as a base, colorize selected buses
         connect(&::controller, &ClassController::eventNetName, this, [this]() // May need different colors for renamed nets
             { redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); } ); // Dynamically rebuild the colorized image
-        experimental_2(); // Detect latches
+        detectLatches(); // Detect latches and load custom latch definitions
         experimental_4(); // Create transistor paths
 
         setFirstImage("vss.vcc.nets.col");
@@ -858,7 +858,7 @@ void ClassChip::saveLayerMap()
 void ClassChip::experimental(int n)
 {
     if (n==1) return experimental_1();
-    if (n==2) return experimental_2();
+    if (n==2) return;
     if (n==3) return experimental_3();
     if (n==4) return experimental_4();
     qWarning() << "Invalid experimental function index" << n;
@@ -981,7 +981,7 @@ bool ClassChip::loadSegvdefs(QString dir)
  * such are eight Instruction Register latches (which have an additional driver/inverter
  * in the loop). We append those by hard-coding them.
  */
-void ClassChip::experimental_2()
+void ClassChip::detectLatches()
 {
     m_latches.clear();
     for (auto &t : m_transvdefs)
@@ -1022,16 +1022,7 @@ void ClassChip::experimental_2()
     }
     qDebug() << "Detected" << m_latches.count() << "latches";
 
-    // XXX Hard-coded latches; load from a resource file?
-    qDebug() << "Adding additional latches";
-    m_latches.append({4243,4272, 357,374, QRect()}); // IR0
-    m_latches.append({4392,4452, 373,375, QRect()}); // IR1
-    m_latches.append({4665,4777, 376,378, QRect()}); // IR2
-    m_latches.append({5452,5510, 388,385, QRect()}); // IR3
-    m_latches.append({5662,5744, 392,1386, QRect()}); // IR4
-    m_latches.append({5839,5974, 397,1393, QRect()}); // IR5
-    m_latches.append({4975,5033, 379,1371, QRect()}); // IR6
-    m_latches.append({5280,5360, 382,1377, QRect()}); // IR7
+    loadLatches();
 
     // Initialize latch bounding boxes - spanning both latch transistors
     for (auto &latch : m_latches)
@@ -1056,6 +1047,70 @@ void ClassChip::experimental_2()
             latch.box = QRect();
         }
     }
+}
+
+bool ClassChip::loadLatches()
+{
+    QSettings settings;
+    QString fileName = settings.value("ResourceDir").toString() + "/latches.ini";
+    qInfo() << "Loading" << fileName;
+    QFile file(fileName);
+    if (file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QTextStream in(&file);
+        QString line;
+        QStringList list;
+        uint count = 0, ln = 0;
+        while(!in.atEnd())
+        {
+            line = in.readLine(); ln++;
+            line = line.left(line.indexOf(';')).trimmed();
+            if (line.length())
+            {
+                list = line.split(",", QString::SkipEmptyParts);
+                if (list.count() == 2)
+                {
+                    uint t1, t2;
+                    bool ok1, ok2;
+                    t1 = list[0].toUInt(&ok1);
+                    t2 = list[1].toUInt(&ok2);
+                    if (ok1 && ok2)
+                    {
+                        const transvdef *vdef1 = getTrans(t1);
+                        const transvdef *vdef2 = getTrans(t2);
+                        if (vdef1 != nullptr)
+                        {
+                            if (vdef2 != nullptr)
+                            {
+                                latchdef latch;
+                                latch.t1 = t1;
+                                latch.n1 = vdef1->gatenet;
+                                latch.t2 = t2;
+                                latch.n2 = vdef2->gatenet;
+
+                                m_latches.append(latch);
+                                count++;
+                            }
+                            else
+                                qWarning() << "Line" << ln << "invalid transistor number" << t2;
+                        }
+                        else
+                            qWarning() << "Line" << ln << "invalid transistor number" << t1;
+                    }
+                    else
+                        qWarning() << "Line" << ln << "unable to parse transistor numbers";
+                }
+                else
+                    qWarning() << "Line" << ln << "unable to parse transistor numbers";
+            }
+        }
+        qInfo() << "Loaded" << count << "custom latch definitions";
+
+        return true;
+    }
+    else
+        qCritical() << "Error opening latches.ini";
+    return false;
 }
 
 void ClassChip::expDrawLatches(QPainter &painter, const QRect &viewport)

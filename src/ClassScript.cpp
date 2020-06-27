@@ -26,6 +26,8 @@ void ClassScript::init(QScriptEngine *sc)
     m_engine->globalObject().setProperty("ex", funExperimental);
     QScriptValue funLoad = m_engine->newFunction(&ClassScript::onLoad);
     m_engine->globalObject().setProperty("load", funLoad);
+    QScriptValue funRelatch = m_engine->newFunction(&ClassScript::onRelatch);
+    m_engine->globalObject().setProperty("relatch", funRelatch);
 }
 
 /*
@@ -77,6 +79,7 @@ QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
     text << "n(net)        - Shows a net state by net number or \"name\"\n";
     text << "ex(n)         - Runs experimental function 'n'\n";
     text << "load(file)    - Executes a script file ('script.js' by default)\n";
+    text << "relatch()     - Reloads custom latches from 'latches.ini' file\n";
     text << "In addition, objects 'control', 'sim', 'monitor', 'script' and 'img' provide methods described in the documentation.";
     emit ::controller.getScript().response(s);
     return QScriptValue();
@@ -163,4 +166,13 @@ QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
         return QScriptValue();
     }
     return ctx->throwError(QString("Could not open %0 for reading").arg(fileName));
+}
+
+/*
+ * Rebuilds latches; reloads custom latches
+ */
+QScriptValue ClassScript::onRelatch(QScriptContext *, QScriptEngine *)
+{
+    ::controller.getChip().detectLatches();
+    return QScriptValue();
 }
