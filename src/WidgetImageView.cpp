@@ -263,7 +263,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawLatches)
     {
         painter.save();
-        ::controller.getChip().expDrawLatches(painter, m_imageView.toAlignedRect());
+        ::controller.getChip().drawLatches(painter, m_imageView.toAlignedRect());
         painter.restore();
     }
     //------------------------------------------------------------------------

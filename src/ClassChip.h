@@ -54,11 +54,11 @@ public:
     tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
 
 public slots:
+    void detectLatches();               // Detects latches and also loads custom latch definitions
+    void drawLatches(QPainter &painter, const QRect &viewport);
     void experimental(int n);           // Runs experimental function number n
-    void expDrawLatches(QPainter &painter, const QRect &viewport);
     void expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll);
     void expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale); // Maps nearby net names
-    void detectLatches();               // Detects latches and also loads custom latch definitions
 
 private:
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
