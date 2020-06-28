@@ -1,4 +1,5 @@
 #include "WidgetGraphicsView.h"
+#include "ClassController.h"
 #include <QDebug>
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
@@ -164,7 +165,24 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         painter->drawText(20, 20, "Latch"),
         painter->drawText(0, -5, "Q");
 
+    // Print net tips for leaf nodes
+    if (m_lr->leaf)
+        painter->drawText(55, 5, ::controller.getTip().get(m_lr->net));
+
     QGraphicsPolygonItem::paint(painter, option, widget);
+}
+
+/*
+ * Provide the default bounding box for each item: 50x50 for most items,
+ * but extend the width by 100 pix for leaf nodes that have a tip text
+ * XXX For more precision, it should calculate the actual width of the text in pixels
+ */
+QRectF SymbolItem::boundingRect() const
+{
+    QRectF box { 0, -25, 50, 50 };
+    if (m_lr->leaf && !::controller.getTip().get(m_lr->net).isEmpty())
+        box.setWidth(150);
+    return box;
 }
 
 /*
