@@ -297,10 +297,10 @@ void ClassNetlist::parse(Logic *root)
                     continue;
                 }
                 // Have not seen a 4 pass-transistor NAND gate in Z80, yet
-                Q_ASSERT(0);
+                qWarning() << "*** Unrecognized feature (4-pass transistor NAND)? The schematic might be faulty!";
             }
             // Any other topological features that start as 2 pass-transistor nets?
-            Q_ASSERT(0);
+            qWarning() << "*** Unrecognized feature (2 pass transistor net)? The schematic might be faulty!";
         }
 
         //-------------------------------------------------------------------------------
