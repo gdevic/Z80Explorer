@@ -514,9 +514,12 @@ void WidgetImageView::mouseReleaseEvent(QMouseEvent *event)
     // Releasing the right mouse button opens a custom context menu
     if (event->button() == Qt::RightButton)
     {
-        QPoint pos1 = m_invtx.map(m_pinMousePos);
-        qInfo() << "Selected area:" << QString("%1,%2,%3,%4")
-                   .arg(pos1.x()).arg(pos1.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
+        if (!m_areaRect.isNull()) // Only display selected area when width, height > 0
+        {
+            QPoint pos1 = m_invtx.map(m_pinMousePos);
+            qInfo() << "Selected area:" << QString("%1,%2,%3,%4")
+                       .arg(pos1.x()).arg(pos1.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
+        }
         contextMenu(event->pos());
     }
     update();
