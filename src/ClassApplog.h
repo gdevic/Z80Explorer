@@ -59,7 +59,7 @@ protected:
     QString m_message;
     int m_cur_stream_output_verbose { LogVerbose_Info };
 
-    int m_log_options;
+    int m_log_options {};
     int m_max_log_file_size { DEFAULT_APP_LOG_FILE_SIZE };
     QMutex m_file_lock;
 
