@@ -38,9 +38,8 @@ DockLog::~DockLog()
 /*
  * Slot functions that receives log messages and display them in the log window
  */
-void DockLog::processNewMessage(QString message, bool newLine)
+void DockLog::processNewMessage(QString message, bool)
 {
-    Q_UNUSED(newLine)
     ui->textEdit->appendPlainText(message);
     ui->textEdit->ensureCursorVisible();
 }
