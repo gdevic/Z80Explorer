@@ -1002,6 +1002,15 @@ void ClassChip::drawLatches(QPainter &painter, const QRect &viewport)
     }
 }
 
+/*
+ * Returns true if a net is part of any latch
+ */
+bool ClassChip::isLatch(net_t net)
+{
+    auto i = std::find_if(m_latches.begin(), m_latches.end(), [net](latchdef &l) { return (l.n1 == net) || (l.n2 == net); });
+    return (i != m_latches.end());
+}
+
 /******************************************************************************
  * Experimental code
  ******************************************************************************/

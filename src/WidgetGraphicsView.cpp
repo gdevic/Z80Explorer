@@ -132,6 +132,14 @@ SymbolItem::SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent) :
             path.lineTo(10, 20);
             path.lineTo(10, 0);
         break;
+        case LogicOp::Latch:
+            path.lineTo(10, 0);
+            path.lineTo(10, 25);
+            path.lineTo(50, 25);
+            path.lineTo(50,-25);
+            path.lineTo(10,-25);
+            path.lineTo(10, 0);
+        break;
     }
     m_poly = path.toFillPolygon();
 
@@ -152,6 +160,9 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     if (m_lr->op == LogicOp::ClkGate)
         bounds.setBottomRight(QPoint(35, 50)); // Clock gate has "clk" written on the bottom
     painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, m_lr->name);
+    if (m_lr->op == LogicOp::Latch)
+        painter->drawText(20, 20, "Latch"),
+        painter->drawText(0, -5, "Q");
 
     QGraphicsPolygonItem::paint(painter, option, widget);
 }

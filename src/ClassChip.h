@@ -52,6 +52,7 @@ public:
     const segvdef *getSegment(net_t net); // Returns the segment visual definition, zero if not found
     const transvdef *getTrans(tran_t id); // Returns transistor visual definition, nullptr if not found
     tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
+    bool isLatch(net_t net);            // Returns true if a net is part of any latch
 
 public slots:
     void detectLatches();               // Detects latches and also loads custom latch definitions

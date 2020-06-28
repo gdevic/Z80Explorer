@@ -4,7 +4,7 @@
 #include "AppTypes.h"
 #include <QObject>
 
-enum class LogicOp : unsigned char { Nop, Inverter, And, Nand, Or, Nor, ClkGate };
+enum class LogicOp : unsigned char { Nop, Inverter, And, Nand, Or, Nor, ClkGate, Latch };
 
 /*
  * This structure contains definition and code that describes a bipartite tree
@@ -33,13 +33,10 @@ struct Logic
     }
 
     // Returns the name of a given logic operation as a string
-    static inline QString toString(LogicOp op)
+    static const QString toString(LogicOp op)
     {
-        if (op == LogicOp::Inverter) return "INV";
-        if (op == LogicOp::Nor) return "NOR";
-        if (op == LogicOp::Nand) return "NAND";
-        if (op == LogicOp::And) return "AND";
-        return QString(); // LogicOp::Nop
+        static const QStringList ops { "", "INV", "AND", "NAND", "OR", "NOR", "CLKGATE", "LATCH" };
+        return ops[static_cast<int>(op)];
     }
 
     // Prints the logic tree as a linear, flattened, equation

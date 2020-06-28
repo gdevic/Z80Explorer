@@ -91,6 +91,16 @@ void ClassNetlist::parse(Logic *root)
 
     // Recognize some common patterns:
     //-------------------------------------------------------------------------------
+    // Detect if a net is a part of a latch
+    //-------------------------------------------------------------------------------
+    if (::controller.getChip().isLatch(net0id))
+    {
+        qDebug() << "Latch";
+        root->op = LogicOp::Latch;
+        return;
+    }
+
+    //-------------------------------------------------------------------------------
     // Detect clock gating
     //-------------------------------------------------------------------------------
     if ((net0.c1c2s.count() == 1) && (net0.c1c2s[0]->gate == nclk))
@@ -323,7 +333,7 @@ void ClassNetlist::parse(Logic *root)
 
 Logic::Logic(net_t n, LogicOp op) : net(n), op(op)
 {
-    // Terminating nets: ngnd,npwr,clk, t1..t6,m1..m6, int_reset, ... any pla wire (below)
+    // Terminating nets: ngnd,npwr,clk, t1..t6,m1..m6, int_reset, ... any pla wire (below) and any latch
     const static QVector<net_t> term {0,1,2,3, 115,137,144,166,134,168,155,173,163,159,209,210, 95};
     name = ::controller.getNetlist().get(n);
     if (name.isEmpty())
@@ -339,6 +349,9 @@ Logic::Logic(net_t n, LogicOp op) : net(n), op(op)
         leaf = true;
     else
         visitedNets.append(n);
+    // If a net is a latch, let it expand (be a leaf), since we want to capture it in parse() as a lone incoming net
+    if (::controller.getChip().isLatch(n))
+        leaf = false;
 }
 
 void Logic::rename(net_t n)
