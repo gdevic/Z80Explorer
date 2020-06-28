@@ -70,10 +70,37 @@ void DockLog::showContextMenu(const QPoint &pt)
     // enum QtMsgType   QtDebugMsg, QtInfoMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
     QSettings settings;
     uint logLevel = settings.value("AppLogLevel", 3).toUInt();
-    if (logLevel == 3)
-        menu->addAction("Show Debug", this, [](){ QSettings settings; settings.setValue("AppLogLevel", 4); } );
-    else
-        menu->addAction("Hide Debug", this, [](){ QSettings settings; settings.setValue("AppLogLevel", 3); } );
+    uint logOptions = settings.value("logOptions").toUInt();
+
+    // Create and handle menu to show or hide debug messages
+    QAction *actionShowDebug = new QAction("Show Debug", this);
+    actionShowDebug->setCheckable(true);
+    actionShowDebug->setChecked(logLevel == 4);
+    menu->addAction(actionShowDebug);
+
+    connect(actionShowDebug, &QAction::triggered, this, [](bool checked)
+    {
+        QSettings settings;
+        settings.setValue("AppLogLevel", checked ? 4 : 3);
+    });
+
+    // Create and handle menu to log to a file or not to log to a file
+    QAction *actionLogToFile = new QAction("Log to file", this);
+    actionLogToFile->setCheckable(true);
+    actionLogToFile->setChecked(logOptions & LogOptions_File);
+    menu->addAction(actionLogToFile);
+
+    connect(actionLogToFile, &QAction::triggered, this, [](bool checked)
+    {
+        CAppLogHandler *applog = &Singleton<CAppLogHandler>::Instance();
+        uint logOptions = applog->GetLogOptions() & ~LogOptions_File;
+        if (checked)
+            logOptions |= LogOptions_File;
+        applog->SetLogOptions(logOptions);
+
+        QSettings settings;
+        settings.setValue("logOptions", logOptions);
+    });
 
     menu->exec(ui->textEdit->mapToGlobal(pt));
     delete menu;

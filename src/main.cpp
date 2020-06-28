@@ -43,8 +43,10 @@ int main(int argc, char *argv[])
         QCoreApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
         // Initialize logging subsystem and register our handler
+        QSettings settings;
+        uint logOptions = settings.value("logOptions", LogOptions_Signal).toUInt();
         applog = &Singleton<CAppLogHandler>::Instance();
-        applog->SetLogOptions(applog->GetLogOptions() | LogOptions_Signal /* | LogOptions_File */);
+        applog->SetLogOptions(applog->GetLogOptions() | logOptions);
 
         // Install the message hook into the log window so we can use qDebug, etc.
         qInstallMessageHandler(appLogMsgHandler);
