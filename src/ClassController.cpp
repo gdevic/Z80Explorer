@@ -15,13 +15,12 @@ bool ClassController::init(QScriptEngine *sc)
     sc->globalObject().setProperty("sim", sc->newQObject(&m_simz80));
     sc->globalObject().setProperty("monitor", sc->newQObject(&m_trick));
 
-    connect(this, SIGNAL(shutdown()), &m_annotate, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_chip, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_colors, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_script, SLOT(stop()));
-    connect(this, SIGNAL(shutdown()), &m_simz80, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_tips, SLOT(onShutdown()));
-    connect(this, SIGNAL(shutdown()), &m_watch, SLOT(onShutdown()));
+    connect(this, &ClassController::shutdown, &m_annotate, &ClassAnnotate::onShutdown);
+    connect(this, &ClassController::shutdown, &m_colors, &ClassColors::onShutdown);
+    connect(this, &ClassController::shutdown, &m_script, &ClassScript::stop);
+    connect(this, &ClassController::shutdown, &m_simz80, &ClassSimZ80::onShutdown);
+    connect(this, &ClassController::shutdown, &m_tips, &ClassTip::onShutdown);
+    connect(this, &ClassController::shutdown, &m_watch, &ClassWatch::onShutdown);
 
     QSettings settings;
     QString resDir = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
