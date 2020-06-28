@@ -959,6 +959,42 @@
             "text": "AF/AF'",
             "x": 2366,
             "y": 3076
+        },
+        {
+            "bar": false,
+            "pix": 22,
+            "rect": true,
+            "rh": 84,
+            "rw": 112,
+            "rx": 648,
+            "ry": 3095,
+            "text": "<center>EXX<br>latch",
+            "x": 668,
+            "y": 3115
+        },
+        {
+            "bar": false,
+            "pix": 28,
+            "rect": true,
+            "rh": 75,
+            "rw": 90,
+            "rx": 927,
+            "ry": 2953,
+            "text": "DE/HL0",
+            "x": 927,
+            "y": 2978
+        },
+        {
+            "bar": false,
+            "pix": 28,
+            "rect": true,
+            "rh": 74,
+            "rw": 95,
+            "rx": 1103,
+            "ry": 2955,
+            "text": "DE/HL1",
+            "x": 1103,
+            "y": 2977
         }
     ]
 }
