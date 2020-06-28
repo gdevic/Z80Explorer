@@ -69,7 +69,7 @@ void DockLog::showContextMenu(const QPoint &pt)
     // Log level:       3           2             1              0 (can't be disabled)
     // enum QtMsgType   QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
     QSettings settings;
-    int logLevel = settings.value("AppLogLevel", 2).toInt();
+    uint logLevel = settings.value("AppLogLevel", 3).toUInt();
     if (logLevel==2)
         menu->addAction("Show Trace", this, SLOT(onLogLevel()))->setData(3);
     else
