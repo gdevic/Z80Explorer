@@ -16,7 +16,7 @@ extern CAppLogHandler *applog; // Application logging subsystem
 void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QSettings settings;
-    uint logLevel = settings.value("AppLogLevel", 3).toUInt();
+    uint logLevel = settings.value("logLevel", 3).toUInt();
 
     QString s1 = "File: " + (context.file ? QString(context.file) : "?");
     QString s2 = "Function: " + (context.function ? QString(context.function) : "?");

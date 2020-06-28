@@ -69,7 +69,7 @@ void DockLog::showContextMenu(const QPoint &pt)
     // Log level:       4           3          2,            1              0 (can't be disabled)
     // enum QtMsgType   QtDebugMsg, QtInfoMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
     QSettings settings;
-    uint logLevel = settings.value("AppLogLevel", 3).toUInt();
+    uint logLevel = settings.value("logLevel", 3).toUInt();
     uint logOptions = settings.value("logOptions").toUInt();
 
     // Create and handle menu to show or hide debug messages
@@ -81,7 +81,7 @@ void DockLog::showContextMenu(const QPoint &pt)
     connect(actionShowDebug, &QAction::triggered, this, [](bool checked)
     {
         QSettings settings;
-        settings.setValue("AppLogLevel", checked ? 4 : 3);
+        settings.setValue("logLevel", checked ? 4 : 3);
     });
 
     // Create and handle menu to log to a file or not to log to a file
