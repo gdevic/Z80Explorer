@@ -25,10 +25,10 @@ enum LogOptions
 
 enum LogVerbose
 {
-    LogVerbose_Info = 'I',              // Information
-    LogVerbose_Warning = 'W',           // Warning message
     LogVerbose_Error = 'E',             // Error message
-    LogVerbose_Command = 'C'            // Command
+    LogVerbose_Warning = 'W',           // Warning message
+    LogVerbose_Info = 'I',              // Information message
+    LogVerbose_Debug = 'D'              // Debug message
 };
 
 class CAppLogHandler : public QObject

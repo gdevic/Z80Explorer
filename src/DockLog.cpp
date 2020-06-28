@@ -66,14 +66,14 @@ void DockLog::showContextMenu(const QPoint &pt)
     menu->addAction("Max lines...", this, SLOT(onMaxLines()));
 
     // These are logging levels:
-    // Log level:       3           2             1              0 (can't be disabled)
-    // enum QtMsgType   QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
+    // Log level:       4           3          2,            1              0 (can't be disabled)
+    // enum QtMsgType   QtDebugMsg, QtInfoMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
     QSettings settings;
     uint logLevel = settings.value("AppLogLevel", 3).toUInt();
-    if (logLevel==2)
-        menu->addAction("Show Trace", this, SLOT(onLogLevel()))->setData(3);
+    if (logLevel == 3)
+        menu->addAction("Show Debug", this, [](){ QSettings settings; settings.setValue("AppLogLevel", 4); } );
     else
-        menu->addAction("Hide Trace", this, SLOT(onLogLevel()))->setData(2);
+        menu->addAction("Hide Debug", this, [](){ QSettings settings; settings.setValue("AppLogLevel", 3); } );
 
     menu->exec(ui->textEdit->mapToGlobal(pt));
     delete menu;
@@ -94,19 +94,5 @@ void DockLog::onMaxLines()
     {
         ui->textEdit->setMaximumBlockCount(lines);
         settings.setValue("AppLogLines", lines);
-    }
-}
-
-/*
- * Changes the log level
- */
-void DockLog::onLogLevel()
-{
-    // Make sure this slot is really called by a context menu action, so it carries the data we need
-    if (QAction* contextAction = qobject_cast<QAction*>(sender()))
-    {
-        const int logLevel = contextAction->data().toInt();
-        QSettings settings;
-        settings.setValue("AppLogLevel", logLevel);
     }
 }

@@ -21,8 +21,8 @@ void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const Q
     QString s1 = "File: " + (context.file ? QString(context.file) : "?");
     QString s2 = "Function: " + (context.function ? QString(context.function) : "?");
     // These are logging levels:
-    // Log level:       3           2             1              0 (can't be disabled)
-    // enum QtMsgType   QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
+    // Log level:       4           3          2,            1              0 (can't be disabled)
+    // enum QtMsgType   QtDebugMsg, QtInfoMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
     switch (type)
     {
     case QtFatalMsg:
@@ -31,17 +31,20 @@ void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const Q
         applog->WriteLine(msg, LogVerbose_Error);
         break;
     case QtCriticalMsg:
-        if (logLevel>=1)
+        if (logLevel >= 1)
             applog->WriteLine(msg, LogVerbose_Error);
         break;
     case QtWarningMsg:
-        if (logLevel>=2)
+        if (logLevel >= 2)
             applog->WriteLine(msg, LogVerbose_Warning);
         break;
-    case QtDebugMsg:
-    default:
-        if (logLevel>=3)
+    case QtInfoMsg:
+        if (logLevel >= 3)
             applog->WriteLine(msg, LogVerbose_Info);
+        break;
+    case QtDebugMsg:
+        if (logLevel >= 4)
+            applog->WriteLine(msg, LogVerbose_Debug);
         break;
     }
 }
@@ -167,8 +170,6 @@ void CAppLogHandler::Write(char* message, int verbose)
 void CAppLogHandler::WriteLine(const QString message, int verbose)
 {
     QString logmessage = GetCurrentTimeString() + " | " + verbose + " | " + message;
-    if (verbose == LogVerbose_Command)
-        logmessage = message;
     if (CheckBit(m_log_options, LogOptions_File))
     {
         if (flog.is_open())
