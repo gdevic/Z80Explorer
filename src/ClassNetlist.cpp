@@ -487,6 +487,15 @@ const QString ClassNetlist::netInfo(net_t net)
         QStringList gates;
         for (auto &t : m_netlist[net].gates)
             gates.append( QString::number(t - &m_transdefs[0]) );
+        // Limit printing up to 20 gate nets which is more than a practical limit.
+        // This prevents large nets like clk to take over the log window
+        if (gates.count() > 20)
+        {
+            QStringList shorter = gates.mid(0, 20);
+            gates.clear();
+            gates.append(shorter);
+            gates.append("...");
+        }
 
         QString s = ::controller.getNetlist().get(net);
         if (!s.isEmpty())
