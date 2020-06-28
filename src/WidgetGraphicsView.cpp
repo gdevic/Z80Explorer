@@ -2,6 +2,7 @@
 #include "ClassController.h"
 #include <QDebug>
 #include <QGraphicsSceneContextMenuEvent>
+#include <QGuiApplication>
 #include <QMenu>
 #include <QPainterPath>
 #include <QWheelEvent>
@@ -147,7 +148,7 @@ SymbolItem::SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent) :
     setPolygon(m_poly);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     // Items are not movable but this is useful to keep for debug
-    //setFlag(QGraphicsItem::ItemIsMovable, true);
+    setFlag(QGraphicsItem::ItemIsMovable, QGuiApplication::keyboardModifiers().testFlag(Qt::ShiftModifier));
 }
 
 /*
