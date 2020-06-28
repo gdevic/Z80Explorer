@@ -57,7 +57,7 @@ bool ClassController::init(QScriptEngine *sc)
     m_tips.load(resDir + "/tips.json");
 
     // Execute init.js initialization script
-    QTimer::singleShot(1000, [=](){ m_script.exec("load(\"init.js\")"); } );
+    QTimer::singleShot(1000, [=](){ m_script.exec( R"(load("init.js"))" ); } );
 
     return true;
 }

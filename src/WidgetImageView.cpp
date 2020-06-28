@@ -139,7 +139,7 @@ void WidgetImageView::onCoords()
                                            QLineEdit::Normal, "", &ok, Qt::MSWindowsFixedSizeDialogHint);
     if (ok && !coords.isEmpty())
     {
-        QRegularExpression re("(\\d+)\\s*,\\s*(\\d+)");
+        QRegularExpression re( R"((\d+)\s*,\s*(\d+))" );
         QRegularExpressionMatch match = re.match(coords);
         if (match.hasMatch())
         {

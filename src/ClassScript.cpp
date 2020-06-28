@@ -70,17 +70,17 @@ void ClassScript::exec(QString cmd)
 
 QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
 {
-    QString s;
-    QTextStream text(&s);
-    text << "run(cycles)   - Runs the simulation for the given number of clocks\n";
-    text << "stop()        - Stops the running simulation\n";
-    text << "reset()       - Resets the simulation state\n";
-    text << "t(t)          - Shows a transistor state\n";
-    text << "n(net)        - Shows a net state by net number or \"name\"\n";
-    text << "ex(n)         - Runs experimental function 'n'\n";
-    text << "load(file)    - Executes a script file ('script.js' by default)\n";
-    text << "relatch()     - Reloads custom latches from 'latches.ini' file\n";
-    text << "In addition, objects 'control', 'sim', 'monitor', 'script' and 'img' provide methods described in the documentation.";
+    static const QString s {
+R"(run(hcycles)  - Runs the simulation for the given number of half-clocks
+stop()        - Stops the running simulation
+reset()       - Resets the simulation state
+t(trans)      - Shows a transistor state
+n(net|"name") - Shows a net state by net number or net "name"
+ex(n)         - Runs experimental function "n"
+load("file")  - Loads and executes a script file ("script.js" by default)
+relatch()     - Reloads custom latches from "latches.ini" file
+In addition, objects "control", "sim", "monitor", "script" and "img" provide methods described in the documentation.)" };
+
     emit ::controller.getScript().response(s);
     return QScriptValue();
 }
