@@ -10,6 +10,7 @@ DockMonitor::DockMonitor(QWidget *parent) :
     ui(new Ui::DockMonitor)
 {
     ui->setupUi(this);
+    setAcceptDrops(true);
 
     connect(&::controller.getTrickbox(), SIGNAL(echo(char)), this, SLOT(onEcho(char)));
     connect(&::controller.getTrickbox(), SIGNAL(echo(QString)), this, SLOT(onEcho(QString)));
@@ -70,4 +71,30 @@ void DockMonitor::refresh()
     ::controller.readState(z80);
     const QString monitor = ::controller.getTrickbox().readState();
     ui->textStatus->setPlainText(z80state::dumpState(z80) % monitor);
+}
+
+/*
+ * Supporting drag-and-drop of hex files
+ */
+void DockMonitor::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls())
+    {
+        QList<QUrl> urls = event->mimeData()->urls();
+        if (urls.count() != 1)
+            return;
+        QFileInfo fi(urls.first().toLocalFile());
+        if (fi.suffix().toLower() != "hex")
+            return;
+        m_dropppedFile = fi.absoluteFilePath();
+        qDebug() << m_dropppedFile;
+        event->setDropAction(Qt::LinkAction);
+        event->accept();
+    }
+}
+
+void DockMonitor::dropEvent(QDropEvent *)
+{
+    if (!::controller.loadHex(m_dropppedFile))
+        QMessageBox::critical(this, "Error", "Error loading " + m_dropppedFile);
 }
