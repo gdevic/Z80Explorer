@@ -1007,6 +1007,18 @@
             "text": "inc R<br>latch",
             "x": 941,
             "y": 2833
+        },
+        {
+            "bar": false,
+            "pix": 46,
+            "rect": true,
+            "rh": 576,
+            "rw": 283,
+            "rx": 158,
+            "ry": 546,
+            "text": "Reset logic",
+            "x": 158,
+            "y": 810
         }
     ]
 }
