@@ -6,6 +6,7 @@
 
 using namespace std;
 
+#define CheckBit(x,y) (((x) & (y)) == (y))
 extern CAppLogHandler *applog; // Application logging subsystem
 
 /*

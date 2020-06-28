@@ -11,8 +11,6 @@
 #define DEFAULT_APP_LOG_FILE_SIZE       1000 // in KBbytes
 #define DEFAULT_APP_LOG_FILE_NAME       "z80explorer.log"
 
-#define CheckBit(x,y)   (x & y) == y
-
 extern void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 enum LogOptions
