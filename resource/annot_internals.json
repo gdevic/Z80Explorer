@@ -995,6 +995,18 @@
             "text": "DE/HL1",
             "x": 1103,
             "y": 2977
+        },
+        {
+            "bar": false,
+            "pix": 28,
+            "rect": true,
+            "rh": 90,
+            "rw": 112,
+            "rx": 921,
+            "ry": 2822,
+            "text": "inc R<br>latch",
+            "x": 941,
+            "y": 2833
         }
     ]
 }

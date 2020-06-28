@@ -399,6 +399,10 @@
         {
             "net": 369,
             "tip": "ldi/ldir/ldd/lddr"
+        },
+        {
+            "net": 617,
+            "tip": "Increments R register using 16-bit inc/dec"
         }
     ]
 }

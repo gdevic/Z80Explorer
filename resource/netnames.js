@@ -31,6 +31,7 @@ ctl_cb_active: 263,
 ctl_ed_active: 265,
 ctl_ed_cb_active: 267,
 ctl_edx: 1248,
+ctl_inc_r: 617, // Increments R register using 16-bit inc/dec
 ctl_tri: 69,
 ctl_tri_ab: 627,
 int_reset: 95,
