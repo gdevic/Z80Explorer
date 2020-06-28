@@ -868,9 +868,9 @@ void ClassChip::detectLatches()
         if (validnet)
         {
             const QVector<net_t> driven = ::controller.getNetlist().netsDriven(t.gatenet);
-            int index = -1;
-            if (driven.contains(c1c2[0])) index = 0;
-            if (driven.contains(c1c2[1])) index = 1;
+            int index = -1;              // Consider all nets except gnd, vcc and clock: they cannot form a latch
+            if (driven.contains(c1c2[0]) && (c1c2[0] > 3)) index = 0;
+            if (driven.contains(c1c2[1]) && (c1c2[1] > 3)) index = 1;
 
             if (index >= 0)
             {
