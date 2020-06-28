@@ -947,6 +947,18 @@
             "text": "<center>16-bit<br>inc/dec",
             "x": 817,
             "y": 3728
+        },
+        {
+            "bar": false,
+            "pix": 34,
+            "rect": true,
+            "rh": 59,
+            "rw": 114,
+            "rx": 2366,
+            "ry": 3064,
+            "text": "AF/AF'",
+            "x": 2366,
+            "y": 3076
         }
     ]
 }
