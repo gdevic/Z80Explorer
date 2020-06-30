@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-// Defines the layout of the trickbox memory arena
+// Defines the layout of the trickbox control area
 #pragma pack(push,2)
 #define MAX_PIN_CTRL 5
 struct trick
@@ -53,7 +53,7 @@ signals:
 private:
     bool readHex(QString fileName);
     uint8_t m_mem[65536] {};                // Simulated 64K memory
-    trick *m_trick;                         // Start of the trickbox memory arena
+    trick *m_trick;                         // Start of the trickbox control area
     bool m_enableTrick {true};              // Enable trickbox's sim flow control
     QString m_lastLoadedHex;                // File name of the last loaded hex code
     quint16 m_bpnet {};                     // Net number to check for break
