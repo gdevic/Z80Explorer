@@ -24,12 +24,11 @@ public:
     void doRunsim(uint ticks);          // Run the simulation for the given number of clocks
     bool setPin(uint index, pin_t p);   // Sets an input pin to a value
     bool isRunning() { return m_runcount; }; // Returns true if the simulation is currently running
-    uint getCurrentHCycle()             // Returns the current simulation half-cycle count
-        { return m_hcycletotal; }
-    uint getEstHz()                     // Returns estimated simulated frequency
-        { return m_estHz; }
+
     Q_PROPERTY(uint hcycle READ getCurrentHCycle) //* Returns the current simulation half-cycle count
-    Q_PROPERTY(uint hz READ getEstHz)   //*
+    Q_PROPERTY(uint hz READ getEstHz)   //* Returns the estimated simulated frequency
+    uint getCurrentHCycle() { return m_hcycletotal; }
+    uint getEstHz() { return m_estHz; }
 
 public slots:
     QString eq(int n)                   //* Returns a logic equation driving a given net
