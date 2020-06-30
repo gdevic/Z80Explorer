@@ -275,3 +275,47 @@ bool ClassTrickbox::loadHex(const QString fileName)
     }
     return false;
 }
+
+/*
+ * Loads a binary file into simulated RAM at the given address
+ */
+bool ClassTrickbox::loadBin(const QString fileName, quint16 address)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qWarning() << "Unable to open" << fileName;
+        return false;
+    }
+
+    QByteArray blob = file.readAll();
+    uint p = address;
+    for (int i = 0; (i < blob.count()) && (p < 0x10000); i++, p++)
+        m_mem[p] = blob[i];
+
+    qInfo() << "Loaded" << fileName << "into simulator RAM at address" << address << "to" << p - 1;
+
+    return true;
+}
+
+/*
+ * Saves the content of the simulated RAM from the given address, up to size bytes
+ */
+bool ClassTrickbox::saveBin(const QString fileName, quint16 address, uint size)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        qWarning() << "Unable to open" << fileName;
+        return false;
+    }
+
+    if ((int(size) + address) > 0xFFFF)
+        size = 0x10000 - address;
+    QByteArray data((const char *)&m_mem[address], size);
+    file.write(data);
+
+    qInfo() << "Saved" << fileName << "from address" << address << "size" << size;
+
+    return true;
+}

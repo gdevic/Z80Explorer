@@ -32,6 +32,8 @@ public:
 
 public slots:
     bool loadHex(const QString fileName);   //* Loads a HEX file into simulated RAM; empty name for last loaded
+    bool loadBin(const QString fileName, quint16 address); //* Loads a binary file to simulated RAM at the given address
+    bool saveBin(const QString fileName, quint16 address, uint size); //* Saves the content of the simulated RAM
     quint8 readMem(quint16 ab);             //* Reads from simulated RAM
     void writeMem(quint16 ab, quint8 db);   //* Writes to simulated RAM
     quint8 readIO(quint16 ab);              //* Reads from simulated IO space
