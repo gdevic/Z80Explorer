@@ -320,3 +320,44 @@ bool ClassTrickbox::saveBin(const QString fileName, quint16 address, uint size)
 
     return true;
 }
+
+#include <QWidget>
+
+struct zx : public QWidget
+{
+    zx(uint8_t *a) : ram(a)
+    {
+        resize(512,384);
+        QTimer *t = new QTimer(this);
+        connect(t, &QTimer::timeout, this, [=](){update();});
+        t->start(640);
+    };
+    const QColor ink[8] {Qt::black, Qt::blue, Qt::red, Qt::magenta, Qt::green, Qt::cyan, Qt::yellow, Qt::white};
+    uint8_t *ram;
+    int f;
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter painter(this); f=!f;
+        for (uint i=0; i<6144; i++)
+        {
+            uint y=((i>>8)&7)|((i>>2)&0x38)|((i>>5)&0xC0);
+            uint x=(i&31)<<3;
+            uint8_t b=ram[16384|i];
+            uint8_t c=ram[22528|((y&0xF8)<<2)|(x>>3)];
+            for (uint j=0; j<8; j++)
+            {
+                bool pix=((b>>(~j&7))&1) ^ ((c>>7)&f);
+                QColor col = pix ? ink[c&7] : ink[(c>>3)&7];
+                painter.setPen(col);
+                painter.setBrush(col);
+                painter.drawRect((x+j)*2, y*2, 2, 2);
+            }
+        }
+    }
+};
+
+void ClassTrickbox::zx()
+{
+    struct zx *w = new struct zx(m_mem);
+    w->show();
+}
