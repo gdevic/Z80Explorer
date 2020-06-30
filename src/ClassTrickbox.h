@@ -29,6 +29,8 @@ public:
 
     void reset();                           // Reset the control counters etc.
     void onTick(uint ticks);                // Called by the simulator on every half-clock tick
+    Q_PROPERTY(bool enabled MEMBER m_trickEnabled) //* Enables or disables trickbox control
+    Q_PROPERTY(uint rom MEMBER m_rom);      //* Designates the initial memory block as read-only
 
 public slots:
     bool loadHex(const QString fileName);   //* Loads a HEX file into simulated RAM; empty name for last loaded
@@ -54,7 +56,9 @@ private:
     bool readHex(QString fileName);
     uint8_t m_mem[65536] {};                // Simulated 64K memory
     trick *m_trick;                         // Start of the trickbox control area
-    bool m_enableTrick {true};              // Enable trickbox's sim flow control
+    bool m_trickWriteEven {true};           // Even/odd write address to the control area
+    bool m_trickEnabled {true};             // Trickbox control is enabled
+    uint m_rom {0};                         // Designates the initial memory block as read-only
     QString m_lastLoadedHex;                // File name of the last loaded hex code
     quint16 m_bpnet {};                     // Net number to check for break
     quint8 m_bpval {};                      // Value to break at

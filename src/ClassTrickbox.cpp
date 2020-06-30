@@ -40,17 +40,18 @@ void ClassTrickbox::writeMem(quint16 ab, quint8 db)
         qInfo() << "Stopping sim: WR(0)";
         return ::controller.getSimZ80().doRunsim(0);
     }
-    m_mem[ab] = db;
+    if (ab >= m_rom)
+        m_mem[ab] = db;
 
     // Trickbox control address space
-    if ((ab >= TRICKBOX_START) && (ab <= TRICKBOX_END))
+    if (m_trickEnabled && (ab >= TRICKBOX_START) && (ab <= TRICKBOX_END))
     {
         // We let the value already be written in RAM, which is a backing store for the trickbox
         // counters anyways; here we check the validity of cycle values but only on the second
         // memory access of each 2-byte word. Likewise, we disable trickbox control in between
         // writing the first byte (low value) and the final, second byte (high value).
-        m_enableTrick = ab & 1;
-        if (!m_enableTrick)
+        m_trickWriteEven = ab & 1;
+        if (!m_trickWriteEven)
             return;
 
         uint current = ::controller.getSimZ80().getCurrentHCycle();
@@ -130,7 +131,7 @@ void ClassTrickbox::onTick(uint ticks)
         return ::controller.getSimZ80().doRunsim(0);
     }
 
-    if (!m_enableTrick)
+    if (!m_trickWriteEven)
         return;
 
     if ((m_trick->cycleStop > 0) && (m_trick->cycleStop == ticks))
