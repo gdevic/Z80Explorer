@@ -23,7 +23,7 @@ struct trick
  */
 class ClassTrickbox : public QObject
 {
-    Q_OBJECT
+    Q_OBJECT                                //* <- Methods of the scripting object "monitor" below
 public:
     explicit ClassTrickbox(QObject *parent = nullptr);
 
@@ -64,6 +64,5 @@ private:
     quint16 m_bpnet {};                     // Net number to check for break
     quint8 m_bpval {};                      // Value to break at
 };
-//                                          //* <- Methods of the scripting object "monitor"
 
 #endif // CLASSTRICKBOX_H

@@ -15,7 +15,7 @@
  */
 class ClassSimZ80 : public QObject, public ClassNetlist
 {
-    Q_OBJECT
+    Q_OBJECT                            //* <- Methods of the scripting object "sim" below
 public:
     explicit ClassSimZ80();
     bool initChip();                    // One-time chip initialization
@@ -30,7 +30,6 @@ public:
         { return m_estHz; }
     Q_PROPERTY(uint hcycle READ getCurrentHCycle) //* Returns the current simulation half-cycle count
     Q_PROPERTY(uint hz READ getEstHz)   //*
-    //                                  //* <- Methods of the scripting object "sim"
 
 public slots:
     QString eq(int n)                   //* Returns a logic equation driving a given net

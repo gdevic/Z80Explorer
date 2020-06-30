@@ -15,10 +15,10 @@
  */
 class ClassController : public QObject
 {
-    Q_OBJECT
+    Q_OBJECT                                    //* <- Methods of the scripting object "control" below
 public:
     explicit ClassController() {};
-    bool init(QScriptEngine *); // Initialize controller classes and variables
+    bool init(QScriptEngine *);                 // Initialize controller classes and variables
 
 public: // API
     inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
@@ -61,10 +61,10 @@ public: // API
     void deleteNetName(const net_t);        // Deletes the current name of a specified net
 
 public slots:
-    uint doReset();                         //* Run the chip reset sequence, returns the number of clocks thet reset took
+    uint doReset();                         //* Runs the chip reset sequence, returns the number of clocks thet reset took
     void doRunsim(uint ticks);              //* Runs the simulation for the given number of clocks
-    void save() { emit shutdown(); }        //* Save all modified files
-    //                                      //* <- Methods of the scripting object "control"
+    void save() { emit shutdown(); }        //* Saves all modified files
+    //
 
 signals:
     void onRunStarting(uint);               // Called by the sim when it is starting the simulation

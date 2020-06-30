@@ -8,7 +8,7 @@
  */
 class ClassScript : public QObject
 {
-    Q_OBJECT
+    Q_OBJECT                        //* <- Methods of the scripting object "script" below
 public:
     explicit ClassScript(QObject *parent = nullptr);
     void init(QScriptEngine *sc);
@@ -19,7 +19,6 @@ signals:
 public slots:
     void stop();                    // Stops any running script evaluation
     void exec(QString cmd);         //* Evaluates and runs commands
-    //                              //* <- Methods of the scripting object "script"
 
 private:
     static QScriptValue onPrint(QScriptContext *ctx, QScriptEngine *eng);

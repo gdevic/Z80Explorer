@@ -17,7 +17,7 @@ namespace Ui { class WidgetImageView; }
  */
 class WidgetImageView : public QWidget
 {
-    Q_OBJECT
+    Q_OBJECT                            //* <- Methods of the scripting object "img" below
 
 public:
     explicit WidgetImageView(QWidget *parent = nullptr);
@@ -39,7 +39,6 @@ public slots:
     void state();                       //* Prints the img view state
     void annot(QString fileName)        //* Loads custom annotation file
         { m_dropppedFile = fileName; dropEvent(nullptr); }
-    //                                  //* <- Methods of the scripting object "img"
 
 private slots:
     void onFind(QString text);          // Search for the named feature

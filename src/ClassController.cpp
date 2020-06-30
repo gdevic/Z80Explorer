@@ -62,7 +62,7 @@ bool ClassController::init(QScriptEngine *sc)
 }
 
 /*
- * Run the chip reset sequence, returns the number of clocks thet reset took
+ * Runs the chip reset sequence, returns the number of clocks thet reset took
  */
 uint ClassController::doReset()
 {
