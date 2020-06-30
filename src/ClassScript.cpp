@@ -88,7 +88,7 @@ In addition, objects "control", "sim", "monitor", "script" and "img" provide met
 QScriptValue ClassScript::onRun(QScriptContext *ctx, QScriptEngine *)
 {
     uint cycles = ctx->argument(0).toNumber();
-    ::controller.doRunsim(cycles);
+    ::controller.doRunsim(cycles ? cycles : INT_MAX);
     return QScriptValue();
 }
 
