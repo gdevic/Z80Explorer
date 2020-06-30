@@ -22,6 +22,7 @@ public slots:
     //                              //* <- Methods of the scripting object "script"
 
 private:
+    static QScriptValue onPrint(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onHelp(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onRun(QScriptContext *ctx, QScriptEngine *eng);
     static QScriptValue onStop(QScriptContext *ctx, QScriptEngine *eng);

@@ -10,6 +10,8 @@ void ClassScript::init(QScriptEngine *sc)
 {
     m_engine = sc;
 
+    QScriptValue funPrint = m_engine->newFunction(&ClassScript::onPrint);
+    m_engine->globalObject().setProperty("print", funPrint);
     QScriptValue funHelp = m_engine->newFunction(&ClassScript::onHelp);
     m_engine->globalObject().setProperty("help", funHelp);
     QScriptValue funRun = m_engine->newFunction(&ClassScript::onRun);
@@ -66,6 +68,23 @@ void ClassScript::exec(QString cmd)
         if (!result.isUndefined())
             emit response(result.toString());
     }
+}
+
+/*
+ * Reimplements print() function
+ */
+QScriptValue ClassScript::onPrint(QScriptContext *ctx, QScriptEngine *)
+{
+    QString result;
+    for (int i = 0; i < ctx->argumentCount(); i++)
+    {
+        if (i > 0)
+            result.append(" ");
+        result.append(ctx->argument(i).toString());
+    }
+    QScriptValue calleeData = ctx->callee().data();
+    emit ::controller.getScript().response(result);
+    return QScriptValue();
 }
 
 QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
