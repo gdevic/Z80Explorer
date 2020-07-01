@@ -156,7 +156,7 @@ color: rgb(255, 255, 255);</string>
           <bool>false</bool>
          </attribute>
          <attribute name="verticalHeaderMinimumSectionSize">
-          <number>20</number>
+          <number>10</number>
          </attribute>
          <attribute name="verticalHeaderDefaultSectionSize">
           <number>20</number>

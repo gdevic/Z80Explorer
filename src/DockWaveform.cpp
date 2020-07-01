@@ -19,6 +19,8 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     ui->btLink->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     QSettings settings;
     restoreGeometry(settings.value("dockWaveformGeometry-" + QString::number(m_id)).toByteArray());
+    m_sectionSize = settings.value("dockWaveHeight", 20).toInt();
+    onEnlarge(0);
 
     // Build the menus for this widget
     QMenu* menu = new QMenu(this);
@@ -36,6 +38,8 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::actionTriggered, this, &DockWaveform::onScrollBarActionTriggered);
     connect(ui->scrollArea, &CustomScrollArea::zoom, ui->widgetWaveform, &WidgetWaveform::onZoom);
+    connect(ui->scrollArea, &CustomScrollArea::enlarge, ui->widgetWaveform, &WidgetWaveform::onEnlarge);
+    connect(ui->scrollArea, &CustomScrollArea::enlarge, this, &DockWaveform::onEnlarge);
 
     connect(&::controller, &ClassController::eventNetName, this, &DockWaveform::eventNetName);
 
@@ -55,6 +59,7 @@ DockWaveform::~DockWaveform()
 
     QSettings settings;
     settings.setValue("dockWaveformGeometry-" + QString::number(m_id), saveGeometry());
+    settings.setValue("dockWaveHeight", m_sectionSize);
 
     delete ui;
 }
@@ -180,7 +185,6 @@ void DockWaveform::rebuildList()
     QTableWidget *tv = ui->list;
     tv->clearContents();
     tv->setRowCount(m_view.count());
-    tv->setColumnCount(2);
     for (int row=0; row < m_view.count(); row++)
     {
         QTableWidgetItem *tvi = new QTableWidgetItem(m_view[row].name);
@@ -261,6 +265,28 @@ void DockWaveform::onScrollBarActionTriggered(int)
     uint range = sb->maximum();
     uint pos = sb->sliderPosition();
     m_rel = qreal(pos) / range;
+}
+
+/*
+ * Handles mouse wheel event in the scroll area to support vertical resize
+ */
+void DockWaveform::wheelEvent(QWheelEvent* event)
+{
+    bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+    if (ctrl)
+        emit ui->scrollArea->enlarge(event->delta() > 0 ? 1 : -1);
+}
+
+/*
+ * User resized the view vertically
+ */
+void DockWaveform::onEnlarge(int delta)
+{
+    m_sectionSize = qBound<int>(10, m_sectionSize + delta, 50);
+    ui->list->verticalHeader()->setDefaultSectionSize(m_sectionSize);
+    QFont font = ui->list->font();
+    font.setPixelSize(0.7 * m_sectionSize);
+    ui->list->setFont(font);
 }
 
 /*

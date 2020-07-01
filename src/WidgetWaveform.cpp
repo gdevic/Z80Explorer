@@ -18,6 +18,10 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     setMouseTracking(true);
+
+    QSettings settings;
+    m_dY = settings.value("dockWaveHeight", 20).toInt();
+    onEnlarge(0);
 }
 
 void WidgetWaveform::paintEvent(QPaintEvent *pe)
@@ -25,9 +29,8 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
     const QRect &r = pe->rect();
     QPainter painter(this);
 
-    // Set up font to draw bus values
     QFont font = painter.font();
-    font.setPixelSize(12);
+    font.setPixelSize(m_fontheight);
     painter.setFont(font);
 
     // Draw a faint gray background grid
@@ -41,7 +44,7 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
     }
 
     uint hstart = ::controller.getWatch().gethstart();
-    uint y = 16; // Starting Y coordinate, the bottom of the first net
+    uint y = m_dY - 2; // Initial Y coordinate, the bottom of the first net
     int it;
     viewitem *vi = m_dock->getFirst(it);
     while (vi != nullptr)
@@ -54,7 +57,7 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
             else
                 drawOneSignal_Bus(painter, y, hstart, w, vi);
         }
-        y += 20; // Advance to the next Y coordinate, this is the height of each net
+        y += m_dY; // Advance to the next Y coordinate, this is the height of each net
         vi = m_dock->getNext(it);
     }
     drawCursors(painter, r, hstart);
@@ -62,6 +65,7 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
 
 void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
+    const uint wh[4] { 0, m_waveheight, m_waveheight / 2, 0 };
     static const QPen penHiZ = QPen(QColor(Qt::white), 1, Qt::DotLine);
     painter.setPen(viewitem->color);
     net_t data_cur, data_prev = ::controller.getWatch().at(w, hstart);
@@ -70,7 +74,6 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
         data_cur = ::controller.getWatch().at(w, hstart + i);
         if (data_cur > 2) // If the data is undef at this cycle, do not draw it
             continue;
-        static const uint wh[4] { 0, m_waveheight, m_waveheight / 2, 0 };
         uint x1 = i * m_hscale;
         uint x2 = (i + 1) * m_hscale;
         uint y1 = wh[data_prev & 3];
@@ -185,13 +188,6 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
 
 void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
 {
-    // Set up font to draw cursor values
-    QFont font = painter.font();
-    font.setPixelSize(14);
-    painter.setFont(font);
-
-    QFontMetrics fontm = QFontMetrics(painter.font());
-    m_fontheight = fontm.height();
     QPen pen(Qt::yellow);
     painter.setPen(pen);
 
@@ -275,7 +271,7 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
         setCursor(Qt::SizeHorCursor);
         update();
     }
-    else // User is moving the pane and it needs to be scrolled
+    else // User is scrolling the pane
     {
         int deltaX = m_pinMousePos.x() - event->x();
         setCursor(Qt::ClosedHandCursor);
@@ -363,9 +359,12 @@ void WidgetWaveform::onZoom(bool isUp)
     updateGeometry();
 }
 
-void WidgetWaveform::wheelEvent(QWheelEvent *event)
+void WidgetWaveform::onEnlarge(int delta)
 {
-    onZoom(event->delta() > 0);
+    m_dY = qBound<int>(10, m_dY + delta, 50);
+    m_waveheight = 0.8 * m_dY;
+    m_fontheight = 0.7 * m_dY;
+    update();
 }
 
 void WidgetWaveform::leaveEvent(QEvent *)

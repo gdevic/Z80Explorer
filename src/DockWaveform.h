@@ -3,6 +3,7 @@
 
 #include "AppTypes.h"
 #include <QDockWidget>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QScrollArea>
 
@@ -37,18 +38,26 @@ public:
 
 signals:
     void zoom(bool isUp);       // Send a zoom signal with the direction indicator
+    void enlarge(int delta);    // Send a vertical enlarge signal with the increment value (-1,+1)
 
 private:
     void keyPressEvent(QKeyEvent *event) override
     {
         switch (event->key())   // Intercept and handle only PgUp/PgDown and cursor Up/Down keys
         {
-        case Qt::Key_Up:
+        case Qt::Key_Up: emit enlarge(1); break;
         case Qt::Key_PageUp: emit zoom(true); break;
-        case Qt::Key_Down:
+        case Qt::Key_Down: emit enlarge(-1); break;
         case Qt::Key_PageDown: emit zoom(false); break;
         default: QScrollArea::keyPressEvent(event);
         }
+    }
+
+    bool eventFilter(QObject *, QEvent *event) override
+    {
+        if (event->type() == QEvent::Wheel) // If the user pressed Ctrl key, we handle the wheel event
+            return QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+        return false;
     }
 };
 
@@ -78,12 +87,21 @@ private slots:
     void cursorChanged(uint hcycle);    // Cursor moved, need to update values that are shown
     void onScrollBarActionTriggered(int);
     void onScrollBarRangeChanged(int,int);
+    void onEnlarge(int delta);          // User resized the view vertically
     void eventNetName(Netop op, const QString name, const net_t net);
 
 private:
     void rebuildList();
     bool load(QString fileName);        // Loads waveform items
     bool save(QString fileName);        // Saves waveform items
+
+    void wheelEvent(QWheelEvent* event) override;
+    bool eventFilter(QObject *, QEvent *event) override
+    {
+        if (event->type() == QEvent::Wheel) // If the user pressed Ctrl key, we handle the wheel event
+            return QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+        return false;
+    }
 
 private:
     Ui::DockWaveform *ui;
@@ -93,7 +111,8 @@ private:
 
     uint m_lastcursor;                  // Last cursor cycle value
     QString m_fileViewlist;             // This window's default waveform view configuration file name
-    qreal m_rel { 0 };                  // Waveform scroll relative slider position
+    qreal m_rel {};                     // Relative waveform scroll slider position
+    int m_sectionSize;                  // Table vertical section size in pixels
 
     QStringList getNames();             // Returns a list of all view item names
     viewitem *find(QString name);       // Find a view item with the given name or nullptr

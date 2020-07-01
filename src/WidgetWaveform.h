@@ -21,13 +21,13 @@ signals:
 public slots:
     void onLinked(bool isLinked);       // Links and unlinks the first two cursors
     void onZoom(bool isUp);             // Zooms in and out by a predefined step
+    void onEnlarge(int delta);          // Vertically enlarge the view
 
 private:
     DockWaveform *m_dock {};
     void drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem);
     void drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem);
     qreal m_hscale {10};                // Horizontal scale factor
-    const uint m_waveheight {15};       // Wave height in pixels
 
     void drawCursors(QPainter &painter, const QRect &r, uint hstart);
     QVector<uint> m_cursors2x {};       // Cursors' locations, index into the data (times 2)
@@ -40,14 +40,17 @@ private:
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
     void mouseDoubleClickEvent(QMouseEvent *) override;
-    void wheelEvent(QWheelEvent *) override;
+    void wheelEvent(QWheelEvent *event) override { onZoom(event->delta() > 0); }
     void leaveEvent(QEvent *) override;
     QSize sizeHint() const override;
 
     QPoint  m_mousePos;                 // Current mouse position
     QPoint  m_pinMousePos;              // Mouse position at the time of button press
     bool    m_mousePressed;             // Mouse button is pressed
-    int     m_fontheight;               // Cursor flag font height in pixels
+
+    uint    m_dY;                       // The height of each individual graph strip
+    uint    m_waveheight;               // Wave height in pixels
+    int     m_fontheight;               // Font height in pixels
 };
 
 #endif // WIDGETWAVEFORM_H
