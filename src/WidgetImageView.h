@@ -76,7 +76,6 @@ private:
     QTransform m_tx;                    // Transformation matrix from normalized image to screen space
     QTransform m_invtx;                 // Transformation matrix from screen to normalized image space
     QRect   m_viewPort;                 // Bounding rectangle of the current screen view
-    QRectF  m_imageView;                // Bounding rectangle in the texture space of the current screen viewport
     QQueue<qreal> m_perf;               // Helps calculate the rolling average of the painter's performance
     WidgetImageOverlay *m_ov;           // Image overlay class
     QTimer  m_timer;                    // Image refresh timer updates image every 1/2 seconds to show highlight blink

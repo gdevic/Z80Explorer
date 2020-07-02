@@ -176,11 +176,11 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     QPointF t1 = m_invtx.map(QPoint(m_viewPort.right(), m_viewPort.bottom()));
     clampImageCoords(t0, m_image.width() - 1, m_image.height() - 1);
     clampImageCoords(t1, m_image.width() - 1, m_image.height() - 1);
-    m_imageView = QRectF(t0, t1);
+    const QRect viewportTex = QRectF(t0, t1).toAlignedRect(); // Viewport rectangle in the texture space
 
     // Transformation allows us to simply draw as if the source and target are the same size
     calcTransform();
-    QRect size(0, 0, m_image.width(), m_image.height());
+    const QRect size(0, 0, m_image.width(), m_image.height());
 
     painter.setTransform(m_tx);
     painter.translate(-0.5, -0.5); // Adjust for Qt's very precise rendering
@@ -197,9 +197,9 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     {
         painter.save();
         painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+        painter.setBrush(QColor(255, 0, 255));
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-        painter.setBrush(QColor(255, 0, 255));
         for (uint i=3; i<::controller.getSimZ80().getNetlistCount(); i++)
         {
             if (::controller.getSimZ80().getNetState(i) == 1)
@@ -207,7 +207,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
                 for (const auto &path : ::controller.getChip().getSegment(i)->paths)
                 {
                     // Draw only paths that are not completely outside the viewing area
-                    if (m_imageView.intersects(path.boundingRect()))
+                    if (QRectF(viewportTex).intersects(path.boundingRect()))
                         painter.drawPath(path);
                 }
             }
@@ -263,7 +263,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawLatches)
     {
         painter.save();
-        ::controller.getChip().drawLatches(painter, m_imageView.toAlignedRect());
+        ::controller.getChip().drawLatches(painter, viewportTex);
         painter.restore();
     }
     //------------------------------------------------------------------------
@@ -272,7 +272,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if ((m_drawActiveTransistors || m_drawAllTransistors) && mouseOff)
     {
         painter.save();
-        ::controller.getChip().expDrawTransistors(painter, m_imageView.toAlignedRect(), m_drawAllTransistors);
+        ::controller.getChip().expDrawTransistors(painter, viewportTex, m_drawAllTransistors);
         painter.restore();
     }
     //------------------------------------------------------------------------
@@ -315,7 +315,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawNetNames)
     {
         painter.save();
-        ::controller.getChip().expDynamicallyNameNets(painter, m_imageView.toAlignedRect(), m_scale);
+        ::controller.getChip().expDynamicallyNameNets(painter, viewportTex, m_scale);
         painter.restore();
     }
     //------------------------------------------------------------------------
@@ -324,7 +324,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawAnnotations)
     {
         painter.save();
-        ::controller.getAnnotation().draw(painter, m_imageView.toAlignedRect(), m_scale);
+        ::controller.getAnnotation().draw(painter, viewportTex, m_scale);
         painter.restore();
     }
     //------------------------------------------------------------------------
