@@ -70,7 +70,7 @@ QVector<uint> ClassAnnotate::get(QRect r)
  * Draws annotations
  * scale is the current image scaling value, used to selectively draw different text sizes
  */
-void ClassAnnotate::draw(QPainter &painter, qreal scale)
+void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
 {
     QPen pens[] { QPen(Qt::white), QPen(Qt::black) };
     for (auto &a : m_annot)
@@ -82,6 +82,9 @@ void ClassAnnotate::draw(QPainter &painter, qreal scale)
         // Selective rendering hides annotations that are too large or too small for the given scale
         qreal apparent = a.pix * scale;
         bool show = isOutside || ((apparent < 200) && (apparent > 8));
+        // Speed up rendering by clipping all rectangles that are outside our viewport
+        if (a.rect.intersected(viewport) == QRect())
+            show = isOutside; // except those that are outside the chip image
 
         // First, dim the area rectangle proportional to the scale and the text size
         if (show && a.drawrect)

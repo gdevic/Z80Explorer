@@ -324,7 +324,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawAnnotations)
     {
         painter.save();
-        ::controller.getAnnotation().draw(painter, m_scale);
+        ::controller.getAnnotation().draw(painter, m_imageView.toAlignedRect(), m_scale);
         painter.restore();
     }
     //------------------------------------------------------------------------

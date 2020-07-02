@@ -37,7 +37,7 @@ public:
     QVector<uint> get(QRect r);         // Returns a list of annotation indices within the given rectangle
     uint count() { return m_annot.count(); } // Returns the total number of annotations
 
-    void draw(QPainter &painter, qreal scale);
+    void draw(QPainter &painter, const QRect &viewport, qreal scale);
     bool load(QString fileName);        // Loads user annotations
     bool save(QString fileName);        // Saves user annotations
 
