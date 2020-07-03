@@ -49,14 +49,14 @@ void DialogSchematic::onShow()
 {
     SymbolItem *item = qgraphicsitem_cast<SymbolItem *>(m_scene->selectedItems().first());
     Q_ASSERT(item);
-    doShow(item->get());
+    emit doShow(item->get());
 }
 
 void DialogSchematic::onNewSchematic()
 {
     SymbolItem *item = qgraphicsitem_cast<SymbolItem *>(m_scene->selectedItems().first());
     Q_ASSERT(item);
-    doNewSchematic(item->getNet());
+    emit doNewSchematic(item->getNet());
 }
 
 void DialogSchematic::onPng()
