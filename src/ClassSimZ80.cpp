@@ -617,10 +617,10 @@ void ClassSimZ80::readState(z80state &z)
 }
 
 const QString z80state::decode[256] {
-    "nop","ld bc,xx","ld (bc),a","inc bc","inc b","dec b","ld b,x","rlca","ex af,af'","add hl,bc","ld a,(bc)","dec bc","inc c","dec c","ld c,x","rrca",
-    "djnz x","ld de,xx","ld (de),a","inc de","inc d","dec d","ld d,x","rla","jr x","add hl,de","ld a,(de)","dec de","inc e","dec e","ld e,x","rra",
-    "jr nz,x","ld hl,xx","ld (xx),hl","inc hl","inc h","dec h","ld h,x","daa","jr z,x","add hl,hl","ld hl,(xx)","dec hl","inc l","dec l","ld l,x","cpl",
-    "jr nc,x","ld sp,xx","ld (xx),a","inc sp","inc (hl)","dec (hl)","ld (hl),x","scf","jr c,x","add hl,sp","ld a,(xx)","dec sp","inc a","dec a","ld a,x","ccf",
+    "nop","ld bc,nn","ld (bc),a","inc bc","inc b","dec b","ld b,n","rlca","ex af,af'","add hl,bc","ld a,(bc)","dec bc","inc c","dec c","ld c,n","rrca",
+    "djnz n","ld de,nn","ld (de),a","inc de","inc d","dec d","ld d,n","rla","jr n","add hl,de","ld a,(de)","dec de","inc e","dec e","ld e,n","rra",
+    "jr nz,n","ld hl,nn","ld (nn),hl","inc hl","inc h","dec h","ld h,n","daa","jr z,n","add hl,hl","ld hl,(nn)","dec hl","inc l","dec l","ld l,n","cpl",
+    "jr nc,n","ld sp,nn","ld (nn),a","inc sp","inc (hl)","dec (hl)","ld (hl),n","scf","jr c,n","add hl,sp","ld a,(nn)","dec sp","inc a","dec a","ld a,n","ccf",
     "ld b,b","ld b,c","ld b,d","ld b,e","ld b,h","ld b,l","ld b,(hl)","ld b,a","ld c,b","ld c,c","ld c,d","ld c,e","ld c,h","ld c,l","ld c,(hl)","ld c,a",
     "ld d,b","ld d,c","ld d,d","ld d,e","ld d,h","ld d,l","ld d,(hl)","ld d,a","ld e,b","ld e,c","ld e,d","ld e,e","ld e,h","ld e,l","ld e,(hl)","ld e,a",
     "ld h,b","ld h,c","ld h,d","ld h,e","ld h,h","ld h,l","ld h,(hl)","ld h,a","ld l,b","ld l,c","ld l,d","ld l,e","ld l,h","ld l,l","ld l,(hl)","ld l,a",
@@ -629,10 +629,10 @@ const QString z80state::decode[256] {
     "sub b","sub c","sub d","sub e","sub h","sub l","sub (hl)","sub a","sbc a,b","sbc a,c","sbc a,d","sbc a,e","sbc a,h","sbc a,l","sbc a,(hl)","sbc a,a",
     "and b","and c","and d","and e","and h","and l","and (hl)","and a","xor b","xor c","xor d","xor e","xor h","xor l","xor (hl)","xor a",
     "or b","or c","or d","or e","or h","or l","or (hl)","or a","cp b","cp c","cp d","cp e","cp h","cp l","cp (hl)","cp a",
-    "ret nz","pop bc","jp nz,xx","jp xx","call nz,xx","push bc","add a,x","rst 00h","ret z","ret","jp z,xx","CB  ","call z,xx","call xx","adc a,x","rst 08h",
-    "ret nc","pop de","jp nc,xx","out (x),a","call nc,xx","push de","sub x","rst 10h","ret c","exx","jp c,xx","in a,(x)","call c,xx","DD (IX) ","sbc a,x","rst 18h",
-    "ret po","pop hl","jp po,xx","ex (sp),hl","call po,xx","push hl","and x","rst 20h","ret pe","jp (hl)","jp pe,xx","ex de,hl","call pe,xx","ED  ","xor x","rst 28h",
-    "ret p","pop af","jp p,xx","di","call p,xx","push af","or x","rst 30h","ret m","ld sp,hl","jp m,xx","ei","call m,xx","FD (IY) ","cp x","rst 38h"};
+    "ret nz","pop bc","jp nz,nn","jp nn","call nz,nn","push bc","add a,n","rst 00h","ret z","ret","jp z,nn","CB  ","call z,nn","call nn","adc a,n","rst 08h",
+    "ret nc","pop de","jp nc,nn","out (n),a","call nc,nn","push de","sub n","rst 10h","ret c","exx","jp c,nn","in a,(n)","call c,nn","DD (IX)","sbc a,n","rst 18h",
+    "ret po","pop hl","jp po,nn","ex (sp),hl","call po,nn","push hl","and n","rst 20h","ret pe","jp (hl)","jp pe,nn","ex de,hl","call pe,nn","ED","xor n","rst 28h",
+    "ret p","pop af","jp p,nn","di","call p,nn","push af","or n","rst 30h","ret m","ld sp,hl","jp m,nn","ei","call m,nn","FD (IY)","cp n","rst 38h"};
 
 const QString z80state::decodeED[256] {
     "","","","","","","","","","","","","","","","",
