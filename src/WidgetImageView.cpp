@@ -556,7 +556,7 @@ void WidgetImageView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void WidgetImageView::wheelEvent(QWheelEvent *event)
 {
-    if (event->delta() > 0)
+    if (event->angleDelta().y() > 0)
         m_scale = m_scale * 1.2;
     else
         m_scale = m_scale / 1.2;

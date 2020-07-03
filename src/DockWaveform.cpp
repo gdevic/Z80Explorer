@@ -274,7 +274,7 @@ void DockWaveform::wheelEvent(QWheelEvent* event)
 {
     bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
     if (ctrl)
-        emit ui->scrollArea->enlarge(event->delta() > 0 ? 1 : -1);
+        emit ui->scrollArea->enlarge(event->angleDelta().y() > 0 ? 1 : -1);
 }
 
 /*

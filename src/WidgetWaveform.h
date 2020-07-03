@@ -40,7 +40,7 @@ private:
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
     void mouseDoubleClickEvent(QMouseEvent *) override;
-    void wheelEvent(QWheelEvent *event) override { onZoom(event->delta() > 0); }
+    void wheelEvent(QWheelEvent *event) override { onZoom(event->angleDelta().y() > 0); }
     void leaveEvent(QEvent *) override;
     QSize sizeHint() const override;
 

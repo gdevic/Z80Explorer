@@ -17,7 +17,7 @@ WidgetGraphicsView::WidgetGraphicsView(QWidget *parent) : QGraphicsView(parent)
  */
 void WidgetGraphicsView::wheelEvent(QWheelEvent *event)
 {
-    if (event->delta() > 0)
+    if (event->angleDelta().y() > 0)
         m_scale = m_scale * 1.1;
     else
         m_scale = m_scale / 1.1;
