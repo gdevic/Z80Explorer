@@ -23,6 +23,7 @@ xcopy /Y cleanup.reg      %RELEASEDIR%
 xcopy /Y Qt5Core.dll      %RELEASEDIR%
 xcopy /Y Qt5Gui.dll       %RELEASEDIR%
 xcopy /Y Qt5Script.dll    %RELEASEDIR%
+xcopy /Y Qt5Network.dll   %RELEASEDIR%
 xcopy /Y Qt5Widgets.dll   %RELEASEDIR%
 xcopy /Y platforms\qwindows.dll %RELEASEDIR%\platforms
 xcopy /Y styles\qwindowsvistastyle.dll %RELEASEDIR%\styles
