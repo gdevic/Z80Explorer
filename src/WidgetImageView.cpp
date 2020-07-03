@@ -901,7 +901,7 @@ void WidgetImageView::onFind(QString text)
         // Search the transistors first
         if (text.startsWith('t'))
         {
-            tran_t transId = text.mid(1).toUInt(&ok);
+            tran_t transId = text.midRef(1).toUInt(&ok);
             if (ok)
                 trans = ::controller.getChip().getTrans(transId);
         }
