@@ -9,8 +9,8 @@
 // Contains individual annotation object
 struct annotation
 {
-    QStaticText text;       // Annotation text, supports subset of HTML
-    QStaticText cache;      // Annotation cached text with macros expanded
+    QString text;           // Annotation text: primary, non-expanded, editable string
+    QStaticText cache;      // Annotation text with {net|bus} macros expanded and prepared for painter rendering
     QRect rect;             // Annotation bounding rectangle in the texture space
     QPoint pos;             // Coordinates of the text in the texture space
     uint pix;               // Text size in pixels
@@ -52,8 +52,8 @@ private:
     const qreal m_someXFactor = 1.8;    // Depending on a font, we need to stretch its rendering
     const QRect m_imgRect = QRect(0, 0, 4700, 5000); // XXX Z80-specific, hard-coded image size rectangle!
 
-    int textLength(const QStaticText &text) // Returns the length of a text with HTML tags stripped
-        { return QTextDocumentFragment::fromHtml(text.text()).toPlainText().length(); }
+    int textLength(const QString &text) // Returns the length of a text with HTML tags stripped
+        { return QTextDocumentFragment::fromHtml(text).toPlainText().length(); }
 };
 
 #endif // CLASSANNOTATE_H

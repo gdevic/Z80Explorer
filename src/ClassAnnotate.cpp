@@ -115,11 +115,12 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
             painter.setFont(m_fixedFont);
 
             // Macro substitution: early exit if there are no macro delimiters
-            if (a.text.text().indexOf('{') >= 0)
+            QString finalText = a.text;
+            if (a.text.indexOf('{') >= 0)
             {
                 // Net and bus names should be enclosed in {...} for the substitution to take place
-                QStringList tokens = a.text.text().split('{');
-                QString finalText;
+                QStringList tokens = a.text.split('{');
+                finalText.clear();
                 for (auto &s : tokens)
                 {
                     int i = s.indexOf('}'); // Find the end delimiter
@@ -150,13 +151,11 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
                     else
                         finalText.append(s);
                 }
-                // Cache output QStaticText so we don't have to change it (rebuild it) unless we have to (due to a macro substitution)
-                if (finalText != a.cache.text())
-                    a.cache.setText(finalText);
-                painter.drawStaticText(a.pos, a.cache);
             }
-            else
-                painter.drawStaticText(a.pos, a.text);
+            // Cache output QStaticText so we don't have to change it (rebuild it) unless we have to (due to a macro substitution)
+            if (finalText != a.cache.text())
+                a.cache.setText(finalText);
+            painter.drawStaticText(a.pos, a.cache);
         }
 
         // Finally, draw the outline of a rectangle with a line less thick than the overline
@@ -198,7 +197,7 @@ bool ClassAnnotate::load(QString fileName)
                 annotation a;
                 QJsonObject obj = array[i].toObject();
                 if (obj.contains("text") && obj["text"].isString())
-                    a.text.setText(obj["text"].toString());
+                    a.text = obj["text"].toString();
                 if (obj.contains("x") && obj["x"].isDouble())
                     a.pos.setX(obj["x"].toInt());
                 if (obj.contains("y") && obj["y"].isDouble())
@@ -244,7 +243,7 @@ bool ClassAnnotate::save(QString fileName)
         for (annotation &a : m_annot)
         {
             QJsonObject obj;
-            obj["text"] = a.text.text();
+            obj["text"] = a.text;
             obj["x"] = a.pos.x();
             obj["y"] = a.pos.y();
             obj["rx"] = a.rect.x();

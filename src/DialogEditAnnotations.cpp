@@ -90,7 +90,7 @@ annotation DialogEditAnnotations::get(QListWidgetItem *item)
 void DialogEditAnnotations::set(QListWidgetItem *item, annotation &annot)
 {
     item->setData(Qt::UserRole, QVariant::fromValue(annot));
-    item->setText(annot.text.text());
+    item->setText(annot.text);
 }
 
 void DialogEditAnnotations::append(annotation &annot)
@@ -184,7 +184,7 @@ void DialogEditAnnotations::selChanged()
         annotation annot = get(sel[0]);
         if (sel.count() == 1) // Set these fields only if a single annotation has been selected
         {
-            ui->textEdit->setPlainText(annot.text.text()); // Show the text
+            ui->textEdit->setPlainText(annot.text); // Show the text
             ui->spinX->setSingleStep(annot.pix / 4); // Set the X,Y location steps to a fraction of pix
             ui->spinY->setSingleStep(annot.pix / 4);
         }
@@ -206,7 +206,7 @@ void DialogEditAnnotations::onTextChanged()
     Q_ASSERT(sel.count() == 1);
     sel[0]->setText(ui->textEdit->toPlainText());
     annotation a = get(sel[0]);
-    a.text.setText(ui->textEdit->toPlainText());
+    a.text = ui->textEdit->toPlainText();
     set(sel[0], a);
 }
 
