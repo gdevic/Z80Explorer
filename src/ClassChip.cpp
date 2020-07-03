@@ -213,7 +213,7 @@ bool ClassChip::loadTransdefs(QString dir)
             {
                 line.replace('[', ' ').replace(']', ' '); // Make it a simple list of numbers
                 line.chop(2);
-                list = line.split(',', QString::SkipEmptyParts);
+                list = line.split(QLatin1Char(','), Qt::SkipEmptyParts);
                 if (list.length()==14 && list[0].length() > 2)
                 {
                     // ----- Add the transistor to the transistor array -----
@@ -944,7 +944,7 @@ bool ClassChip::loadLatches()
             line = line.left(line.indexOf(';')).trimmed();
             if (line.length())
             {
-                list = line.split(",", QString::SkipEmptyParts);
+                list = line.split(QLatin1Char(','), Qt::SkipEmptyParts);
                 if (list.count() == 2)
                 {
                     uint t1, t2;

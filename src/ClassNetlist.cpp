@@ -140,7 +140,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
             if (line.indexOf(':') != -1)
             {
                 line.chop(1); // Remove comma at the end of each line
-                list = line.split(':', QString::SkipEmptyParts);
+                list = line.split(QLatin1Char(':'), Qt::SkipEmptyParts);
                 if (list.length()==2)
                 {
                     QString name = list[0].trimmed();
@@ -150,7 +150,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
                     if (loadCustom)
                     {
                         // Bus is the collections of 2 or more individual nets
-                        QStringList buslist = list[1].replace('[',' ').replace(']',' ').split(",", QString::SkipEmptyParts);
+                        QStringList buslist = list[1].replace('[',' ').replace(']',' ').split(QLatin1Char(','), Qt::SkipEmptyParts);
                         if (buslist.count() > 1)
                         {
                             QVector<net_t> nets;
@@ -216,7 +216,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
             {
                 line.replace('[', ' ').replace(']', ' '); // Make it a simple list of numbers
                 line.chop(2);
-                list = line.split(',', QString::SkipEmptyParts);
+                list = line.split(QLatin1Char(','), Qt::SkipEmptyParts);
                 if (list.length()==14 && list[0].length() > 2)
                 {
                     // ----- Add the transistor to the transistor array -----
