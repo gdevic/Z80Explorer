@@ -104,25 +104,26 @@ const QStringList ClassController::getFormats(QString name)
 
 /*
  * Returns the formatted string for a bus type value
+ * If width is non-zero, the numbers have Verilog-style prefix specifying the given width
  */
 const QString ClassController::formatBus(uint fmt, uint value, uint width)
 {
     if (Q_UNLIKELY(value == UINT_MAX)) return "hi-Z";
-    QString s = QString::number(width) % "'h" % QString::number(value, 16).toUpper(); // Print hex by default
+    QString s = (width ? (QString::number(width) % "'h") : QString()) % QString::number(value, 16).toUpper(); // Print hex by default
     // Handle a special case where asked to print ASCII, but a value is not a prinable character: return its hex value
-    if ((fmt == FormatBus::Ascii) && !QChar::isPrint(value))
+    if (Q_UNLIKELY((fmt == FormatBus::Ascii) && !QChar::isPrint(value)))
         return s;
     // Handle a special case where asked to print Disasm, but the width is not exactly 8 bits: return its hex value
-    if ((fmt == FormatBus::Disasm) && (width != 8))
+    if (Q_UNLIKELY((fmt == FormatBus::Disasm) && (width != 8)))
         return s;
     static bool wasED = false;
     static bool wasCB = false;
     switch (fmt)
     {
-        case FormatBus::Bin: s = QString::number(width) % "'b" % QString::number(value, 2); break;
-        case FormatBus::Oct: s = QString::number(width) % "'o" % QString::number(value, 8); break;
-        case FormatBus::Dec: s = QString::number(width) % "'d" % QString::number(value, 10); break;
-        case FormatBus::Ascii: s = QString(QString::number(width) % "'" % QChar(value) % "'"); break;
+        case FormatBus::Bin: s = (width ? (QString::number(width) % "'b") : QString()) % QString::number(value, 2);  break;
+        case FormatBus::Oct: s = (width ? (QString::number(width) % "'o") : QString()) % QString::number(value, 8);  break;
+        case FormatBus::Dec: s = (width ? (QString::number(width) % "'d") : QString()) % QString::number(value, 10); break;
+        case FormatBus::Ascii: s = "'" % QChar(value) % "'"; break;
         case FormatBus::Disasm:
             // HACK: To get better opcode decode we keep the last ED/CB assuming we are called in-order
             s = z80state::disasm(value, !wasED, !wasCB);
