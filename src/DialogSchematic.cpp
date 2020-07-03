@@ -85,7 +85,7 @@ void DialogSchematic::drawSymbol(QPoint loc, Logic *lr)
     QPoint childLoc(loc.x() + 50 + 10, loc.y());
     QPoint lineStart(loc.x() + 50 + 5, loc.y());
     QLine line(lineStart, childLoc);
-    int lastY;
+    int lastY {};
 
     for (auto k : lr->children)
     {

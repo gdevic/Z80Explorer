@@ -19,7 +19,7 @@ static void crashMessage(std::string e = "Oh, no!")
     QMessageBox::critical(nullptr, "App crashed", QString::fromStdString(e) + "\n"
                           "Application has unexpectedly terminated. Please report this as a bug. "
                           "If you can also reproduce the issue, please provide the steps. Thank you!");
-    qFatal(e.c_str());
+    qFatal("%s", e.c_str());
 }
 
 int main(int argc, char *argv[])
