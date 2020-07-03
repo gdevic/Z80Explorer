@@ -95,6 +95,13 @@ void ClassNetlist::parse(Logic *root)
     //-------------------------------------------------------------------------------
     if (::controller.getChip().isLatch(net0id))
     {
+        tran_t t1, t2;
+        net_t n1, n2;
+        ::controller.getChip().getLatch(net0id, t1, t2, n1, n2);
+        visitedTran.append(t1);
+        visitedTran.append(t2);
+        visitedNets.append(n1);
+        visitedNets.append(n2);
         qDebug() << "Latch";
         root->op = LogicOp::Latch;
         return;
@@ -213,11 +220,13 @@ void ClassNetlist::parse(Logic *root)
         Net &net1 = m_netlist[net1id];
 
         qDebug() << "Processing net" << net0id << "at transistor" << t1->id;
+
         //-------------------------------------------------------------------------------
         // Ignore transistors already processed (like in a clk gating)
         //-------------------------------------------------------------------------------
         if (visitedTran.contains(t1->id))
             continue;
+
         //-------------------------------------------------------------------------------
         // Ignore pull-up inputs
         //-------------------------------------------------------------------------------
@@ -281,6 +290,7 @@ void ClassNetlist::parse(Logic *root)
                 parse(node->children[1]);
                 continue;
             }
+
             //-------------------------------------------------------------------------------
             // Complex NAND gate extends for 3 pass-transistor nets (ex. net 235)
             //-------------------------------------------------------------------------------
