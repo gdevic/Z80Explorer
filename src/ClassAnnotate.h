@@ -10,6 +10,7 @@
 struct annotation
 {
     QStaticText text;       // Annotation text, supports subset of HTML
+    QStaticText cache;      // Annotation cached text with macros expanded
     QRect rect;             // Annotation bounding rectangle in the texture space
     QPoint pos;             // Coordinates of the text in the texture space
     uint pix;               // Text size in pixels

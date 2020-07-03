@@ -1,4 +1,5 @@
 #include "ClassAnnotate.h"
+#include "ClassController.h"
 #include <QDebug>
 #include <QFile>
 #include <QJsonArray>
@@ -72,6 +73,7 @@ QVector<uint> ClassAnnotate::get(QRect r)
  */
 void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
 {
+    const uint hcycle = ::controller.getSimZ80().getCurrentHCycle() - 1;
     QPen pens[] { QPen(Qt::white), QPen(Qt::black) };
     for (auto &a : m_annot)
     {
@@ -111,7 +113,50 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
         {
             m_fixedFont.setPixelSize(a.pix); // Set the text size
             painter.setFont(m_fixedFont);
-            painter.drawStaticText(a.pos, a.text);
+
+            // Macro substitution: early exit if there are no macro delimiters
+            if (a.text.text().indexOf('{') >= 0)
+            {
+                // Net and bus names should be enclosed in {...} for the substitution to take place
+                QStringList tokens = a.text.text().split('{');
+                QString finalText;
+                for (auto &s : tokens)
+                {
+                    int i = s.indexOf('}'); // Find the end delimiter
+                    if (i > 0)
+                    {
+                        QString name = s.mid(0, i).trimmed(); // Extract the name
+
+                        watch *w = ::controller.getWatch().find(name);
+                        pin_t data_cur = ::controller.getWatch().at(w, hcycle);
+                        if (data_cur < 2)
+                            finalText.append(QString::number(data_cur));
+                        else if (data_cur == 2)
+                            finalText.append("Z");
+                        else if (data_cur == 3)
+                            finalText.append("?");
+                        else if (data_cur == 4) // Bus
+                        {
+                            uint width, value = ::controller.getWatch().at(w, hcycle, width);
+                            if (width)
+                                finalText.append(::controller.formatBus(ClassController::FormatBus::Hex, value, 0));
+                            else
+                                finalText.append("X");
+                        }
+                        else
+                            finalText.append("error");
+                        finalText.append(s.mid(i+1));
+                    }
+                    else
+                        finalText.append(s);
+                }
+                // Cache output QStaticText so we don't have to change it (rebuild it) unless we have to (due to a macro substitution)
+                if (finalText != a.cache.text())
+                    a.cache.setText(finalText);
+                painter.drawStaticText(a.pos, a.cache);
+            }
+            else
+                painter.drawStaticText(a.pos, a.text);
         }
 
         // Finally, draw the outline of a rectangle with a line less thick than the overline
