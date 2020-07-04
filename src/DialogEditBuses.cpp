@@ -117,8 +117,6 @@ void DialogEditBuses::onCreate()
     {
         name = name.trimmed().toUpper(); // Bus names are always upper-cased
         name = name.replace(' ', '_');
-        if (!name.at(0).isLetter()) // Make sure the bus name starts with (an uppercased) letter
-            name.prepend('B');
         if (ui->listBuses->findItems(name, Qt::MatchExactly).count() == 0) // Don't add it if a bus name already exists
             add(name, nets);
         else
