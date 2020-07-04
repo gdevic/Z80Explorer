@@ -13,38 +13,6 @@
             "net": 40
         },
         {
-            "name": "_instr0",
-            "net": 1348
-        },
-        {
-            "name": "_instr1",
-            "net": 1359
-        },
-        {
-            "name": "_instr2",
-            "net": 1365
-        },
-        {
-            "name": "_instr3",
-            "net": 1379
-        },
-        {
-            "name": "_instr4",
-            "net": 1387
-        },
-        {
-            "name": "_instr5",
-            "net": 1394
-        },
-        {
-            "name": "_instr6",
-            "net": 1369
-        },
-        {
-            "name": "_instr7",
-            "net": 1374
-        },
-        {
             "name": "_int",
             "net": 23
         },
@@ -53,36 +21,8 @@
             "net": 30
         },
         {
-            "name": "_ir0",
-            "net": 374
-        },
-        {
-            "name": "_ir1",
-            "net": 375
-        },
-        {
-            "name": "_ir2",
-            "net": 378
-        },
-        {
-            "name": "_ir3",
-            "net": 385
-        },
-        {
-            "name": "_ir4",
-            "net": 1386
-        },
-        {
-            "name": "_ir5",
-            "net": 1393
-        },
-        {
-            "name": "_ir6",
-            "net": 1371
-        },
-        {
-            "name": "_ir7",
-            "net": 1377
+            "name": "_last_t",
+            "net": 110
         },
         {
             "name": "_load_ir",
@@ -265,20 +205,12 @@
             "net": 370
         },
         {
-            "name": "INSTR",
-            "net": 0
-        },
-        {
             "name": "int_reset",
             "net": 95
         },
         {
-            "name": "IR",
-            "net": 0
-        },
-        {
-            "name": "_last_t",
-            "net": 110
+            "name": "last_t",
+            "net": 215
         },
         {
             "name": "M",
@@ -307,10 +239,6 @@
         {
             "name": "m6",
             "net": 210
-        },
-        {
-            "name": "last_t",
-            "net": 215
         },
         {
             "name": "set_t1",
