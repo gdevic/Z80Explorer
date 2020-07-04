@@ -96,7 +96,7 @@ const QStringList ClassController::getFormats(QString name)
 {
     static const QStringList formats[2] = {
         { "Logic", "Transition Up", "Transition Down", "Transition Any" },
-        { "Hexadecimal", "Binary", "Octal", "Decimal", "ASCII", "Disasm" }
+        { "Hexadecimal", "Binary", "Octal", "Decimal", "ASCII", "Disasm", "Ones' Complement" }
     };
     // If the name represents a bus, get() will return 0 for the net number, selecting formats[!0]
     return formats[!getNetlist().get(name)];
@@ -108,6 +108,8 @@ const QStringList ClassController::getFormats(QString name)
  */
 const QString ClassController::formatBus(uint fmt, uint value, uint width)
 {
+    if (fmt == FormatBus::OnesComplement)
+        value = (~value) & ((1 << width) - 1);
     if (Q_UNLIKELY(value == UINT_MAX)) return "hi-Z";
     QString s = (width ? (QString::number(width) % "'h") : QString()) % QString::number(value, 16).toUpper(); // Print hex by default
     // Handle a special case where asked to print ASCII, but a value is not a prinable character: return its hex value
@@ -131,6 +133,8 @@ const QString ClassController::formatBus(uint fmt, uint value, uint width)
                 wasED = (value == 0xED), wasCB = (value == 0xCB);
             break;
     }
+    if (fmt == FormatBus::OnesComplement)
+        return "~" % s; // 1s-complement format shows tilde to accentuate it
     return s;
 }
 
