@@ -343,6 +343,42 @@
         {
             "name": "vbus7",
             "net": 839
+        },
+        {
+            "name": "INSTR",
+            "net": 0
+        },
+        {
+            "name": "instr0",
+            "net": 1348
+        },
+        {
+            "name": "instr1",
+            "net": 1359
+        },
+        {
+            "name": "instr2",
+            "net": 1365
+        },
+        {
+            "name": "instr3",
+            "net": 1379
+        },
+        {
+            "name": "instr4",
+            "net": 1387
+        },
+        {
+            "name": "instr5",
+            "net": 1394
+        },
+        {
+            "name": "instr6",
+            "net": 1369
+        },
+        {
+            "name": "instr7",
+            "net": 1374
         }
     ]
 }
