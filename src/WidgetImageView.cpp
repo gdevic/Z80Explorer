@@ -918,6 +918,12 @@ void WidgetImageView::onFind(QString text)
             if (!ok) // Check if the input is a net name
             {
                 netnum = ::controller.getNetlist().get(text);
+                if (netnum == 0) // Check if the input is a bus name
+                {
+                    const QVector<net_t> &nets = ::controller.getNetlist().getBus(text);
+                    if (nets.count() > 0)
+                        netnum = nets[0]; // Report the first bus' net
+                }
                 ok = netnum > 0;
             }
             if (ok)
