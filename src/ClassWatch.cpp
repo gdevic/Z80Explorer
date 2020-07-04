@@ -168,7 +168,7 @@ void ClassWatch::updateWatchlist(QStringList list)
     for (auto &name : list)
     {
         net_t net = Net.get(name);
-        QVector<net_t> nets = Net.getBus(name);
+        const QVector<net_t> &nets = Net.getBus(name);
         watch *w = find(name);
 
         if (net || nets.count()) // The name represents a (valid) net or a bus
@@ -189,7 +189,7 @@ void ClassWatch::updateWatchlist(QStringList list)
     // Make sure that all nets, that belong to buses we added, are also included
     for (auto name : buses)
     {
-        QVector<net_t> nets = Net.getBus(name);
+        const QVector<net_t> &nets = Net.getBus(name);
         for (auto net : nets)
         {
             if (!find(net)) // If this net is not already part of our m_watchlist...

@@ -22,7 +22,7 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
             ui->listNets->addItem(name);
         else // Zero net number is a bus
         {
-            const QVector<net_t> bus = Net.getBus(name);
+            const QVector<net_t> &bus = Net.getBus(name);
             QStringList nets;
             for (auto n : bus)
                 nets.append(Net.get(n));

@@ -73,7 +73,7 @@ void ClassColors::rebuild()
                 }
                 else
                 {
-                    QVector<net_t> bus = ::controller.getNetlist().getBus(name);
+                    const QVector<net_t> &bus = ::controller.getNetlist().getBus(name);
                     for (auto n : bus)
                     {
                         // Remove any previously defined (duplicate) color; keep the last one

@@ -36,7 +36,7 @@ void DialogEditWatchlist::setNodeList(QStringList nodeList)
         QListWidgetItem *li = new QListWidgetItem(name);
         if (!Net.get(name)) // Zero net number is a bus
         {
-            const QVector<net_t> bus = Net.getBus(name);
+            const QVector<net_t> &bus = Net.getBus(name);
             QStringList nets;
             for (auto n : bus)
                 nets.append(Net.get(n));
@@ -56,7 +56,7 @@ void DialogEditWatchlist::setWatchlist(QStringList nodeList)
             ui->listSelected->addItem(name);
         else // Zero net number is a bus
         {
-            const QVector<net_t> bus = Net.getBus(name);
+            const QVector<net_t> &bus = Net.getBus(name);
             QStringList nets;
             for (auto n : bus)
                 nets.append(Net.get(n));
