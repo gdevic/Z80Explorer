@@ -140,7 +140,7 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
                         {
                             uint width, value = ::controller.getWatch().at(w, hcycle, width);
                             if (width)
-                                finalText.append(::controller.formatBus(ClassController::FormatBus::Hex, value, 0));
+                                finalText.append(::controller.formatBus(ClassController::FormatBus::Hex, value, width, false));
                             else
                                 finalText.append("X");
                         }

@@ -104,14 +104,14 @@ const QStringList ClassController::getFormats(QString name)
 
 /*
  * Returns the formatted string for a bus type value
- * If width is non-zero, the numbers have Verilog-style prefix specifying the given width
+ * If decorated is true (default), the numbers will have Verilog-style prefix specifying the given width
  */
-const QString ClassController::formatBus(uint fmt, uint value, uint width)
+const QString ClassController::formatBus(uint fmt, uint value, uint width, bool decorated)
 {
     if (fmt == FormatBus::OnesComplement)
         value = (~value) & ((1 << width) - 1);
     if (Q_UNLIKELY(value == UINT_MAX)) return "hi-Z";
-    QString s = (width ? (QString::number(width) % "'h") : QString()) % QString::number(value, 16).toUpper(); // Print hex by default
+    QString s = (decorated ? (QString::number(width) % "'h") : QString()) % QString::number(value, 16).toUpper(); // Print hex by default
     // Handle a special case where asked to print ASCII, but a value is not a prinable character: return its hex value
     if (Q_UNLIKELY((fmt == FormatBus::Ascii) && !QChar::isPrint(value)))
         return s;
@@ -122,9 +122,9 @@ const QString ClassController::formatBus(uint fmt, uint value, uint width)
     static bool wasCB = false;
     switch (fmt)
     {
-        case FormatBus::Bin: s = (width ? (QString::number(width) % "'b") : QString()) % QString::number(value, 2);  break;
-        case FormatBus::Oct: s = (width ? (QString::number(width) % "'o") : QString()) % QString::number(value, 8);  break;
-        case FormatBus::Dec: s = (width ? (QString::number(width) % "'d") : QString()) % QString::number(value, 10); break;
+        case FormatBus::Bin: s = (decorated ? (QString::number(width) % "'b") : QString()) % QString::number(value, 2);  break;
+        case FormatBus::Oct: s = (decorated ? (QString::number(width) % "'o") : QString()) % QString::number(value, 8);  break;
+        case FormatBus::Dec: s = (decorated ? (QString::number(width) % "'d") : QString()) % QString::number(value, 10); break;
         case FormatBus::Ascii: s = "'" % QChar(value) % "'"; break;
         case FormatBus::Disasm:
             // HACK: To get better opcode decode we keep the last ED/CB assuming we are called in-order
