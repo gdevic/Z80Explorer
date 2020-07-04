@@ -108,9 +108,9 @@ const QStringList ClassController::getFormats(QString name)
  */
 const QString ClassController::formatBus(uint fmt, uint value, uint width, bool decorated)
 {
+    if (Q_UNLIKELY(value == UINT_MAX)) return "hi-Z";
     if (fmt == FormatBus::OnesComplement)
         value = (~value) & ((1 << width) - 1);
-    if (Q_UNLIKELY(value == UINT_MAX)) return "hi-Z";
     QString s = (decorated ? (QString::number(width) % "'h") : QString()) % QString::number(value, 16).toUpper(); // Print hex by default
     // Handle a special case where asked to print ASCII, but a value is not a prinable character: return its hex value
     if (Q_UNLIKELY((fmt == FormatBus::Ascii) && !QChar::isPrint(value)))

@@ -20,6 +20,7 @@ signals:
 
 public slots:
     void onLinked(bool isLinked);       // Links and unlinks the first two cursors
+    void onDecorated(bool isDecorated); // Toggles bus value decorations
     void onZoom(bool isUp);             // Zooms in and out by a predefined step
     void onEnlarge(int delta);          // Vertically enlarge the view
 
@@ -28,6 +29,7 @@ private:
     void drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem);
     void drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem);
     qreal m_hscale {10};                // Horizontal scale factor
+    bool m_decorated {true};            // Bus value decorations
 
     void drawCursors(QPainter &painter, const QRect &r, uint hstart);
     QVector<uint> m_cursors2x {};       // Cursors' locations, index into the data (times 2)

@@ -122,7 +122,7 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
     uint last_data_x = 0; // X coordinate of the last bus data change
     bool width0text = true; // Not too elegant way to ensure we print only once on a stream of undef values
     // Get the text of the initial bus data value
-    QString text = ::controller.formatBus(viewitem->format, data_prev, width);
+    QString text = ::controller.formatBus(viewitem->format, data_prev, width, m_decorated);
     for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
     {
         uint x1 = i * m_hscale;
@@ -166,7 +166,7 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
             painter.drawLine(x1+3, y2, x2, y2);
 
             // Format the text of the new bus data value
-            text = ::controller.formatBus(viewitem->format, data_cur, width);
+            text = ::controller.formatBus(viewitem->format, data_cur, width, m_decorated);
         }
         else // Bus data is the same, continue drawing two parallel horizontal lines
         {
@@ -234,6 +234,12 @@ void WidgetWaveform::onLinked(bool isLinked)
         m_linked = int(m_cursors2x.at(1)) - int(m_cursors2x.at(0));
     else
         m_linked = 0;
+    update();
+}
+
+void WidgetWaveform::onDecorated(bool isDecorated)
+{
+    m_decorated = isDecorated;
     update();
 }
 
