@@ -85,37 +85,37 @@
             "net": 326
         },
         {
-            "color": "170,85,0,255",
+            "color": "208,104,0,255",
             "format": 0,
             "name": "m1",
             "net": 155
         },
         {
-            "color": "170,85,0,255",
+            "color": "208,104,0,255",
             "format": 0,
             "name": "m2",
             "net": 173
         },
         {
-            "color": "170,85,0,255",
+            "color": "208,104,0,255",
             "format": 0,
             "name": "m3",
             "net": 163
         },
         {
-            "color": "170,85,0,255",
+            "color": "208,104,0,255",
             "format": 0,
             "name": "m4",
             "net": 159
         },
         {
-            "color": "170,85,0,255",
+            "color": "208,104,0,255",
             "format": 0,
             "name": "m5",
             "net": 209
         },
         {
-            "color": "170,85,0,255",
+            "color": "208,104,0,255",
             "format": 0,
             "name": "m6",
             "net": 210
@@ -158,19 +158,19 @@
         },
         {
             "color": "0,255,0,255",
-            "format": 0,
+            "format": 6,
             "name": "DBUS",
             "net": 0
         },
         {
             "color": "0,255,0,255",
-            "format": 0,
+            "format": 6,
             "name": "UBUS",
             "net": 0
         },
         {
             "color": "0,255,0,255",
-            "format": 0,
+            "format": 6,
             "name": "VBUS",
             "net": 0
         }
