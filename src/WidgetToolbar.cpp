@@ -33,7 +33,7 @@ void WidgetToolbar::onHeartbeat(uint hcycle)
     ui->labelCycle->setText("hcycle: " % QString::number(hcycle));
 
     uint hz = ::controller.getSimZ80().getEstHz();
-    ui->labelFreq->setText("~" % QString::number(hz) % " Hz");
+    ui->labelFreq->setText(QString::number(hz) % " Hz");
 }
 
 void WidgetToolbar::onRunStopped(uint hcycle)

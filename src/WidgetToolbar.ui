@@ -105,7 +105,7 @@
    <item>
     <widget class="QLabel" name="labelFreq">
      <property name="text">
-      <string>~0 Hz</string>
+      <string>0 Hz</string>
      </property>
     </widget>
    </item>
