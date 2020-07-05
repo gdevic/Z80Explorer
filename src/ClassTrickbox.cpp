@@ -220,6 +220,11 @@ void ClassTrickbox::breakWhen(quint16 net, quint8 value)
 bool ClassTrickbox::loadHex(const QString fileName)
 {    
     QString name = fileName.isEmpty() ? m_lastLoadedHex : fileName;
+    if (QFileInfo(name).size() == 0)
+    {
+        qWarning() << "Empty file" << name;
+        return false;
+    }
     QFile file(name);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -282,6 +287,11 @@ bool ClassTrickbox::loadHex(const QString fileName)
  */
 bool ClassTrickbox::loadBin(const QString fileName, quint16 address)
 {
+    if (QFileInfo(fileName).size() == 0)
+    {
+        qWarning() << "Empty file" << fileName;
+        return false;
+    }
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly))
     {
