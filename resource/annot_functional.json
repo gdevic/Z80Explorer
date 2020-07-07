@@ -590,42 +590,6 @@
         },
         {
             "bar": false,
-            "pix": 80,
-            "rect": true,
-            "rh": 183,
-            "rw": 336,
-            "rx": 4120,
-            "ry": 2001,
-            "text": "DBUS={DBUS}",
-            "x": 4120,
-            "y": 2053
-        },
-        {
-            "bar": false,
-            "pix": 80,
-            "rect": true,
-            "rh": 160,
-            "rw": 346,
-            "rx": 3334,
-            "ry": 3480,
-            "text": "UBUS={UBUS}",
-            "x": 3344,
-            "y": 3520
-        },
-        {
-            "bar": false,
-            "pix": 80,
-            "rect": true,
-            "rh": 127,
-            "rw": 304,
-            "rx": 2648,
-            "ry": 3937,
-            "text": "VBUS={VBUS}",
-            "x": 2648,
-            "y": 3960
-        },
-        {
-            "bar": false,
             "pix": 100,
             "rect": true,
             "rh": 167,
@@ -635,6 +599,42 @@
             "text": "AB={AB}",
             "x": 712,
             "y": 3722
+        },
+        {
+            "bar": false,
+            "pix": 80,
+            "rect": true,
+            "rh": 168,
+            "rw": 409,
+            "rx": 4040,
+            "ry": 2016,
+            "text": "DBUS={~DBUS}",
+            "x": 4060,
+            "y": 2049
+        },
+        {
+            "bar": false,
+            "pix": 80,
+            "rect": true,
+            "rh": 163,
+            "rw": 435,
+            "rx": 3286,
+            "ry": 3494,
+            "text": "UBUS={~UBUS}",
+            "x": 3326,
+            "y": 3522
+        },
+        {
+            "bar": false,
+            "pix": 80,
+            "rect": true,
+            "rh": 159,
+            "rw": 413,
+            "rx": 2619,
+            "ry": 3928,
+            "text": "VBUS={~VBUS}",
+            "x": 2649,
+            "y": 3961
         }
     ]
 }
