@@ -126,7 +126,8 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
                     int i = s.indexOf('}'); // Find the end delimiter
                     if (i > 0)
                     {
-                        QString name = s.mid(0, i).trimmed(); // Extract the name
+                        bool isInverted = s[0] == QLatin1Char('~'); // Optionally invert the value
+                        QString name = s.mid(0 + isInverted, i - isInverted).trimmed(); // Extract the name
 
                         watch *w = ::controller.getWatch().find(name);
                         pin_t data_cur = ::controller.getWatch().at(w, hcycle);
@@ -140,7 +141,8 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
                         {
                             uint width, value = ::controller.getWatch().at(w, hcycle, width);
                             if (width)
-                                finalText.append(::controller.formatBus(ClassController::FormatBus::Hex, value, width, false));
+                                finalText.append(::controller.formatBus(isInverted ? ClassController::FormatBus::OnesComplement : ClassController::FormatBus::Hex,
+                                                                        value, width, false));
                             else
                                 finalText.append("X");
                         }
