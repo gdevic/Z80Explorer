@@ -1,6 +1,7 @@
 #include "WidgetEditColor.h"
 #include "ui_WidgetEditColor.h"
 #include <QColorDialog>
+#include <QMessageBox>
 
 WidgetEditColor::WidgetEditColor(QWidget *parent, QStringList methods) :
     QDialog(parent),
@@ -44,6 +45,22 @@ void WidgetEditColor::get(colordef &cdef)
 }
 
 /*
+ * Check the validity of regular expression and net numbers before accepting
+ */
+void WidgetEditColor::accept()
+{
+    bool ok;
+    ui->lineEdit->text().toUInt(&ok);
+    // XXX Hard-coded matching index (regular expression and net number)!
+    if ((ui->comboBox->currentIndex() == 2) && (!QRegularExpression(ui->lineEdit->text()).isValid()))
+        QMessageBox::critical(this, "Regex", "Invalid regular expression pattern!");
+    else if ((ui->comboBox->currentIndex() == 3) && !ok)
+        QMessageBox::critical(this, "Net number", "Invalid net number!");
+    else
+        QDialog::done(QDialog::Accepted);
+}
+
+/*
  * Handler for the color selection button
  */
 void WidgetEditColor::onColor()
@@ -69,5 +86,5 @@ void WidgetEditColor::onTextChanged(const QString &text)
     // If the text starts with a number, automatically assign the direct net matching method
     // Note: This hard-codes the matching method index!
     if (valid && text.trimmed()[0].isNumber())
-        ui->comboBox->setCurrentIndex(3); // XXX Hard-coded matching index!
+        ui->comboBox->setCurrentIndex(3); // XXX Hard-coded matching index (net number)!
 }

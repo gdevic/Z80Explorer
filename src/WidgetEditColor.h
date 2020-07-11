@@ -23,6 +23,7 @@ public:
 private slots:
     void onColor();
     void onTextChanged(const QString &text);
+    void accept() override;
 
 private:
     Ui::WidgetEditColor *ui;
