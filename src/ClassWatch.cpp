@@ -25,17 +25,16 @@ void ClassWatch::onNetName(Netop op, const QString name, const net_t net)
     }
     else if (op == Netop::Rename)
     {
-        Q_ASSERT(find(net) != nullptr);
         watch *w = find(net);
         if (w != nullptr)
             w->name = name;
     }
     else if (op == Netop::DeleteName)
     {
-        Q_ASSERT(find(net) != nullptr);
         int i;
         for (i = 0; (i < m_watchlist.count()) && (m_watchlist.at(i).n != net); i++);
-        m_watchlist.removeAt(i);
+        if (i < m_watchlist.count())
+            m_watchlist.removeAt(i);
     }
 }
 
