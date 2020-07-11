@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 #include "ClassController.h"
 #include "DialogEditAnnotations.h"
+#include "DialogEditNets.h"
 #include "DialogEditBuses.h"
 #include "DialogEditColors.h"
 #include "DialogEditWatchlist.h"
@@ -68,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc) :
     // Connect the rest of the menu actions...
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionEditAnnotations, SIGNAL(triggered()), this, SLOT(onEditAnnotations()));
+    connect(ui->actionEditNets, SIGNAL(triggered()), this, SLOT(onEditNets()));
     connect(ui->actionEditBuses, SIGNAL(triggered()), this, SLOT(onEditBuses()));
     connect(ui->actionEditColors, SIGNAL(triggered()), this, SLOT(onEditColors()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
@@ -132,7 +134,16 @@ void MainWindow::onEditAnnotations()
 }
 
 /*
- * Handle menu item to edit nets and buses
+ * Handle menu item to edit net names
+ */
+void MainWindow::onEditNets()
+{
+    DialogEditNets dlg(this);
+    dlg.exec();
+}
+
+/*
+ * Handle menu item to edit buses
  */
 void MainWindow::onEditBuses()
 {

@@ -88,6 +88,7 @@
     <addaction name="actionEditBuses"/>
     <addaction name="actionEditColors"/>
     <addaction name="actionEditWatchlist"/>
+    <addaction name="actionEditNets"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -204,6 +205,11 @@
    </property>
    <property name="whatsThis">
     <string>https://doc.qt.io/archives/qsa-1.2.2/language.html</string>
+   </property>
+  </action>
+  <action name="actionEditNets">
+   <property name="text">
+    <string>Nets...</string>
    </property>
   </action>
  </widget>
