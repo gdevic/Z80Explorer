@@ -84,11 +84,11 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionEditAnnotations"/>
-    <addaction name="actionEditBuses"/>
-    <addaction name="actionEditColors"/>
-    <addaction name="actionEditWatchlist"/>
     <addaction name="actionEditNets"/>
+    <addaction name="actionEditBuses"/>
+    <addaction name="actionEditWatchlist"/>
+    <addaction name="actionEditAnnotations"/>
+    <addaction name="actionEditColors"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -141,7 +141,7 @@
     <string>Edit list of nets to watch</string>
    </property>
    <property name="shortcut">
-    <string>F5</string>
+    <string>F4</string>
    </property>
   </action>
   <action name="actionEditBuses">
@@ -171,7 +171,7 @@
     <string>Edit custom annotations</string>
    </property>
    <property name="shortcut">
-    <string>F2</string>
+    <string>F5</string>
    </property>
   </action>
   <action name="actionOnlineManual">
@@ -193,7 +193,7 @@
     <string>Edit custom net coloring</string>
    </property>
    <property name="shortcut">
-    <string>F4</string>
+    <string>F6</string>
    </property>
   </action>
   <action name="actionScriptingReference">
@@ -210,6 +210,9 @@
   <action name="actionEditNets">
    <property name="text">
     <string>Nets...</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
    </property>
   </action>
  </widget>
