@@ -23,10 +23,6 @@ start:
     ret
 
 bdos_ascii:
-    ld  bc,10*256   ; Port to check for busy
-    in  a,(c)       ; Poll until the port is not busy
-    bit 0,a
-    jnz bdos_ascii
     ld  bc,8*256    ; Port to write a character out
     out (c),e
     ret
