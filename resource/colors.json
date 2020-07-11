@@ -37,8 +37,8 @@
         },
         {
             "color": "128,128,255,255",
-            "expr": "abus",
-            "method": 1
+            "expr": ".abus.$|abus.$",
+            "method": 2
         }
     ]
 }
