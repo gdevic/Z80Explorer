@@ -181,20 +181,22 @@ inline void ClassSimZ80::halfCycle()
         bool rd   = readBit("_rd");
         bool wr   = readBit("_wr");
         bool iorq = readBit("_iorq");
+        bool t2   = readBit("t2");
+        bool t3   = readBit("t3");
 
-        if (!m1 && rfsh && !mreq && !rd &&  wr &&  iorq && readBit("t2"))
+        if (!m1 && rfsh && !mreq && !rd &&  wr &&  iorq && t2)
             handleMemRead(readAB()); // Instruction read
         else
-        if ( m1 && rfsh && !mreq && !rd &&  wr &&  iorq && readBit("t3"))
+        if ( m1 && rfsh && !mreq && !rd &&  wr &&  iorq && t3)
             handleMemRead(readAB()); // Data read
         else
-        if ( m1 && rfsh && !mreq &&  rd && !wr &&  iorq && readBit("t3"))
+        if ( m1 && rfsh && !mreq &&  rd && !wr &&  iorq && t3)
             handleMemWrite(readAB()); // Data write
         else
-        if ( m1 && rfsh &&  mreq && !rd &&  wr && !iorq && readBit("t3"))
+        if ( m1 && rfsh &&  mreq && !rd &&  wr && !iorq && t3)
             handleIORead(readAB()); // IO read
         else
-        if ( m1 && rfsh &&  mreq &&  rd && !wr && !iorq && readBit("t3"))
+        if ( m1 && rfsh &&  mreq &&  rd && !wr && !iorq && t3)
             handleIOWrite(readAB()); // IO write
         else
         if (!m1 && rfsh &&  mreq &&  rd &&  wr && !iorq)
