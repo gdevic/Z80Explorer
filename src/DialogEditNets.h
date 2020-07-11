@@ -5,6 +5,9 @@
 
 namespace Ui { class DialogEditNets; }
 
+/*
+ * This dialog lets the user rename and delete net names
+ */
 class DialogEditNets : public QDialog
 {
     Q_OBJECT
@@ -12,6 +15,11 @@ class DialogEditNets : public QDialog
 public:
     explicit DialogEditNets(QWidget *parent = nullptr);
     ~DialogEditNets();
+
+private slots:
+    void onDelete();
+    void onRename();
+    void netSelChanged();
 
 private:
     Ui::DialogEditNets *ui;
