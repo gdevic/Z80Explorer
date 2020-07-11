@@ -12,6 +12,7 @@ ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 {
     static_assert(sizeof(trick) == (2 + 5*4 + 4), "unexpected trick struct size (packing?)");
     m_trick = (trick *)&m_mem[TRICKBOX_START];
+    memset(m_mio, 0xFF, sizeof(m_mio));
 }
 
 void ClassTrickbox::reset()
@@ -81,8 +82,7 @@ void ClassTrickbox::writeMem(quint16 ab, quint8 db)
  */
 quint8 ClassTrickbox::readIO(quint16 ab)
 {
-    Q_UNUSED(ab);
-    return 0; // Read from any IO address returns 0x00
+    return m_mio[ab];
 }
 
 /*
@@ -90,6 +90,7 @@ quint8 ClassTrickbox::readIO(quint16 ab)
  */
 void ClassTrickbox::writeIO(quint16 ab, quint8 db)
 {
+    m_mio[ab] = db;
     // Terminal write address
     if (ab == 0x0800)
     {
@@ -232,9 +233,10 @@ bool ClassTrickbox::loadHex(const QString fileName)
         return false;
     }
 
-    // Clear the RAM memory before loading any programs
+    // Clear the RAM memory and IO space before loading any programs
     memset(m_mem, 0, sizeof(m_mem));
-    qInfo() << "Clearing simulator RAM";
+    memset(m_mio, 0xFF, sizeof(m_mio));
+    qInfo() << "Clearing simulator RAM and setting IO space to FF";
 
     QTextStream in(&file);
     while (!in.atEnd())

@@ -56,6 +56,7 @@ signals:
 private:
     bool readHex(QString fileName);
     uint8_t m_mem[65536] {};                // Simulated 64K memory
+    uint8_t m_mio[65536];                   // Simulated 64K IO space as r/w
     trick *m_trick;                         // Start of the trickbox control area
     bool m_trickWriteEven {true};           // Even/odd write address to the control area
     bool m_trickEnabled {true};             // Trickbox control is enabled
