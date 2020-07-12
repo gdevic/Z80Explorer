@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>1024</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Z80 Explorer</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="WidgetToolbar" name="widgetToolbar" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="WidgetImageView" name="widgetImageView" native="true"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1280</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionNewImageView"/>
+    <addaction name="actionNewWaveformView"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionOnlineManual"/>
+    <addaction name="actionScriptingReference"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionEditNets"/>
+    <addaction name="actionEditBuses"/>
+    <addaction name="actionEditWatchlist"/>
+    <addaction name="actionEditAnnotations"/>
+    <addaction name="actionEditColors"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuWindow"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExit">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+   <property name="statusTip">
+    <string>Exit the application</string>
+   </property>
+  </action>
+  <action name="actionNewImageView">
+   <property name="text">
+    <string>New Image View</string>
+   </property>
+   <property name="statusTip">
+    <string>Create a new image view window</string>
+   </property>
+   <property name="whatsThis">
+    <string>Image</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionNewWaveformView">
+   <property name="text">
+    <string>New Waveform View</string>
+   </property>
+   <property name="statusTip">
+    <string>Create a new waveform view window</string>
+   </property>
+   <property name="whatsThis">
+    <string>wave</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionEditWatchlist">
+   <property name="text">
+    <string>Watchlist...</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit list of nets to watch</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
+   </property>
+  </action>
+  <action name="actionEditBuses">
+   <property name="text">
+    <string>Buses...</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit nets and buses</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About...</string>
+   </property>
+   <property name="statusTip">
+    <string>Open the About box</string>
+   </property>
+  </action>
+  <action name="actionEditAnnotations">
+   <property name="text">
+    <string>Annotations...</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit custom annotations</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionOnlineManual">
+   <property name="text">
+    <string>Online manual...</string>
+   </property>
+   <property name="statusTip">
+    <string>Open the user's manual online</string>
+   </property>
+   <property name="whatsThis">
+    <string>https://baltazarstudios.com/Z80Explorer</string>
+   </property>
+  </action>
+  <action name="actionEditColors">
+   <property name="text">
+    <string>Colors...</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit custom net coloring</string>
+   </property>
+   <property name="shortcut">
+    <string>F6</string>
+   </property>
+  </action>
+  <action name="actionScriptingReference">
+   <property name="text">
+    <string>Scripting reference...</string>
+   </property>
+   <property name="statusTip">
+    <string>Open the scripting reference online</string>
+   </property>
+   <property name="whatsThis">
+    <string>https://doc.qt.io/archives/qsa-1.2.2/language.html</string>
+   </property>
+  </action>
+  <action name="actionEditNets">
+   <property name="text">
+    <string>Nets...</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WidgetToolbar</class>
+   <extends>QWidget</extends>
+   <header>WidgetToolbar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WidgetImageView</class>
+   <extends>QWidget</extends>
+   <header>WidgetImageView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

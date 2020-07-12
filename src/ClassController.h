@@ -1,0 +1,90 @@
+#ifndef CLASSCONTROLLER_H
+#define CLASSCONTROLLER_H
+
+#include "ClassAnnotate.h"
+#include "ClassChip.h"
+#include "ClassColors.h"
+#include "ClassScript.h"
+#include "ClassSimZ80.h"
+#include "ClassTip.h"
+#include "ClassTrickbox.h"
+#include "ClassWatch.h"
+
+/*
+ * Controller class implements the controller pattern, handling all requests
+ */
+class ClassController : public QObject
+{
+    Q_OBJECT                                    //* <- Methods of the scripting object "control" below
+public:
+    explicit ClassController() {};
+    bool init(QScriptEngine *);                 // Initialize controller classes and variables
+
+public: // API
+    inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
+    inline ClassChip     &getChip()       { return m_chip; }      // Returns a reference to the chip class
+    inline ClassColors   &getColors()     { return m_colors; }    // Returns a reference to the colors class
+    inline ClassScript   &getScript()     { return m_script; }    // Returns a reference to the script class
+    inline ClassSimZ80   &getSimZ80()     { return m_simz80; }    // Returns a reference to the Z80 simulator class
+    inline ClassWatch    &getWatch()      { return m_watch; }     // Returns a reference to the watch class
+    inline ClassNetlist  &getNetlist()    { return m_simz80; }    // Returns a reference to the netlist class (a subclass)
+    inline ClassTip      &getTip()        { return m_tips; }      // Returns a reference to the tips class
+    inline ClassTrickbox &getTrickbox()   { return m_trick; }     // Returns a reference to the Trickbox class
+
+
+    inline uint8_t readMem(uint16_t ab)           // Reads from simulated RAM
+        { return m_trick.readMem(ab); }
+    inline void writeMem(uint16_t ab, uint8_t db) // Writes to simulated RAM
+        { m_trick.writeMem(ab, db); }
+    inline uint8_t readIO(uint16_t ab)            // Reads from simulated IO space
+        { return m_trick.readIO(ab); }
+    inline void writeIO(uint16_t ab, uint8_t db)  // Writes to simulated IO space
+        { m_trick.writeIO(ab, db); }
+    bool loadHex(QString fileName)                // Loads file into simulated RAM memory; empty name for last loaded
+        { return m_trick.loadHex(fileName); }
+    void readState(z80state &state)               // Reads chip state structure
+        { m_simz80.readState(state); }
+    bool isSimRunning()                           // Returns true is the simulation is currently running
+        { return m_simz80.isRunning(); }
+
+    const QStringList getFormats(QString name); // Returns a list of formats applicable to the signal name (a net or a bus)
+    enum FormatNet { Logic, TransUp, TransDown, TransAny };
+    enum FormatBus { Hex, Bin, Oct, Dec, Ascii, Disasm, OnesComplement };
+    const QString formatBus(uint fmt, uint value, uint width, bool decorated = true); // Returns the formatted string for a bus type value
+
+    // Simulator calls this on every half-clock cycle, controller will directly dispatch to modules that need it
+    inline void onTick(uint ticks)          // Recieves the simulation half-cycle message and broadcast it to whomever needs it
+        { m_trick.onTick(ticks); }
+    // Requests operations on net names; this class will dispatch those operations via eventNetName() signal
+    void setNetName(const QString name, const net_t); // Sets the name (alias) for a net
+    void renameNet(const QString name, const net_t); // Renames a net using the new name
+    void deleteNetName(const net_t);        // Deletes the current name of a specified net
+
+public slots:
+    uint doReset();                         //* Runs the chip reset sequence, returns the number of clocks thet reset took
+    void doRunsim(uint ticks);              //* Runs the simulation for the given number of clocks
+    void save() { emit shutdown(); }        //* Saves all modified files
+    //
+
+signals:
+    void onRunStarting(uint);               // Called by the sim when it is starting the simulation
+    void onRunHeartbeat(uint);              // Called by the sim every 500ms when running
+    void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
+    void eventNetName(Netop op, const QString name, const net_t); // Dispatches operations on net names
+    void syncView(QPointF pos, qreal zoom); // Broadcast to all image views to sync their views
+    void shutdown();                        // Application is shutting down; save all modified app data
+
+private:
+    ClassAnnotate m_annotate;   // Global annotations
+    ClassChip     m_chip;       // Global chip resource class
+    ClassColors   m_colors;     // Global application colors
+    ClassScript   m_script;     // Global scripting support
+    ClassSimZ80   m_simz80;     // Global Z80 simulator class
+    ClassWatch    m_watch;      // Global watchlist
+    ClassTip      m_tips;       // Global tips
+    ClassTrickbox m_trick;      // Global trickbox supporting environment
+};
+
+extern ClassController controller;
+
+#endif // CLASSCONTROLLER_H
