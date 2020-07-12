@@ -3,13 +3,26 @@ Visual Zilog Z-80 netlist-level simulator
 
 Z80 Explorer is a Zilog Z80 netlist-level simulator capable of running Z80 machine code and also an educational tool with features that help reverse engineer and understand this chip better.
 
-It is described in more detail here: https://baltazarstudios.com/z80explorer
+Application's User's Guide: https://baltazarstudios.com/Z80ExplorerGuide/
+<br>
+It is also described in a blog: https://baltazarstudios.com/z80explorer
+
+## Before you run it
+
+Read the User's Guide.<br>
+The application is separate from the Z80 resources that it uses.<br>
+Download Z80 resources from here: https://github.com/gdevic/Z80Explorer_Z80<br>
+Extract two 7z files: “layermap.7z” and “segvdefs.7z”. On Windows, use any of the many 7z utilities and on Linux, use “p7zip -d layermap.7z”.<br>
+Then, read the User's Guide.<br>
 
 ![Z80 Explorer](https://baltazarstudios.com/wp-content/uploads/2020/07/z80explorer-app.png)
 
 ## Getting a pre-built binary (Windows)
 
-## Compiling
+A pre-built binary for Windows can be found in the release section of github here:<br>
+https://github.com/gdevic/Z80Explorer/releases
+
+## Compiling from sources
 
 The application is built on the Qt framework.
 
