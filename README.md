@@ -6,6 +6,8 @@ Z80 Explorer is a Zilog Z80 netlist-level simulator capable of running Z80 machi
 Application's User's Guide: https://baltazarstudios.com/Z80ExplorerGuide/
 <br>
 It is also described in a blog: https://baltazarstudios.com/z80explorer
+<br>
+A brief overview is on YouTube: https://youtu.be/_dyngzTEnvw
 
 ## Before you run it
 
