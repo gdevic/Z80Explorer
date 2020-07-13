@@ -12,7 +12,7 @@ A brief overview is on YouTube: https://youtu.be/_dyngzTEnvw
 ## Before you run it
 
 Read the User's Guide.<br>
-The application is separate from the Z80 resources that it uses.<br>
+The application is separate from the Z80 resources that it uses. This matters only if you are building it yourself; if you are using a pre-built package, the resources are included and don't need to be downloaded separately.<br>
 Download Z80 resources from here: https://github.com/gdevic/Z80Explorer_Z80<br>
 Extract two 7z files: “layermap.7z” and “segvdefs.7z”. On Windows, use any of the many 7z utilities and on Linux, use “p7zip -d layermap.7z”.<br>
 Then, read the User's Guide.<br>
