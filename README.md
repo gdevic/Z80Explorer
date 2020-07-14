@@ -14,7 +14,7 @@ A brief overview is on YouTube: https://youtu.be/_dyngzTEnvw
 Read the User's Guide.<br>
 The application is separate from the Z80 resources that it uses. This matters only if you are building it yourself; if you are using a pre-built package, the resources are included and don't need to be downloaded separately.<br>
 Download Z80 resources from here: https://github.com/gdevic/Z80Explorer_Z80<br>
-Extract two 7z files: “layermap.7z” and “segvdefs.7z”. On Windows, use any of the many 7z utilities and on Linux, use “p7zip -d layermap.7z”.<br>
+Extract two 7z files: “layermap.7z” and “segvdefs.7z”. On Windows, use any of the many 7z utilities, and on Linux, use “p7zip -d layermap.7z segvdefs.7z”.<br>
 Then, read the User's Guide.<br>
 
 ![Z80 Explorer](https://baltazarstudios.com/wp-content/uploads/2020/07/z80explorer-app.png)
@@ -32,5 +32,14 @@ The application is built on the Qt framework.
 * Install Qt 5.15.0 framework (with support for x64 MS Visual Studio 2015 on Windows).
 * Add the “Qt Script (deprecated)” component to the Qt installation.
 * Compile with QtCreator selecting the “Release” build.
+
+On Linux, follow the guide here: https://doc.qt.io/qt-5/linux.html
+* sudo apt-get install build-essential libgl1-mesa-dev
+* sudo apt-get install libxcb-xinerama0
+* You don't need to build Qt 5 from source
+* Download for Open Source users
+* Check to include "Desktop gcc 64-bit" and "Qt Script (Deprecated")
+* After you open the project from QtCreator, make sure you build the Release configuration (icon on the bottom-left in QtCreator, by default it is set to Debug)
+* git clone Z80Explorer_Z80 resource and unzip two files: “p7zip -d layermap.7z segvdefs.7z”
 
 
