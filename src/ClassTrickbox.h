@@ -8,13 +8,14 @@
 #define MAX_PIN_CTRL 5
 struct trick
 {
+    uint16_t stop;              // Writing to this address immediately stops the simulation
     uint16_t cycleStop;         // Cycle number at which to stop the simulation
+    uint32_t curCycle;          // Current cycle number (low 16 bits + high 16 bits)
     struct
     {
         uint16_t cycle;         // Cycle number at which to assert a pin
         uint16_t count;         // Number of cycles to hold it asserted
     } pinCtrl[MAX_PIN_CTRL];    // That, for 5 pins: INT, NMI, BUSRQ, WAIT, RESET
-    uint32_t curCycle;          // Current cycle number (low 16 bits + high 16 bits)
 };
 #pragma pack(pop)
 

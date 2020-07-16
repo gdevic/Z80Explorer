@@ -10,7 +10,7 @@ const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
 
 ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 {
-    static_assert(sizeof(trick) == (2 + 5*4 + 4), "unexpected trick struct size (packing?)");
+    static_assert(sizeof(trick) == (2 + 2 + 4 + 5*4), "unexpected trick struct size (packing?)");
     m_trick = (trick *)&m_mem[TRICKBOX_START];
     memset(m_mio, 0xFF, sizeof(m_mio));
 }
@@ -35,19 +35,19 @@ quint8 ClassTrickbox::readMem(quint16 ab)
  */
 void ClassTrickbox::writeMem(quint16 ab, quint8 db)
 {
-    // Writing to address 0 immediately stops the simulation
-    if (ab == 0)
-    {
-        qInfo() << "Stopping sim: WR(0)";
-        return ::controller.getSimZ80().doRunsim(0);
-    }
     if (ab >= m_rom)
         m_mem[ab] = db;
 
     // Trickbox control address space
     if (m_trickEnabled && (ab >= TRICKBOX_START) && (ab <= TRICKBOX_END))
     {
-        // We let the value already be written in RAM, which is a backing store for the trickbox
+        // Writing to the "stop" word immediately stops the simulation
+        if ((ab & ~1) == TRICKBOX_START)
+        {
+            qInfo() << "Stopping sim: tb_stop";
+            return ::controller.getSimZ80().doRunsim(0);
+        }
+        // We let the value be written in RAM first, which is a backing store for the trickbox
         // counters anyways; here we check the validity of cycle values but only on the second
         // memory access of each 2-byte word. Likewise, we disable trickbox control in between
         // writing the first byte (low value) and the final, second byte (high value).
