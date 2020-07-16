@@ -182,7 +182,7 @@
     <string>Open the user's manual online</string>
    </property>
    <property name="whatsThis">
-    <string>https://baltazarstudios.com/Z80Explorer</string>
+    <string>https://baltazarstudios.com/uc/Z80ExplorerGuide</string>
    </property>
   </action>
   <action name="actionEditColors">
