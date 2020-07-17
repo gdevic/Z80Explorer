@@ -91,8 +91,8 @@ boot:
     ld  sp, 16384    ; 16 Kb of RAM
     ; Jump into the executable at 100h
     jmp 100h
-die:
-    ld (0),a ; Writing to address 0 of the simulated RAM terminates the simulation
+stop:
+    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 
 ;==============================================================================
 ;
@@ -105,7 +105,7 @@ exec:
 lp1:
     ld  a, (hl)
     cp  a, 0ffh
-    jz  die
+    jz  stop
     push hl
     ld  c,a
     ld  b,0

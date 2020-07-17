@@ -97,8 +97,8 @@ boot:
     ld  sp, 16384    ; 16 Kb of RAM
     ; Jump into the executable at 100h
     jmp 100h
-die:
-    ld (0),a ; Writing to address 0 of the simulated space terminates the simulation
+stop:
+    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 
 ;==============================================================================
 ;
@@ -111,12 +111,12 @@ exec:
     ld (tb_busrq_len), hl
     ld hl, 350
     ld (tb_busrq_at),hl
-    ld hl,360
+    ld hl,400
     ld (tb_cyc_stop), hl
+loop:
     ld a,1
     ld a,2
     ld a,3
     ld a,4
-;    jmp 0
-    jmp die
+    jmp loop
 end

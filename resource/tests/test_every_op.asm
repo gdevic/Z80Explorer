@@ -1,9 +1,9 @@
 ;==============================================================================
 ; Executes most instructions that do not change the PC value
-; At the end it stops simulation by writing to the address 0.
 ; Run it with "Restart to:" option by setting the terminating value in the
 ; increments of 1000 to examine every opcode.
 ;==============================================================================
+include trickbox.inc
     org 0
 start:
     nop
@@ -669,8 +669,8 @@ start:
 ;    set 6,(ix)
 ;    set 7,(ix)
 
-    ld hl,0
-    ld (hl),a
+stop:
+    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 
 data dw 0
 end

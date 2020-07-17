@@ -91,8 +91,8 @@ boot:
     ld  sp, 16384    ; 16 Kb of RAM
     ; Jump into the executable at 100h
     jmp 100h
-die:
-    ld (0),a ; Writing to address 0 of the simulated RAM terminates the simulation
+stop:
+    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 
 ;==============================================================================
 ;
@@ -132,7 +132,7 @@ lp2:
     ld  a,b
     or  a,a
     jnz lp2
-    jmp die
+    jmp stop
 
 tohex:
     ; HL = Address to store a hex value

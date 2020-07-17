@@ -4,5 +4,7 @@
 include trickbox.inc
     org 0
 start:
-    halt
+    nop
+stop:
+    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 end
