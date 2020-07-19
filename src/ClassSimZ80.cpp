@@ -613,7 +613,7 @@ void ClassSimZ80::readState(z80state &z)
     z.wz = (readByte("reg_w") << 8) | readByte("reg_z");
     z.pc = (readByte("reg_pch") << 8) | readByte("reg_pcl");
 
-    z.instr = readByte("_instr");
+    z.instr = readByte("instr");
     z.nED = readBit(265); // Decode ED
     z.nCB = readBit(263); // Decode CB
 }
