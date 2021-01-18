@@ -10,7 +10,7 @@ const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
 
 ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 {
-    static_assert(sizeof(trick) == (2 + 2 + 4 + 5*4), "unexpected trick struct size (packing?)");
+    static_assert(sizeof(trick) == (2 + 2 + 4 + MAX_PIN_CTRL*6), "unexpected trick struct size (packing?)");
     m_trick = (trick *)&m_mem[TRICKBOX_START];
     memset(m_mio, 0xFF, sizeof(m_mio));
 }
@@ -18,7 +18,7 @@ ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 void ClassTrickbox::reset()
 {
     memset(m_trick, 0, sizeof (trick));
-    for (uint i = 0; i < 5; i++)
+    for (uint i = 0; i < MAX_PIN_CTRL; i++)
         m_trick->pinCtrl[i].hold = 6;
 }
 
@@ -141,8 +141,19 @@ void ClassTrickbox::onTick(uint ticks)
         return ::controller.getSimZ80().doRunsim(0);
     }
 
+    // This is a relatively expensive operation and assertion on a PC value may be a rare use case,
+    // so we don't read PC unless a non-zero trigger value has been set on any one of the 5 pins
+    bool anyPC = m_trick->pinCtrl[0].atPC | m_trick->pinCtrl[1].atPC | m_trick->pinCtrl[2].atPC | m_trick->pinCtrl[3].atPC | m_trick->pinCtrl[4].atPC;
+    uint16_t pc = anyPC ? ::controller.getSimZ80().getPC() : 0;
+
     for (uint i = 0; i < MAX_PIN_CTRL; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
     {
+        if (pc && (pc == m_trick->pinCtrl[i].atPC))
+        {
+            m_trick->pinCtrl[i].atCycle = ticks; // Use the "at" trigger
+            m_trick->pinCtrl[i].atPC = 0; // Disarm the PC address trigger
+        }
+
         if ((m_trick->pinCtrl[i].atCycle == 0) || (m_trick->pinCtrl[i].atCycle > ticks))
             continue;
         if (m_trick->pinCtrl[i].atCycle == ticks)
@@ -154,7 +165,8 @@ void ClassTrickbox::onTick(uint ticks)
             if (m_trick->pinCtrl[i].hold == 0)
             {
                 ::controller.getSimZ80().setPin(i, 1); // Release the pin
-                m_trick->pinCtrl[i].atCycle = 0;
+                m_trick->pinCtrl[i].atCycle = 0; // Disarm the trigger
+                m_trick->pinCtrl[i].hold = 6; // Reset hold to its default
             }
         }
     }

@@ -14,6 +14,7 @@ struct trick
     struct
     {
         uint16_t atCycle;       // Cycle number at which to assert a pin
+        uint16_t atPC;          // PC address at which to assert a pin
         uint16_t hold;          // Number of cycles to hold it asserted
     } pinCtrl[MAX_PIN_CTRL];    // That, for 5 pins: INT, NMI, BUSRQ, WAIT, RESET
 };
