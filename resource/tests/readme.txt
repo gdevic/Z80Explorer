@@ -1,4 +1,4 @@
-This directory contains sources for test files.
+This directory contains various test files.
 
 Assemble and generate Intel-HEX files by running:
 make_test <test-name.asm>
@@ -12,6 +12,7 @@ Test files:
 "test_proto.asm" - prototype test source code, base other tests on it (for more elaborate tests)
 "test_daa.asm" - runs DAA instruction on the range of values and then stops
 "test_neg.asm" - runs NEG instruction on the range of values and then stops
+"test_ints.asm" - test all interrupt modes (IM0/1/2)
 "zexall.asm" - classic cpu diagnostic program with the tests sorted by their duration
 
 --------------------

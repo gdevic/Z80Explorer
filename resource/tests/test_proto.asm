@@ -20,8 +20,8 @@ start:
     ret
 
 bdos_ascii:
-    ld  bc,8*256    ; Port to write a character out
-    out (c),e
+    ld a, e
+    out (IO_CHAR), a
     ret
 
 bdos_msg:
@@ -77,7 +77,7 @@ nmi_msg:
     db  "_NMI_",'$'
 
 ;---------------------------------------------------------------------
-; IM2 vector address and the handler (to push 0x80 by the IORQ)
+; IM2 vector address and the handler
 ;---------------------------------------------------------------------
     org 080h
     dw  im2_handler
@@ -87,27 +87,17 @@ im2_handler:
     jmp int_common
 int_im2_msg:
     db  "_IM2_",'$'
-boot:
-    ld a,4
-    ld (1),a
-    ; Set the stack pointer
-    ld  sp, 16384    ; 16 Kb of RAM
-    ; Jump into the executable at 100h
-    jmp 100h
-stop:
-    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 
 ;==============================================================================
-;
 ; Test start
-;
 ;==============================================================================
     org 100h
-exec:
-    ld hl,200
-    ld (tb_cyc_stop), hl ; Terminate at cycle 200
-    nop
-    nop
-    nop
-    jmp stop
+boot:
+    ; Set the stack pointer
+    ld  sp, 16384
+
+    ; <your code here>
+
+stop:
+    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 end

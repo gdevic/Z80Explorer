@@ -1,6 +1,5 @@
 ;==============================================================================
 ; Test code for the Z80 CPU that prints "Hello, World!"
-; Also used to test responses to interrupts.
 ;==============================================================================
 include trickbox.inc
     org 0
@@ -20,8 +19,8 @@ start:
     ret
 
 bdos_ascii:
-    ld  bc,8*256    ; Port to write a character out
-    out (c),e
+    ld a, e
+    out (IO_CHAR), a
     ret
 
 bdos_msg:
@@ -36,80 +35,14 @@ lp0:
     inc hl
     jmp lp0
 
-;---------------------------------------------------------------------
-; RST38 (also INT M0)  handler
-;---------------------------------------------------------------------
-    org 038h
-    push de
-    ld  de,int_msg
-int_common:
-    push af
-    push bc
-    push hl
-    ld  c,9
-    call 5
-    pop hl
-    pop bc
-    pop af
-    pop de
-    ei
-    reti
-int_msg:
-    db  "_INT_",'$'
-
-;---------------------------------------------------------------------
-; NMI handler
-;---------------------------------------------------------------------
-    org 066h
-    push af
-    push bc
-    push de
-    push hl
-    ld  de,nmi_msg
-    ld  c,9
-    call 5
-    pop hl
-    pop de
-    pop bc
-    pop af
-    retn
-nmi_msg:
-    db  "_NMI_",'$'
-
-;---------------------------------------------------------------------
-; IM2 vector address and the handler (to push 0x80 by the IORQ)
-;---------------------------------------------------------------------
-    org 080h
-    dw  im2_handler
-im2_handler:
-    push de
-    ld  de,int_im2_msg
-    jmp int_common
-int_im2_msg:
-    db  "_IM2_",'$'
-boot:
-    ; Set the stack pointer
-    ld  sp, 16384    ; 16 Kb of RAM
-    ; Set up for interrupt testing: see Z80\cpu\toplevel\test_top.sv
-    ; IMPORTANT: To test IM0, Verilog test code needs to put 0xFF on the bus
-    ;            To test IM2, the test code needs to put a vector of 0x80 !!
-    ;            This is done in tb_iorq.sv
-    im  2
-    ld  a,0
-    ld  i,a
-    ei
-    ;halt
-    ; Jump into the executable at 100h
-    jmp 100h
-die:
-    ld (0),a ; Writing to address 0 of the simulated space terminates the simulation
-
 ;==============================================================================
-;
 ; Prints "Hello, World!"
-;
 ;==============================================================================
     org 100h
+boot:
+    ; Set the stack pointer
+    ld  sp, 16384
+
     ld  hl,0
     ld  (counter),hl
 exec:
@@ -144,7 +77,7 @@ exec:
 ; Two versions of the code: either keep printing the text indefinitely (which
 ; can be used for interrupt testing), or print it only once and die
     jr exec
-;    jr die
+;    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 
 tohex:
     ; HL = Address to store a hex value

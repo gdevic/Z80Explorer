@@ -23,8 +23,8 @@ start:
     ret
 
 bdos_ascii:
-    ld  bc,8*256    ; Port to write a character out
-    out (c),e
+    ld a, e
+    out (IO_CHAR), a
     ret
 
 bdos_msg:
@@ -39,57 +39,6 @@ lp0:
     inc hl
     jmp lp0
 
-;---------------------------------------------------------------------
-; RST38 (also INT M0)  handler
-;---------------------------------------------------------------------
-    org 038h
-    push de
-    ld  de,int_msg
-int_common:
-    push af
-    push bc
-    push hl
-    ld  c,9
-    call 5
-    pop hl
-    pop bc
-    pop af
-    pop de
-    ei
-    reti
-int_msg:
-    db  "_INT_",'$'
-
-;---------------------------------------------------------------------
-; NMI handler
-;---------------------------------------------------------------------
-    org 066h
-    push af
-    push bc
-    push de
-    push hl
-    ld  de,nmi_msg
-    ld  c,9
-    call 5
-    pop hl
-    pop de
-    pop bc
-    pop af
-    retn
-nmi_msg:
-    db  "_NMI_",'$'
-
-;---------------------------------------------------------------------
-; IM2 vector address and the handler (to push 0x80 by the IORQ)
-;---------------------------------------------------------------------
-    org 080h
-    dw  im2_handler
-im2_handler:
-    push de
-    ld  de,int_im2_msg
-    jmp int_common
-int_im2_msg:
-    db  "_IM2_",'$'
 boot:
     ld a,4
     ld (1),a
@@ -101,9 +50,7 @@ stop:
     ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 
 ;==============================================================================
-;
 ; Test start
-;
 ;==============================================================================
     org 100h
 exec:
@@ -111,7 +58,7 @@ exec:
     ld (tb_busrq_hold), hl
     ld hl, 350
     ld (tb_busrq_at),hl
-    ld hl,400
+    ld hl, 360
     ld (tb_cyc_stop), hl
 loop:
     ld a,1

@@ -1,5 +1,5 @@
 ;==============================================================================
-; Test code for the A-Z80 CPU
+; Print the NEG table
 ;==============================================================================
 include trickbox.inc
     org 0
@@ -19,8 +19,8 @@ start:
     ret
 
 bdos_ascii:
-    ld  bc,8*256    ; Port to write a character out
-    out (c),e
+    ld a, e
+    out (IO_CHAR), a
     ret
 
 bdos_msg:
@@ -35,72 +35,14 @@ lp0:
     inc hl
     jmp lp0
 
-;---------------------------------------------------------------------
-; RST38 (also INT M0)  handler
-;---------------------------------------------------------------------
-    org 038h
-    push de
-    ld  de,int_msg
-int_common:
-    push af
-    push bc
-    push hl
-    ld  c,9
-    call 5
-    pop hl
-    pop bc
-    pop af
-    pop de
-    ei
-    reti
-int_msg:
-    db  "_INT_",'$'
-
-;---------------------------------------------------------------------
-; NMI handler
-;---------------------------------------------------------------------
-    org 066h
-    push af
-    push bc
-    push de
-    push hl
-    ld  de,nmi_msg
-    ld  c,9
-    call 5
-    pop hl
-    pop de
-    pop bc
-    pop af
-    retn
-nmi_msg:
-    db  "_NMI_",'$'
-
-;---------------------------------------------------------------------
-; IM2 vector address and the handler (to push 0x80 by the IORQ)
-;---------------------------------------------------------------------
-    org 080h
-    dw  im2_handler
-im2_handler:
-    push de
-    ld  de,int_im2_msg
-    jmp int_common
-int_im2_msg:
-    db  "_IM2_",'$'
-boot:
-    ; Set the stack pointer
-    ld  sp, 16384    ; 16 Kb of RAM
-    ; Jump into the executable at 100h
-    jmp 100h
-stop:
-    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
-
 ;==============================================================================
-;
-; Dumps NEG variations
-;
+; Dumps NEG table
 ;==============================================================================
     org 100h
-exec:
+boot:
+    ; Set the stack pointer
+    ld  sp, 16384
+
     ld  b,0
 lp2:
     push bc
@@ -160,6 +102,8 @@ skip2:
     add  a, '0'
     ld   (hl),a
     ret
+stop:
+    ld  (tb_stop), hl ; Writing to tb_stop immediately stops the simulation
 
 text:
     ;    01234567890123456789
