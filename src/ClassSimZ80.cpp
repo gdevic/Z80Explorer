@@ -200,7 +200,7 @@ inline void ClassSimZ80::halfCycle()
             handleIOWrite(readAB()); // IO write
         else
         if (!m1 && rfsh &&  mreq &&  rd &&  wr && !iorq)
-            handleIrq(readAB()); // Interrupt request/Ack cycle
+            handleIrq(); // Interrupt request/Ack cycle
     }
 
     ::controller.onTick(m_hcycletotal);
@@ -246,9 +246,10 @@ inline void ClassSimZ80::handleIOWrite(uint16_t ab)
     ::controller.writeIO(ab, db);
 }
 
-inline void ClassSimZ80::handleIrq(uint16_t ab)
+inline void ClassSimZ80::handleIrq()
 {
-    uint8_t db = ::controller.readIO(ab);
+    // IO address 0x81 holds the value to be shown on the bus
+    uint8_t db = ::controller.readIO(0x81);
     setDB(db);
 }
 

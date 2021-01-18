@@ -82,6 +82,10 @@ void ClassTrickbox::writeMem(quint16 ab, quint8 db)
  */
 quint8 ClassTrickbox::readIO(quint16 ab)
 {
+    // Although the IO map is 64K wide, we reserve few locations and collapse the top address
+    // This allows using a simpler Z80 opcode "in a,(n)"
+    if ((ab & 0xFE) == 0x80) // 1-byte IO addresses: 0x80 and 0x81
+        ab &= 0xFF;
     return m_mio[ab];
 }
 
@@ -90,15 +94,20 @@ quint8 ClassTrickbox::readIO(quint16 ab)
  */
 void ClassTrickbox::writeIO(quint16 ab, quint8 db)
 {
+    // Although the IO map is 64K wide, we reserve few locations and collapse the top address
+    // This allows using a simpler Z80 opcode "OUT (n),a"
+    if ((ab & 0xFE) == 0x80) // 1-byte IO addresses: 0x80 and 0x81
+        ab &= 0xFF;
     m_mio[ab] = db;
-    // Terminal write address
-    if (ab == 0x0800)
+    // IO address 0x81 holds the value to be shown on the bus during interrupt - see ClassSimZ80::handleIrq()
+    // IO address 0x80 is a character out address
+    if (ab == 0x80)
     {
         if (db == 10) // Ignore LF in CR/LF sequence
             return;
-        if (db == 0x04) // Console output of character 4 (EOD, End-of-Transmission): stops the simulation
+        if (db == 0x04) // Console output of character 4 (EOT, End-of-Transmission): stops the simulation
         {
-            qInfo() << "Stopping simulation: CHAR(EOD)";
+            qInfo() << "Stopping simulation: CHAR(EOT)";
             ::controller.getSimZ80().doRunsim(0);
         }
         else

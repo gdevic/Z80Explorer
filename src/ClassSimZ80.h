@@ -46,7 +46,7 @@ private:
     void handleMemWrite(uint16_t ab);   // Simulated chip requested memory write
     void handleIORead(uint16_t ab);     // Simulated chip requested IO read
     void handleIOWrite(uint16_t ab);    // Simulated chip requested IO write
-    void handleIrq(uint16_t ab);        // Simulated chip requested interrupt service (to read data on the bus)
+    void handleIrq();                   // Simulated chip requested interrupt service (to read data on the bus)
 
     void setDB(uint8_t db);             // Sets data bus to a value
     void set(bool on, QString name);    // Sets a named input net to pullup or pulldown status
