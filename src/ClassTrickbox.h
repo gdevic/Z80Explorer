@@ -13,8 +13,8 @@ struct trick
     uint32_t curCycle;          // Current cycle number (low 16 bits + high 16 bits)
     struct
     {
-        uint16_t cycle;         // Cycle number at which to assert a pin
-        uint16_t count;         // Number of cycles to hold it asserted
+        uint16_t atCycle;       // Cycle number at which to assert a pin
+        uint16_t hold;          // Number of cycles to hold it asserted
     } pinCtrl[MAX_PIN_CTRL];    // That, for 5 pins: INT, NMI, BUSRQ, WAIT, RESET
 };
 #pragma pack(pop)
@@ -46,7 +46,7 @@ public slots:
     void stopAt(quint16 hcycle)             //* Stops execution at the given hcycle
         { m_trick->cycleStop = hcycle; emit refresh(); }
     void set(QString pin, quint8 value = 0);//* Sets named pin to a value (0,1,2)
-    void setAt(QString pin, quint16 hcycle, quint16 count = 6); //* Activates (sets to 0) named pin at the specified hcycle
+    void setAt(QString pin, quint16 hcycle, quint16 hold = 6); //* Activates (sets to 0) named pin at the specified hcycle
     void breakWhen(quint16 net, quint8 value); //* Stops running when the given net number's state equals the value
 
 signals:
