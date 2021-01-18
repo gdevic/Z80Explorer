@@ -123,7 +123,14 @@ const QString ClassTrickbox::readState()
     QString s = QString("hcycle:%1\nstopAt:%2\n").arg(m_trick->curCycle).arg(m_trick->cycleStop);
     s += QString("breakWhen:%1 is %2\n").arg(m_bpnet).arg(m_bpval);
     for (int i = 0; i < MAX_PIN_CTRL; i++)
-        s += QString("%1 at: %2 hold-for: %3\n").arg(pins[i],7).arg(m_trick->pinCtrl[i].atCycle).arg(m_trick->pinCtrl[i].hold);
+    {
+        if (m_trick->pinCtrl[i].atPC) // Two mutually exclusive ways to trigger a pin assert
+            s += QString("%1 PC: %2 hold-for: %3\n").arg(pins[i],7)
+                    .arg(QString("%1").arg(QString::number(m_trick->pinCtrl[i].atPC,16).toUpper(),4,QChar('0'))) // 4-nibble hex, 0-prefixed
+                    .arg(m_trick->pinCtrl[i].hold);
+        else
+            s += QString("%1 at: %2 hold-for: %3\n").arg(pins[i],7).arg(m_trick->pinCtrl[i].atCycle).arg(m_trick->pinCtrl[i].hold);
+    }
     return s;
 }
 
