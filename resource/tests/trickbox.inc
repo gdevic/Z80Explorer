@@ -23,6 +23,9 @@ tb_reset_at     equ (trickbox + 32) ; Cycle number at which to assert RESET pin
 tb_reset_pc     equ (trickbox + 34) ; PC address at which to assert RESET pin
 tb_reset_hold   equ (trickbox + 36) ; Number of cycles to hold RESET asserted
 
+IO_CHAR equ  0x80 ; IO address to write a character out
+IO_INT  equ  0x81 ; IO address that holds the value to be shown on the data bus during an interrupt
+
 ; Examples of use:
 ;
 ; Stop 200 cycles from now:
@@ -46,3 +49,7 @@ tb_reset_hold   equ (trickbox + 36) ; Number of cycles to hold RESET asserted
 ;    ld  (tb_int_pc), hl
 label1:
 ;    daa
+;
+; Stop the simulation
+;    ld a, 4 ; Terminate the simulation
+;    out (IO_CHAR), a
