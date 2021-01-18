@@ -108,7 +108,7 @@ stop:
     org 100h
 exec:
     ld hl, 20
-    ld (tb_busrq_len), hl
+    ld (tb_busrq_hold), hl
     ld hl, 350
     ld (tb_busrq_at),hl
     ld hl,400
