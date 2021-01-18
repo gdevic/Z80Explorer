@@ -1016,7 +1016,7 @@ bool ClassChip::isLatch(net_t net)
  */
 void ClassChip::getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2)
 {
-    std::find_if(m_latches.begin(), m_latches.end(), [net,&t1,&t2,&n1,&n2](latchdef &l)
+    (void) std::find_if(m_latches.begin(), m_latches.end(), [net,&t1,&t2,&n1,&n2](latchdef &l)
     { t1 = l.t1; t2 = l.t2; n1 = l.n1; n2 = l.n2; return (l.n1 == net) || (l.n2 == net); });
 }
 
