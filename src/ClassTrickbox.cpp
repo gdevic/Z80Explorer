@@ -10,7 +10,7 @@ const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
 
 ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 {
-    static_assert(sizeof(trick) == (2 + 2 + 4 + 5*4), "unexpected trick struct size (packing?)");
+    static_assert(sizeof(trick) == (2 + 2 + 4 + MAX_PIN_CTRL*6), "unexpected trick struct size (packing?)");
     m_trick = (trick *)&m_mem[TRICKBOX_START];
     memset(m_mio, 0xFF, sizeof(m_mio));
 }
@@ -18,8 +18,8 @@ ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 void ClassTrickbox::reset()
 {
     memset(m_trick, 0, sizeof (trick));
-    for (uint i = 0; i < 5; i++)
-        m_trick->pinCtrl[i].count = 6;
+    for (uint i = 0; i < MAX_PIN_CTRL; i++)
+        m_trick->pinCtrl[i].hold = 6;
 }
 
 /*
@@ -59,10 +59,10 @@ void ClassTrickbox::writeMem(quint16 ab, quint8 db)
 
         for (uint i = 0; i < MAX_PIN_CTRL; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
         {
-            if (m_trick->pinCtrl[i].cycle && (m_trick->pinCtrl[i].cycle <= current)) // Zero is non-active
+            if (m_trick->pinCtrl[i].atCycle && (m_trick->pinCtrl[i].atCycle <= current)) // Zero is non-active
             {
                 qInfo() << "Trickbox: Asked to assert pin " << pins[i] << "at hcycle"
-                        << m_trick->pinCtrl[i].cycle << "but current is already at" << current;
+                        << m_trick->pinCtrl[i].atCycle << "but current is already at" << current;
                 return ::controller.getSimZ80().doRunsim(0);
             }
         }
@@ -82,6 +82,10 @@ void ClassTrickbox::writeMem(quint16 ab, quint8 db)
  */
 quint8 ClassTrickbox::readIO(quint16 ab)
 {
+    // Although the IO map is 64K wide, we reserve few locations and collapse the top address
+    // This allows using a simpler Z80 opcode "in a,(n)"
+    if ((ab & 0xFE) == 0x80) // 1-byte IO addresses: 0x80 and 0x81
+        ab &= 0xFF;
     return m_mio[ab];
 }
 
@@ -90,15 +94,20 @@ quint8 ClassTrickbox::readIO(quint16 ab)
  */
 void ClassTrickbox::writeIO(quint16 ab, quint8 db)
 {
+    // Although the IO map is 64K wide, we reserve few locations and collapse the top address
+    // This allows using a simpler Z80 opcode "OUT (n),a"
+    if ((ab & 0xFE) == 0x80) // 1-byte IO addresses: 0x80 and 0x81
+        ab &= 0xFF;
     m_mio[ab] = db;
-    // Terminal write address
-    if (ab == 0x0800)
+    // IO address 0x81 holds the value to be shown on the bus during interrupt - see ClassSimZ80::handleIrq()
+    // IO address 0x80 is a character out address
+    if (ab == 0x80)
     {
         if (db == 10) // Ignore LF in CR/LF sequence
             return;
-        if (db == 0x04) // Console output of character 4 (EOD, End-of-Transmission): stops the simulation
+        if (db == 0x04) // Console output of character 4 (EOT, End-of-Transmission): stops the simulation
         {
-            qInfo() << "Stopping simulation: CHAR(EOD)";
+            qInfo() << "Stopping simulation: CHAR(EOT)";
             ::controller.getSimZ80().doRunsim(0);
         }
         else
@@ -114,7 +123,14 @@ const QString ClassTrickbox::readState()
     QString s = QString("hcycle:%1\nstopAt:%2\n").arg(m_trick->curCycle).arg(m_trick->cycleStop);
     s += QString("breakWhen:%1 is %2\n").arg(m_bpnet).arg(m_bpval);
     for (int i = 0; i < MAX_PIN_CTRL; i++)
-        s += QString("%1 at: %2 hold-for: %3\n").arg(pins[i],7).arg(m_trick->pinCtrl[i].cycle).arg(m_trick->pinCtrl[i].count);
+    {
+        if (m_trick->pinCtrl[i].atPC) // Two mutually exclusive ways to trigger a pin assert
+            s += QString("%1 PC: %2 hold-for: %3\n").arg(pins[i],7)
+                    .arg(QString("%1").arg(QString::number(m_trick->pinCtrl[i].atPC,16).toUpper(),4,QChar('0'))) // 4-nibble hex, 0-prefixed
+                    .arg(m_trick->pinCtrl[i].hold);
+        else
+            s += QString("%1 at: %2 hold-for: %3\n").arg(pins[i],7).arg(m_trick->pinCtrl[i].atCycle).arg(m_trick->pinCtrl[i].hold);
+    }
     return s;
 }
 
@@ -141,20 +157,32 @@ void ClassTrickbox::onTick(uint ticks)
         return ::controller.getSimZ80().doRunsim(0);
     }
 
+    // This is a relatively expensive operation and assertion on a PC value may be a rare use case,
+    // so we don't read PC unless a non-zero trigger value has been set on any one of the 5 pins
+    bool anyPC = m_trick->pinCtrl[0].atPC | m_trick->pinCtrl[1].atPC | m_trick->pinCtrl[2].atPC | m_trick->pinCtrl[3].atPC | m_trick->pinCtrl[4].atPC;
+    uint16_t pc = anyPC ? ::controller.getSimZ80().getPC() : 0;
+
     for (uint i = 0; i < MAX_PIN_CTRL; i++) // { "_int", "_nmi", "_busrq", "_wait", "_reset" };
     {
-        if ((m_trick->pinCtrl[i].cycle == 0) || (m_trick->pinCtrl[i].cycle > ticks))
+        if (pc && (pc == m_trick->pinCtrl[i].atPC))
+        {
+            m_trick->pinCtrl[i].atCycle = ticks; // Use the "at" trigger
+            m_trick->pinCtrl[i].atPC = 0; // Disarm the PC address trigger
+        }
+
+        if ((m_trick->pinCtrl[i].atCycle == 0) || (m_trick->pinCtrl[i].atCycle > ticks))
             continue;
-        if (m_trick->pinCtrl[i].cycle == ticks)
+        if (m_trick->pinCtrl[i].atCycle == ticks)
             ::controller.getSimZ80().setPin(i, 0); // and assert its pin if the cycle is reached
         else
         {
-            if (m_trick->pinCtrl[i].count > 0)
-                m_trick->pinCtrl[i].count--;
-            if (m_trick->pinCtrl[i].count == 0)
+            if (m_trick->pinCtrl[i].hold > 0)
+                m_trick->pinCtrl[i].hold--;
+            if (m_trick->pinCtrl[i].hold == 0)
             {
                 ::controller.getSimZ80().setPin(i, 1); // Release the pin
-                m_trick->pinCtrl[i].cycle = 0;
+                m_trick->pinCtrl[i].atCycle = 0; // Disarm the trigger
+                m_trick->pinCtrl[i].hold = 6; // Reset hold to its default
             }
         }
     }
@@ -182,19 +210,37 @@ void ClassTrickbox::set(QString pin, quint8 value)
 }
 
 /*
- * Activates (sets to 0) named pin at the specified hcycle and holds it for the count number of cycles
+ * Activates (sets to 0) named pin at the specified hcycle and holds it for the "hold" number of cycles
  */
-void ClassTrickbox::setAt(QString pin, quint16 hcycle, quint16 count)
+void ClassTrickbox::setAt(QString pin, quint16 hcycle, quint16 hold)
 {
     int i = pins.indexOf(pin);
     if (i >= 0)
     {
-        m_trick->pinCtrl[i].cycle = hcycle;
-        m_trick->pinCtrl[i].count = count;
+        m_trick->pinCtrl[i].atCycle = hcycle;
+        m_trick->pinCtrl[i].atPC = 0;
+        m_trick->pinCtrl[i].hold = hold;
         emit refresh();
     }
     else
-        qWarning() << "Invalid pin name. Only input pads can be set:" << pins;
+        qWarning() << "Invalid pin name. Only these output pins can be set:" << pins;
+}
+
+/*
+ * Activates (sets to 0) named pin when PC equals the address and holds it for the "hold" number of cycles
+ */
+void ClassTrickbox::setPC(QString pin, quint16 addr, quint16 hold)
+{
+    int i = pins.indexOf(pin);
+    if (i >= 0)
+    {
+        m_trick->pinCtrl[i].atCycle = 0;
+        m_trick->pinCtrl[i].atPC = addr;
+        m_trick->pinCtrl[i].hold = hold;
+        emit refresh();
+    }
+    else
+        qWarning() << "Invalid pin name. Only these output pins can be set:" << pins;
 }
 
 /*

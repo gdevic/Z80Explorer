@@ -18,7 +18,7 @@ void ClassColors::onShutdown()
 
 /*
  * Updates internal color table (implemented as a hash) based on the colors specifications
- * There are 3 methods that each net/bus can be matched to each coloring defintion:
+ * There are 4 methods that each net/bus can be matched to each coloring defintion:
  * 0 .. Name has to match exactly the string in the definition
  * 1 .. Name only has to start with the string in the definition (and may be longer)
  * 2 .. Definition string is a regular expression trying to match each name

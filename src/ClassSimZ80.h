@@ -24,6 +24,8 @@ public:
     void doRunsim(uint ticks);          // Run the simulation for the given number of clocks
     bool setPin(uint index, pin_t p);   // Sets an input pin to a value
     bool isRunning() { return m_runcount; }; // Returns true if the simulation is currently running
+    uint16_t getPC()                    // Returns the current value of the PC register
+        { return (readByte("reg_pch") << 8) | readByte("reg_pcl"); }
 
     Q_PROPERTY(uint hcycle READ getCurrentHCycle) //* Returns the current simulation half-cycle count
     Q_PROPERTY(uint hz READ getEstHz)   //* Returns the estimated simulated frequency
@@ -34,7 +36,7 @@ public slots:
     QString eq(int n)                   //* Returns a logic equation driving a given net
         { return ClassNetlist::equation(n); }
     void onShutdown()                   // Called when the app is closing
-        { doRunsim(0); ClassNetlist::onShutdown(); }; // Stop the running sim and pass on the signal
+        { doRunsim(0); ClassNetlist::onShutdown(); } // Stop the running sim and pass on the signal
 
 private slots:
     void onTimeout();                   // Dump z80 state every 500ms when running the simulation
@@ -44,7 +46,7 @@ private:
     void handleMemWrite(uint16_t ab);   // Simulated chip requested memory write
     void handleIORead(uint16_t ab);     // Simulated chip requested IO read
     void handleIOWrite(uint16_t ab);    // Simulated chip requested IO write
-    void handleIrq(uint16_t ab);        // Simulated chip requested interrupt service (to read data on the bus)
+    void handleIrq();                   // Simulated chip requested interrupt service (to read data on the bus)
 
     void setDB(uint8_t db);             // Sets data bus to a value
     void set(bool on, QString name);    // Sets a named input net to pullup or pulldown status

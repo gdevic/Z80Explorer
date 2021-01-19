@@ -4,7 +4,7 @@
 #define MAX_TRANS 9000  // Max number of transistors (est. for Z80)
 #define MAX_NETS  3600  // Max number of nets (est. for Z80)
 
-#define APP_VERSION 100 // Application version (minor % 100)
+#define APP_VERSION 102 // Application version (minor % 100)
 
 #define HAVE_PREBUILT_LAYERMAP 1 // We have extracted a fully prebuilt layermap.bin and can use it
 
