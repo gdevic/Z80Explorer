@@ -218,11 +218,29 @@ void ClassTrickbox::setAt(QString pin, quint16 hcycle, quint16 hold)
     if (i >= 0)
     {
         m_trick->pinCtrl[i].atCycle = hcycle;
+        m_trick->pinCtrl[i].atPC = 0;
         m_trick->pinCtrl[i].hold = hold;
         emit refresh();
     }
     else
-        qWarning() << "Invalid pin name. Only input pads can be set:" << pins;
+        qWarning() << "Invalid pin name. Only these output pins can be set:" << pins;
+}
+
+/*
+ * Activates (sets to 0) named pin when PC equals the address and holds it for the "hold" number of cycles
+ */
+void ClassTrickbox::setPC(QString pin, quint16 addr, quint16 hold)
+{
+    int i = pins.indexOf(pin);
+    if (i >= 0)
+    {
+        m_trick->pinCtrl[i].atCycle = 0;
+        m_trick->pinCtrl[i].atPC = addr;
+        m_trick->pinCtrl[i].hold = hold;
+        emit refresh();
+    }
+    else
+        qWarning() << "Invalid pin name. Only these output pins can be set:" << pins;
 }
 
 /*

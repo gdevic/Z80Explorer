@@ -48,6 +48,7 @@ public slots:
         { m_trick->cycleStop = hcycle; emit refresh(); }
     void set(QString pin, quint8 value = 0);//* Sets named pin to a value (0,1,2)
     void setAt(QString pin, quint16 hcycle, quint16 hold = 6); //* Activates (sets to 0) named pin at the specified hcycle
+    void setPC(QString pin, quint16 addr, quint16 hold = 6); //* Activates (sets to 0) named pin when PC equals the address
     void breakWhen(quint16 net, quint8 value); //* Stops running when the given net number's state equals the value
 
 signals:
