@@ -623,6 +623,30 @@
             "text": "Register File",
             "x": 1182,
             "y": 3702
+        },
+        {
+            "bar": false,
+            "pix": 28,
+            "rect": false,
+            "rh": 28,
+            "rw": 34,
+            "rx": 2302,
+            "ry": 3197,
+            "text": "AF",
+            "x": 2305,
+            "y": 3190
+        },
+        {
+            "bar": false,
+            "pix": 28,
+            "rect": false,
+            "rh": 19,
+            "rw": 32,
+            "rx": 2249,
+            "ry": 3198,
+            "text": "AF'",
+            "x": 2249,
+            "y": 3190
         }
     ]
 }

@@ -1,6 +1,70 @@
 {
     "watchlist": [
         {
+            "name": "_abus0",
+            "net": 3370
+        },
+        {
+            "name": "_abus1",
+            "net": 3381
+        },
+        {
+            "name": "_abus2",
+            "net": 1968
+        },
+        {
+            "name": "_abus3",
+            "net": 1970
+        },
+        {
+            "name": "_abus4",
+            "net": 792
+        },
+        {
+            "name": "_abus5",
+            "net": 797
+        },
+        {
+            "name": "_abus6",
+            "net": 2160
+        },
+        {
+            "name": "_abus7",
+            "net": 2163
+        },
+        {
+            "name": "_abus8",
+            "net": 2279
+        },
+        {
+            "name": "_abus9",
+            "net": 2280
+        },
+        {
+            "name": "_abusa",
+            "net": 2396
+        },
+        {
+            "name": "_abusb",
+            "net": 921
+        },
+        {
+            "name": "_abusc",
+            "net": 954
+        },
+        {
+            "name": "_abusd",
+            "net": 957
+        },
+        {
+            "name": "_abuse",
+            "net": 1003
+        },
+        {
+            "name": "_abusf",
+            "net": 1004
+        },
+        {
             "name": "_busak",
             "net": 41
         },
@@ -59,6 +123,10 @@
         {
             "name": "_wr",
             "net": 28
+        },
+        {
+            "name": "_wr_ab",
+            "net": 680
         },
         {
             "name": "AB",
@@ -129,8 +197,312 @@
             "net": 14
         },
         {
+            "name": "ABUS",
+            "net": 0
+        },
+        {
+            "name": "abus_is_one",
+            "net": 691
+        },
+        {
+            "name": "abus0",
+            "net": 1776
+        },
+        {
+            "name": "abus1",
+            "net": 1886
+        },
+        {
+            "name": "abus2",
+            "net": 1914
+        },
+        {
+            "name": "abus3",
+            "net": 1992
+        },
+        {
+            "name": "abus4",
+            "net": 2018
+        },
+        {
+            "name": "abus5",
+            "net": 2088
+        },
+        {
+            "name": "abus6",
+            "net": 2118
+        },
+        {
+            "name": "abus7",
+            "net": 2187
+        },
+        {
+            "name": "abus8",
+            "net": 2225
+        },
+        {
+            "name": "abus9",
+            "net": 2301
+        },
+        {
+            "name": "abusa",
+            "net": 2343
+        },
+        {
+            "name": "abusb",
+            "net": 2422
+        },
+        {
+            "name": "abusc",
+            "net": 2449
+        },
+        {
+            "name": "abusd",
+            "net": 2534
+        },
+        {
+            "name": "abuse",
+            "net": 2572
+        },
+        {
+            "name": "abusf",
+            "net": 2660
+        },
+        {
+            "name": "AINCDEC",
+            "net": 0
+        },
+        {
+            "name": "aincdec0",
+            "net": 707
+        },
+        {
+            "name": "aincdec1",
+            "net": 722
+        },
+        {
+            "name": "aincdec2",
+            "net": 744
+        },
+        {
+            "name": "aincdec3",
+            "net": 769
+        },
+        {
+            "name": "aincdec4",
+            "net": 784
+        },
+        {
+            "name": "aincdec5",
+            "net": 804
+        },
+        {
+            "name": "aincdec6",
+            "net": 833
+        },
+        {
+            "name": "aincdec7",
+            "net": 857
+        },
+        {
+            "name": "aincdec8",
+            "net": 879
+        },
+        {
+            "name": "aincdec9",
+            "net": 893
+        },
+        {
+            "name": "aincdeca",
+            "net": 913
+        },
+        {
+            "name": "aincdecb",
+            "net": 929
+        },
+        {
+            "name": "aincdecc",
+            "net": 948
+        },
+        {
+            "name": "aincdecd",
+            "net": 964
+        },
+        {
+            "name": "aincdece",
+            "net": 979
+        },
+        {
+            "name": "aincdecf",
+            "net": 994
+        },
+        {
+            "name": "alua0",
+            "net": 850
+        },
+        {
+            "name": "alua1",
+            "net": 899
+        },
+        {
+            "name": "alua2",
+            "net": 947
+        },
+        {
+            "name": "alua3",
+            "net": 993
+        },
+        {
+            "name": "alua4",
+            "net": 868
+        },
+        {
+            "name": "alua5",
+            "net": 920
+        },
+        {
+            "name": "alua6",
+            "net": 968
+        },
+        {
+            "name": "alua7",
+            "net": 1007
+        },
+        {
+            "name": "alub0",
+            "net": 845
+        },
+        {
+            "name": "alub1",
+            "net": 897
+        },
+        {
+            "name": "alub2",
+            "net": 944
+        },
+        {
+            "name": "alub3",
+            "net": 988
+        },
+        {
+            "name": "alub4",
+            "net": 867
+        },
+        {
+            "name": "alub5",
+            "net": 918
+        },
+        {
+            "name": "alub6",
+            "net": 966
+        },
+        {
+            "name": "alub7",
+            "net": 1005
+        },
+        {
+            "name": "alubus0",
+            "net": 837
+        },
+        {
+            "name": "alubus1",
+            "net": 889
+        },
+        {
+            "name": "alubus2",
+            "net": 937
+        },
+        {
+            "name": "alubus3",
+            "net": 983
+        },
+        {
+            "name": "alubus4",
+            "net": 852
+        },
+        {
+            "name": "alubus5",
+            "net": 903
+        },
+        {
+            "name": "alubus6",
+            "net": 951
+        },
+        {
+            "name": "alubus7",
+            "net": 995
+        },
+        {
+            "name": "alulat0",
+            "net": 865
+        },
+        {
+            "name": "alulat1",
+            "net": 912
+        },
+        {
+            "name": "alulat2",
+            "net": 960
+        },
+        {
+            "name": "alulat3",
+            "net": 1002
+        },
+        {
+            "name": "aluout0",
+            "net": 2211
+        },
+        {
+            "name": "aluout1",
+            "net": 2338
+        },
+        {
+            "name": "aluout2",
+            "net": 2504
+        },
+        {
+            "name": "aluout3",
+            "net": 816
+        },
+        {
             "name": "clk",
             "net": 3
+        },
+        {
+            "name": "ctl_cb_active",
+            "net": 263
+        },
+        {
+            "name": "ctl_ed_active",
+            "net": 265
+        },
+        {
+            "name": "ctl_ed_cb_active",
+            "net": 267
+        },
+        {
+            "name": "ctl_edx",
+            "net": 1248
+        },
+        {
+            "name": "ctl_inc_r",
+            "net": 617
+        },
+        {
+            "name": "ctl_tri",
+            "net": 69
+        },
+        {
+            "name": "ctl_tri_ab",
+            "net": 627
+        },
+        {
+            "name": "d_dl",
+            "net": 133
+        },
+        {
+            "name": "d_u_pass",
+            "net": 546
         },
         {
             "name": "DB",
@@ -205,12 +577,116 @@
             "net": 370
         },
         {
+            "name": "dl_d",
+            "net": 87
+        },
+        {
+            "name": "dl_dp",
+            "net": 165
+        },
+        {
+            "name": "dlatch0",
+            "net": 123
+        },
+        {
+            "name": "dlatch1",
+            "net": 195
+        },
+        {
+            "name": "dlatch2",
+            "net": 414
+        },
+        {
+            "name": "dlatch3",
+            "net": 930
+        },
+        {
+            "name": "dlatch4",
+            "net": 1000
+        },
+        {
+            "name": "dlatch5",
+            "net": 872
+        },
+        {
+            "name": "dlatch6",
+            "net": 751
+        },
+        {
+            "name": "dlatch7",
+            "net": 358
+        },
+        {
+            "name": "dp_dl",
+            "net": 82
+        },
+        {
+            "name": "ex_af",
+            "net": 631
+        },
+        {
+            "name": "ex_bcdehl",
+            "net": 1770
+        },
+        {
+            "name": "ex_dehl_combined",
+            "net": 626
+        },
+        {
+            "name": "ex_dehl0",
+            "net": 625
+        },
+        {
+            "name": "ex_dehl1",
+            "net": 629
+        },
+        {
+            "name": "INSTR",
+            "net": 0
+        },
+        {
+            "name": "instr0",
+            "net": 1348
+        },
+        {
+            "name": "instr1",
+            "net": 1359
+        },
+        {
+            "name": "instr2",
+            "net": 1365
+        },
+        {
+            "name": "instr3",
+            "net": 1379
+        },
+        {
+            "name": "instr4",
+            "net": 1387
+        },
+        {
+            "name": "instr5",
+            "net": 1394
+        },
+        {
+            "name": "instr6",
+            "net": 1369
+        },
+        {
+            "name": "instr7",
+            "net": 1374
+        },
+        {
             "name": "int_reset",
             "net": 95
         },
         {
             "name": "last_t",
             "net": 215
+        },
+        {
+            "name": "load_ir",
+            "net": 1354
         },
         {
             "name": "M",
@@ -239,6 +715,1454 @@
         {
             "name": "m6",
             "net": 210
+        },
+        {
+            "name": "pcbit0",
+            "net": 703
+        },
+        {
+            "name": "pcbit1",
+            "net": 731
+        },
+        {
+            "name": "pcbit10",
+            "net": 907
+        },
+        {
+            "name": "pcbit11",
+            "net": 933
+        },
+        {
+            "name": "pcbit12",
+            "net": 936
+        },
+        {
+            "name": "pcbit13",
+            "net": 969
+        },
+        {
+            "name": "pcbit14",
+            "net": 974
+        },
+        {
+            "name": "pcbit15",
+            "net": 998
+        },
+        {
+            "name": "pcbit2",
+            "net": 739
+        },
+        {
+            "name": "pcbit3",
+            "net": 774
+        },
+        {
+            "name": "pcbit4",
+            "net": 777
+        },
+        {
+            "name": "pcbit5",
+            "net": 806
+        },
+        {
+            "name": "pcbit6",
+            "net": 810
+        },
+        {
+            "name": "pcbit7",
+            "net": 863
+        },
+        {
+            "name": "pcbit8",
+            "net": 871
+        },
+        {
+            "name": "pcbit9",
+            "net": 901
+        },
+        {
+            "name": "PCBUS",
+            "net": 0
+        },
+        {
+            "name": "pla0",
+            "net": 287
+        },
+        {
+            "name": "pla1",
+            "net": 332
+        },
+        {
+            "name": "pla10",
+            "net": 318
+        },
+        {
+            "name": "pla11",
+            "net": 361
+        },
+        {
+            "name": "pla12",
+            "net": 261
+        },
+        {
+            "name": "pla13",
+            "net": 337
+        },
+        {
+            "name": "pla14",
+            "net": 319
+        },
+        {
+            "name": "pla15",
+            "net": 363
+        },
+        {
+            "name": "pla16",
+            "net": 288
+        },
+        {
+            "name": "pla17",
+            "net": 338
+        },
+        {
+            "name": "pla18",
+            "net": 320
+        },
+        {
+            "name": "pla19",
+            "net": 364
+        },
+        {
+            "name": "pla2",
+            "net": 314
+        },
+        {
+            "name": "pla20",
+            "net": 325
+        },
+        {
+            "name": "pla21",
+            "net": 324
+        },
+        {
+            "name": "pla22",
+            "net": 308
+        },
+        {
+            "name": "pla23",
+            "net": 289
+        },
+        {
+            "name": "pla24",
+            "net": 339
+        },
+        {
+            "name": "pla25",
+            "net": 313
+        },
+        {
+            "name": "pla26",
+            "net": 340
+        },
+        {
+            "name": "pla27",
+            "net": 290
+        },
+        {
+            "name": "pla28",
+            "net": 341
+        },
+        {
+            "name": "pla29",
+            "net": 291
+        },
+        {
+            "name": "pla3",
+            "net": 333
+        },
+        {
+            "name": "pla30",
+            "net": 342
+        },
+        {
+            "name": "pla31",
+            "net": 292
+        },
+        {
+            "name": "pla32",
+            "net": 365
+        },
+        {
+            "name": "pla33",
+            "net": 293
+        },
+        {
+            "name": "pla34",
+            "net": 362
+        },
+        {
+            "name": "pla35",
+            "net": 294
+        },
+        {
+            "name": "pla36",
+            "net": 331
+        },
+        {
+            "name": "pla37",
+            "net": 295
+        },
+        {
+            "name": "pla38",
+            "net": 343
+        },
+        {
+            "name": "pla39",
+            "net": 296
+        },
+        {
+            "name": "pla4",
+            "net": 315
+        },
+        {
+            "name": "pla40",
+            "net": 297
+        },
+        {
+            "name": "pla41",
+            "net": 298
+        },
+        {
+            "name": "pla42",
+            "net": 344
+        },
+        {
+            "name": "pla43",
+            "net": 299
+        },
+        {
+            "name": "pla44",
+            "net": 269
+        },
+        {
+            "name": "pla45",
+            "net": 300
+        },
+        {
+            "name": "pla46",
+            "net": 237
+        },
+        {
+            "name": "pla47",
+            "net": 301
+        },
+        {
+            "name": "pla48",
+            "net": 345
+        },
+        {
+            "name": "pla49",
+            "net": 302
+        },
+        {
+            "name": "pla5",
+            "net": 334
+        },
+        {
+            "name": "pla50",
+            "net": 346
+        },
+        {
+            "name": "pla51",
+            "net": 264
+        },
+        {
+            "name": "pla52",
+            "net": 266
+        },
+        {
+            "name": "pla53",
+            "net": 347
+        },
+        {
+            "name": "pla54",
+            "net": 303
+        },
+        {
+            "name": "pla55",
+            "net": 356
+        },
+        {
+            "name": "pla56",
+            "net": 227
+        },
+        {
+            "name": "pla57",
+            "net": 366
+        },
+        {
+            "name": "pla58",
+            "net": 304
+        },
+        {
+            "name": "pla59",
+            "net": 305
+        },
+        {
+            "name": "pla6",
+            "net": 316
+        },
+        {
+            "name": "pla60",
+            "net": 271
+        },
+        {
+            "name": "pla61",
+            "net": 348
+        },
+        {
+            "name": "pla62",
+            "net": 306
+        },
+        {
+            "name": "pla63",
+            "net": 309
+        },
+        {
+            "name": "pla64",
+            "net": 311
+        },
+        {
+            "name": "pla65",
+            "net": 312
+        },
+        {
+            "name": "pla66",
+            "net": 307
+        },
+        {
+            "name": "pla67",
+            "net": 367
+        },
+        {
+            "name": "pla68",
+            "net": 272
+        },
+        {
+            "name": "pla69",
+            "net": 349
+        },
+        {
+            "name": "pla7",
+            "net": 335
+        },
+        {
+            "name": "pla70",
+            "net": 273
+        },
+        {
+            "name": "pla71",
+            "net": 350
+        },
+        {
+            "name": "pla72",
+            "net": 274
+        },
+        {
+            "name": "pla73",
+            "net": 351
+        },
+        {
+            "name": "pla74",
+            "net": 275
+        },
+        {
+            "name": "pla75",
+            "net": 276
+        },
+        {
+            "name": "pla76",
+            "net": 268
+        },
+        {
+            "name": "pla77",
+            "net": 352
+        },
+        {
+            "name": "pla78",
+            "net": 277
+        },
+        {
+            "name": "pla79",
+            "net": 278
+        },
+        {
+            "name": "pla8",
+            "net": 317
+        },
+        {
+            "name": "pla80",
+            "net": 279
+        },
+        {
+            "name": "pla81",
+            "net": 280
+        },
+        {
+            "name": "pla82",
+            "net": 368
+        },
+        {
+            "name": "pla83",
+            "net": 281
+        },
+        {
+            "name": "pla84",
+            "net": 282
+        },
+        {
+            "name": "pla85",
+            "net": 283
+        },
+        {
+            "name": "pla86",
+            "net": 284
+        },
+        {
+            "name": "pla87",
+            "net": 285
+        },
+        {
+            "name": "pla88",
+            "net": 286
+        },
+        {
+            "name": "pla89",
+            "net": 321
+        },
+        {
+            "name": "pla9",
+            "net": 336
+        },
+        {
+            "name": "pla90",
+            "net": 353
+        },
+        {
+            "name": "pla91",
+            "net": 322
+        },
+        {
+            "name": "pla92",
+            "net": 354
+        },
+        {
+            "name": "pla93",
+            "net": 323
+        },
+        {
+            "name": "pla94",
+            "net": 369
+        },
+        {
+            "name": "pla95",
+            "net": 258
+        },
+        {
+            "name": "pla96",
+            "net": 249
+        },
+        {
+            "name": "pla97",
+            "net": 245
+        },
+        {
+            "name": "pla98",
+            "net": 355
+        },
+        {
+            "name": "r_p",
+            "net": 1785
+        },
+        {
+            "name": "r_u",
+            "net": 692
+        },
+        {
+            "name": "r_v",
+            "net": 693
+        },
+        {
+            "name": "r_x1",
+            "net": 608
+        },
+        {
+            "name": "reg_a0",
+            "net": 2245
+        },
+        {
+            "name": "reg_a1",
+            "net": 2319
+        },
+        {
+            "name": "reg_a2",
+            "net": 2357
+        },
+        {
+            "name": "reg_a3",
+            "net": 2442
+        },
+        {
+            "name": "reg_a4",
+            "net": 2463
+        },
+        {
+            "name": "reg_a5",
+            "net": 2552
+        },
+        {
+            "name": "reg_a6",
+            "net": 2586
+        },
+        {
+            "name": "reg_a7",
+            "net": 2656
+        },
+        {
+            "name": "reg_aa0",
+            "net": 2244
+        },
+        {
+            "name": "reg_aa1",
+            "net": 2318
+        },
+        {
+            "name": "reg_aa2",
+            "net": 2356
+        },
+        {
+            "name": "reg_aa3",
+            "net": 2441
+        },
+        {
+            "name": "reg_aa4",
+            "net": 2462
+        },
+        {
+            "name": "reg_aa5",
+            "net": 2551
+        },
+        {
+            "name": "reg_aa6",
+            "net": 2585
+        },
+        {
+            "name": "reg_aa7",
+            "net": 2655
+        },
+        {
+            "name": "reg_b0",
+            "net": 2243
+        },
+        {
+            "name": "reg_b1",
+            "net": 2317
+        },
+        {
+            "name": "reg_b2",
+            "net": 2355
+        },
+        {
+            "name": "reg_b3",
+            "net": 2440
+        },
+        {
+            "name": "reg_b4",
+            "net": 2461
+        },
+        {
+            "name": "reg_b5",
+            "net": 2550
+        },
+        {
+            "name": "reg_b6",
+            "net": 2584
+        },
+        {
+            "name": "reg_b7",
+            "net": 2654
+        },
+        {
+            "name": "reg_bb0",
+            "net": 2242
+        },
+        {
+            "name": "reg_bb1",
+            "net": 2316
+        },
+        {
+            "name": "reg_bb2",
+            "net": 2354
+        },
+        {
+            "name": "reg_bb3",
+            "net": 2439
+        },
+        {
+            "name": "reg_bb4",
+            "net": 2460
+        },
+        {
+            "name": "reg_bb5",
+            "net": 2549
+        },
+        {
+            "name": "reg_bb6",
+            "net": 2583
+        },
+        {
+            "name": "reg_bb7",
+            "net": 2653
+        },
+        {
+            "name": "reg_c0",
+            "net": 1825
+        },
+        {
+            "name": "reg_c1",
+            "net": 1901
+        },
+        {
+            "name": "reg_c2",
+            "net": 1926
+        },
+        {
+            "name": "reg_c3",
+            "net": 2007
+        },
+        {
+            "name": "reg_c4",
+            "net": 2030
+        },
+        {
+            "name": "reg_c5",
+            "net": 2105
+        },
+        {
+            "name": "reg_c6",
+            "net": 2130
+        },
+        {
+            "name": "reg_c7",
+            "net": 2207
+        },
+        {
+            "name": "reg_cc0",
+            "net": 1824
+        },
+        {
+            "name": "reg_cc1",
+            "net": 1900
+        },
+        {
+            "name": "reg_cc2",
+            "net": 1925
+        },
+        {
+            "name": "reg_cc3",
+            "net": 2006
+        },
+        {
+            "name": "reg_cc4",
+            "net": 2029
+        },
+        {
+            "name": "reg_cc5",
+            "net": 2104
+        },
+        {
+            "name": "reg_cc6",
+            "net": 2129
+        },
+        {
+            "name": "reg_cc7",
+            "net": 2206
+        },
+        {
+            "name": "reg_d0",
+            "net": 2241
+        },
+        {
+            "name": "reg_d1",
+            "net": 2315
+        },
+        {
+            "name": "reg_d2",
+            "net": 2353
+        },
+        {
+            "name": "reg_d3",
+            "net": 2438
+        },
+        {
+            "name": "reg_d4",
+            "net": 2459
+        },
+        {
+            "name": "reg_d5",
+            "net": 2548
+        },
+        {
+            "name": "reg_d6",
+            "net": 2582
+        },
+        {
+            "name": "reg_d7",
+            "net": 2652
+        },
+        {
+            "name": "reg_dd0",
+            "net": 2240
+        },
+        {
+            "name": "reg_dd1",
+            "net": 2314
+        },
+        {
+            "name": "reg_dd2",
+            "net": 2352
+        },
+        {
+            "name": "reg_dd3",
+            "net": 2437
+        },
+        {
+            "name": "reg_dd4",
+            "net": 2458
+        },
+        {
+            "name": "reg_dd5",
+            "net": 2547
+        },
+        {
+            "name": "reg_dd6",
+            "net": 2581
+        },
+        {
+            "name": "reg_dd7",
+            "net": 2651
+        },
+        {
+            "name": "reg_e0",
+            "net": 1823
+        },
+        {
+            "name": "reg_e1",
+            "net": 1899
+        },
+        {
+            "name": "reg_e2",
+            "net": 1924
+        },
+        {
+            "name": "reg_e3",
+            "net": 2005
+        },
+        {
+            "name": "reg_e4",
+            "net": 2028
+        },
+        {
+            "name": "reg_e5",
+            "net": 2103
+        },
+        {
+            "name": "reg_e6",
+            "net": 2128
+        },
+        {
+            "name": "reg_e7",
+            "net": 2205
+        },
+        {
+            "name": "reg_ee0",
+            "net": 1822
+        },
+        {
+            "name": "reg_ee1",
+            "net": 1898
+        },
+        {
+            "name": "reg_ee2",
+            "net": 1923
+        },
+        {
+            "name": "reg_ee3",
+            "net": 2004
+        },
+        {
+            "name": "reg_ee4",
+            "net": 2027
+        },
+        {
+            "name": "reg_ee5",
+            "net": 2102
+        },
+        {
+            "name": "reg_ee6",
+            "net": 2127
+        },
+        {
+            "name": "reg_ee7",
+            "net": 2204
+        },
+        {
+            "name": "reg_f0",
+            "net": 1827
+        },
+        {
+            "name": "reg_f1",
+            "net": 1903
+        },
+        {
+            "name": "reg_f2",
+            "net": 1928
+        },
+        {
+            "name": "reg_f3",
+            "net": 2009
+        },
+        {
+            "name": "reg_f4",
+            "net": 2032
+        },
+        {
+            "name": "reg_f5",
+            "net": 2107
+        },
+        {
+            "name": "reg_f6",
+            "net": 2132
+        },
+        {
+            "name": "reg_f7",
+            "net": 2209
+        },
+        {
+            "name": "reg_ff0",
+            "net": 1826
+        },
+        {
+            "name": "reg_ff1",
+            "net": 1902
+        },
+        {
+            "name": "reg_ff2",
+            "net": 1927
+        },
+        {
+            "name": "reg_ff3",
+            "net": 2008
+        },
+        {
+            "name": "reg_ff4",
+            "net": 2031
+        },
+        {
+            "name": "reg_ff5",
+            "net": 2106
+        },
+        {
+            "name": "reg_ff6",
+            "net": 2131
+        },
+        {
+            "name": "reg_ff7",
+            "net": 2208
+        },
+        {
+            "name": "reg_h0",
+            "net": 2239
+        },
+        {
+            "name": "reg_h1",
+            "net": 2313
+        },
+        {
+            "name": "reg_h2",
+            "net": 2351
+        },
+        {
+            "name": "reg_h3",
+            "net": 2436
+        },
+        {
+            "name": "reg_h4",
+            "net": 2457
+        },
+        {
+            "name": "reg_h5",
+            "net": 2546
+        },
+        {
+            "name": "reg_h6",
+            "net": 2580
+        },
+        {
+            "name": "reg_h7",
+            "net": 2650
+        },
+        {
+            "name": "reg_hh0",
+            "net": 2238
+        },
+        {
+            "name": "reg_hh1",
+            "net": 2312
+        },
+        {
+            "name": "reg_hh2",
+            "net": 2350
+        },
+        {
+            "name": "reg_hh3",
+            "net": 2435
+        },
+        {
+            "name": "reg_hh4",
+            "net": 2456
+        },
+        {
+            "name": "reg_hh5",
+            "net": 2545
+        },
+        {
+            "name": "reg_hh6",
+            "net": 2579
+        },
+        {
+            "name": "reg_hh7",
+            "net": 2649
+        },
+        {
+            "name": "reg_i0",
+            "net": 2233
+        },
+        {
+            "name": "reg_i1",
+            "net": 2307
+        },
+        {
+            "name": "reg_i2",
+            "net": 2345
+        },
+        {
+            "name": "reg_i3",
+            "net": 2430
+        },
+        {
+            "name": "reg_i4",
+            "net": 2451
+        },
+        {
+            "name": "reg_i5",
+            "net": 2540
+        },
+        {
+            "name": "reg_i6",
+            "net": 2574
+        },
+        {
+            "name": "reg_i7",
+            "net": 2644
+        },
+        {
+            "name": "reg_ixh0",
+            "net": 2237
+        },
+        {
+            "name": "reg_ixh1",
+            "net": 2311
+        },
+        {
+            "name": "reg_ixh2",
+            "net": 2349
+        },
+        {
+            "name": "reg_ixh3",
+            "net": 2434
+        },
+        {
+            "name": "reg_ixh4",
+            "net": 2455
+        },
+        {
+            "name": "reg_ixh5",
+            "net": 2544
+        },
+        {
+            "name": "reg_ixh6",
+            "net": 2578
+        },
+        {
+            "name": "reg_ixh7",
+            "net": 2648
+        },
+        {
+            "name": "reg_ixl0",
+            "net": 1819
+        },
+        {
+            "name": "reg_ixl1",
+            "net": 1895
+        },
+        {
+            "name": "reg_ixl2",
+            "net": 1920
+        },
+        {
+            "name": "reg_ixl3",
+            "net": 2001
+        },
+        {
+            "name": "reg_ixl4",
+            "net": 2024
+        },
+        {
+            "name": "reg_ixl5",
+            "net": 2099
+        },
+        {
+            "name": "reg_ixl6",
+            "net": 2124
+        },
+        {
+            "name": "reg_ixl7",
+            "net": 2201
+        },
+        {
+            "name": "reg_iyh0",
+            "net": 2236
+        },
+        {
+            "name": "reg_iyh1",
+            "net": 2310
+        },
+        {
+            "name": "reg_iyh2",
+            "net": 2348
+        },
+        {
+            "name": "reg_iyh3",
+            "net": 2433
+        },
+        {
+            "name": "reg_iyh4",
+            "net": 2454
+        },
+        {
+            "name": "reg_iyh5",
+            "net": 2543
+        },
+        {
+            "name": "reg_iyh6",
+            "net": 2577
+        },
+        {
+            "name": "reg_iyh7",
+            "net": 2647
+        },
+        {
+            "name": "reg_iyl0",
+            "net": 1818
+        },
+        {
+            "name": "reg_iyl1",
+            "net": 1894
+        },
+        {
+            "name": "reg_iyl2",
+            "net": 1919
+        },
+        {
+            "name": "reg_iyl3",
+            "net": 2000
+        },
+        {
+            "name": "reg_iyl4",
+            "net": 2023
+        },
+        {
+            "name": "reg_iyl5",
+            "net": 2098
+        },
+        {
+            "name": "reg_iyl6",
+            "net": 2123
+        },
+        {
+            "name": "reg_iyl7",
+            "net": 2200
+        },
+        {
+            "name": "reg_l0",
+            "net": 1821
+        },
+        {
+            "name": "reg_l1",
+            "net": 1897
+        },
+        {
+            "name": "reg_l2",
+            "net": 1922
+        },
+        {
+            "name": "reg_l3",
+            "net": 2003
+        },
+        {
+            "name": "reg_l4",
+            "net": 2026
+        },
+        {
+            "name": "reg_l5",
+            "net": 2101
+        },
+        {
+            "name": "reg_l6",
+            "net": 2126
+        },
+        {
+            "name": "reg_l7",
+            "net": 2203
+        },
+        {
+            "name": "reg_ll0",
+            "net": 1820
+        },
+        {
+            "name": "reg_ll1",
+            "net": 1896
+        },
+        {
+            "name": "reg_ll2",
+            "net": 1921
+        },
+        {
+            "name": "reg_ll3",
+            "net": 2002
+        },
+        {
+            "name": "reg_ll4",
+            "net": 2025
+        },
+        {
+            "name": "reg_ll5",
+            "net": 2100
+        },
+        {
+            "name": "reg_ll6",
+            "net": 2125
+        },
+        {
+            "name": "reg_ll7",
+            "net": 2202
+        },
+        {
+            "name": "reg_pch0",
+            "net": 2232
+        },
+        {
+            "name": "reg_pch1",
+            "net": 2306
+        },
+        {
+            "name": "reg_pch2",
+            "net": 2344
+        },
+        {
+            "name": "reg_pch3",
+            "net": 2429
+        },
+        {
+            "name": "reg_pch4",
+            "net": 2450
+        },
+        {
+            "name": "reg_pch5",
+            "net": 2539
+        },
+        {
+            "name": "reg_pch6",
+            "net": 2573
+        },
+        {
+            "name": "reg_pch7",
+            "net": 2643
+        },
+        {
+            "name": "reg_pcl0",
+            "net": 1814
+        },
+        {
+            "name": "reg_pcl1",
+            "net": 1890
+        },
+        {
+            "name": "reg_pcl2",
+            "net": 1915
+        },
+        {
+            "name": "reg_pcl3",
+            "net": 1996
+        },
+        {
+            "name": "reg_pcl4",
+            "net": 2019
+        },
+        {
+            "name": "reg_pcl5",
+            "net": 2094
+        },
+        {
+            "name": "reg_pcl6",
+            "net": 2119
+        },
+        {
+            "name": "reg_pcl7",
+            "net": 2196
+        },
+        {
+            "name": "reg_r0",
+            "net": 1815
+        },
+        {
+            "name": "reg_r1",
+            "net": 1891
+        },
+        {
+            "name": "reg_r2",
+            "net": 1916
+        },
+        {
+            "name": "reg_r3",
+            "net": 1997
+        },
+        {
+            "name": "reg_r4",
+            "net": 2020
+        },
+        {
+            "name": "reg_r5",
+            "net": 2095
+        },
+        {
+            "name": "reg_r6",
+            "net": 2120
+        },
+        {
+            "name": "reg_r7",
+            "net": 2197
+        },
+        {
+            "name": "reg_sph0",
+            "net": 2235
+        },
+        {
+            "name": "reg_sph1",
+            "net": 2309
+        },
+        {
+            "name": "reg_sph2",
+            "net": 2347
+        },
+        {
+            "name": "reg_sph3",
+            "net": 2432
+        },
+        {
+            "name": "reg_sph4",
+            "net": 2453
+        },
+        {
+            "name": "reg_sph5",
+            "net": 2542
+        },
+        {
+            "name": "reg_sph6",
+            "net": 2576
+        },
+        {
+            "name": "reg_sph7",
+            "net": 2646
+        },
+        {
+            "name": "reg_spl0",
+            "net": 1817
+        },
+        {
+            "name": "reg_spl1",
+            "net": 1893
+        },
+        {
+            "name": "reg_spl2",
+            "net": 1918
+        },
+        {
+            "name": "reg_spl3",
+            "net": 1999
+        },
+        {
+            "name": "reg_spl4",
+            "net": 2022
+        },
+        {
+            "name": "reg_spl5",
+            "net": 2097
+        },
+        {
+            "name": "reg_spl6",
+            "net": 2122
+        },
+        {
+            "name": "reg_spl7",
+            "net": 2199
+        },
+        {
+            "name": "reg_w0",
+            "net": 2234
+        },
+        {
+            "name": "reg_w1",
+            "net": 2308
+        },
+        {
+            "name": "reg_w2",
+            "net": 2346
+        },
+        {
+            "name": "reg_w3",
+            "net": 2431
+        },
+        {
+            "name": "reg_w4",
+            "net": 2452
+        },
+        {
+            "name": "reg_w5",
+            "net": 2541
+        },
+        {
+            "name": "reg_w6",
+            "net": 2575
+        },
+        {
+            "name": "reg_w7",
+            "net": 2645
+        },
+        {
+            "name": "reg_z0",
+            "net": 1816
+        },
+        {
+            "name": "reg_z1",
+            "net": 1892
+        },
+        {
+            "name": "reg_z2",
+            "net": 1917
+        },
+        {
+            "name": "reg_z3",
+            "net": 1998
+        },
+        {
+            "name": "reg_z4",
+            "net": 2021
+        },
+        {
+            "name": "reg_z5",
+            "net": 2096
+        },
+        {
+            "name": "reg_z6",
+            "net": 2121
+        },
+        {
+            "name": "reg_z7",
+            "net": 2198
+        },
+        {
+            "name": "regbit0",
+            "net": 702
+        },
+        {
+            "name": "regbit1",
+            "net": 732
+        },
+        {
+            "name": "regbit10",
+            "net": 906
+        },
+        {
+            "name": "regbit11",
+            "net": 934
+        },
+        {
+            "name": "regbit12",
+            "net": 935
+        },
+        {
+            "name": "regbit13",
+            "net": 970
+        },
+        {
+            "name": "regbit14",
+            "net": 973
+        },
+        {
+            "name": "regbit15",
+            "net": 999
+        },
+        {
+            "name": "regbit2",
+            "net": 738
+        },
+        {
+            "name": "regbit3",
+            "net": 775
+        },
+        {
+            "name": "regbit4",
+            "net": 776
+        },
+        {
+            "name": "regbit5",
+            "net": 807
+        },
+        {
+            "name": "regbit6",
+            "net": 809
+        },
+        {
+            "name": "regbit7",
+            "net": 864
+        },
+        {
+            "name": "regbit8",
+            "net": 870
+        },
+        {
+            "name": "regbit9",
+            "net": 902
+        },
+        {
+            "name": "rh_wr",
+            "net": 652
+        },
+        {
+            "name": "rl_wr",
+            "net": 678
         },
         {
             "name": "set_t1",
@@ -271,6 +2195,10 @@
         {
             "name": "t6",
             "net": 168
+        },
+        {
+            "name": "u_v_pass",
+            "net": 750
         },
         {
             "name": "UBUS",
@@ -345,40 +2273,172 @@
             "net": 839
         },
         {
-            "name": "INSTR",
+            "name": "vcc",
+            "net": 2
+        },
+        {
+            "name": "vss",
+            "net": 1
+        },
+        {
+            "name": "wr_ab",
+            "net": 393
+        },
+        {
+            "name": "_regbit8",
+            "net": 880
+        },
+        {
+            "name": "reg_load_de",
+            "net": 669
+        },
+        {
+            "name": "reg_load_bc'",
+            "net": 670
+        },
+        {
+            "name": "reg_load_bc",
+            "net": 673
+        },
+        {
+            "name": "reg_load_af'",
+            "net": 674
+        },
+        {
+            "name": "reg_load_af",
+            "net": 677
+        },
+        {
+            "name": "reg_load_de'",
+            "net": 666
+        },
+        {
+            "name": "reg_load_hl",
+            "net": 665
+        },
+        {
+            "name": "reg_load_hl'",
+            "net": 662
+        },
+        {
+            "name": "reg_load_ix",
+            "net": 661
+        },
+        {
+            "name": "reg_load_iy",
+            "net": 658
+        },
+        {
+            "name": "reg_load_sp",
+            "net": 657
+        },
+        {
+            "name": "reg_load_wz",
+            "net": 654
+        },
+        {
+            "name": "1800",
+            "net": 1800
+        },
+        {
+            "name": "1799",
+            "net": 1799
+        },
+        {
+            "name": "1798",
+            "net": 1798
+        },
+        {
+            "name": "607",
+            "net": 607
+        },
+        {
+            "name": "1650",
+            "net": 1650
+        },
+        {
+            "name": "519",
+            "net": 519
+        },
+        {
+            "name": "535",
+            "net": 535
+        },
+        {
+            "name": "reg_sel_exx",
+            "net": 634
+        },
+        {
+            "name": "ALUBUS",
             "net": 0
         },
         {
-            "name": "instr0",
-            "net": 1348
+            "name": "_regbit15",
+            "net": 985
         },
         {
-            "name": "instr1",
-            "net": 1359
+            "name": "_regbit14",
+            "net": 980
         },
         {
-            "name": "instr2",
-            "net": 1365
+            "name": "_regbit13",
+            "net": 959
         },
         {
-            "name": "instr3",
-            "net": 1379
+            "name": "_regbit12",
+            "net": 949
         },
         {
-            "name": "instr4",
-            "net": 1387
+            "name": "_regbit11",
+            "net": 923
         },
         {
-            "name": "instr5",
-            "net": 1394
+            "name": "_regbit10",
+            "net": 914
         },
         {
-            "name": "instr6",
-            "net": 1369
+            "name": "_regbit9",
+            "net": 886
         },
         {
-            "name": "instr7",
-            "net": 1374
+            "name": "_regbit7",
+            "net": 847
+        },
+        {
+            "name": "_regbit6",
+            "net": 834
+        },
+        {
+            "name": "_regbit5",
+            "net": 799
+        },
+        {
+            "name": "_regbit4",
+            "net": 785
+        },
+        {
+            "name": "_regbit3",
+            "net": 753
+        },
+        {
+            "name": "_regbit2",
+            "net": 745
+        },
+        {
+            "name": "_regbit1",
+            "net": 715
+        },
+        {
+            "name": "_regbit0",
+            "net": 708
+        },
+        {
+            "name": "_REGBIT",
+            "net": 0
+        },
+        {
+            "name": "REGBIT",
+            "net": 0
         }
     ]
 }

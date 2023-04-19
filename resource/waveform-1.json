@@ -25,36 +25,6 @@
             "net": 26
         },
         {
-            "color": "0,255,0,255",
-            "format": 0,
-            "name": "_mreq",
-            "net": 29
-        },
-        {
-            "color": "0,255,0,255",
-            "format": 0,
-            "name": "_rfsh",
-            "net": 31
-        },
-        {
-            "color": "0,255,0,255",
-            "format": 0,
-            "name": "_rd",
-            "net": 27
-        },
-        {
-            "color": "0,255,0,255",
-            "format": 0,
-            "name": "_wr",
-            "net": 28
-        },
-        {
-            "color": "0,255,0,255",
-            "format": 0,
-            "name": "_iorq",
-            "net": 30
-        },
-        {
             "color": "255,0,0,255",
             "format": 0,
             "name": "_reset",
@@ -62,27 +32,9 @@
         },
         {
             "color": "0,255,0,255",
-            "format": 0,
-            "name": "int_reset",
-            "net": 95
-        },
-        {
-            "color": "0,255,0,255",
-            "format": 0,
-            "name": "_nmi",
-            "net": 24
-        },
-        {
-            "color": "0,255,0,255",
             "format": 5,
             "name": "INSTR",
             "net": 0
-        },
-        {
-            "color": "0,255,0,255",
-            "format": 0,
-            "name": "_load_ir",
-            "net": 326
         },
         {
             "color": "208,104,0,255",
@@ -158,19 +110,115 @@
         },
         {
             "color": "0,255,0,255",
-            "format": 6,
+            "format": 0,
+            "name": "reg_load_af",
+            "net": 677
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_af'",
+            "net": 674
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_bc",
+            "net": 673
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_bc'",
+            "net": 670
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_de",
+            "net": 669
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_de'",
+            "net": 666
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_hl",
+            "net": 665
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_hl'",
+            "net": 662
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_ix",
+            "net": 661
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_iy",
+            "net": 658
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_sp",
+            "net": 657
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_wz",
+            "net": 654
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "pla1",
+            "net": 332
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_sel_exx",
+            "net": 634
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "ALUBUS",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "REGBIT",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
             "name": "DBUS",
             "net": 0
         },
         {
             "color": "0,255,0,255",
-            "format": 6,
+            "format": 0,
             "name": "UBUS",
             "net": 0
         },
         {
             "color": "0,255,0,255",
-            "format": 6,
+            "format": 0,
             "name": "VBUS",
             "net": 0
         }
