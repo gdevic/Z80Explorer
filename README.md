@@ -3,7 +3,7 @@ Visual Zilog Z80 netlist-level simulator
 
 Z80 Explorer is a Zilog Z80 netlist-level simulator capable of running Z80 machine code and an educational tool with features that help reverse engineer and understand this chip better.
 
-Application's User's Guide: [Users Guide](Z80Explorer.pdf)
+Application's User's Guide: [Users Guide](https://gdevic.github.io/Z80Explorer)
 <br>
 It is also described in a blog: https://baltazarstudios.com/z80explorer
 <br>
