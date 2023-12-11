@@ -1,0 +1,226 @@
+{
+    "waveform": [
+        {
+            "color": "255,255,255,255",
+            "format": 0,
+            "name": "clk",
+            "net": 3
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "AB",
+            "net": 0
+        },
+        {
+            "color": "170,255,127,255",
+            "format": 0,
+            "name": "DB",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "_m1",
+            "net": 26
+        },
+        {
+            "color": "255,0,0,255",
+            "format": 0,
+            "name": "_reset",
+            "net": 21
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 5,
+            "name": "INSTR",
+            "net": 0
+        },
+        {
+            "color": "208,104,0,255",
+            "format": 0,
+            "name": "m1",
+            "net": 155
+        },
+        {
+            "color": "208,104,0,255",
+            "format": 0,
+            "name": "m2",
+            "net": 173
+        },
+        {
+            "color": "208,104,0,255",
+            "format": 0,
+            "name": "m3",
+            "net": 163
+        },
+        {
+            "color": "208,104,0,255",
+            "format": 0,
+            "name": "m4",
+            "net": 159
+        },
+        {
+            "color": "208,104,0,255",
+            "format": 0,
+            "name": "m5",
+            "net": 209
+        },
+        {
+            "color": "208,104,0,255",
+            "format": 0,
+            "name": "m6",
+            "net": 210
+        },
+        {
+            "color": "170,170,255,255",
+            "format": 0,
+            "name": "t1",
+            "net": 115
+        },
+        {
+            "color": "170,170,255,255",
+            "format": 0,
+            "name": "t2",
+            "net": 137
+        },
+        {
+            "color": "170,170,255,255",
+            "format": 0,
+            "name": "t3",
+            "net": 144
+        },
+        {
+            "color": "170,170,255,255",
+            "format": 0,
+            "name": "t4",
+            "net": 166
+        },
+        {
+            "color": "170,170,255,255",
+            "format": 0,
+            "name": "t5",
+            "net": 134
+        },
+        {
+            "color": "170,170,255,255",
+            "format": 0,
+            "name": "t6",
+            "net": 168
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_af",
+            "net": 677
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_af'",
+            "net": 674
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_bc",
+            "net": 673
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_bc'",
+            "net": 670
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_de",
+            "net": 669
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_de'",
+            "net": 666
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_hl",
+            "net": 665
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_hl'",
+            "net": 662
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_ix",
+            "net": 661
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_iy",
+            "net": 658
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_sp",
+            "net": 657
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_load_wz",
+            "net": 654
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "pla1",
+            "net": 332
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "reg_sel_exx",
+            "net": 634
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "ALUBUS",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "REGBIT",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "DBUS",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "UBUS",
+            "net": 0
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 0,
+            "name": "VBUS",
+            "net": 0
+        }
+    ]
+}
