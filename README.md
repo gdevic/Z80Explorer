@@ -14,9 +14,7 @@ The annotated overview is on Vimeo: https://vimeo.com/439468449
 ## Before you run it
 
 Read the User's Guide.<br>
-The application is separate from the Z80 resources that it uses. This matters only if you are building it yourself; if you are using a pre-built package, the resources are included and don't need to be downloaded separately.<br>
-Download Z80 resources from here: https://github.com/gdevic/Z80Explorer_Z80<br>
-Extract “layermap.7z”. On Windows, use any of the many 7z utilities; on Linux, use “p7zip -d layermap.7z”.<br>
+Extract “layermap.7z” from the resources subirectory. On Windows, use any of the many 7z utilities; on Linux, use “p7zip -d layermap.7z”.<br>
 Then, read the User's Guide.<br>
 
 ![Z80 Explorer](https://baltazarstudios.com/wp-content/uploads/2020/07/z80explorer-app.png)
