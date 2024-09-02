@@ -729,7 +729,7 @@ void WidgetImageView::contextMenu(const QPoint& pos)
  * Adds a new annotation within the selected box and opens dialog to edit it
  */
 void WidgetImageView::addAnnotation()
-{   
+{
     bool ok;
     QString text = QInputDialog::getText(this, "Add annotation", "Annotation text:",
                                          QLineEdit::Normal, "", &ok, Qt::MSWindowsFixedSizeDialogHint);
@@ -901,7 +901,7 @@ void WidgetImageView::onFind(QString text)
         // Search the transistors first
         if (text.startsWith('t'))
         {
-            tran_t transId = text.midRef(1).toUInt(&ok);
+            tran_t transId = text.mid(1).toUInt(&ok);
             if (ok)
                 trans = ::controller.getChip().getTrans(transId);
         }

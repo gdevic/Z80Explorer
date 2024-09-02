@@ -148,7 +148,7 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
                         }
                         else
                             finalText.append("error");
-                        finalText.append(s.midRef(i+1));
+                        finalText.append(s.mid(i+1));
                     }
                     else
                         finalText.append(s);
