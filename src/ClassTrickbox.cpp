@@ -265,7 +265,7 @@ void ClassTrickbox::breakWhen(quint16 net, quint8 value)
  * https://en.wikipedia.org/wiki/Intel_HEX
  */
 bool ClassTrickbox::loadHex(const QString fileName)
-{    
+{
     QString name = fileName.isEmpty() ? m_lastLoadedHex : fileName;
     if (QFileInfo(name).size() == 0)
     {

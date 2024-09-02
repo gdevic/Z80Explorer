@@ -80,7 +80,7 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
         uint y2 = wh[data_cur & 3];
 
         if (viewitem->format == ClassController::FormatNet::Logic) // Draw simple logic diagram
-        {            
+        {
             if (Q_UNLIKELY(data_cur == 2)) // Hi-Z states use special color + dotted lines
                 painter.setPen(penHiZ);
             if (data_prev != data_cur)
