@@ -169,7 +169,7 @@ void CAppLogHandler::Write(char* message, int verbose)
  */
 void CAppLogHandler::WriteLine(const QString message, int verbose)
 {
-    QString logmessage = GetCurrentTimeString() + " | " + verbose + " | " + message;
+    QString logmessage = GetCurrentTimeString() + " | " + QChar(verbose) + " | " + message;
     if (CheckBit(m_log_options, LogOptions_File))
     {
         if (flog.is_open())
