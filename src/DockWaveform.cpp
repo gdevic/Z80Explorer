@@ -3,8 +3,12 @@
 #include "ClassController.h"
 #include "DialogEditWaveform.h"
 #include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMutableVectorIterator>
 #include <QScrollBar>
 #include <QSettings>
 #include <QStringBuilder>

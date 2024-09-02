@@ -5,6 +5,7 @@
 #include <QFont>
 #include <QHash>
 #include <QImage>
+#include <QObject>
 #include <QPainterPath>
 
 // Contains visual definition of a transistor

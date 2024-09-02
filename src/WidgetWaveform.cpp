@@ -1,10 +1,11 @@
 #include "WidgetWaveform.h"
 #include "ClassController.h"
 #include "DockWaveform.h"
-#include <QtGlobal>
-#include <QPainter>
 #include <QPaintEvent>
+#include <QPainter>
+#include <QSettings>
 #include <QStringBuilder>
+#include <QtGlobal>
 
 WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 {

@@ -6,13 +6,15 @@
 #include "DialogSchematic.h"
 #include "WidgetImageOverlay.h"
 #include <QDebug>
+#include <QFileInfo>
+#include <QGuiApplication>
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QPainter>
 #include <QRegularExpression>
 #include <QResizeEvent>
-#include <QGuiApplication>
 #include <QToolTip>
 
 WidgetImageView::WidgetImageView(QWidget *parent) :

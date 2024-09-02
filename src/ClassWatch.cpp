@@ -2,6 +2,9 @@
 #include "ClassController.h"
 #include <QDebug>
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 ClassWatch::ClassWatch()
 {

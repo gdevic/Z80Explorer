@@ -3,6 +3,7 @@
 #include "ClassController.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QStringBuilder>
 
 DockMonitor::DockMonitor(QWidget *parent) :

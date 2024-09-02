@@ -1,6 +1,8 @@
 #include "ClassNetlist.h"
 #include "ClassController.h"
 #include <QCollator>
+#include <QFile>
+#include <QSettings>
 
 ClassNetlist::ClassNetlist():
     m_transdefs(MAX_TRANS),

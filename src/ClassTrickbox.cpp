@@ -2,6 +2,7 @@
 #include "ClassController.h"
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 
 #define TRICKBOX_START 0xD000
 #define TRICKBOX_END   (TRICKBOX_START + sizeof(trick) - 1)
