@@ -221,7 +221,7 @@ void MainWindow::onAbout()
 void MainWindow::versionCheck(const QUrl &url)
 {
     // Code based on: https://github.com/KubaO/stackoverflown/blob/master/questions/html-get-24965972/main.cpp
-    QScopedPointer<QNetworkAccessManager> manager(new QNetworkAccessManager);
+    std::unique_ptr<QNetworkAccessManager> manager(new QNetworkAccessManager);
     QNetworkReply *response = manager->get(QNetworkRequest(QUrl(url)));
     QObject::connect(response, &QNetworkReply::finished, [response]
     {
@@ -234,5 +234,5 @@ void MainWindow::versionCheck(const QUrl &url)
         uint version = html.toUInt(&ok);
         if (ok && (version > APP_VERSION))
             qInfo() << "\n\n*** New version of the application is available ***\n";
-    }) && manager.take();
+    }) && manager.release();
 }
