@@ -350,7 +350,7 @@ bool ClassTrickbox::loadBin(const QString fileName, quint16 address)
 
     QByteArray blob = file.readAll();
     uint p = address;
-    for (int i = 0; (i < blob.count()) && (p < 0x10000); i++, p++)
+    for (int i = 0; (i < blob.length()) && (p < 0x10000); i++, p++)
         m_mem[p] = blob[i];
 
     qInfo() << "Loaded" << fileName << "into simulator RAM at address" << address << "to" << p - 1;

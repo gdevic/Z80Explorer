@@ -59,8 +59,8 @@ void DockLog::log(const QString &message)
 void DockLog::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = new QMenu(this);
-    menu->addAction("Select All", ui->textEdit, SLOT(selectAll()), QKeySequence::SelectAll);
-    menu->addAction("Copy", ui->textEdit, SLOT(copy()), QKeySequence::Copy);
+    menu->addAction("Select All", ui->textEdit, SLOT(selectAll()));
+    menu->addAction("Copy", ui->textEdit, SLOT(copy()));
     menu->addSeparator();
     menu->addAction("Clear", ui->textEdit, SLOT(clear()));
     menu->addAction("Max lines...", this, SLOT(onMaxLines()));
