@@ -59,6 +59,10 @@ public: // API
     void renameNet(const QString name, const net_t); // Renames a net using the new name
     void deleteNetName(const net_t);        // Deletes the current name of a specified net
 
+    // Misc utility functions
+    bool compressFile(const QString &inFileName, const QString &outFileName); // Compresses a file, writing the result into another file
+    bool uncompressFile(const QString &inFileName, const QString &outFileName); // Uncompresses a file, writing the result into another file
+
 public slots:
     uint doReset();                         //* Runs the chip reset sequence, returns the number of clocks thet reset took
     void doRunsim(uint ticks);              //* Runs the simulation for the given number of clocks

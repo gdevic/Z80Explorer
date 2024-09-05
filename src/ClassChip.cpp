@@ -52,7 +52,6 @@ bool ClassChip::loadChipResources(QString dir)
         {
 #if HAVE_PREBUILT_LAYERMAP
             qCritical() << "Prebuilt layermap missing!";
-            qCritical() << "*** Did you extract layermap.7z file? ***";
             return false;
 #endif
             fillLayerMap(); // Generates a partial layer map; limited inspection functionality

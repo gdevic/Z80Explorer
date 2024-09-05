@@ -34,14 +34,20 @@ bool ClassController::init(QJSEngine *sc)
 #if HAVE_PREBUILT_LAYERMAP
     // Check if the current resource path contains required resource(s)
     qInfo() << "Checking for resource/layermap.bin";
-    while (!QFile::exists(resDir + "/layermap.bin"))
+    while (!QFile::exists(resDir + "/layermap.bin") && !QFile::exists(resDir + "/layermap.qz"))
     {
         // Prompts the user to select the chip resource folder
         QString fileName = QFileDialog::getOpenFileName(nullptr,
-        "Select the application resource folder with layermap.bin file extracted from layermap.7z", "layermap.bin", "Any file (*.*)");
+        "Select the application resource folder with layermap.bin or layermap.qz file", "layermap.*", "Any file (*.*)");
         if (!fileName.isEmpty())
             resDir = QFileInfo(fileName).path();
         else
+            return false;
+    }
+    if (!QFile::exists(resDir + "/layermap.bin"))
+    {
+        // Attempt to uncompress it proceeding to load it
+        if (!::controller.uncompressFile(resDir + "/layermap.qz", resDir + "/layermap.bin"))
             return false;
     }
     settings.setValue("ResourceDir", resDir);
@@ -172,4 +178,67 @@ void ClassController::deleteNetName(const net_t net)
     m_simz80.eventNetName(Netop::DeleteName, QString(), net);
     emit eventNetName(Netop::DeleteName, QString(), net);
     emit eventNetName(Netop::Changed, QString(), net);
+}
+
+/*
+ * Compresses a file, writing the result into another file
+ */
+bool ClassController::compressFile(const QString &inFileName, const QString &outFileName)
+{
+    QFile file(inFileName);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qWarning() << "Could not open file for reading.";
+        return false;
+    }
+
+    QByteArray fileData = file.readAll();
+    file.close();
+
+    QByteArray compressedData = qCompress(fileData);
+
+    QFile compressedFile(outFileName);
+    if (!compressedFile.open(QIODevice::WriteOnly))
+    {
+        qWarning() << "Could not open file for writing.";
+        return false;
+    }
+
+    QDataStream out(&compressedFile);
+    out << compressedData;
+    compressedFile.close();
+
+    return true;
+}
+
+/*
+ * Uncompresses a file, writing the result into another file
+ */
+bool ClassController::uncompressFile(const QString &inFileName, const QString &outFileName)
+{
+    QFile compressedFile(inFileName);
+    if (!compressedFile.open(QIODevice::ReadOnly))
+    {
+        qWarning() << "Could not open file for reading.";
+        return false;
+    }
+
+    QByteArray compressedData;
+    QDataStream in(&compressedFile);
+    in >> compressedData;
+    compressedFile.close();
+
+    QByteArray uncompressedData = qUncompress(compressedData);
+
+    QFile uncompressedFile(outFileName);
+    if (!uncompressedFile.open(QIODevice::WriteOnly))
+    {
+        qWarning() << "Could not open file for writing.";
+        return false;
+    }
+
+    uncompressedFile.write(uncompressedData);
+    uncompressedFile.close();
+
+    return true;
 }
