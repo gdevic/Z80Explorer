@@ -18,7 +18,7 @@ class ClassController : public QObject
     Q_OBJECT                                    //* <- Methods of the scripting object "control" below
 public:
     explicit ClassController() {};
-    bool init(QScriptEngine *);                 // Initialize controller classes and variables
+    bool init(QJSEngine *);                     // Initialize controller classes and variables
 
 public: // API
     inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
@@ -30,7 +30,6 @@ public: // API
     inline ClassNetlist  &getNetlist()    { return m_simz80; }    // Returns a reference to the netlist class (a subclass)
     inline ClassTip      &getTip()        { return m_tips; }      // Returns a reference to the tips class
     inline ClassTrickbox &getTrickbox()   { return m_trick; }     // Returns a reference to the Trickbox class
-
 
     inline uint8_t readMem(uint16_t ab)           // Reads from simulated RAM
         { return m_trick.readMem(ab); }
@@ -64,7 +63,6 @@ public slots:
     uint doReset();                         //* Runs the chip reset sequence, returns the number of clocks thet reset took
     void doRunsim(uint ticks);              //* Runs the simulation for the given number of clocks
     void save() { emit shutdown(); }        //* Saves all modified files
-    //
 
 signals:
     void onRunStarting(uint);               // Called by the sim when it is starting the simulation

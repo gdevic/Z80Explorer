@@ -1,4 +1,4 @@
-QT += core gui widgets xml concurrent script network
+QT += core gui widgets xml concurrent qml network
 
 CONFIG += c++11
 

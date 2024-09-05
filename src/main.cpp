@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
+#include <QSettings>
 #include <QVBoxLayout>
 
 // Global objects
@@ -28,7 +29,8 @@ int main(int argc, char *argv[])
     // Handle faults that try..catch can't capture, by a low-level signal handler
     signal(SIGSEGV, [](int signum) { ::signal(signum, SIG_DFL); crashMessage(); });
     QApplication a(argc, argv);
-    QScriptEngine scriptEngine;
+    QJSEngine scriptEngine;
+    scriptEngine.installExtensions(QJSEngine::AllExtensions);
 
     // Wrap the application code with an exception handler in release build
     // In debug build we want to catch problems within the running debugger
@@ -40,7 +42,6 @@ int main(int argc, char *argv[])
         QCoreApplication::setOrganizationDomain("BaltazarStudios.com");
         QCoreApplication::setOrganizationName("Baltazar Studios, LLC");
         QCoreApplication::setApplicationName("Z80Explorer");
-        QCoreApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 
         // Initialize logging subsystem and register our handler
         QSettings settings;

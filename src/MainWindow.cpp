@@ -18,7 +18,7 @@
 #include <QNetworkReply>
 #include <QSettings>
 
-MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc) :
+MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QJSEngine *sc) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc) :
     // Initialize image view that is embedded within the central pane
     ui->widgetImageView->init();
     sc->globalObject().setProperty("img", sc->newQObject(ui->widgetImageView));
+    sc->setObjectOwnership(ui->widgetImageView, QJSEngine::CppOwnership);
 
     // Find various menu handles since we will be managing its objects dynamically
     m_menuView = menuBar()->findChild<QMenu *>("menuView");

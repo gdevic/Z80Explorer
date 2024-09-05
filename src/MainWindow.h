@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QScriptEngine>
+#include <QJSEngine>
 
 class DockCommand;
 class DockLog;
@@ -18,7 +18,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent, DockLog *logWindow, QScriptEngine *sc);
+    MainWindow(QWidget *parent, DockLog *logWindow, QJSEngine *sc);
     ~MainWindow();
     void versionCheck(const QUrl &url);
 

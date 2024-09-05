@@ -20,19 +20,19 @@
    <item>
     <widget class="WidgetGraphicsView" name="view">
      <property name="renderHints">
-      <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::TextAntialiasing</set>
+      <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
      </property>
      <property name="dragMode">
-      <enum>QGraphicsView::ScrollHandDrag</enum>
+      <enum>QGraphicsView::DragMode::ScrollHandDrag</enum>
      </property>
      <property name="cacheMode">
-      <set>QGraphicsView::CacheBackground</set>
+      <set>QGraphicsView::CacheModeFlag::CacheBackground</set>
      </property>
      <property name="transformationAnchor">
-      <enum>QGraphicsView::AnchorUnderMouse</enum>
+      <enum>QGraphicsView::ViewportAnchor::AnchorUnderMouse</enum>
      </property>
      <property name="resizeAnchor">
-      <enum>QGraphicsView::AnchorUnderMouse</enum>
+      <enum>QGraphicsView::ViewportAnchor::AnchorUnderMouse</enum>
      </property>
     </widget>
    </item>

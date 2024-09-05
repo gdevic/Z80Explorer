@@ -1,47 +1,72 @@
 #include "ClassScript.h"
 #include <ClassController.h>
 #include <QDebug>
+#include <QFile>
 
 ClassScript::ClassScript(QObject *parent) : QObject(parent)
 {
 }
 
-void ClassScript::init(QScriptEngine *sc)
+void ClassScript::init(QJSEngine *sc)
 {
     m_engine = sc;
 
-    QScriptValue funPrint = m_engine->newFunction(&ClassScript::onPrint);
-    m_engine->globalObject().setProperty("print", funPrint);
-    QScriptValue funHelp = m_engine->newFunction(&ClassScript::onHelp);
-    m_engine->globalObject().setProperty("help", funHelp);
-    QScriptValue funRun = m_engine->newFunction(&ClassScript::onRun);
-    m_engine->globalObject().setProperty("run", funRun);
-    QScriptValue funStop = m_engine->newFunction(&ClassScript::onStop);
-    m_engine->globalObject().setProperty("stop", funStop);
-    QScriptValue funReset = m_engine->newFunction(&ClassScript::onReset);
-    m_engine->globalObject().setProperty("reset", funReset);
-    QScriptValue funNet = m_engine->newFunction(&ClassScript::onNet);
-    m_engine->globalObject().setProperty("n", funNet);
-    QScriptValue funTrans = m_engine->newFunction(&ClassScript::onTrans);
-    m_engine->globalObject().setProperty("t", funTrans);
-    QScriptValue funExperimental = m_engine->newFunction(&ClassScript::onExperimental);
-    m_engine->globalObject().setProperty("ex", funExperimental);
-    QScriptValue funLoad = m_engine->newFunction(&ClassScript::onLoad);
-    m_engine->globalObject().setProperty("load", funLoad);
-    QScriptValue funRelatch = m_engine->newFunction(&ClassScript::onRelatch);
-    m_engine->globalObject().setProperty("relatch", funRelatch);
+    QJSValue ext = m_engine->globalObject().property("script"); // "this"
+
+    // Export these functions to the root of the global JS namespace
+    m_engine->globalObject().setProperty("load", ext.property("load"));
+    m_engine->globalObject().setProperty("help", ext.property("help"));
+    m_engine->globalObject().setProperty("run", ext.property("run"));
+    m_engine->globalObject().setProperty("stop", ext.property("stop"));
+    m_engine->globalObject().setProperty("reset", ext.property("reset"));
+    m_engine->globalObject().setProperty("n", ext.property("n"));
+    m_engine->globalObject().setProperty("t", ext.property("t"));
+    m_engine->globalObject().setProperty("ex", ext.property("ex"));
+    m_engine->globalObject().setProperty("relatch", ext.property("relatch"));
+}
+
+/*
+ * Loads (imports) a script
+ * If no script name was given, load a default "script.js"
+ */
+QJSValue ClassScript::load(QString fileName)
+{
+    fileName = fileName.trimmed();
+    if (fileName.isEmpty())
+        fileName = "script.js";
+    qInfo() << "Loading script" << fileName;
+
+    QFile scriptFile(fileName);
+    if (!scriptFile.open(QIODevice::ReadOnly))
+        m_engine->throwError(scriptFile.errorString());
+    else
+    {
+        QTextStream stream(&scriptFile);
+        QString program = stream.readAll();
+        scriptFile.close();
+
+        // TODO: Make JS evaluate in a different thread (QtConcurrent::run())
+        QJSValue result = m_engine->evaluate(program, fileName);
+        if (result.isError())
+            qDebug() << "Exception at line" << result.property("lineNumber").toInt() << ":" << result.toString();
+    }
+    return QJSValue();
 }
 
 /*
  * Stops any running script evaluation (kills long-running scripts)
  */
-void ClassScript::stop()
+void ClassScript::stopx()
 {
+    // TODO: Make JS evaluate in a different thread (QtConcurrent::run())
+    m_engine->setInterrupted(true);
+#if 0
     if (m_engine->isEvaluating())
     {
         qInfo() << "Stopping script evaluation";
         m_engine->abortEvaluation();
     }
+#endif
 }
 
 /*
@@ -49,45 +74,15 @@ void ClassScript::stop()
  */
 void ClassScript::exec(QString cmd)
 {
-    m_code += cmd;
-    QScriptSyntaxCheckResult check = m_engine->checkSyntax(m_code);
-    if (check.state() == QScriptSyntaxCheckResult::Intermediate)
-        emit response(cmd + " ...");
-    else if (check.state() == QScriptSyntaxCheckResult::Error)
-    {
-        emit response(cmd);
-        emit response(QString("Error:%1 line:%2 col: %3").arg(check.errorMessage()).arg(check.errorLineNumber()).arg(check.errorColumnNumber()));
-        m_code.clear();
-    }
-    else
-    {
-        emit response(cmd);
-        m_engine->setProcessEventsInterval(50); // Do not block the GUI
-        QScriptValue result = m_engine->evaluate(m_code, m_code);
-        m_code.clear();
-        if (!result.isUndefined())
-            emit response(result.toString());
-    }
+    // TODO: Make JS evaluate in a different thread (QtConcurrent::run())
+    QJSValue result = m_engine->evaluate(cmd);
+    if (result.isError())
+        qDebug() << "Exception at line" << result.property("lineNumber").toInt() << ":" << result.toString();
+    m_engine->setInterrupted(false);
+    emit response(result.toString());
 }
 
-/*
- * Reimplements print() function
- */
-QScriptValue ClassScript::onPrint(QScriptContext *ctx, QScriptEngine *)
-{
-    QString result;
-    for (int i = 0; i < ctx->argumentCount(); i++)
-    {
-        if (i > 0)
-            result.append(" ");
-        result.append(ctx->argument(i).toString());
-    }
-    QScriptValue calleeData = ctx->callee().data();
-    emit ::controller.getScript().response(result);
-    return QScriptValue();
-}
-
-QScriptValue ClassScript::onHelp(QScriptContext *, QScriptEngine *)
+QJSValue ClassScript::help()
 {
     static const QString s {
 R"(run(hcycles)  - Runs the simulation for the given number of half-clocks
@@ -101,97 +96,64 @@ relatch()     - Reloads custom latches from "latches.ini" file
 In addition, objects "control", "sim", "monitor", "script" and "img" provide methods described in the documentation.)" };
 
     emit ::controller.getScript().response(s);
-    return QScriptValue();
+    return QJSValue();
 }
 
-QScriptValue ClassScript::onRun(QScriptContext *ctx, QScriptEngine *)
+QJSValue ClassScript::run(uint hcycles)
 {
-    uint cycles = ctx->argument(0).toNumber();
-    ::controller.doRunsim(cycles ? cycles : INT_MAX);
-    return QScriptValue();
+    ::controller.doRunsim(hcycles ? hcycles : INT_MAX);
+    return QJSValue();
 }
 
-QScriptValue ClassScript::onStop(QScriptContext *, QScriptEngine *)
+QJSValue ClassScript::stop()
 {
     ::controller.doRunsim(0);
-    return QScriptValue();
+    return QJSValue();
 }
 
-QScriptValue ClassScript::onReset(QScriptContext *, QScriptEngine *)
+QJSValue ClassScript::reset()
 {
     ::controller.doReset();
-    return QScriptValue();
+    return QJSValue();
 }
 
-QScriptValue ClassScript::onNet(QScriptContext *ctx, QScriptEngine *)
+QJSValue ClassScript::n(QVariant n)
 {
-    net_t net = ctx->argument(0).toNumber();
-    QString name = ctx->argument(0).toString();
-    if (!net)
+    bool ok = false;
+
+    net_t net = n.toUInt(&ok);
+    if (!ok)
+    {
+        QString name = n.toString();
         net = ::controller.getNetlist().get(name);
+    }
     QString s = ::controller.getNetlist().netInfo(net);
     emit ::controller.getScript().response(s);
-    return QScriptValue();
+    return QJSValue();
 }
 
-QScriptValue ClassScript::onTrans(QScriptContext *ctx, QScriptEngine *)
+QJSValue ClassScript::t(uint n)
 {
-    uint trans = ctx->argument(0).toNumber();
-    QString s = ::controller.getNetlist().transInfo(trans);
+    QString s = ::controller.getNetlist().transInfo(n);
     emit ::controller.getScript().response(s);
-    return QScriptValue();
-}
-
-QScriptValue ClassScript::onExperimental(QScriptContext *ctx, QScriptEngine *)
-{
-    uint n = ctx->argument(0).toNumber();
-    qDebug() << n;
-    ::controller.getChip().experimental(n);
-    return QScriptValue();
+    return QJSValue();
 }
 
 /*
- * Loads (imports) a script
- * If no script name was given, load a default "script.js"
+ * Experimental functions
  */
-QScriptValue ClassScript::onLoad(QScriptContext *ctx, QScriptEngine *engine)
+QJSValue ClassScript::ex(uint n)
 {
-    QString fileName = ctx->argument(0).toString();
-    if (fileName == "undefined")
-        fileName = "script.js";
-    qInfo() << "Loading script" << fileName;
-
-    QFile scriptFile(fileName);
-    if (scriptFile.open(QIODevice::ReadOnly))
-    {
-        QTextStream stream(&scriptFile);
-        QString contents = stream.readAll();
-        scriptFile.close();
-
-        QScriptContext *pc = ctx->parentContext();
-        ctx->setActivationObject(pc->activationObject());
-        ctx->setThisObject(pc->thisObject());
-
-        QScriptSyntaxCheckResult check = engine->checkSyntax(contents);
-        if (check.state() == QScriptSyntaxCheckResult::Error)
-            return ctx->throwError(QString("Error:%1 line:%2 col: %3").arg(check.errorMessage()).arg(check.errorLineNumber()).arg(check.errorColumnNumber()));
-
-        engine->setProcessEventsInterval(50); // Do not block the GUI
-        QScriptValue result = engine->evaluate(contents, fileName);
-        if (engine->hasUncaughtException())
-            return result;
-        if (result.isError())
-            return ctx->throwError(QString("%0:%1: %2").arg(fileName).arg(result.property("lineNumber").toInt32()).arg(result.toString()));
-        return QScriptValue();
-    }
-    return ctx->throwError(QString("Could not open %0 for reading").arg(fileName));
+    qDebug() << n;
+    ::controller.getChip().experimental(n);
+    return QJSValue();
 }
 
 /*
  * Rebuilds latches; reloads custom latches
  */
-QScriptValue ClassScript::onRelatch(QScriptContext *, QScriptEngine *)
+QJSValue ClassScript::relatch()
 {
     ::controller.getChip().detectLatches();
-    return QScriptValue();
+    return QJSValue();
 }
