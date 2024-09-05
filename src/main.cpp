@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QSettings>
+#include <QStyleFactory>
 #include <QVBoxLayout>
 
 // Global objects
@@ -31,6 +32,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QJSEngine scriptEngine;
     scriptEngine.installExtensions(QJSEngine::AllExtensions);
+    a.setStyle("windowsvista"); // Make the app style consistent across the Windows versions
 
     // Wrap the application code with an exception handler in release build
     // In debug build we want to catch problems within the running debugger
