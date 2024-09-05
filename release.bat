@@ -1,11 +1,9 @@
-@REM Relase script specific to Visual Studio 2019 and Qt 5.15.2
+@REM Relase script specific to Visual Studio 2019 and Qt 6.7.2
 @REM Z80Explorer.exe must be precompiled and stored in the root project folder
+@REM Run within the "Developer command prompt for VS 2019" (CMD)
 if not exist "Z80Explorer.exe" Goto end
 
-@REM call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
-
-set path=C:\Qt\5.15.2\msvc2019_64\bin;%VCINSTALLDIR%;%path%
+set path=C:\Qt\6.7.2\msvc2019_64\bin;%VCINSTALLDIR%;%path%
 
 mkdir release
 cd release
@@ -29,6 +27,7 @@ mkdir resource
 xcopy /Y /S ..\resource resource
 
 rmdir /S /Q bearer iconengines imageformats translations
+@echo It is OK if The system cannot find the file specified.
 
 cd ..
 

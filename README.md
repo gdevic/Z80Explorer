@@ -28,16 +28,15 @@ https://github.com/gdevic/Z80Explorer/releases
 
 The application is built on the Qt framework.
 
-* On Windows, install MS Visual Studio 2019, on Linux, use gcc
-* Install Qt 5.15.2 framework (with support for x64 MS Visual Studio 2019 on Windows)
-* Add the “Qt Script (deprecated)” component to the Qt installation
+* On Windows, install MS Visual Studio 2019. On Linux, use gcc
+* Install Qt 6.7.2 framework (with support for x64 MS Visual Studio 2019 on Windows)
 * Compile with QtCreator selecting the “Release” build
 
-On Linux, follow the guide here: https://doc.qt.io/qt-5/linux.html
+On Linux, follow the guide here: https://doc.qt.io/qt-6/linux.html
 * sudo apt-get install build-essential libgl1-mesa-dev
 * sudo apt-get install libxcb-xinerama0
 * Download for Open Source users
-* Check to include "Desktop gcc 64-bit" and "Qt Script (Deprecated)"
+* Check to include "Desktop gcc 64-bit"
 * Compile with QtCreator selecting the “Release” build
 
 ## Compiling zmac assember on Linux
