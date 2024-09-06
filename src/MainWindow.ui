@@ -51,7 +51,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -204,7 +204,7 @@
     <string>Open the scripting reference online</string>
    </property>
    <property name="whatsThis">
-    <string>https://doc.qt.io/archives/qsa-1.2.2/language.html</string>
+    <string>https://ecma-international.org/publications-and-standards/standards/ecma-262/</string>
    </property>
   </action>
   <action name="actionEditNets">
