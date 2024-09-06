@@ -14,7 +14,7 @@
    <bool>true</bool>
   </property>
   <property name="allowedAreas">
-   <set>Qt::NoDockWidgetArea</set>
+   <set>Qt::DockWidgetArea::NoDockWidgetArea</set>
   </property>
   <property name="windowTitle">
    <string>Waveform</string>
@@ -53,10 +53,10 @@
          <string>File      </string>
         </property>
         <property name="popupMode">
-         <enum>QToolButton::InstantPopup</enum>
+         <enum>QToolButton::ToolButtonPopupMode::InstantPopup</enum>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonFollowStyle</enum>
+         <enum>Qt::ToolButtonStyle::ToolButtonFollowStyle</enum>
         </property>
        </widget>
       </item>
@@ -99,7 +99,7 @@
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -114,10 +114,10 @@
     <item>
      <widget class="QFrame" name="frame">
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Shadow::Raised</enum>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout1">
        <property name="spacing">
@@ -145,19 +145,19 @@
 color: rgb(255, 255, 255);</string>
          </property>
          <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
          </property>
          <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::AdjustToContents</enum>
+          <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
          </property>
          <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
+          <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::NoSelection</enum>
+          <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
          </property>
          <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
+          <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
@@ -192,7 +192,7 @@ color: rgb(255, 255, 255);</string>
           <string notr="true">background-color: rgb(74, 74, 74);</string>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOn</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
@@ -202,8 +202,8 @@ color: rgb(255, 255, 255);</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>604</width>
-            <height>444</height>
+            <width>615</width>
+            <height>443</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="layoutScroll">
