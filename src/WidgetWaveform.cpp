@@ -1,6 +1,6 @@
-#include "WidgetWaveform.h"
 #include "ClassController.h"
 #include "DockWaveform.h"
+#include "WidgetWaveform.h"
 #include <QPaintEvent>
 #include <QPainter>
 #include <QSettings>

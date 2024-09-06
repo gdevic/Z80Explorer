@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QSettings>
+#include <iostream>
 
 using namespace std;
 

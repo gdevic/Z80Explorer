@@ -1,6 +1,6 @@
+#include "ClassController.h"
 #include "DockMonitor.h"
 #include "ui_DockMonitor.h"
-#include "ClassController.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QMimeData>

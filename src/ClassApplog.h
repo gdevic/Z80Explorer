@@ -5,7 +5,6 @@
 #include <QObject>
 #include <QString>
 #include <fstream>
-#include <iostream>
 #include <qtextstream.h>
 
 #define DEFAULT_APP_LOG_FILE_SIZE       1000 // in KBbytes

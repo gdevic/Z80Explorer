@@ -1,11 +1,11 @@
 #include "ClassChip.h"
 #include "ClassController.h"
-#include <QtConcurrent>
 #include <QDebug>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
 #include <QSettings>
+#include <QtConcurrent>
 
 // --- Feature map bits ---
 // We can use any bits, but these make the map looking good when simply viewed it as an image

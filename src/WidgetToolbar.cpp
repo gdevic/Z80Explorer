@@ -1,6 +1,6 @@
+#include "ClassController.h"
 #include "WidgetToolbar.h"
 #include "ui_WidgetToolbar.h"
-#include "ClassController.h"
 #include <QStringBuilder>
 
 WidgetToolbar::WidgetToolbar(QWidget *parent) :

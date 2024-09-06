@@ -1,5 +1,5 @@
-#include "ClassTrickbox.h"
 #include "ClassController.h"
+#include "ClassTrickbox.h"
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>

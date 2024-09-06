@@ -2,8 +2,8 @@
 #define CLASSTIP_H
 
 #include "AppTypes.h"
-#include <QObject>
 #include <QMap>
+#include <QObject>
 
 /*
  * This class contains the code to support signal tips which are short custom descriptions

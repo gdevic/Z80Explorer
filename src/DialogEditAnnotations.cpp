@@ -1,6 +1,6 @@
+#include "ClassController.h"
 #include "DialogEditAnnotations.h"
 #include "ui_DialogEditAnnotations.h"
-#include "ClassController.h"
 #include <QSettings>
 #include <QStaticText>
 

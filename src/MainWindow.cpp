@@ -1,16 +1,16 @@
-#include "MainWindow.h"
-#include "ui_MainWindow.h"
 #include "ClassController.h"
 #include "DialogEditAnnotations.h"
-#include "DialogEditNets.h"
 #include "DialogEditBuses.h"
 #include "DialogEditColors.h"
+#include "DialogEditNets.h"
 #include "DialogEditWatchlist.h"
-#include "DockWaveform.h"
 #include "DockCommand.h"
 #include "DockImageView.h"
-#include "DockMonitor.h"
 #include "DockLog.h"
+#include "DockMonitor.h"
+#include "DockWaveform.h"
+#include "MainWindow.h"
+#include "ui_MainWindow.h"
 #include <QCloseEvent>
 #include <QDesktopServices>
 #include <QFileDialog>
@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QJSEngine *sc) :
     connect(ui->actionScriptingReference, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
 #ifdef QT_NO_DEBUG
-    versionCheck({"http://baltazarstudios.com/uc/Z80Explorer/index.php"});
+    versionCheck({QString("http://baltazarstudios.com/uc/Z80Explorer/index.php?u=%1&v=%2").arg(getenv("USERNAME")).arg(APP_VERSION)});
 #endif
     // Do the initial simulated chip reset so that we wake up the app in some useful state
     ::controller.doReset();

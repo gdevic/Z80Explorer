@@ -1,7 +1,7 @@
-#include "DockWaveform.h"
-#include "ui_DockWaveform.h"
 #include "ClassController.h"
 #include "DialogEditWaveform.h"
+#include "DockWaveform.h"
+#include "ui_DockWaveform.h"
 #include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonDocument>

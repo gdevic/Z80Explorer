@@ -1,5 +1,5 @@
-#include "ClassSimZ80.h"
 #include "ClassController.h"
+#include "ClassSimZ80.h"
 #include <QDebug>
 #include <QStringBuilder>
 #include <QtConcurrent>

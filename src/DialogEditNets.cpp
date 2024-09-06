@@ -1,6 +1,6 @@
+#include "ClassController.h"
 #include "DialogEditNets.h"
 #include "ui_DialogEditNets.h"
-#include "ClassController.h"
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSettings>

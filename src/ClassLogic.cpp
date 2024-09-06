@@ -1,5 +1,5 @@
-#include "ClassLogic.h"
 #include "ClassController.h"
+#include "ClassLogic.h"
 #include "ClassNetlist.h"
 
 /*

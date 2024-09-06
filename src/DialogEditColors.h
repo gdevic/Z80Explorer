@@ -1,8 +1,8 @@
 #ifndef DIALOGEDITCOLORS_H
 #define DIALOGEDITCOLORS_H
 
-#include <QDialog>
 #include "ClassColors.h"
+#include <QDialog>
 
 namespace Ui { class DialogEditColors; }
 

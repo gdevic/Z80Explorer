@@ -1,7 +1,5 @@
 #include "DockImageView.h"
 #include "ui_DockImageView.h"
-#include "ClassChip.h"
-#include "ClassController.h"
 #include <QSettings>
 
 DockImageView::DockImageView(QWidget *parent, uint id) :

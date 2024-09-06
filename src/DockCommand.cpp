@@ -1,7 +1,7 @@
-#include "DockCommand.h"
-#include "ui_DockCommand.h"
 #include "ClassController.h"
 #include "ClassScript.h"
+#include "DockCommand.h"
+#include "ui_DockCommand.h"
 #include <QtGui>
 
 DockCommand::DockCommand(QWidget *parent) :

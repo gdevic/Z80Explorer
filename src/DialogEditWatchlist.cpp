@@ -1,6 +1,6 @@
+#include "ClassController.h"
 #include "DialogEditWatchlist.h"
 #include "ui_DialogEditWatchlist.h"
-#include "ClassController.h"
 #include <QSettings>
 
 DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :

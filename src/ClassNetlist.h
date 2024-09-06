@@ -3,7 +3,6 @@
 
 #include "AppTypes.h"
 #include "ClassLogic.h"
-#include <QObject>
 #include <QHash>
 
 // Contains individual transistor definition

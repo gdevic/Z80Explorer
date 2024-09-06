@@ -1,6 +1,6 @@
+#include "ClassController.h"
 #include "DialogSchematic.h"
 #include "ui_DialogSchematic.h"
-#include "ClassController.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QStringBuilder>

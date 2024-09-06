@@ -1,15 +1,15 @@
-#include "MainWindow.h"
 #include "ClassApplog.h"
 #include "ClassController.h"
 #include "ClassSingleton.h"
 #include "DockLog.h"
-#include <signal.h>
+#include "MainWindow.h"
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
 #include <QSettings>
 #include <QStyleFactory>
 #include <QVBoxLayout>
+#include <signal.h>
 
 // Global objects
 MainWindow *mainWindow = nullptr; // Window: main window class

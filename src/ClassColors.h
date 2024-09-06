@@ -2,9 +2,9 @@
 #define CLASSCOLORS_H
 
 #include "AppTypes.h"
-#include <QObject>
 #include <QColor>
 #include <QHash>
+#include <QObject>
 
 // Contains a coloring definition
 struct colordef

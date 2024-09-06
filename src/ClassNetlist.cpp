@@ -1,5 +1,5 @@
-#include "ClassNetlist.h"
 #include "ClassController.h"
+#include "ClassNetlist.h"
 #include <QCollator>
 #include <QFile>
 #include <QSettings>

@@ -1,10 +1,10 @@
-#include "WidgetImageView.h"
 #include "ClassChip.h"
 #include "ClassController.h"
 #include "ClassSimZ80.h"
 #include "DialogEditAnnotations.h"
 #include "DialogSchematic.h"
 #include "WidgetImageOverlay.h"
+#include "WidgetImageView.h"
 #include <QDebug>
 #include <QFileInfo>
 #include <QGuiApplication>

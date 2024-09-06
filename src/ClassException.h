@@ -2,7 +2,6 @@
 #define CLASS_EXCEPTION_H
 
 #include <QString>
-#include <iostream>
 
 /*
  * Define core-level exception structure.

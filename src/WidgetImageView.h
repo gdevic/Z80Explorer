@@ -2,9 +2,9 @@
 #define WIDGETIMAGEVIEW_H
 
 #include "AppTypes.h"
+#include <QQueue>
 #include <QTimer>
 #include <QWidget>
-#include <QQueue>
 
 class WidgetImageOverlay;
 struct segvdef;

@@ -1,6 +1,6 @@
+#include "ClassController.h"
 #include "DialogEditBuses.h"
 #include "ui_DialogEditBuses.h"
-#include "ClassController.h"
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSettings>

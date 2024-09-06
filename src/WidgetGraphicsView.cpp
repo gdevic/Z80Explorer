@@ -1,5 +1,5 @@
-#include "WidgetGraphicsView.h"
 #include "ClassController.h"
+#include "WidgetGraphicsView.h"
 #include <QDebug>
 #include <QGraphicsSceneContextMenuEvent>
 #include <QGuiApplication>

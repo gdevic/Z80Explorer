@@ -1,5 +1,5 @@
-#include "ClassWatch.h"
 #include "ClassController.h"
+#include "ClassWatch.h"
 #include <QDebug>
 #include <QFile>
 #include <QJsonArray>

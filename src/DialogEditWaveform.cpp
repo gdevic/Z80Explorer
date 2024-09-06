@@ -1,6 +1,6 @@
+#include "ClassController.h"
 #include "DialogEditWaveform.h"
 #include "ui_DialogEditWaveform.h"
-#include "ClassController.h"
 #include <QColorDialog>
 #include <QSettings>
 

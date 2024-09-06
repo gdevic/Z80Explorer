@@ -1,8 +1,8 @@
-#include "DialogEditColors.h"
-#include "ui_DialogEditColors.h"
 #include "ClassColors.h"
 #include "ClassController.h"
+#include "DialogEditColors.h"
 #include "WidgetEditColor.h"
+#include "ui_DialogEditColors.h"
 #include <QSettings>
 
 DialogEditColors::DialogEditColors(QWidget *parent) :
