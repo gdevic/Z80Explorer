@@ -280,7 +280,7 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
     }
     else // User is scrolling the pane
     {
-        int deltaX = m_pinMousePos.x() - event->x();
+        int deltaX = m_pinMousePos.x() - event->position().x();
         setCursor(Qt::ClosedHandCursor);
         emit scroll(deltaX);
     }
@@ -340,7 +340,7 @@ void WidgetWaveform::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if (m_cursors2x.count())
     {
-        int mouse_in_dataX = event->x() / (m_hscale / 2);
+        int mouse_in_dataX = event->position().x() / (m_hscale / 2);
         m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
 
         // If the first two cursors are linked together, move them both

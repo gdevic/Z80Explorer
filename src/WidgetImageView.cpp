@@ -400,14 +400,14 @@ bool WidgetImageView::event(QEvent *event)
         case QEvent::TouchEnd:
         {
             QTouchEvent *touchEvent = static_cast<QTouchEvent *>(event);
-            QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
+            QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->points();
             if (touchPoints.count() == 2)
             {
                 // Determine the relative scale factor
                 const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
                 const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
-                qreal touchScale = QLineF(touchPoint0.pos(), touchPoint1.pos()).length() /
-                                   QLineF(touchPoint0.startPos(), touchPoint1.startPos()).length();
+                qreal touchScale = QLineF(touchPoint0.globalLastPosition(), touchPoint1.globalLastPosition()).length() /
+                                   QLineF(touchPoint0.globalPressPosition(), touchPoint1.globalPressPosition()).length();
                 if (touchEvent->touchPointStates() & Qt::TouchPointPressed)
                     m_touchScale =  m_scale / touchScale; // On "pressed" event, set the scale factor
                 m_scale = touchScale * m_touchScale;
