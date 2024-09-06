@@ -45,10 +45,7 @@ QJSValue ClassScript::load(QString fileName)
         QString program = stream.readAll();
         scriptFile.close();
 
-        // TODO: Make JS evaluate in a different thread (QtConcurrent::run())
-        QJSValue result = m_engine->evaluate(program, fileName);
-        if (result.isError())
-            qDebug() << "Exception at line" << result.property("lineNumber").toInt() << ":" << result.toString();
+        exec(program, false);
     }
     return QJSValue();
 }
@@ -59,7 +56,7 @@ QJSValue ClassScript::load(QString fileName)
 void ClassScript::stopx()
 {
     // TODO: Make JS evaluate in a different thread (QtConcurrent::run())
-    m_engine->setInterrupted(true);
+    // m_engine->setInterrupted(true);
 #if 0
     if (m_engine->isEvaluating())
     {
@@ -72,14 +69,20 @@ void ClassScript::stopx()
 /*
  * Command line execution of built-in scripting
  */
-void ClassScript::exec(QString cmd)
+void ClassScript::exec(QString cmd, bool echo)
 {
+    if (echo) emit response(cmd);
+
     // TODO: Make JS evaluate in a different thread (QtConcurrent::run())
+    // If you need to execute potentially long-running JavaScript, you'll need to do it from a separate thread with QJS
     QJSValue result = m_engine->evaluate(cmd);
     if (result.isError())
-        qDebug() << "Exception at line" << result.property("lineNumber").toInt() << ":" << result.toString();
-    m_engine->setInterrupted(false);
-    emit response(result.toString());
+        emit response(QString("Exception at line %1 : %2").arg(result.property("lineNumber").toInt()).arg(result.toString()));
+    else
+    {
+        if (!result.isUndefined())
+            emit response(result.toString());
+    }
 }
 
 QJSValue ClassScript::help()

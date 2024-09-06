@@ -10,7 +10,7 @@ class ClassScript : public QObject
 {
     Q_OBJECT                        //* <- Methods of the scripting object "script" below
 public:
-    Q_INVOKABLE explicit ClassScript(QObject *parent = nullptr);
+    explicit ClassScript(QObject *parent = nullptr);
     void init(QJSEngine *sc);
 
 signals:
@@ -18,7 +18,7 @@ signals:
 
 public slots:
     void stopx();                   // Stops any running script evaluation
-    void exec(QString cmd);         //* Evaluates and runs commands
+    void exec(QString cmd, bool echo = true); //* Evaluates and runs commands
 
 public:
     Q_INVOKABLE QJSValue load(QString fileName);
