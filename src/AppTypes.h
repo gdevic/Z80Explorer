@@ -1,8 +1,8 @@
 #ifndef APPTYPES_H
 #define APPTYPES_H
 
-#define MAX_TRANS 9000  // Max number of transistors (est. for Z80)
-#define MAX_NETS  3600  // Max number of nets (est. for Z80)
+#define MAX_TRANS 10000 // Max number of transistors (est. for Z80)
+#define MAX_NETS  4000  // Max number of nets (est. for Z80)
 
 #define APP_VERSION 105 // Application version (minor % 100)
 
