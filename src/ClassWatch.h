@@ -39,6 +39,8 @@ public:
         { it = 1; return (m_watchlist.count() > 0) ? m_watchlist.data() : nullptr; }
     inline watch *getNext(int &it)      // Iterator
         { return (it < m_watchlist.count()) ? &m_watchlist[it++] : nullptr; }
+    inline uint getWatchlistLen()       // Number of nets watched
+        { return m_watchlist.length(); }
 
     watch *find(QString name);          // Returns a watch of a given name or nullptr
     void append(watch *w, uint hcycle, pin_t value); // Adds net watch data to the specified cycle position

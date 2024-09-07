@@ -173,10 +173,10 @@ uint ClassSimZ80::doReset()
 inline void ClassSimZ80::halfCycle()
 {
     pin_t clk = ! readBit("clk");
-    if (clk) // Before the clock rise, service the chip pins
+    if (clk && readBit("_rfsh")) // Before the clock rise, service the chip pins (unless it is a refresh cycle)
     {
         bool m1   = readBit("_m1");
-        bool rfsh = readBit("_rfsh");
+        bool rfsh = 1; //readBit("_rfsh");
         bool mreq = readBit("_mreq");
         bool rd   = readBit("_rd");
         bool wr   = readBit("_wr");
@@ -203,20 +203,24 @@ inline void ClassSimZ80::halfCycle()
             handleIrq(); // Interrupt request/Ack cycle
     }
 
-    ::controller.onTick(m_hcycletotal);
-
     set(clk, "clk"); // Let the clock edge propagate through the chip
 
     // After each half-cycle, populate the watch data
-    int it;
-    watch *w = ::controller.getWatch().getFirst(it);
-    while (w != nullptr)
+    if (::controller.getWatch().getWatchlistLen()) // Removing all watches increases the performance
     {
-        pin_t bit = readBit(w->name);
-        ::controller.getWatch().append(w, m_hcycletotal, bit);
+        int it;
+        watch *w = ::controller.getWatch().getFirst(it);
+        while (w != nullptr)
+        {
+            pin_t bit = readBit(w->name);
+            ::controller.getWatch().append(w, m_hcycletotal, bit);
 
-        w = ::controller.getWatch().getNext(it);
+            w = ::controller.getWatch().getNext(it);
+        }
     }
+
+    // Inform the rest of the app that the clock half-tick happened
+    ::controller.onTick(m_hcycletotal);
 
     m_hcyclecnt.fetchAndAddRelaxed(1); // Half-cycle count for this single simulation run
     m_hcycletotal.fetchAndAddRelaxed(1); // Total half-cycle count since the chip reset
@@ -255,8 +259,14 @@ inline void ClassSimZ80::handleIrq()
 
 inline void ClassSimZ80::setDB(uint8_t db)
 {
-    for (int i=0; i < 8; i++, db >>= 1)
-        set(db & 1, "db" % QString::number(i));
+    set(db &   1, "db0");
+    set(db &   2, "db1");
+    set(db &   4, "db2");
+    set(db &   8, "db3");
+    set(db &  16, "db4");
+    set(db &  32, "db5");
+    set(db &  64, "db6");
+    set(db & 128, "db7");
 }
 
 /*
