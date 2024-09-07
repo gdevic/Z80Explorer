@@ -32,53 +32,30 @@
 
 include trickbox.inc
 ;
-; Boot code for the A-Z80 CPU FPGA implementation
+; Boot code for the "Z80 Explorer" test implementation
 ;
     org 0
 start:
     jmp boot
 
-    ; BDOS entry point for various functions
-    ; We implement subfunctions:
-    ;  C=2  Print a character given in E
-    ;  C=9  Print a string pointed to by DE; string ends with '$'
+
+; important, there should be a jump which address also mark the top of usable ram
+; often used by CPM programms as top of stack.
+;
     org 5
-    ld  a,c
-    cp  a,2
-    jz  bdos_ascii
-    cp  a,9
-    jz  bdos_msg
-    ret
+    jp  sim_bdos
 
-bdos_ascii:
-    ld a, e
-    out (IO_CHAR), a
-    ret
+; CPM progs usually start here:
+    org 100h
 
-bdos_msg:
-    push de
-    pop hl
-lp0:
-    ld  e,(hl)
-    ld  a,e
-    cp  a,'$'
-    ret z
-    call bdos_ascii
-    inc hl
-    jmp lp0
-
-boot:
-    ; Set the stack pointer
-    ld  sp, 16384
-
-	jp	start100
+start100:
+    jp  main
 
 ; machine state before test (needs to be at predictably constant address)
 msbt:	ds	14
 spbt:	ds	2
 msbthi	equ	msbt / 0100h
 msbtlo	equ	msbt & 0ffh
-
 
 ; For the purposes of this test program, the machine state consists of:
 ;	a 2 byte memory operand, followed by
@@ -130,8 +107,7 @@ msbtlo	equ	msbt & 0ffh
 ; real system) is available, a failing test case can be isolated by
 ; hand using a binary search of the test space.
 
-
-start100:	ld	hl,(6)
+main:	ld	hl,(6)
 	;ld	sp,hl
 	ld	de,msg1
 	ld	c,9
@@ -1604,3 +1580,43 @@ crctab:	db	000h,000h,000h,000h
 	db	05ah,005h,0dfh,01bh
 	db	02dh,002h,0efh,08dh
 
+; reserve 400h stack space before bdos entry.
+;
+    ds   100h-($ and 0ffh)  ; align 100h
+    ds   400h           ; reserve stack
+
+    ; BDOS entry point for various functions
+    ; We implement subfunctions:
+    ;  C=2  Print a character given in E
+    ;  C=9  Print a string pointed to by DE; string ends with '$'
+
+sim_bdos:
+    ld  a,c
+    cp  a,2
+    jz  bdos_ascii
+    cp  a,9
+    jz  bdos_msg
+    ret
+
+bdos_ascii:
+    ld a, e
+    out (IO_CHAR), a
+    ret
+
+bdos_msg:
+    push de
+    pop hl
+lp0:
+    ld  e,(hl)
+    ld  a,e
+    cp  a,'$'
+    ret z
+    call bdos_ascii
+    inc hl
+    jmp lp0
+
+boot:
+    ld  sp, sim_bdos
+    call    start100
+    halt
+    jmp $
