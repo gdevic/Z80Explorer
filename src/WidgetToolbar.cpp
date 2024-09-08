@@ -15,7 +15,7 @@ WidgetToolbar::WidgetToolbar(QWidget *parent) :
 
     connect(ui->btRun, &QPushButton::clicked, &::controller, []() { ::controller.doRunsim(INT_MAX); });
     connect(ui->btStop, &QPushButton::clicked, &::controller, []() { ::controller.doRunsim(0); });
-    connect(ui->btStop, &QPushButton::clicked, &::controller.getScript(), &ClassScript::stop);
+    //connect(ui->btStop, &QPushButton::clicked, &::controller.getScript(), &ClassScript::stop); // XXX Need to find a way to stop JavaScript engine
     connect(ui->btStep, &QPushButton::clicked, &::controller, [this]() { ::controller.doRunsim(ui->spinStep->value()); });
     connect(ui->btReset, &QPushButton::clicked, &::controller, []() { ::controller.doReset(); });
     connect(ui->btRestart, &QPushButton::clicked, this, &WidgetToolbar::doRestart);
