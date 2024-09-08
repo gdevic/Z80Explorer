@@ -2,6 +2,7 @@
 #include "ClassScript.h"
 #include "DockCommand.h"
 #include "ui_DockCommand.h"
+#include <QMessageBox>
 #include <QtGui>
 
 DockCommand::DockCommand(QWidget *parent) :
@@ -89,4 +90,30 @@ void DockCommand::returnPressed()
             m_history.removeFirst();
         m_index = m_history.size() - 1;
     }
+}
+
+/*
+ * Supporting drag-and-drop of JavaScript files
+ */
+void DockCommand::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls())
+    {
+        QList<QUrl> urls = event->mimeData()->urls();
+        if (urls.count() != 1)
+            return;
+        QFileInfo fi(urls.first().toLocalFile());
+        if (fi.suffix().toLower() != "js")
+            return;
+        m_dropppedFile = fi.absoluteFilePath();
+        qDebug() << m_dropppedFile;
+        event->setDropAction(Qt::CopyAction);
+        event->accept();
+    }
+}
+
+void DockCommand::dropEvent(QDropEvent *)
+{
+    m_cmd->setText(QString("load(\"%1\")").arg(m_dropppedFile));
+    returnPressed();
 }

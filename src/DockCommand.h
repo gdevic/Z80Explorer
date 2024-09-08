@@ -26,6 +26,10 @@ private slots:
 private:
     bool eventFilter(QObject *, QEvent *);
 
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *) override;
+
 private:
     Ui::DockCommand *ui;
 
@@ -33,6 +37,7 @@ private:
     QLineEdit *m_cmd;                   // Command input line edit widget
     QStringList m_history;              // Command history list
     int m_index {};                     // Current index into history when selecting it with up/down keys
+    QString m_dropppedFile;             // File name of the file being dropped by a drag-and-drop operation
 };
 
 #endif // DOCKCOMMAND_H
