@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QJSEngine *sc) :
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
     connect(ui->actionOnlineManual, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
     connect(ui->actionScriptingReference, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
+    connect(ui->actionCheckUpdate, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
 #ifdef QT_NO_DEBUG
     versionCheck({QString("http://baltazarstudios.com/uc/Z80Explorer/index.php?u=%1&v=%2").arg(getenv("USERNAME")).arg(APP_VERSION)});
@@ -234,6 +235,9 @@ void MainWindow::versionCheck(const QUrl &url)
         bool ok;
         uint version = html.toUInt(&ok);
         if (ok && (version > APP_VERSION))
-            qInfo() << "\n\n*** New version of the application is available ***\n";
+        {
+            qInfo() << "\n\n\n***  New version of the application is available ***\n\n" \
+                    << "Click on 'Help' -> 'Check for Updates...' to open the release website\n\n";
+        }
     }) && manager.release();
 }
