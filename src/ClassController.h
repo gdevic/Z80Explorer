@@ -15,7 +15,7 @@
  */
 class ClassController : public QObject
 {
-    Q_OBJECT                                    //* <- Methods of the scripting object "control" below
+    Q_OBJECT
 public:
     explicit ClassController() {};
     bool init(QJSEngine *);                     // Initialize controller classes and variables
@@ -64,9 +64,9 @@ public: // API
     bool uncompressFile(const QString &inFileName, const QString &outFileName); // Uncompresses a file, writing the result into another file
 
 public slots:
-    uint doReset();                         //* Runs the chip reset sequence, returns the number of clocks thet reset took
-    void doRunsim(uint ticks);              //* Runs the simulation for the given number of clocks
-    void save() { emit shutdown(); }        //* Saves all modified files
+    uint doReset();                         // Runs the chip reset sequence, returns the number of clocks thet reset took
+    void doRunsim(uint ticks);              // Runs the simulation for the given number of clocks
+    void save() { emit shutdown(); }        // Saves all modified files
 
 signals:
     void onRunStarting(uint);               // Called by the sim when it is starting the simulation

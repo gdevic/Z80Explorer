@@ -8,28 +8,29 @@
  */
 class ClassScript : public QObject
 {
-    Q_OBJECT                        //* <- Methods of the scripting object "script" below
+    Q_OBJECT
 public:
     explicit ClassScript(QObject *parent = nullptr);
     void init(QJSEngine *sc);
 
 signals:
-    void response(QString);         //* Write a response string to the command list
+    Q_INVOKABLE void print(QString);// Write out a string to the command list (connected from DockCommand)
+    Q_INVOKABLE void save();        // Saves all changes to all custom and config files (connected from ClassController)
 
 public slots:
     void stopx();                   // Stops any running script evaluation
-    void exec(QString cmd, bool echo = true); //* Evaluates and runs commands
+    void exec(QString cmd, bool echo = true); // Evaluates and runs commands
 
 public:
-    Q_INVOKABLE QJSValue load(QString fileName);
-    Q_INVOKABLE QJSValue help();
-    Q_INVOKABLE QJSValue run(uint cycles = 0);
-    Q_INVOKABLE QJSValue stop();
-    Q_INVOKABLE QJSValue reset();
-    Q_INVOKABLE QJSValue n(QVariant net);
-    Q_INVOKABLE QJSValue t(uint n);
-    Q_INVOKABLE QJSValue ex(uint n);
-    Q_INVOKABLE QJSValue relatch();
+    Q_INVOKABLE void load(QString fileName);
+    Q_INVOKABLE void run(uint hcycles);
+    Q_INVOKABLE void stop();
+    Q_INVOKABLE void reset();
+    Q_INVOKABLE void t(uint n);
+    Q_INVOKABLE void n(QVariant net);
+    Q_INVOKABLE void eq(QVariant n);
+    Q_INVOKABLE void relatch();
+    Q_INVOKABLE void ex(uint n);
 
 private:
     QJSEngine *m_engine;

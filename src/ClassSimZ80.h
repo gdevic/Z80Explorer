@@ -15,7 +15,7 @@
  */
 class ClassSimZ80 : public QObject, public ClassNetlist
 {
-    Q_OBJECT                            //* <- Methods of the scripting object "sim" below
+    Q_OBJECT
 public:
     explicit ClassSimZ80();
     bool initChip();                    // One-time chip initialization
@@ -26,15 +26,10 @@ public:
     bool isRunning() { return m_runcount; }; // Returns true if the simulation is currently running
     uint16_t getPC()                    // Returns the current value of the PC register
         { return (readByte("reg_pch") << 8) | readByte("reg_pcl"); }
-
-    Q_PROPERTY(uint hcycle READ getCurrentHCycle) //* Returns the current simulation half-cycle count
-    Q_PROPERTY(uint hz READ getEstHz)   //* Returns the estimated simulated frequency
     uint getCurrentHCycle() { return m_hcycletotal; }
     uint getEstHz() { return m_estHz; }
 
 public slots:
-    QString eq(int n)                   //* Returns a logic equation driving a given net
-        { return ClassNetlist::equation(n); }
     void onShutdown()                   // Called when the app is closing
         { doRunsim(0); ClassNetlist::onShutdown(); } // Stop the running sim and pass on the signal
 

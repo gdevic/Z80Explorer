@@ -24,9 +24,7 @@ DockCommand::DockCommand(QWidget *parent) :
     m_cmd->installEventFilter(this);
 
     connect(ui->lineEdit, &QLineEdit::returnPressed, this, &DockCommand::returnPressed);
-    connect(&::controller.getScript(), &ClassScript::response, this, [=](QString str) { m_text->appendPlainText(str); });
-
-    m_text->appendPlainText("Type help() to list available commands\n");
+    connect(&::controller.getScript(), &ClassScript::print, this, [=](QString str) { m_text->appendPlainText(str); });
 }
 
 DockCommand::~DockCommand()

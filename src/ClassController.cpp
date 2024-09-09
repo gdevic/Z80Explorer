@@ -8,18 +8,16 @@ bool ClassController::init(QJSEngine *sc)
 {
     qInfo() <<  "App init...";
 
-    sc->globalObject().setProperty("control", sc->newQObject(this));
     sc->globalObject().setProperty("script", sc->newQObject(&m_script));
-    sc->globalObject().setProperty("sim", sc->newQObject(&m_simz80));
-    sc->globalObject().setProperty("monitor", sc->newQObject(&m_trick));
+    sc->globalObject().setProperty("mon", sc->newQObject(&m_trick));
 
     // Java engine should not garbage collect or otherwise destruct these objects
-    sc->setObjectOwnership(this, QJSEngine::CppOwnership);
     sc->setObjectOwnership(&m_script, QJSEngine::CppOwnership);
-    sc->setObjectOwnership(&m_simz80, QJSEngine::CppOwnership);
     sc->setObjectOwnership(&m_trick, QJSEngine::CppOwnership);
 
     m_script.init(sc);
+
+    connect(&::controller.getScript(), &ClassScript::save, this, &ClassController::save);
 
     connect(this, &ClassController::shutdown, &m_annotate, &ClassAnnotate::onShutdown);
     connect(this, &ClassController::shutdown, &m_colors, &ClassColors::onShutdown);

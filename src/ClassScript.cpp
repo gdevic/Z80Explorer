@@ -15,21 +15,23 @@ void ClassScript::init(QJSEngine *sc)
 
     // Export these functions to the root of the global JS namespace
     m_engine->globalObject().setProperty("load", ext.property("load"));
-    m_engine->globalObject().setProperty("help", ext.property("help"));
     m_engine->globalObject().setProperty("run", ext.property("run"));
     m_engine->globalObject().setProperty("stop", ext.property("stop"));
     m_engine->globalObject().setProperty("reset", ext.property("reset"));
-    m_engine->globalObject().setProperty("n", ext.property("n"));
     m_engine->globalObject().setProperty("t", ext.property("t"));
-    m_engine->globalObject().setProperty("ex", ext.property("ex"));
+    m_engine->globalObject().setProperty("n", ext.property("n"));
+    m_engine->globalObject().setProperty("eq", ext.property("eq"));
+    m_engine->globalObject().setProperty("print", ext.property("print"));
     m_engine->globalObject().setProperty("relatch", ext.property("relatch"));
+    m_engine->globalObject().setProperty("save", ext.property("save"));
+    m_engine->globalObject().setProperty("ex", ext.property("ex"));
 }
 
 /*
  * Loads (imports) a script
  * If no script name was given, load a default "script.js"
  */
-QJSValue ClassScript::load(QString fileName)
+void ClassScript::load(QString fileName)
 {
     fileName = fileName.trimmed();
     if (fileName.isEmpty())
@@ -47,7 +49,6 @@ QJSValue ClassScript::load(QString fileName)
 
         exec(program, false);
     }
-    return QJSValue();
 }
 
 /*
@@ -71,56 +72,43 @@ void ClassScript::stopx()
  */
 void ClassScript::exec(QString cmd, bool echo)
 {
-    if (echo) emit response(cmd);
+    if (echo)
+        emit ::controller.getScript().print(cmd);
 
     // TODO: Make JS evaluate in a different thread (QtConcurrent::run())
     // If you need to execute potentially long-running JavaScript, you'll need to do it from a separate thread with QJS
     QJSValue result = m_engine->evaluate(cmd);
     if (result.isError())
-        emit response(QString("Exception at line %1 : %2").arg(result.property("lineNumber").toInt()).arg(result.toString()));
+        emit ::controller.getScript().print(QString("Exception at line %1 : %2").arg(result.property("lineNumber").toInt()).arg(result.toString()));
     else
     {
         if (!result.isUndefined())
-            emit response(result.toString());
+            emit ::controller.getScript().print(result.toString());
     }
 }
 
-QJSValue ClassScript::help()
-{
-    static const QString s {
-R"(run(hcycles)  - Runs the simulation for the given number of half-clocks
-stop()        - Stops the running simulation
-reset()       - Resets the simulation state
-t(trans)      - Shows a transistor state
-n(net|"name") - Shows a net state by net number or net "name"
-ex(n)         - Runs experimental function "n"
-load("file")  - Loads and executes a script file ("script.js" by default)
-relatch()     - Reloads custom latches from "latches.ini" file
-In addition, objects "control", "sim", "monitor", "script" and "img" provide methods described in the documentation.)" };
-
-    emit ::controller.getScript().response(s);
-    return QJSValue();
-}
-
-QJSValue ClassScript::run(uint hcycles)
+void ClassScript::run(uint hcycles)
 {
     ::controller.doRunsim(hcycles ? hcycles : INT_MAX);
-    return QJSValue();
 }
 
-QJSValue ClassScript::stop()
+void ClassScript::stop()
 {
     ::controller.doRunsim(0);
-    return QJSValue();
 }
 
-QJSValue ClassScript::reset()
+void ClassScript::reset()
 {
     ::controller.doReset();
-    return QJSValue();
 }
 
-QJSValue ClassScript::n(QVariant n)
+void ClassScript::t(uint n)
+{
+    QString s = ::controller.getNetlist().transInfo(n);
+    emit ::controller.getScript().print(s);
+}
+
+void ClassScript::n(QVariant n)
 {
     bool ok = false;
 
@@ -131,32 +119,36 @@ QJSValue ClassScript::n(QVariant n)
         net = ::controller.getNetlist().get(name);
     }
     QString s = ::controller.getNetlist().netInfo(net);
-    emit ::controller.getScript().response(s);
-    return QJSValue();
+    emit ::controller.getScript().print(s);
 }
 
-QJSValue ClassScript::t(uint n)
+void ClassScript::eq(QVariant n)
 {
-    QString s = ::controller.getNetlist().transInfo(n);
-    emit ::controller.getScript().response(s);
-    return QJSValue();
-}
+    bool ok = false;
 
-/*
- * Experimental functions
- */
-QJSValue ClassScript::ex(uint n)
-{
-    qDebug() << n;
-    ::controller.getChip().experimental(n);
-    return QJSValue();
+    net_t net = n.toUInt(&ok);
+    if (!ok)
+    {
+        QString name = n.toString();
+        net = ::controller.getNetlist().get(name);
+    }
+    QString s = ::controller.getNetlist().equation(net);
+    emit ::controller.getScript().print(s);
 }
 
 /*
  * Rebuilds latches; reloads custom latches
  */
-QJSValue ClassScript::relatch()
+void ClassScript::relatch()
 {
     ::controller.getChip().detectLatches();
-    return QJSValue();
+}
+
+/*
+ * Experimental functions
+ */
+void ClassScript::ex(uint n)
+{
+    qDebug() << n;
+    ::controller.getChip().experimental(n);
 }

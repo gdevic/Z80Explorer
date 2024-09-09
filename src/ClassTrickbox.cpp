@@ -7,7 +7,7 @@
 #define TRICKBOX_START 0xD000
 #define TRICKBOX_END   (TRICKBOX_START + sizeof(trick) - 1)
 
-const static QStringList pins = { "_int", "_nmi", "_busrq", "_wait", "_reset" };
+const static QStringList pins = { "int", "nmi", "busrq", "wait", "reset" };
 
 ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 {
@@ -190,8 +190,23 @@ void ClassTrickbox::onTick(uint ticks)
 }
 
 /*
+ * Stops running when the given net number's state equals the value
+ * If the net is 0, clears the last break setup
+ */
+void ClassTrickbox::breakWhen(quint16 net, quint8 value)
+{
+    if (value <= 1)
+    {
+        m_bpnet = net;
+        m_bpval = value;
+        emit refresh();
+    }
+    else
+        qWarning() << "Invalid value. Permitted values are 0 or 1";
+}
+
+/*
  * Sets named pin to a value (0,1,2)
- * Value is optional and, if not given, it will be '0', which means "activate" for the NMOS input pads
  */
 void ClassTrickbox::set(QString pin, quint8 value)
 {
@@ -211,7 +226,8 @@ void ClassTrickbox::set(QString pin, quint8 value)
 }
 
 /*
- * Activates (sets to 0) named pin at the specified hcycle and holds it for the "hold" number of cycles
+ * Activates (sets to 0) a named pin at the specified hcycle and holds it for the "hold" number of cycles
+ * If the hold value is 0, it holds indefinitely.
  */
 void ClassTrickbox::setAt(QString pin, quint16 hcycle, quint16 hold)
 {
@@ -230,7 +246,7 @@ void ClassTrickbox::setAt(QString pin, quint16 hcycle, quint16 hold)
 /*
  * Activates (sets to 0) named pin when PC equals the address and holds it for the "hold" number of cycles
  */
-void ClassTrickbox::setPC(QString pin, quint16 addr, quint16 hold)
+void ClassTrickbox::setAtPC(QString pin, quint16 addr, quint16 hold)
 {
     int i = pins.indexOf(pin);
     if (i >= 0)
@@ -242,22 +258,6 @@ void ClassTrickbox::setPC(QString pin, quint16 addr, quint16 hold)
     }
     else
         qWarning() << "Invalid pin name. Only these output pins can be set:" << pins;
-}
-
-/*
- * Stops running when the given net number's state equals the value
- * If the net is 0, clears the last break setup
- */
-void ClassTrickbox::breakWhen(quint16 net, quint8 value)
-{
-    if (value <= 1)
-    {
-        m_bpnet = net;
-        m_bpval = value;
-        emit refresh();
-    }
-    else
-        qWarning() << "Invalid value. Permitted values are 0 or 1";
 }
 
 /*
