@@ -21,12 +21,16 @@ xcopy /Y "%VCToolsRedistDir%"\x64\Microsoft.VC142.CRT\vcruntime140_1.dll .
 xcopy /Y "%VCToolsRedistDir%"\x64\Microsoft.VC142.CRT\msvcp140.dll       .
 xcopy /Y "%VCToolsRedistDir%"\x64\Microsoft.VC142.CRT\msvcp140_1.dll     .
 xcopy /Y "%VCToolsRedistDir%"\x64\Microsoft.VC142.CRT\msvcp140_2.dll     .
-REM xcopy /Y "%VCToolsRedistDir%"\vcredist_x64.exe %RELEASEDIR%
 
 mkdir resource
 xcopy /Y /S ..\resource resource
 
-rmdir /S /Q bearer iconengines imageformats translations
+@REM Remove all unnecessary components and files
+rmdir /S /Q bearer iconengines imageformats translations platforminputcontexts qml qmltooling tls networkinformation generic
+rm -f Qt6Pdf.dll Qt6VirtualKeyboard.dll Qt6Quick3DUtils.dll Qt6Quick.dll Qt6QmlModels.dll Qt6Svg.dll
+rm -f Qt6OpenGL.dll opengl32sw.dll dxcompiler.dll d3dcompiler_47.dll dxil.dll
+rm -f vc_redist.x64.exe
+rm -f resource\layermap.bin
 @echo It is OK if The system cannot find the file specified.
 
 cd ..
