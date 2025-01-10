@@ -214,6 +214,22 @@ void WidgetImageView::paintEvent(QPaintEvent *)
                 }
             }
         }
+
+        // Draw nets that do not connect to anything, they are used for test and label patterns
+        painter.setBrush(QColor(Qt::yellow));
+        for (uint i = 3; i < ::controller.getSimZ80().getNetlistCount(); i++)
+        {
+            if (::controller.getSimZ80().isNetOrphan(i))
+            {
+                for (const auto& path : ::controller.getChip().getSegment(i)->paths)
+                {
+                    // Draw only paths that are not completely outside the viewing area
+                    if (QRectF(viewportTex).intersects(path.boundingRect()))
+                        painter.drawPath(path);
+                }
+            }
+        }
+
         painter.restore();
     }
     //------------------------------------------------------------------------
