@@ -19,6 +19,9 @@ DockMonitor::DockMonitor(QWidget *parent) :
     connect(&::controller, &ClassController::onRunStopped, this, &DockMonitor::refresh);
     connect(ui->btLoad, &QPushButton::clicked, this, &DockMonitor::onLoad);
     connect(ui->btReload, &QPushButton::clicked, this, &DockMonitor::onReload);
+
+    connect(&m_timer, &QTimer::timeout, this, &DockMonitor::refresh);
+    m_timer.start(500);
 }
 
 DockMonitor::~DockMonitor()

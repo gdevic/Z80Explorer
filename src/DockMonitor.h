@@ -2,6 +2,7 @@
 #define DOCKMONITOR_H
 
 #include <QDockWidget>
+#include <QTimer>
 
 namespace Ui { class DockMonitor; }
 
@@ -22,7 +23,7 @@ private slots:
     void onReload();                    // Reloads last loaded user program
     void onEcho(char);                  // Write out a character to the virtual console
     void onEcho(QString);               // Write out a string to the virtual console
-    void refresh();                     // Refresh the monitor information box
+    void refresh();                     // Refresh the monitor information text
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
@@ -31,6 +32,7 @@ protected:
 private:
     Ui::DockMonitor *ui;
     QString m_dropppedFile;             // File name of the file being dropped by a drag-and-drop operation
+    QTimer  m_timer;                    // Text refresh timer updates text every 1/2 seconds to show new data
 };
 
 #endif // DOCKMONITOR_H
