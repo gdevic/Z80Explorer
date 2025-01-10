@@ -75,6 +75,11 @@ ctl_edx: 1248,
 ctl_inc_r: 617, // Increments R register using 16-bit inc/dec
 ctl_tri: 69,
 ctl_tri_ab: 627,
+db_precharge: 1507,
+en_ir: 1800,
+en_pc: 1799,
+imfa: 1215,
+imfb: 1268,
 int_reset: 95,
 last_t: 215,
 pla15: 363, // rrd
