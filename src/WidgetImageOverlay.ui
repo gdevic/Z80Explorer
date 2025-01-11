@@ -70,7 +70,7 @@
       <item>
        <widget class="QToolButton" name="btA">
         <property name="toolTip">
-         <string>Show active nets&lt;br&gt;Key: X</string>
+         <string>Show active nets&lt;br&gt;Key: X, z,Z to toggle</string>
         </property>
         <property name="toolTipDuration">
          <number>5000</number>

@@ -90,6 +90,7 @@ private:
     const QRect *m_highlight_trans {};  // Transistor bounding rectangle to highlight in the current image
     QRect m_r;                          // Rectangle used by the show() scripting command to highlight a rectangle
     bool m_drawActiveNets {false};      // Draw active nets
+    uint m_drawActiveNetsOrder {0};     // The order of drawing active nets bit[0], auto toggle bit[1]
     bool m_drawAnnotations {true};      // Draw image annotations
     bool m_drawActiveTransistors {true};// Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)

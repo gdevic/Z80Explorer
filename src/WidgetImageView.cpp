@@ -72,6 +72,9 @@ void WidgetImageView::onTimeout()
 {
     if (m_timer_tick)
         m_timer_tick--;
+    // If the drawing mode for the active segments is to toggle the order, reverse it now
+    if (m_drawActiveNetsOrder & 2)
+        m_drawActiveNetsOrder ^= 1;
     update();
 }
 
@@ -202,11 +205,21 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.setBrush(QColor(255, 0, 255));
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-        for (uint i=3; i<::controller.getSimZ80().getNetlistCount(); i++)
+        uint first = 3;
+        uint last = ::controller.getSimZ80().getNetlistCount();
+        int increment = 1;
+        if (m_drawActiveNetsOrder & 1) // Handle the reversed draw order
+        {
+            first = ::controller.getSimZ80().getNetlistCount() - 1;
+            last = 2;
+            increment = -1;
+        }
+        // Draw segments in two ways: from the first to the last, and in the reverse order
+        for (uint i = first; i != last; i += increment)
         {
             if (::controller.getSimZ80().getNetState(i) == 1)
             {
-                for (const auto &path : ::controller.getChip().getSegment(i)->paths)
+                for (const auto& path : ::controller.getChip().getSegment(i)->paths)
                 {
                     // Draw only paths that are not completely outside the viewing area
                     if (QRectF(viewportTex).intersects(path.boundingRect()))
@@ -588,6 +601,7 @@ void WidgetImageView::leaveEvent(QEvent *)
 
 void WidgetImageView::keyPressEvent(QKeyEvent *event)
 {
+    bool shift = QGuiApplication::keyboardModifiers().testFlag(Qt::ShiftModifier);
     // Approximate image move offsets in the texture space
     qreal dx = qreal(m_image.width()) / (m_viewPort.width() * m_scale * 100);
     qreal dy = qreal(m_image.height()) / (m_viewPort.height() * m_scale * 200);
@@ -622,6 +636,9 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_X:
         m_drawActiveNets = !m_drawActiveNets;
         m_ov->setButton(0, m_drawActiveNets);
+        break;
+    case Qt::Key_Z:
+        m_drawActiveNetsOrder = shift ? m_drawActiveNetsOrder ^ 2 : (m_drawActiveNetsOrder & 1) ^ 1;
         break;
     case Qt::Key_Space:
         m_drawAnnotations = !m_drawAnnotations;
