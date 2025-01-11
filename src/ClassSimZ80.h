@@ -7,9 +7,6 @@
 #include <QElapsedTimer>
 #include <QTimer>
 
-#define USE_MY_LISTS 1
-#define EARLY_LOOP_DETECTION 1
-
 /*
  * ClassSimZ80 implements Z80 chip netlist simulator
  */
@@ -55,8 +52,7 @@ private:
     void recalcNet(net_t n);
     void getNetGroup(net_t n);
     void addNetToGroup(net_t n);
-    int t01opt;                         // Early loop detection (performance optimization)
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
     void recalcNetlist();
     void allNets();
 

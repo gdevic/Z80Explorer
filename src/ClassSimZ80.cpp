@@ -147,7 +147,7 @@ uint ClassSimZ80::doReset()
     set(1, "_int");
     set(1, "_nmi");
     set(1, "_wait");
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
     allNets();
     recalcNetlist();
 #else
@@ -275,9 +275,11 @@ inline void ClassSimZ80::setDB(uint8_t db)
 inline void ClassSimZ80::set(bool on, QString name)
 {
     net_t n = get(name);
+    if (m_netlist[n].isHigh == on) // The state did not change
+        return;
     m_netlist[n].isHigh = on;
     m_netlist[n].isLow = !on;
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
     m_list[0] = n;
     m_listIndex = 1;
     recalcNetlist();
@@ -287,147 +289,136 @@ inline void ClassSimZ80::set(bool on, QString name)
 #endif
 }
 
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
 inline bool ClassSimZ80::getNetValue()
 {
-    // 1. deal with power connections first
+    // 1. Deal with power connections first
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
         if (*p == ngnd) return false;
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
         if (*p == npwr) return true;
-    // 2. deal with pullup/pulldowns next
+    // 2. Deal with pullup/pulldowns next
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
         Net &net = m_netlist[*p];
         if (net.isHigh) return true;
         if (net.isLow) return false;
     }
-    // 3. resolve connected set of floating nodes
-    // based on state of largest (by #connections) node
-    // (previously this was any node with state true wins)
+    // 3. Resolve connected set of floating nodes
+    // Several approaches work:
+    // - based on state of largest (by #connections) node
+    // - that, either by the number of connected gates, or by the number of connected pins
+    // - any node for which state is true
     auto max_state = false;
     auto max_conn = 0;
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
         Net &net = m_netlist[*p];
-        auto conn = net.gates.count() + net.c1c2s.count();
+#if 0
+        // We just want to pick the larger, or "stronger" net, assuming that one would have more transistor connections
+        //auto conn = net.gates.count() + net.c1c2s.count();
+        //auto conn = net.c1c2s.count();
+        auto conn = net.gates.count();
         if (conn > max_conn)
         {
             max_conn = conn;
             max_state = net.state;
         }
+#endif
+        // Or we simply pick the first node which state is high
+        if (net.state == true)
+            return true;
     }
     return max_state;
 }
 #else
 inline bool ClassSimZ80::getNetValue()
 {
-    // 1. deal with power connections first
+    // 1. Deal with power connections first
     if (Q_UNLIKELY(group.contains(ngnd))) return false;
     if (Q_UNLIKELY(group.contains(npwr))) return true;
-    // 2. deal with pullup/pulldowns next
+    // 2. Deal with pullup/pulldowns next
     for (auto i : group)
     {
         auto net = m_netlist[i];
         if (net.isHigh) return true;
         if (net.isLow) return false;
     }
-    // 3. resolve connected set of floating nodes
-    // based on state of largest (by #connections) node
-    // (previously this was any node with state true wins)
+    // 3. Resolve connected set of floating nodes
+    // Several approaches work:
+    // - based on state of largest (by #connections) node
+    // - that, either by the number of connected gates, or by the number of connected pins
+    // - any node for which state is true
     auto max_state = false;
     auto max_conn = 0;
     for (auto i : group)
     {
         auto net = m_netlist[i];
-        auto conn = net.gates.count() + net.c1c2s.count();
+#if 0
+        // We just want to pick the larger, or "stronger" net, assuming that one would have more transistor connections
+        //auto conn = net.gates.count() + net.c1c2s.count();
+        auto conn = net.c1c2s.count();
+        auto conn = net.gates.count();
         if (conn > max_conn)
         {
             max_conn = conn;
             max_state = net.state;
         }
+#endif
+        // Or we simply pick the first node which state is high
+        if (net.state == true)
+            return true;
     }
     return max_state;
 }
 #endif
 
-#if EARLY_LOOP_DETECTION
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::recalcNetlist()
 {
     m_recalcListIndex = 0;
-    int t01rep = 3;
     while(m_listIndex)
     {
-        t01opt = 0;
         for (int i=0; i<m_listIndex; i++)
             recalcNet(m_list[i]);
+
+        // This performance code path depends on this check since it does not have any other loop limiter. The early exit check below is tightly tied to this specific
+        // Z80 netlist and the order of nets and transistors, and will detect the only case when the nets are toggling endlessly.
+        //if ((m_recalcListIndex == 32) && (m_recalcList[0] == 791) && (m_recalcList[1] == 703) && (m_recalcList[2] == 907) && (m_recalcList[3] == 713) && (m_recalcList[4] == 917) && (m_recalcList[5] == 798) && (m_recalcList[6] == 922) && (m_recalcList[7] == 806) && (m_recalcList[8] == 933) && (m_recalcList[9] == 714) && (m_recalcList[10] == 810) && (m_recalcList[11] == 936) && (m_recalcList[12] == 731) && (m_recalcList[13] == 953) && (m_recalcList[14] == 841) && (m_recalcList[15] == 958) && (m_recalcList[16] == 846) && (m_recalcList[17] == 739) && (m_recalcList[18] == 969) && (m_recalcList[19] == 863) && (m_recalcList[20] == 749) && (m_recalcList[21] == 974) && (m_recalcList[22] == 982) && (m_recalcList[23] == 871) && (m_recalcList[24] == 752) && (m_recalcList[25] == 984) && (m_recalcList[26] == 884) && (m_recalcList[27] == 998) && (m_recalcList[28] == 774) && (m_recalcList[29] == 885) && (m_recalcList[30] == 901) && (m_recalcList[31] == 777))
+        // Empirically found that it is necessary to only check the first one, when 32 nets are on the list
+        if ((m_recalcListIndex == 32) && (m_recalcList[0] == 791))
+            break;
+
         memcpy(m_list, m_recalcList, m_recalcListIndex * sizeof (net_t));
         m_listIndex = m_recalcListIndex;
         m_recalcListIndex = 0;
-        // Optimization: if no transistors changed state, or if the *same group* of transistors toggled on and off,
-        // which happens when there is a feedback loop, exit.
-        // This is not necessarily 100% reliable since different trans id's may still add up to the same value,
-        // so an additional counter, t01opt, activates it only after the early loop detects 3 times in a row.
-        if ((t01opt == 0) && (t01rep-- == 0))
-            break;
-        if (t01opt != 0)
-            t01rep = 3;
     }
 }
 #else
-inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
-{
-    recalcList.clear();
-    int t01rep = 3;
-    while(list.count())
-    {
-        t01opt = 0;
-        for (auto n : list)
-            recalcNet(n);
-        list = recalcList;
-        recalcList.clear();
-        // Optimization: if no transistors changed state, or if the *same group* of transistors toggled on and off,
-        // which happens when there is a feedback loop, exit.
-        // This is not necessarily 100% reliable since different trans id's may still add up to the same value,
-        // so an additional counter, t01opt, activates it only after the early loop detects 3 times in a row.
-        if ((t01opt == 0) && (t01rep-- == 0))
-            break;
-        if (t01opt != 0)
-            t01rep = 3;
-    }
-}
-#endif
-#else // Legacy version
-#if USE_MY_LISTS
-inline void ClassSimZ80::recalcNetlist()
-{
-    m_recalcListIndex = 0;
-    for (int i=0; i<50 && m_listIndex; i++) // loop limiter
-    {
-        for (int i=0; i<m_listIndex; i++)
-            recalcNet(m_list[i]);
-        memcpy(m_list, m_recalcList, m_recalcListIndex * sizeof (net_t));
-        m_listIndex = m_recalcListIndex;
-        m_recalcListIndex = 0;
-    }
-}
-#else // USE_MY_LISTS
 inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
 {
     recalcList.clear();
     for (int i=0; i<100 && list.count(); i++) // loop limiter
     {
+        // This strictly a performance improvement complements the loop limiter. The early exit check below is tightly tied to this specific
+        // Z80 netlist and the order of nets and transistors, and will detect the only case when the nets are toggling endlessly.
+        if (list.count() == 32) // There are 32 nets that are unstable, exit early when the list contains only those
+        {
+            //if ((list[0] == 791) && (list[1] == 703) && (list[2] == 907) && (list[3] == 713) && (list[4] == 917) && (list[5] == 798) && (list[6] == 922) && (list[7] == 806) && (list[8] == 933) && (list[9] == 714) && (list[10] == 810) && (list[11] == 936) && (list[12] == 731) && (list[13] == 953) && (list[14] == 841) && (list[15] == 958) && (list[16] == 846) && (list[17] == 739) && (list[18] == 969) && (list[19] == 863) && (list[20] == 749) && (list[21] == 974) && (list[22] == 982) && (list[23] == 871) && (list[24] == 752) && (list[25] == 984) && (list[26] == 884) && (list[27] == 998) && (list[28] == 774) && (list[29] == 885) && (list[30] == 901) && (list[31] == 777))
+            // Empirically found that it is necessary to only check the first one, when 32 nets are on the list
+            if (list[0] == 791)
+                break;
+        }
+
         for (auto n : list)
             recalcNet(n);
         list = recalcList;
         recalcList.clear();
     }
 }
-#endif // USE_MY_LISTS
 #endif
 
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::recalcNet(net_t n)
 {
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
@@ -438,13 +429,26 @@ inline void ClassSimZ80::recalcNet(net_t n)
         Net &net = m_netlist[*p];
         if (net.state == newState) continue;
         net.state = newState;
-        for (int i=0; i<net.gates.count(); i++)
-        {
-            if (net.state)
-                setTransOn(net.gates[i]);
-            else
-                setTransOff(net.gates[i]);
-        }
+
+        if (net.state)
+            for (Trans *t : net.gates)
+            {
+                if (!t->on)
+                {
+                    t->on = true;
+                    addRecalcNet(t->c1);
+                }
+            }
+        else
+            for (Trans *t : net.gates)
+            {
+                if (t->on)
+                {
+                    t->on = false;
+                    addRecalcNet(t->c1);
+                    addRecalcNet(t->c2);
+                }
+            }
     }
 }
 #else
@@ -467,9 +471,24 @@ inline void ClassSimZ80::recalcNet(net_t n)
         }
     }
 }
+
+inline void ClassSimZ80::setTransOn(struct Trans* t)
+{
+    if (t->on) return;
+    t->on = true;
+    addRecalcNet(t->c1);
+}
+
+inline void ClassSimZ80::setTransOff(struct Trans* t)
+{
+    if (!t->on) return;
+    t->on = false;
+    addRecalcNet(t->c1);
+    addRecalcNet(t->c2);
+}
 #endif
 
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
 void ClassSimZ80::allNets()
 {
     m_listIndex = 0;
@@ -494,28 +513,7 @@ QVector<net_t> ClassSimZ80::allNets()
 }
 #endif
 
-inline void ClassSimZ80::setTransOn(struct Trans *t)
-{
-    if (t->on) return;
-#if EARLY_LOOP_DETECTION
-    t01opt += t->id;
-#endif
-    t->on = true;
-    addRecalcNet(t->c1);
-}
-
-inline void ClassSimZ80::setTransOff(struct Trans *t)
-{
-    if (!t->on) return;
-#if EARLY_LOOP_DETECTION
-    t01opt -= t->id;
-#endif
-    t->on = false;
-    addRecalcNet(t->c1);
-    addRecalcNet(t->c2);
-}
-
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::addRecalcNet(net_t n)
 {
     if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
@@ -533,7 +531,7 @@ inline void ClassSimZ80::addRecalcNet(net_t n)
 }
 #endif
 
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::getNetGroup(net_t n)
 {
     m_groupIndex = 0;
@@ -547,7 +545,7 @@ inline void ClassSimZ80::getNetGroup(net_t n)
 }
 #endif
 
-#if USE_MY_LISTS
+#if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::addNetToGroup(net_t n)
 {
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
