@@ -634,8 +634,13 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         }
         break;
     case Qt::Key_X:
-        m_drawActiveNets = !m_drawActiveNets;
-        m_ov->setButton(0, m_drawActiveNets);
+        if (shift)
+            ::controller.getChip().toggleAltSegdef();
+        else
+        {
+            m_drawActiveNets = !m_drawActiveNets;
+            m_ov->setButton(0, m_drawActiveNets);
+        }
         break;
     case Qt::Key_Z:
         m_drawActiveNetsOrder = shift ? m_drawActiveNetsOrder ^ 2 : (m_drawActiveNetsOrder & 1) ^ 1;

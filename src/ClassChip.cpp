@@ -125,9 +125,24 @@ bool ClassChip::loadImages(QString dir)
 }
 
 /*
- * Loads segdefs.js
+ * Loads segdefs.js and segvdefs
+ * The first file contains segment definitions from the Visual 6502 team for this processor
+ * I had processed that file further to merge each of the nets into single path and we use that
+ * as the alternate visual segment representation
  */
 bool ClassChip::loadSegdefs(QString dir)
+{
+    if (!loadSegdefsJs(dir))
+        return false;
+    // Load processed and smoother paths; don't care if the file "segvdefs.bin" does not exist
+    loadSegvdefs(dir);
+    return true;
+}
+
+/*
+ * Loads segdefs.js legacy segment defintion file
+ */
+bool ClassChip::loadSegdefsJs(QString dir)
 {
     QString segdefs_file = dir + "/segdefs.js";
     qInfo() << "Loading" << segdefs_file;
@@ -179,10 +194,6 @@ bool ClassChip::loadSegdefs(QString dir)
                 qDebug() << "Skipping" << line;
         }
         qInfo() << "Loaded" << m_segvdefs.count() << "segment visual definitions";
-
-        // Optionally load processed and smoother paths; don't care if the file "segvdefs.bin" does not exist
-        loadSegvdefs(dir);
-
         return true;
     }
     else
@@ -354,9 +365,10 @@ template const QVector<net_t> ClassChip::getNetsAt<false>(int, int);
 const segvdef *ClassChip::getSegment(net_t net)
 {
     static const segvdef empty;
-    if (m_segvdefs.contains(net))
-        return &m_segvdefs[net];
-    return &empty;
+    if (use_alt_segdef && m_segvdefs2.contains(net))
+        return &m_segvdefs2[net];
+    else
+        return m_segvdefs.contains(net) ? &m_segvdefs[net] : &empty;
 }
 
 /*
@@ -981,7 +993,6 @@ bool ClassChip::loadLatches()
             }
         }
         qInfo() << "Loaded" << count << "custom latch definitions";
-
         return true;
     }
     else
@@ -1105,12 +1116,14 @@ bool ClassChip::loadSegvdefs(QString dir)
     QFile loadFile(fileName);
     if (loadFile.open(QIODevice::ReadOnly))
     {
+        m_segvdefs2 = m_segvdefs;
+
         try // May throw an exception if the data is not formatted exactly as expected
         {
             QDataStream in(&loadFile);
             int count, num_paths;
             in >> count;
-            if (count == m_segvdefs.count())
+            if (count == m_segvdefs2.count())
             {
                 while (count-- > 0)
                 {
@@ -1123,9 +1136,9 @@ bool ClassChip::loadSegvdefs(QString dir)
                         segvdef.paths.append(path);
                     }
 
-                    if (m_segvdefs.contains(segvdef.netnum))
-                        m_segvdefs.remove(segvdef.netnum);
-                    m_segvdefs[segvdef.netnum] = segvdef;
+                    if (m_segvdefs2.contains(segvdef.netnum))
+                        m_segvdefs2.remove(segvdef.netnum);
+                    m_segvdefs2[segvdef.netnum] = segvdef;
                 }
                 return true;
             }

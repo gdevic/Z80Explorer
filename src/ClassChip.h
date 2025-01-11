@@ -51,6 +51,8 @@ public:
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QStringList getImageNames();    // Returns a list of layer / image names
     const segvdef *getSegment(net_t net); // Returns the segment visual definition, zero if not found
+    void toggleAltSegdef()                // Toggle alternate segment definition as active
+        { use_alt_segdef = !use_alt_segdef; }
     const transvdef *getTrans(tran_t id); // Returns transistor visual definition, nullptr if not found
     tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
     bool isLatch(net_t net);              // Returns true if a net is part of any latch
@@ -66,6 +68,8 @@ public slots:
 private:
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
     QHash<net_t, segvdef> m_segvdefs;   // Hash of segment visual definitions, key is the segment net number
+    QHash<net_t, segvdef> m_segvdefs2;  // Alternate segment visual definitions
+    bool use_alt_segdef {false};        // Use alternate segment definitions
     QVector<latchdef> m_latches;        // Array of latches
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
@@ -76,7 +80,8 @@ private:
 
 private:
     bool loadImages(QString dir);       // Loads chip images
-    bool loadSegdefs(QString dir);      // Loads segdefs.js
+    bool loadSegdefs(QString dir);      // Loads segment defintions
+    bool loadSegdefsJs(QString dir);    // Loads segdefs.js
     bool loadTransdefs(QString dir);    // Loads transdefs.js
     void setFirstImage(QString name);   // Sets the given image to be the first one in m_img vector
     bool addTransistorsLayer();         // Inserts an image of the transistors layer
