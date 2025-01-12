@@ -97,13 +97,13 @@ private:
     void saveLayerMap();                // Saves layer map to a file
     // Experimental code
     void experimental_1();              // Merges net paths for a better visual display
+    void experimental_2();              // Creates transistors paths hinted by transdef bounding boxes
+    void experimental_3();              // Creates transistors paths based on our feature bitmap
     bool saveSegvdefs(QString dir);     // Saves m_segvdefs
     bool loadSegvdefs(QString dir);     // Loads m_segvdefs
     void drawAllNetsAsInactive(QString source, QString dest);
     void redrawNetsColorize(QString source, QString dest);
     bool loadLatches();                 // Helper to load custom latch definitions
-    void experimental_3();              // Creates transistors paths hinted by transdef bounding boxes
-    void experimental_4();              // Creates transistors paths based on our feature bitmap
     bool scanForTransistor(uchar const *p, QRect t, uint &x, uint &y);
     void edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y);
     uint edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir);

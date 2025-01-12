@@ -63,7 +63,7 @@ bool ClassChip::loadChipResources(QString dir)
         connect(&::controller, &ClassController::eventNetName, this, [this]() // May need different colors for renamed nets
             { redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); } ); // Dynamically rebuild the colorized image
         detectLatches(); // Detect latches and load custom latch definitions
-        experimental_4(); // Create transistor paths
+        experimental_3(); // Create transistor paths
 
         setFirstImage("vss.vcc.nets.col");
         setFirstImage("vss.vcc.nets");
@@ -1039,9 +1039,8 @@ void ClassChip::getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2
 void ClassChip::experimental(int n)
 {
     if (n==1) return experimental_1();
-    if (n==2) return;
+    if (n==2) return experimental_2();
     if (n==3) return experimental_3();
-    if (n==4) return experimental_4();
     qWarning() << "Invalid experimental function index" << n;
 }
 
@@ -1050,6 +1049,7 @@ void ClassChip::experimental(int n)
  ******************************************************************************/
 
 /*
+ * Run with the command "ex(1)"
  * Merges net paths for a better visual display
  * This code merges paths for each net so nets look better, but this process can take > 2 min on a fast PC
  * Hence, the merged nets have been cached in the file "segvdefs.bin"
@@ -1216,13 +1216,13 @@ void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
 }
 
 /*
- * Run with the command "ex(3)"
+ * Run with the command "ex(2)"
  * Creates transistors paths based on our feature bitmap and located at coords taken from each transistor
  * netlist data bounding boxes. The problem with this implementation is that some transistors are meandering
  * close to each other and their bounding boxes overlap. This function is sometimes not able to detect the
  * second overlapping transistor, so it fails to create the outline in a couple of cases.
  */
-void ClassChip::experimental_3()
+void ClassChip::experimental_2()
 {
     qInfo() << "Experimental: create transistor paths; transistors' locations hinted by transdef";
     QEventLoop e; // Don't freeze the GUI
@@ -1293,7 +1293,7 @@ bool ClassChip::scanForTransistor_4(uchar const *p, uint &offset)
 }
 
 /*
- * Run with the command "ex(4)"
+ * Run with the command "ex(3)"
  * Creates transistors paths based on our feature bitmap.
  * There are many more (technically) transistors which are removed from the netlist because they are
  * either pull-ups or otherwise non-functional transistors. This function will detect all of them and mark
@@ -1301,7 +1301,7 @@ bool ClassChip::scanForTransistor_4(uchar const *p, uint &offset)
  * The last part of this function simply refers to the transdef's transistor data (their bounding boxes) to
  * assign the transistor outline paths to each.
  */
-void ClassChip::experimental_4()
+void ClassChip::experimental_3()
 {
     qInfo() << "Experimental: create transistor paths; transistors' locations scanned from feature bitmap";
     QEventLoop e; // Don't freeze the GUI
