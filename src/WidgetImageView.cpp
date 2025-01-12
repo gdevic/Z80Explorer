@@ -508,6 +508,8 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
 
             QString tip = nets.count() ? ::controller.getTip().get(nets[0]) : QString();
             m_ov->setInfoLine(2, trans ? ::controller.getNetlist().transInfo(trans) : tip);
+
+            m_ov->setInfoLine(3, ::controller.getChip().getFeaturesAt(imageCoords.x(), imageCoords.y()));
         }
         else
         {

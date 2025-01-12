@@ -47,6 +47,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="labelInfo3">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::Shape::StyledPanel</enum>

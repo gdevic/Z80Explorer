@@ -55,6 +55,7 @@ public:
         { use_alt_segdef = !use_alt_segdef; }
     const transvdef *getTrans(tran_t id); // Returns transistor visual definition, nullptr if not found
     tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
+    QString getFeaturesAt(int x, int y);  // Returns the list of features at the specified image coordinates
     bool isLatch(net_t net);              // Returns true if a net is part of any latch
     void getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2); // Returns latch transistors and nets
 

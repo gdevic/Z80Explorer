@@ -408,6 +408,37 @@ tran_t ClassChip::getTransistorAt(int x, int y)
 }
 
 /*
+ * Returns the list of features at the specified image coordinates
+ */
+QString ClassChip::getFeaturesAt(int x, int y)
+{
+    if ((uint(x) >= m_sx) || (uint(y) >= m_sy))
+        return QString();
+    uint offset = x + y * m_sx;
+    uchar feat = m_fmap[offset];
+    QString s;
+    if (feat)
+    {
+        // Name the features on the stack
+        if (feat & IONS)       s.append("~ION~");
+        if (feat & DIFF)       s.append("DIFF ");
+        if (feat & POLY)       s.append("POLY ");
+        if (feat & METAL)      s.append("METAL ");
+        if (feat & BURIED)     s.append("|BURIED|");
+        if (feat & VIA_DIFF)   s.append("|VIA|");
+        if (feat & VIA_POLY)   s.append("|VIA|");
+        // Our feature bitfield specifies a transistor for enhancement mode and depletion mode DIFF|POLY
+        if (feat & TRANSISTOR)
+        {
+            s.prepend("DIFF "); // We add Diff since we have removed DIFF bit where transistors are
+            uint tran = getTransistorAt(x, y);
+            s.append(tran ? "(Tran)" : "(Pull-up)");
+        }
+    }
+    return s;
+}
+
+/*
  * Inserts an image of the transistors layer
  */
 bool ClassChip::addTransistorsLayer()
