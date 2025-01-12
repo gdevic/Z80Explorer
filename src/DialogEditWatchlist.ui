@@ -78,7 +78,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>&gt;&gt;</string>
+          <string>Add &gt;&gt;</string>
          </property>
         </widget>
        </item>
@@ -89,6 +89,26 @@
          </property>
          <property name="text">
           <string>Remove</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btAddAll">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Add All &gt;&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btRemoveAll">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Remove All</string>
          </property>
         </widget>
        </item>

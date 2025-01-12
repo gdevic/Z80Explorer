@@ -1,7 +1,9 @@
 #ifndef DIALOGEDITWATCHLIST_H
 #define DIALOGEDITWATCHLIST_H
 
+#include "ClassNetlist.h"
 #include <QDialog>
+class QListWidgetItem;
 
 namespace Ui { class DialogEditWatchlist; }
 
@@ -21,11 +23,13 @@ public:
     QStringList getWatchlist();
 
 private:
-    void add(QString busName, QStringList nets);
+    QListWidgetItem *getListItem(ClassNetlist &Net, QString name);
 
 private slots:
     void onAdd();
+    void onAddAll();
     void onRemove();
+    void onRemoveAll();
     void allSelChanged();
     void listSelChanged();
 
