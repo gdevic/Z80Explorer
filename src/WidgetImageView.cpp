@@ -607,12 +607,17 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     // Approximate image move offsets in the texture space
     qreal dx = qreal(m_image.width()) / (m_viewPort.width() * m_scale * 100);
     qreal dy = qreal(m_image.height()) / (m_viewPort.height() * m_scale * 200);
+
+    // Handle image selection keys (1-9 and a...k)
     int i = -1;
     if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_9)
         i = event->key() - Qt::Key_1;
     else if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_K)
         i = event->key() - Qt::Key_A + 9;
-    else
+    if (i >= 0)
+        return setImage(i);
+
+    // Handle the rest of the keys
     switch (event->key())
     {
     case Qt::Key_Escape: // ESC key removes, in this order: Found transistor and net; driven by; selected net
@@ -669,9 +674,15 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Down: moveBy(QPointF(0,-dy)); break;
     case Qt::Key_PageUp: setZoom(m_scale * 1.2); break;
     case Qt::Key_PageDown: setZoom(m_scale / 1.2); break;
+    // Send all other unhandled keys to the script for user custom handling
+    // init.js file should define key(code,shift,ctrl) function handler
+    default:
+        bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+        bool verbose = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
+        QString cmd = QString("key(%1,%2)").arg(event->key()).arg(ctrl);
+        ::controller.getScript().exec(cmd, verbose);
+        break;
     }
-
-    setImage(i);
 }
 
 void WidgetImageView::setImage(int i, bool forceCtrl)

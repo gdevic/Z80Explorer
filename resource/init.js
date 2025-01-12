@@ -1,5 +1,8 @@
 // Z80Explorer loads this init script on a startup
 
+// If you make any changes to this file while the app is running, simply reload it
+// by dragging and dropping it into the app's Command Window
+
 function loadHex(fileName) { mon.loadHex(fileName); }
 function loadBin(fileName, address) { mon.loadBin(fileName, address); }
 function saveBin(fileName, address, size) { mon.saveBin(fileName, address, size); }
@@ -21,6 +24,25 @@ function find(feature) { img.find(feature); }
 function show(x, y, w, h) { img.show(x, y, w, h); }
 function state() { img.state(); }
 function annot(fileName) { img.annot(fileName); }
+
+// Callback for keys that are not handled by the image view
+// You can show the values of (code,ctrl) if you hold down the Alt key while pressing your key combination
+function key(code, ctrl)
+{
+    // Few useful image layer presets
+    if (code == 33) // key "1" shifted, '1' on a US keyboard layout
+    {
+        setLayer("3"); addLayer("4"); addLayer("5"); addLayer("6"); addLayer("7");
+    }
+    if (code == 64) // key "2" shifted, '@' on a US keyboard layout
+    {
+        setLayer("3"); addLayer("4"); addLayer("6"); addLayer("7");
+    }
+    if (code == 35) // key "3" shifted, '#' on a US keyboard layout
+    {
+        setLayer("a"); addLayer("b"); addLayer("d"); addLayer("e");
+    }
+}
 
 function help()
 {
