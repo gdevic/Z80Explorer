@@ -1,5 +1,4 @@
 #include "ClassController.h"
-#include "DockWaveform.h"
 #include "WidgetWaveform.h"
 #include <QPaintEvent>
 #include <QPainter>
@@ -11,7 +10,7 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 {
     // Refresh graph when running simulation and when stopped
     connect(&::controller, &ClassController::onRunHeartbeat, this, [this](){ update(); });
-    connect(&::controller, &ClassController::onRunStopped, this, [this](){ update(); });
+    connect(&::controller, &ClassController::onRunStopped, this, &WidgetWaveform::onRunStopped);
 
     // Set up two initial cursors
     m_cursors2x.append(1);
@@ -193,7 +192,7 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
     painter.setPen(pen);
 
     // If the cursors are linked together, draw the link line
-    if (m_linked && m_cursors2x.count() >= 2)
+    if (m_linked && (m_cursors2x.count() >= 2))
     {
         uint x1 = m_cursors2x.at(0) * m_hscale / 2.0;
         uint x2 = m_cursors2x.at(1) * m_hscale / 2.0;
@@ -229,9 +228,39 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
     }
 }
 
+/*
+ * When a simulation run stops, check the (primary) cursor against the new sim cycle and scroll the view if the
+ * cursor was positioned at the last cycle. This will work for short runs of 1 and 2 half-cycles, for which we
+ * want to observe the signal traces step by step anyways. All other runs do not scroll the view.
+ */
+void WidgetWaveform::onRunStopped()
+{
+    if (m_cursors2x.count())
+    {
+        const uint hcycle = ::controller.getSimZ80().getCurrentHCycle() - 1;
+        uint cx = m_cursors2x[m_cursor] / 2;
+        int delta = hcycle - cx;
+        if ((delta == 1) || (delta == 2)) // Cursor "captures" the waveform when it differs from the hcycle by 1 or two
+        {
+            m_cursors2x[m_cursor] = hcycle * 2 + 1; // Move the cursor to the new hcycle edge
+            emit scroll(m_hscale * delta);
+
+            // If the first two cursors are linked together, move them both
+            if (m_linked && (m_cursors2x.count() >= 2))
+            {
+                if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
+                if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
+            }
+            Q_ASSERT(m_cursors2x.count() >= 2);
+            emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2)));
+        }
+    }
+    update();
+}
+
 void WidgetWaveform::onLinked(bool isLinked)
 {
-    if (isLinked && m_cursors2x.count() >= 2)
+    if (isLinked && (m_cursors2x.count() >= 2))
         m_linked = int(m_cursors2x.at(1)) - int(m_cursors2x.at(0));
     else
         m_linked = 0;
@@ -267,7 +296,7 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
         m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
 
         // If the first two cursors are linked together, move them both
-        if (m_linked && m_cursors2x.count() >= 2)
+        if (m_linked && (m_cursors2x.count() >= 2))
         {
             if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
             if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
@@ -344,7 +373,7 @@ void WidgetWaveform::mouseDoubleClickEvent(QMouseEvent *event)
         m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
 
         // If the first two cursors are linked together, move them both
-        if (m_linked && m_cursors2x.count() >= 2)
+        if (m_linked && (m_cursors2x.count() >= 2))
         {
             if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
             if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);

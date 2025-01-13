@@ -23,6 +23,7 @@ public slots:
     void onDecorated(bool isDecorated); // Toggles bus value decorations
     void onZoom(bool isUp);             // Zooms in and out by a predefined step
     void onEnlarge(int delta);          // Vertically enlarge the view
+    void onRunStopped();                // Simulation run stopped
 
 private:
     DockWaveform *m_dock {};
