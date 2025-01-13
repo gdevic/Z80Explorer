@@ -156,13 +156,18 @@ void DockWaveform::add(QString name)
  */
 void DockWaveform::eventNetName(Netop op, const QString name, const net_t net)
 {
-    viewitem *a = find(net);
-    switch (op)
+    for (auto &i : m_view)
     {
-        case Netop::SetName: if (a) a->name = name; break;
-        case Netop::Rename: if (a) a->name = name; break;
-        case Netop::DeleteName: if (a) a->name = QString("(%1)").arg(net); break;
-        case Netop::Changed: rebuildList(); break;
+        if (i.net == net)
+        {
+            switch (op)
+            {
+                case Netop::SetName: i.name = name; break;
+                case Netop::Rename: i.name = name; break;
+                case Netop::DeleteName: i.name = QString("(%1)").arg(net); break;
+                case Netop::Changed: rebuildList(); break;
+            }
+        }
     }
 }
 
