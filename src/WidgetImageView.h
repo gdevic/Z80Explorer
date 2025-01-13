@@ -31,11 +31,11 @@ public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
     void syncView(QPointF pos, qreal zoom)
         { moveTo(pos); setZoom(zoom); } // Handle broadcast to sync all image views
-    void setImage(int, bool blend);     // Sets or blends an image layer by its index
+    void setImage(uint img, bool blend);// Sets or blends an image layer by its index
     void setLayer(QString id)           //* Sets the layer id (“1”...”k”)
-        { setImage( QString("123456789abcdefghijk").indexOf(id), false ); }
+        { setImage(QString("123456789abcdefghijk").indexOf(id), false ); }
     void addLayer(QString id)           //* Adds the layer id (“1”...”k”) to the one(s) already set
-        { setImage( QString("123456789abcdefghijk").indexOf(id), true ); }
+        { setImage(QString("123456789abcdefghijk").indexOf(id), true ); }
     void setZoom(qreal);                //* Sets the zoom value
     void setPos(uint x, uint y)         //* Sets the image position
         { moveTo(QPointF(qreal(x) / m_image.width(), qreal(y) / m_image.height())); }

@@ -258,10 +258,10 @@ bool ClassChip::loadTransdefs(QString dir)
  * Returns a reference to the image by the image index.
  * Returns the very first image if the index is outside the stored images count
  */
-QImage &ClassChip::getImage(uint i)
+QImage &ClassChip::getImage(uint img)
 {
-    if (i < uint(m_img.count()))
-        return m_img[i];
+    if (img < uint(m_img.count()))
+        return m_img[img];
     return m_img[0];
 }
 

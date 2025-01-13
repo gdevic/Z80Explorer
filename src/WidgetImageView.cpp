@@ -78,7 +78,7 @@ void WidgetImageView::init(QString sid)
 
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
-    connect(m_ov, SIGNAL(actionSetImage(int,bool)), this, SLOT(setImage(int,bool)));
+    connect(m_ov, SIGNAL(actionSetImage(uint,bool)), this, SLOT(setImage(uint,bool)));
     // Map overlay buttons directly to our keyboard handler and pass the corresponding key commands
     connect(m_ov, &WidgetImageOverlay::actionButton, this, [this](int i)
             {
@@ -709,24 +709,21 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void WidgetImageView::setImage(int i, bool blend)
+void WidgetImageView::setImage(uint img, bool blend)
 {
-    if (i >= 0)
+    if (blend) // Blend multiple images
     {
-        if (blend) // Blend multiple images
-        {
-            QImage &image = ::controller.getChip().getImage(i);
-            QPainter painter(&m_image);
-            painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
-            painter.drawImage(0,0, image);
-            painter.end();
-            m_ov->selectImageButton(i, true);
-        }
-        else // Simple image view
-        {
-            m_image = ::controller.getChip().getImage(i); // Creates a shallow image copy
-            m_ov->selectImageButton(i, false);
-        }
+        QImage &image = ::controller.getChip().getImage(img);
+        QPainter painter(&m_image);
+        painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
+        painter.drawImage(0,0, image);
+        painter.end();
+        m_ov->selectImageButton(img, true);
+    }
+    else // Simple image view
+    {
+        m_image = ::controller.getChip().getImage(img); // Creates a shallow image copy
+        m_ov->selectImageButton(img, false);
     }
     update();
 }

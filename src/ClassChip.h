@@ -44,7 +44,7 @@ public:
     ClassChip() {};
 
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
-    QImage &getImage(uint i);           // Returns a reference to the image by the image index
+    QImage &getImage(uint img);         // Returns a reference to the image by the image index
     QImage &getImage(QString name, bool &ok); // Returns a reference to the image by the image (embedded) name
 
     template<bool includeVssVcc>

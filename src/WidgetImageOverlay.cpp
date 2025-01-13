@@ -66,7 +66,7 @@ void WidgetImageOverlay::setCoords(const QString coords)
 void WidgetImageOverlay::createImageButtons(QStringList imageNames)
 {
     static const QString c = "123456789abcdefghijklmnopq";
-    for (int i=0; i < imageNames.count(); i++)
+    for (uint i=0; i < imageNames.count(); i++)
     {
         QPushButton *p = new QPushButton(this);
         m_imageButtons.append(p);
