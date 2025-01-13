@@ -23,6 +23,7 @@ public:
     void setButton(uint i, bool checked);
     void setCoords(const QString coords);
     void createImageButtons(QStringList imageNames);
+    QString getLayers();                        // Returns a string containing the status of the image layer visibility
 
 signals:
     void actionButton(int i);                   // User clicked on one of the buttons on the top

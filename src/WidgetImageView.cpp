@@ -45,6 +45,9 @@ WidgetImageView::~WidgetImageView()
     settings.setValue("imageViewDrawAnnotations-" + whatsThis(), m_drawAnnotations);
     settings.setValue("imageViewDrawActiveTransistors-" + whatsThis(), m_drawActiveTransistors);
     settings.setValue("imageViewDrawLatches-" + whatsThis(), m_drawLatches);
+
+    QString layers = m_ov->getLayers();
+    settings.setValue("imageViewLayers-" + whatsThis(), layers);
 }
 
 /*
@@ -72,7 +75,14 @@ void WidgetImageView::init(QString sid)
     m_ov->setButton(3, m_drawLatches);
 
     m_ov->createImageButtons(::controller.getChip().getImageNames());
-    setImage(1, false); // Display the second image (colored nets)
+
+    QString layers = settings.value("imageViewLayers-" + whatsThis(), "01").toString();
+    for (uint i=0, blend=0; i<layers.size(); i++)
+    {
+        if (layers.at(i)=='1')
+            setImage(i, blend++);
+    }
+
     m_scale = 0.19; // Arbitrary initial scaling.. looks perfect on my monitor ;-)
     setZoomMode(Value);
 

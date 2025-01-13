@@ -83,6 +83,17 @@ void WidgetImageOverlay::createImageButtons(QStringList imageNames)
 }
 
 /*
+ * Returns a string containing the status of the image layer visibility
+ */
+QString WidgetImageOverlay::getLayers()
+{
+    QString layers;
+    for (uint i=0; i < m_imageButtons.size(); i++)
+        layers.append((m_imageButtons[i]->isFlat()) ? '1' : '0');
+    return layers;
+}
+
+/*
  * Called by the editFind edit widget when the user presses the Enter key
  */
 void WidgetImageOverlay::onFind()
