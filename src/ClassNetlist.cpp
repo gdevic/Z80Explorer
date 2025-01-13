@@ -250,12 +250,41 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                 qDebug() << "Skipping" << line;
         }
         qInfo() << "Loaded" << count << "transistor definitions";
-        qInfo() << "Max net index" << max;
+        qInfo() << "Index of the last connected net" << max;
         count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net &net)
             { return !!(net.gates.count() || net.c1c2s.count()); });
-        qInfo() << "Number of nets" << count;
+        qInfo() << "Total number of nets" << count;
+
+        count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net& net)
+            { return (net.gates.count() == 0) && (net.c1c2s.count() == 0); });
+        qInfo() << "Number of bogus (disconnected) nets" << (count - 1); // Ignore net #0
+
         count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](Trans &t) { return t.id; });
         qInfo() << "Number of transistors" << count;
+
+#if 0 // Optionally dump the netlist connections to a text file
+        {
+            QFile file("dump-netist.txt");
+            // Open the file for writing. Use QIODevice::Text to handle text files.
+            if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                qWarning() << "Could not open file for writing:" << file.errorString();
+                return false;
+            }
+            QTextStream out(&file);
+            for (auto index=0; index<m_netlist.count(); index++)
+            {
+                if (m_netlist[index].gates.count() || m_netlist[index].c1c2s.count())
+                    out << index << " " << ::controller.getNetlist().get(index) << " Gates: " << m_netlist[index].gates.count() << " c1,c2: " << m_netlist[index].c1c2s.count() << "\n";
+            }
+            out << "------ NETS WITH G=0, C1C2=0:------\n";
+            for (auto index=0; index<m_netlist.count(); index++)
+            {
+                if (!m_netlist[index].gates.count() && !m_netlist[index].c1c2s.count())
+                    out << index << " " << ::controller.getNetlist().get(index) << " Gates: " << m_netlist[index].gates.count() << " c1,c2: " << m_netlist[index].c1c2s.count() << "\n";
+            }
+            file.close();
+        }
+#endif
         return true;
     }
     qCritical() << "Error opening transdefs.js";
