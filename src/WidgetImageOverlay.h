@@ -13,7 +13,7 @@ class WidgetImageOverlay : public QWidget
     Q_OBJECT
 
 public:
-    explicit WidgetImageOverlay(QWidget *parent);
+    explicit WidgetImageOverlay(QWidget *parent, QString sid);
     ~WidgetImageOverlay();
 
     void setInfoLine(uint index, QString text);

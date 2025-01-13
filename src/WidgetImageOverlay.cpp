@@ -1,11 +1,12 @@
 #include "WidgetImageOverlay.h"
 #include "ui_WidgetImageOverlay.h"
 
-WidgetImageOverlay::WidgetImageOverlay(QWidget *parent) :
+WidgetImageOverlay::WidgetImageOverlay(QWidget *parent, QString sid) :
     QWidget(parent),
     ui(new Ui::WidgetImageOverlay)
 {
     ui->setupUi(this);
+	setWhatsThis(sid);
 
     connect(ui->editFind, &QLineEdit::returnPressed, this, &WidgetImageOverlay::onFind);
     connect(ui->btCoords, &QPushButton::clicked, this, &WidgetImageOverlay::actionCoords);

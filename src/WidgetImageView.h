@@ -21,7 +21,7 @@ class WidgetImageView : public QWidget
 
 public:
     explicit WidgetImageView(QWidget *parent = nullptr);
-    void init();
+    void init(QString sid);
     enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes
     Q_ENUM(ZoomType);                   // Register enum names inside a QMetaObject
 
@@ -81,7 +81,7 @@ private:
     QTransform m_invtx;                 // Transformation matrix from screen to normalized image space
     QRect   m_viewPort;                 // Bounding rectangle of the current screen view
     QQueue<qreal> m_perf;               // Helps calculate the rolling average of the painter's performance
-    WidgetImageOverlay *m_ov;           // Image overlay class
+    WidgetImageOverlay *m_ov {};        // Image overlay class
     QTimer  m_timer;                    // Image refresh timer updates image every 1/2 seconds to show highlight blink
     uint    m_timer_tick;               // Timer timeout tick counter
     bool    m_enable_ctrl {};           // Initial disable of Ctrl key until we have fully constructed our view

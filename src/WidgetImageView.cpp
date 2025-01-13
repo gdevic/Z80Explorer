@@ -28,22 +28,6 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     setCursor(QCursor(Qt::CrossCursor));
     setAcceptDrops(true);
 
-    // Create and set the image overlay widget
-    m_ov = new WidgetImageOverlay(this);
-    m_ov->setParent(this);
-    m_ov->move(10, 10);
-    m_ov->show();
-
-    connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
-    connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
-    connect(m_ov, SIGNAL(actionSetImage(int)), this, SLOT(setImage(int)));
-    // Map overlay buttons directly to our keyboard handler and pass the corresponding key commands
-    connect(m_ov, &WidgetImageOverlay::actionButton, this, [this](int i)
-    {
-        static const int key[4] = { Qt::Key_X, Qt::Key_Space, Qt::Key_T, Qt::Key_L };
-        QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
-        keyPressEvent(&event);
-    });
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
     // Called by the sim when the current run stops at a given half-cycle
     connect(&::controller, &ClassController::onRunStopped, this, [=]() { update(); });
@@ -56,8 +40,27 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
 /*
  * Init function called after all the images have been loaded so we can prepare the initial view
  */
-void WidgetImageView::init()
+void WidgetImageView::init(QString sid)
 {
+    setWhatsThis(sid);
+
+    // Create and set the image overlay widget
+    m_ov = new WidgetImageOverlay(this, sid);
+    m_ov->setParent(this);
+    m_ov->move(10, 10);
+    m_ov->show();
+
+    connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
+    connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
+    connect(m_ov, SIGNAL(actionSetImage(int)), this, SLOT(setImage(int)));
+    // Map overlay buttons directly to our keyboard handler and pass the corresponding key commands
+    connect(m_ov, &WidgetImageOverlay::actionButton, this, [this](int i)
+            {
+                static const int key[4] = { Qt::Key_X, Qt::Key_Space, Qt::Key_T, Qt::Key_L };
+                QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
+                keyPressEvent(&event);
+            });
+
     m_ov->setImageNames(::controller.getChip().getImageNames());
     setImage(1); // Display the second image (colored nets)
     m_scale = 0.19; // Arbitrary initial scaling.. looks perfect on my monitor ;-)

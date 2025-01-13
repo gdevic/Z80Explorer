@@ -69,7 +69,7 @@ class DockWaveform : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit DockWaveform(QWidget *parent, uint id);
+    explicit DockWaveform(QWidget *parent, QString sid);
     ~DockWaveform();
 
     inline viewitem *getFirst(int &it)  // Iterator
@@ -105,7 +105,6 @@ private:
 
 private:
     Ui::DockWaveform *ui;
-    uint m_id;                          // This dock ID value
 
     QVector<viewitem> m_view;           // A collection of view items
 

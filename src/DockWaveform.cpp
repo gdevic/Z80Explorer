@@ -13,17 +13,17 @@
 #include <QSettings>
 #include <QStringBuilder>
 
-DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
-    ui(new Ui::DockWaveform),
-    m_id(id)
+DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
+    ui(new Ui::DockWaveform)
 {
     ui->setupUi(this);
-    setWindowTitle("Waveform " + QString::number(m_id));
+    setWhatsThis(sid);
+    setWindowTitle("Waveform " + sid);
     ui->widgetWaveform->setDock(this);
     ui->btLink->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     ui->btDecorated->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     QSettings settings;
-    restoreGeometry(settings.value("dockWaveformGeometry-" + QString::number(m_id)).toByteArray());
+    restoreGeometry(settings.value("dockWaveformGeometry-" + sid).toByteArray());
     m_sectionSize = settings.value("dockWaveHeight", 20).toInt();
     onEnlarge(0);
 
@@ -51,7 +51,7 @@ DockWaveform::DockWaveform(QWidget *parent, uint id) : QDockWidget(parent),
 
     // Load default viewlist for this window id
     QString resDir = settings.value("ResourceDir").toString();
-    m_fileViewlist = settings.value("waveform-" + QString::number(m_id), resDir + "/waveform-" + QString::number(id) + ".json").toString();
+    m_fileViewlist = settings.value("waveform-" + sid, resDir + "/waveform-" + sid + ".json").toString();
     load(m_fileViewlist);
 
     rebuildList();
@@ -64,7 +64,7 @@ DockWaveform::~DockWaveform()
         save(m_fileViewlist);
 
     QSettings settings;
-    settings.setValue("dockWaveformGeometry-" + QString::number(m_id), saveGeometry());
+    settings.setValue("dockWaveformGeometry-" + whatsThis(), saveGeometry());
     settings.setValue("dockWaveHeight", m_sectionSize);
 
     delete ui;

@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QJSEngine *sc) :
     ui->setupUi(this);
 
     // Initialize image view that is embedded within the central pane
-    ui->widgetImageView->init();
+    ui->widgetImageView->init(QString::number(m_lastImageWndId)); // "0"
     sc->globalObject().setProperty("img", sc->newQObject(ui->widgetImageView));
     sc->setObjectOwnership(ui->widgetImageView, QJSEngine::CppOwnership);
 
@@ -182,7 +182,8 @@ void MainWindow::onNewImageView()
 {
     if (m_lastImageWndId < 4)
     {
-        DockImageView *w = new DockImageView(this, ++m_lastImageWndId);
+        m_lastImageWndId++;
+        DockImageView *w = new DockImageView(this, QString::number(m_lastImageWndId));
         ui->menuWindow->addAction(w->toggleViewAction());
         w->show();
     }
@@ -197,7 +198,8 @@ void MainWindow::onNewWaveformView()
 {
     if (m_lastWaveWndId < 4)
     {
-        DockWaveform *w = new DockWaveform(this, ++m_lastWaveWndId);
+        m_lastWaveWndId++;
+        DockWaveform *w = new DockWaveform(this, QString::number(m_lastWaveWndId));
         ui->menuWindow->addAction(w->toggleViewAction());
         w->show();
     }

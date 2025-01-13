@@ -2,23 +2,23 @@
 #include "ui_DockImageView.h"
 #include <QSettings>
 
-DockImageView::DockImageView(QWidget *parent, uint id) :
+DockImageView::DockImageView(QWidget *parent, QString sid) :
     QDockWidget(parent),
-    ui(new Ui::DockImageView),
-    m_id(id)
+    ui(new Ui::DockImageView)
 {
     ui->setupUi(this);
-    setWindowTitle("Image View " + QString::number(m_id));
+    setWhatsThis(sid);
+    setWindowTitle("Image View " + sid);
     QSettings settings;
-    restoreGeometry(settings.value("dockImageviewGeometry-" + QString::number(m_id)).toByteArray());
+    restoreGeometry(settings.value("dockImageviewGeometry-" + sid).toByteArray());
 
-    ui->pane->init();
+    ui->pane->init(sid);
 }
 
 DockImageView::~DockImageView()
 {
     QSettings settings;
-    settings.setValue("dockImageviewGeometry-" + QString::number(m_id), saveGeometry());
+    settings.setValue("dockImageviewGeometry-" + whatsThis(), saveGeometry());
 
     delete ui;
 }
