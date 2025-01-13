@@ -68,7 +68,11 @@ void WidgetImageOverlay::setImageNames(QStringList images)
         QPushButton *p = new QPushButton(this);
         p->setStyleSheet("text-align:left;");
         p->setText(QString(c[i % c.length()]) + " ... " + images[i]);
-        connect(p, &QPushButton::clicked, this, [this, i]() { emit actionSetImage(i); });
+        connect(p, &QPushButton::clicked, this, [this, i]()
+                {
+                    bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+                    emit actionSetImage(i, ctrl);
+                });
         ui->layout->addWidget(p);
     }
     ui->layout->setSizeConstraint(QLayout::SetMinimumSize);

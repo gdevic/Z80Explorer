@@ -160,7 +160,7 @@ void MainWindow::onEditColors()
 {
     DialogEditColors dlg(this);
     if (dlg.exec() == QDialog::Accepted)
-        ui->widgetImageView->setImage(1);
+        ui->widgetImageView->setImage(1, false);
 }
 
 /*

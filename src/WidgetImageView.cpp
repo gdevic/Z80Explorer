@@ -60,17 +60,6 @@ void WidgetImageView::init(QString sid)
     m_ov->move(10, 10);
     m_ov->show();
 
-    connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
-    connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
-    connect(m_ov, SIGNAL(actionSetImage(int)), this, SLOT(setImage(int)));
-    // Map overlay buttons directly to our keyboard handler and pass the corresponding key commands
-    connect(m_ov, &WidgetImageOverlay::actionButton, this, [this](int i)
-            {
-                static const int key[4] = { Qt::Key_X, Qt::Key_Space, Qt::Key_T, Qt::Key_L };
-                QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
-                keyPressEvent(&event);
-            });
-
     QSettings settings;
     m_drawActiveNets = settings.value("imageViewDrawActiveNets-" + whatsThis(), false).toBool();
     m_drawAnnotations = settings.value("imageViewDrawAnnotations-" + whatsThis(), true).toBool();
@@ -83,10 +72,20 @@ void WidgetImageView::init(QString sid)
     m_ov->setButton(3, m_drawLatches);
 
     m_ov->setImageNames(::controller.getChip().getImageNames());
-    setImage(1); // Display the second image (colored nets)
+    setImage(1, false); // Display the second image (colored nets)
     m_scale = 0.19; // Arbitrary initial scaling.. looks perfect on my monitor ;-)
     setZoomMode(Value);
-    m_enable_ctrl = true; // Now it is safe to enable Ctrl modifier key
+
+    connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
+    connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
+    connect(m_ov, SIGNAL(actionSetImage(int,bool)), this, SLOT(setImage(int,bool)));
+    // Map overlay buttons directly to our keyboard handler and pass the corresponding key commands
+    connect(m_ov, &WidgetImageOverlay::actionButton, this, [this](int i)
+            {
+                static const int key[4] = { Qt::Key_X, Qt::Key_Space, Qt::Key_T, Qt::Key_L };
+                QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
+                keyPressEvent(&event);
+            });
 }
 
 /*
@@ -627,7 +626,9 @@ void WidgetImageView::leaveEvent(QEvent *)
 
 void WidgetImageView::keyPressEvent(QKeyEvent *event)
 {
+    bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
     bool shift = QGuiApplication::keyboardModifiers().testFlag(Qt::ShiftModifier);
+
     // Approximate image move offsets in the texture space
     qreal dx = qreal(m_image.width()) / (m_viewPort.width() * m_scale * 100);
     qreal dy = qreal(m_image.height()) / (m_viewPort.height() * m_scale * 200);
@@ -639,7 +640,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     else if (event->key() >= Qt::Key_A && event->key() <= Qt::Key_K)
         i = event->key() - Qt::Key_A + 9;
     if (i >= 0)
-        return setImage(i);
+        return setImage(i, ctrl);
 
     // Handle the rest of the keys
     switch (event->key())
@@ -701,7 +702,6 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     // Send all other unhandled keys to the script for user custom handling
     // init.js file should define key(code,shift,ctrl) function handler
     default:
-        bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
         bool verbose = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
         QString cmd = QString("key(%1,%2)").arg(event->key()).arg(ctrl);
         ::controller.getScript().exec(cmd, verbose);
@@ -709,12 +709,11 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void WidgetImageView::setImage(int i, bool forceCtrl)
+void WidgetImageView::setImage(int i, bool blend)
 {
-    if (i >= 0) // called from keyPressEvent() might not be selecting an image
+    if (i >= 0)
     {
-        bool ctrl = m_enable_ctrl && QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
-        if (forceCtrl || ctrl) // Compositing multiple images
+        if (blend) // Blend multiple images
         {
             QImage &image = ::controller.getChip().getImage(i);
             QPainter painter(&m_image);

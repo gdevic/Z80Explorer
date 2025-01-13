@@ -31,7 +31,7 @@ public slots:
     void onCoords();                    // Open coordinate dialog and center image on user input coordinates
     void syncView(QPointF pos, qreal zoom)
         { moveTo(pos); setZoom(zoom); } // Handle broadcast to sync all image views
-    void setImage(int, bool f = false); // Sets the image layer by its index, also considers Ctrl key to blend images
+    void setImage(int, bool blend);     // Sets or blends an image layer by its index
     void setLayer(QString id)           //* Sets the layer id (“1”...”k”)
         { setImage( QString("123456789abcdefghijk").indexOf(id), false ); }
     void addLayer(QString id)           //* Adds the layer id (“1”...”k”) to the one(s) already set
@@ -86,7 +86,6 @@ private:
     WidgetImageOverlay *m_ov {};        // Image overlay class
     QTimer  m_timer;                    // Image refresh timer updates image every 1/2 seconds to show highlight blink
     uint    m_timer_tick;               // Timer timeout tick counter
-    bool    m_enable_ctrl {};           // Initial disable of Ctrl key until we have fully constructed our view
 
     const segvdef *m_highlight_segment {}; // Segment to highlight in the current image
     const QRect *m_highlight_trans {};  // Transistor bounding rectangle to highlight in the current image
