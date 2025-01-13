@@ -15,6 +15,7 @@
 #include <QPainter>
 #include <QRegularExpression>
 #include <QResizeEvent>
+#include <QSettings>
 #include <QToolTip>
 
 WidgetImageView::WidgetImageView(QWidget *parent) :
@@ -35,6 +36,15 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
 
     connect(&m_timer, &QTimer::timeout, this, &WidgetImageView::onTimeout);
     m_timer.start(500);
+}
+
+WidgetImageView::~WidgetImageView()
+{
+    QSettings settings;
+    settings.setValue("imageViewDrawActiveNets-" + whatsThis(), m_drawActiveNets);
+    settings.setValue("imageViewDrawAnnotations-" + whatsThis(), m_drawAnnotations);
+    settings.setValue("imageViewDrawActiveTransistors-" + whatsThis(), m_drawActiveTransistors);
+    settings.setValue("imageViewDrawLatches-" + whatsThis(), m_drawLatches);
 }
 
 /*
@@ -60,6 +70,17 @@ void WidgetImageView::init(QString sid)
                 QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
                 keyPressEvent(&event);
             });
+
+    QSettings settings;
+    m_drawActiveNets = settings.value("imageViewDrawActiveNets-" + whatsThis(), false).toBool();
+    m_drawAnnotations = settings.value("imageViewDrawAnnotations-" + whatsThis(), true).toBool();
+    m_drawActiveTransistors = settings.value("imageViewDrawActiveTransistors-" + whatsThis(), true).toBool();
+    m_drawLatches = settings.value("imageViewDrawLatches-" + whatsThis(), false).toBool();
+
+    m_ov->setButton(0, m_drawActiveNets);
+    m_ov->setButton(1, m_drawAnnotations);
+    m_ov->setButton(2, m_drawActiveTransistors);
+    m_ov->setButton(3, m_drawLatches);
 
     m_ov->setImageNames(::controller.getChip().getImageNames());
     setImage(1); // Display the second image (colored nets)

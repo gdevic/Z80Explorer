@@ -21,6 +21,8 @@ class WidgetImageView : public QWidget
 
 public:
     explicit WidgetImageView(QWidget *parent = nullptr);
+    ~WidgetImageView();
+
     void init(QString sid);
     enum ZoomType { Fit, Fill, Identity, Value }; // List of possible zoom modes
     Q_ENUM(ZoomType);                   // Register enum names inside a QMetaObject
@@ -89,12 +91,12 @@ private:
     const segvdef *m_highlight_segment {}; // Segment to highlight in the current image
     const QRect *m_highlight_trans {};  // Transistor bounding rectangle to highlight in the current image
     QRect m_r;                          // Rectangle used by the show() scripting command to highlight a rectangle
-    bool m_drawActiveNets {false};      // Draw active nets
+    bool m_drawActiveNets;              // Draw active nets
     uint m_drawActiveNetsOrder {0};     // The order of drawing active nets bit[0], auto toggle bit[1]
-    bool m_drawAnnotations {true};      // Draw image annotations
-    bool m_drawActiveTransistors {true};// Draw currently active transistors
+    bool m_drawAnnotations;             // Draw image annotations
+    bool m_drawActiveTransistors;       // Draw currently active transistors
     bool m_drawAllTransistors {false};  // Draw all transistors (irrespective of their state)
-    bool m_drawLatches {false};         // Draw latches
+    bool m_drawLatches;                 // Draw latches
     bool m_drawNetNames {true};         // Dynamically write nearby net names (experimental)
     QString m_dropppedFile;             // File name of the file being dropped by a drag-and-drop operation
 

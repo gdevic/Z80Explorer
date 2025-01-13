@@ -6,7 +6,7 @@ WidgetImageOverlay::WidgetImageOverlay(QWidget *parent, QString sid) :
     ui(new Ui::WidgetImageOverlay)
 {
     ui->setupUi(this);
-	setWhatsThis(sid);
+    setWhatsThis(sid);
 
     connect(ui->editFind, &QLineEdit::returnPressed, this, &WidgetImageOverlay::onFind);
     connect(ui->btCoords, &QPushButton::clicked, this, &WidgetImageOverlay::actionCoords);
