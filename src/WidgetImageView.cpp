@@ -71,7 +71,7 @@ void WidgetImageView::init(QString sid)
     m_ov->setButton(2, m_drawActiveTransistors);
     m_ov->setButton(3, m_drawLatches);
 
-    m_ov->setImageNames(::controller.getChip().getImageNames());
+    m_ov->createImageButtons(::controller.getChip().getImageNames());
     setImage(1, false); // Display the second image (colored nets)
     m_scale = 0.19; // Arbitrary initial scaling.. looks perfect on my monitor ;-)
     setZoomMode(Value);
@@ -720,12 +720,12 @@ void WidgetImageView::setImage(int i, bool blend)
             painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
             painter.drawImage(0,0, image);
             painter.end();
-            m_ov->selectImage(image.text("name"), true);
+            m_ov->selectImageButton(i, true);
         }
         else // Simple image view
         {
             m_image = ::controller.getChip().getImage(i); // Creates a shallow image copy
-            m_ov->selectImage(m_image.text("name"), false);
+            m_ov->selectImageButton(i, false);
         }
     }
     update();

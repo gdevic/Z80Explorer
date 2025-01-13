@@ -60,14 +60,18 @@ void WidgetImageOverlay::setCoords(const QString coords)
     ui->btCoords->setText(coords);
 }
 
-void WidgetImageOverlay::setImageNames(QStringList images)
+/*
+ * Called at init time to create a list of push buttons, each corresponding to one image from the list
+ */
+void WidgetImageOverlay::createImageButtons(QStringList imageNames)
 {
-    const QString c = "123456789abcdefghijklmnopq";
-    for (int i=0; i < images.count(); i++)
+    static const QString c = "123456789abcdefghijklmnopq";
+    for (int i=0; i < imageNames.count(); i++)
     {
         QPushButton *p = new QPushButton(this);
+        m_imageButtons.append(p);
         p->setStyleSheet("text-align:left;");
-        p->setText(QString(c[i % c.length()]) + " ... " + images[i]);
+        p->setText(QString(c[i % c.length()]) + " ... " + imageNames[i]);
         connect(p, &QPushButton::clicked, this, [this, i]()
                 {
                     bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
@@ -92,11 +96,12 @@ void WidgetImageOverlay::onFind()
  * Called when an image is selected to highlight the corresponding button
  * If blend is true, other buttons will not be reset
  */
-void WidgetImageOverlay::selectImage(QString name, bool blend)
+void WidgetImageOverlay::selectImageButton(uint img, bool blend)
 {
-    for (auto &pb : findChildren<QPushButton *>())
+    for (uint i=0; i < m_imageButtons.count(); i++)
     {
-        if (name == pb->text().mid(6))
+        QPushButton *pb = m_imageButtons[i];
+        if (i == img)
             pb->setFlat(!pb->isFlat() || !blend);
         else if (!blend) // If we are not blending, reset other buttons
             pb->setFlat(false);

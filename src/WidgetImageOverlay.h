@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class QPushButton;
+
 namespace Ui { class WidgetImageOverlay; }
 
 /*
@@ -20,7 +22,7 @@ public:
     void clearInfoLine(uint index);
     void setButton(uint i, bool checked);
     void setCoords(const QString coords);
-    void setImageNames(QStringList images);
+    void createImageButtons(QStringList imageNames);
 
 signals:
     void actionButton(int i);               // User clicked on one of the buttons on the top
@@ -29,13 +31,14 @@ signals:
     void actionSetImage(int i, bool blend); // Sets or blends an image by its index
 
 public slots:
-    void selectImage(QString name, bool blend);
+    void selectImageButton(uint img, bool blend);
 
 private slots:
     void onFind();                          // Called by the editFind edit widget when the user presses the Enter key
 
 private:
     Ui::WidgetImageOverlay *ui;
+    QVector<QPushButton *> m_imageButtons;  // List of image buttons
 };
 
 #endif // WIDGETIMAGEOVERLAY_H
