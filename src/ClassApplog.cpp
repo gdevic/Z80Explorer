@@ -82,7 +82,10 @@ void CAppLogHandler::SetLogOptions(int logoption)
     else
     {
         if (flog.is_open())
+        {
             flog.close();
+            emit NewLogMessage("Closing log file.", false);
+        }
     }
 }
 
@@ -139,7 +142,10 @@ void CAppLogHandler::InitLogFile()
         flog.open(file.toStdString().c_str());
 
     if (flog.is_open())
+    {
         flog << "-------- " << m_log_name.toStdString() << " --------\n\n";
+        emit NewLogMessage("Using log file: " + file, false);
+    }
 }
 
 QString CAppLogHandler::GetCurrentTimeString()
