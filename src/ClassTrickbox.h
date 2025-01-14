@@ -44,6 +44,7 @@ public slots:
     quint8 readIO(quint16 ab);              //* Reads from simulated IO space
     void writeIO(quint16 ab, quint8 db);    //* Writes to simulated IO space
     const QString readState();              //* Reads sim monitor state
+    uint getHCycle();                       //* Returns the current half-cycle simulation value
     void stopAt(quint16 hcycle)             //* Stops execution at the given hcycle
         { m_trick->cycleStop = hcycle; emit refresh(); }
     void breakWhen(quint16 net, quint8 value); //* Stops running when the given net number's state equals the value

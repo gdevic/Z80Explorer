@@ -136,6 +136,14 @@ const QString ClassTrickbox::readState()
 }
 
 /*
+ * Returns the current half-cycle simulation value
+ */
+uint ClassTrickbox::getHCycle()
+{
+    return ::controller.getSimZ80().getCurrentHCycle();
+}
+
+/*
  * Called by the simulator on every clock with the current half-clock upcounter value
  */
 void ClassTrickbox::onTick(uint ticks)
