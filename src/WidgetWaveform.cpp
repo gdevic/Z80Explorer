@@ -190,13 +190,14 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
 {
     QPen pen(Qt::yellow);
     painter.setPen(pen);
+    uint bottom = r.bottom() - 2; // Lift up the cursors a little bit
 
     // If the cursors are linked together, draw the link line
     if (m_linked && (m_cursors2x.count() >= 2))
     {
         uint x1 = m_cursors2x.at(0) * m_hscale / 2.0;
         uint x2 = m_cursors2x.at(1) * m_hscale / 2.0;
-        uint y = r.bottom() - 1 * m_fontheight;
+        uint y = bottom - 1 * m_fontheight + 1;
         painter.drawLine(x1, y, x2, y);
     }
 
@@ -204,15 +205,15 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
     {
         uint cursorX = m_cursors2x.at(i);
         uint x = cursorX * m_hscale / 2.0;
-        uint y = r.bottom() - i * m_fontheight;
-        painter.drawLine(x, r.top(), x, y);
+        uint y = bottom - i * m_fontheight;
+        painter.drawLine(x, r.top(), x, y + 1);
 
         QString text = QString::number(cursorX / 2 + hstart);
         QRect bb = painter.fontMetrics().boundingRect(text);
         bb.adjust(x, y, x, y);
 
-        painter.drawText(x + 2, r.bottom() - i * m_fontheight, text);
-        painter.drawRect(bb.adjusted(0, 0, 4, 0));
+        painter.drawText(x + 2, bottom - i * m_fontheight, text);
+        painter.drawRect(bb.adjusted(0, 2, 4, -2));
     }
 
     // Draw the selected cursor on top
@@ -220,9 +221,8 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
     {
         pen.setWidth(3);
         painter.setPen(pen);
-        uint i = m_cursor;
-        uint x = m_cursors2x[i] * m_hscale / 2.0;
-        painter.drawLine(x, r.top(), x, r.bottom() - i * m_fontheight + 1);
+        uint x = m_cursors2x[m_cursor] * m_hscale / 2.0;
+        painter.drawLine(x, r.top(), x, bottom - m_cursor * m_fontheight + 1);
 
         emit cursorChanged(m_cursors2x[m_cursor] / 2 + hstart);
     }
