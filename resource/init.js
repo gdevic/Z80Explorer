@@ -42,6 +42,35 @@ function key(code, ctrl)
     {
         setLayer("a"); addLayer("b"); addLayer("d"); addLayer("e");
     }
+
+    //-------------------------------------------------------------------------------
+    // F7 - run 1 half cycle forward
+    if ((code == 0x1000036) && (ctrl == 0))
+        run(1);
+    // F8 - run 2 half cycles forward
+    if ((code == 0x1000037) && (ctrl == 0))
+        run(2);
+    // Ctrl + F7 - run 1 half cycle back (by reset and rerun)
+    if ((code == 0x1000036) && (ctrl == 1))
+    {
+        cycle = mon.getHCycle();
+        if (cycle >= 10)
+        {
+            reset();
+            run(cycle - 9);
+        }
+    }
+    // Ctrl + F8 - run 2 half cycles back (by reset and rerun)
+    if ((code == 0x1000037) && (ctrl == 1))
+    {
+        cycle = mon.getHCycle();
+        if (cycle >= 11)
+        {
+            reset();
+            run(cycle - 10);
+        }
+    }
+    //-------------------------------------------------------------------------------
 }
 
 function help()
