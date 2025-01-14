@@ -26,7 +26,7 @@ function state() { img.state(); }
 function annot(fileName) { img.annot(fileName); }
 
 // Callback for keys that are not handled by the image view
-// You can show the values of (code,ctrl) if you hold down the Alt key while pressing your key combination
+// You can show the values of (code,ctrl) if you hold down the Alt key while pressing a key combination in question
 function key(code, ctrl)
 {
     // Few useful image layer presets
@@ -95,6 +95,7 @@ function help()
     print("mon.writeMem(addr,value) - Writes a byte to the simulated memory");
     print("mon.readIO(addr) - Reads a byte from the simulated IO space");
     print("mon.writeIO(addr,value) - Writes a byte to the simulated IO space");
+    print("mon.getHCycle() - Returns the current half-cycle simulation value");
     print("mon.stopAt(hcycle) - Stops the simulation at a given half-cycle number");
     print("mon.breakWhen(net,value) - Stops the simulation when a given net number becomes 0 or 1");
     print("mon.set(\"name\",value) - Sets an output pin (\"int\",...) to a value");
