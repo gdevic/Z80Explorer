@@ -13,7 +13,7 @@ namespace Ui { class WidgetImageView; }
 
 /*
  * This class implement an image viewer tied to the set of images stored in
- * ClassChip. It allows the user to move and zoom into images.
+ * ClassVisual. It allows the user to move and zoom into images.
  */
 class WidgetImageView : public QWidget
 {

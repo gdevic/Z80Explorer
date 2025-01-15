@@ -22,7 +22,7 @@ public:
 
 public: // API
     inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
-    inline ClassChip     &getChip()       { return m_chip; }      // Returns a reference to the chip class
+    inline ClassVisual   &getChip()       { return m_chip; }      // Returns a reference to the chip class
     inline ClassColors   &getColors()     { return m_colors; }    // Returns a reference to the colors class
     inline ClassScript   &getScript()     { return m_script; }    // Returns a reference to the script class
     inline ClassSimZ80   &getSimZ80()     { return m_simz80; }    // Returns a reference to the Z80 simulator class
@@ -78,7 +78,7 @@ signals:
 
 private:
     ClassAnnotate m_annotate;   // Global annotations
-    ClassChip     m_chip;       // Global chip resource class
+    ClassVisual   m_chip;       // Global visual chip resource class
     ClassColors   m_colors;     // Global application colors
     ClassScript   m_script;     // Global scripting support
     ClassSimZ80   m_simz80;     // Global Z80 simulator class

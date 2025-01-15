@@ -107,7 +107,7 @@ void ClassColors::setColordefs(QVector<colordef> colordefs)
 {
     m_colordefs = colordefs;
     rebuild(); // Update internal color table
-    // Sending this signal will cause ClassChip to redraw its colorized image
+    // Sending this signal will cause ClassVisual to redraw its colorized image
     emit ::controller.eventNetName(Netop::Changed, QString(), 0);
 }
 

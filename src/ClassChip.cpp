@@ -1,4 +1,3 @@
-#include "ClassChip.h"
 #include "ClassController.h"
 #include <QDebug>
 #include <QDir>
@@ -30,7 +29,7 @@
 /*
  * Attempts to load and generate all chip resource that we expect to have
  */
-bool ClassChip::loadChipResources(QString dir)
+bool ClassVisual::loadChipResources(QString dir)
 {
     qInfo() << "Loading chip resources from" << dir;
     // Step 1: Load images and resources sourced from the Visual 6502 project
@@ -78,7 +77,7 @@ bool ClassChip::loadChipResources(QString dir)
 /*
  * Load chip images
  */
-bool ClassChip::loadImages(QString dir)
+bool ClassVisual::loadImages(QString dir)
 {
     // List of z80 chip resource images / layers. "Z80_" and ".png" are appended only when loading the files
     // since we use those names, as layer names, to store them into QImage.text fields
@@ -130,7 +129,7 @@ bool ClassChip::loadImages(QString dir)
  * I had processed that file further to merge each of the nets into single path and we use that
  * as the alternate visual segment representation
  */
-bool ClassChip::loadSegdefs(QString dir)
+bool ClassVisual::loadSegdefs(QString dir)
 {
     if (!loadSegdefsJs(dir))
         return false;
@@ -142,7 +141,7 @@ bool ClassChip::loadSegdefs(QString dir)
 /*
  * Loads segdefs.js legacy segment defintion file
  */
-bool ClassChip::loadSegdefsJs(QString dir)
+bool ClassVisual::loadSegdefsJs(QString dir)
 {
     QString segdefs_file = dir + "/segdefs.js";
     qInfo() << "Loading" << segdefs_file;
@@ -204,7 +203,7 @@ bool ClassChip::loadSegdefsJs(QString dir)
 /*
  * Loads transdefs.js
  */
-bool ClassChip::loadTransdefs(QString dir)
+bool ClassVisual::loadTransdefs(QString dir)
 {
     QString transdefs_file = dir + "/transdefs.js";
     qInfo() << "Loading" << transdefs_file;
@@ -258,7 +257,7 @@ bool ClassChip::loadTransdefs(QString dir)
  * Returns a reference to the image by the image index.
  * Returns the very first image if the index is outside the stored images count
  */
-QImage &ClassChip::getImage(uint img)
+QImage &ClassVisual::getImage(uint img)
 {
     if (img < uint(m_img.count()))
         return m_img[img];
@@ -269,7 +268,7 @@ QImage &ClassChip::getImage(uint img)
  * Returns a reference to the image by the image (embedded) name
  * ok is set to false if the image cannot be found. It is not modified on success
  */
-QImage &ClassChip::getImage(QString name, bool &ok)
+QImage &ClassVisual::getImage(QString name, bool &ok)
 {
     static QImage img_empty;
     for (auto &i : m_img)
@@ -282,7 +281,7 @@ QImage &ClassChip::getImage(QString name, bool &ok)
 /*
  * Sets the given image to be the first one in m_img vector
  */
-void ClassChip::setFirstImage(QString name)
+void ClassVisual::setFirstImage(QString name)
 {
     for (int i=1; i < m_img.count(); i++)
     {
@@ -297,7 +296,7 @@ void ClassChip::setFirstImage(QString name)
 /*
  * Returns a list of layer / image names, text stored with each image
  */
-const QStringList ClassChip::getImageNames()
+const QStringList ClassVisual::getImageNames()
 {
     QStringList names;
     for (auto &image : m_img)
@@ -309,7 +308,7 @@ const QStringList ClassChip::getImageNames()
  * Returns a list of (unique) nets located at the specified image coordinates
  */
 template<bool includeVssVcc>
-const QVector<net_t> ClassChip::getNetsAt(int x, int y)
+const QVector<net_t> ClassVisual::getNetsAt(int x, int y)
 {
     QVector<net_t> list;
     if ((uint(x) >= m_sx) || (uint(y) >= m_sy))
@@ -356,13 +355,13 @@ const QVector<net_t> ClassChip::getNetsAt(int x, int y)
 }
 
 // Explicit instantiation so we don't have to keep the templated code in a header file
-template const QVector<net_t> ClassChip::getNetsAt<true>(int, int);
-template const QVector<net_t> ClassChip::getNetsAt<false>(int, int);
+template const QVector<net_t> ClassVisual::getNetsAt<true>(int, int);
+template const QVector<net_t> ClassVisual::getNetsAt<false>(int, int);
 
 /*
  * Returns the segment visual definition, zero if not found
  */
-const segvdef *ClassChip::getSegment(net_t net)
+const segvdef *ClassVisual::getSegment(net_t net)
 {
     static const segvdef empty;
     if (use_alt_segdef && m_segvdefs2.contains(net))
@@ -374,7 +373,7 @@ const segvdef *ClassChip::getSegment(net_t net)
 /*
  * Returns transistor visual definition, nullptr if not found
  */
-const transvdef *ClassChip::getTrans(tran_t id)
+const transvdef *ClassVisual::getTrans(tran_t id)
 {
     if ((id < MAX_TRANS) && id)
     {
@@ -390,7 +389,7 @@ const transvdef *ClassChip::getTrans(tran_t id)
 /*
  * Returns a transistor at the specified image coordinates or 0 for no transistor
  */
-tran_t ClassChip::getTransistorAt(int x, int y)
+tran_t ClassVisual::getTransistorAt(int x, int y)
 {
     if ((uint(x) >= m_sx) || (uint(y) >= m_sy))
         return 0;
@@ -410,7 +409,7 @@ tran_t ClassChip::getTransistorAt(int x, int y)
 /*
  * Returns the list of features at the specified image coordinates
  */
-QString ClassChip::getFeaturesAt(int x, int y)
+QString ClassVisual::getFeaturesAt(int x, int y)
 {
     if ((uint(x) >= m_sx) || (uint(y) >= m_sy))
         return QString();
@@ -441,7 +440,7 @@ QString ClassChip::getFeaturesAt(int x, int y)
 /*
  * Inserts an image of the transistors layer
  */
-bool ClassChip::addTransistorsLayer()
+bool ClassVisual::addTransistorsLayer()
 {
     QImage trans(m_sx, m_sy, QImage::Format_ARGB32);
     drawTransistors(trans);
@@ -453,7 +452,7 @@ bool ClassChip::addTransistorsLayer()
 /*
  * Draws transistors on the given image surface
  */
-void ClassChip::drawTransistors(QImage &img)
+void ClassVisual::drawTransistors(QImage &img)
 {
     QPainter painter(&img);
     painter.setBrush(Qt::darkGray);
@@ -467,7 +466,7 @@ void ClassChip::drawTransistors(QImage &img)
 /*
  * Converts loaded images to grayscale format
  */
-bool ClassChip::convertToGrayscale()
+bool ClassVisual::convertToGrayscale()
 {
     qInfo() << "Converting images to grayscale format...";
     QEventLoop e; // Don't freeze the GUI
@@ -487,7 +486,7 @@ bool ClassChip::convertToGrayscale()
 /*
  * Loads layer map
  */
-bool ClassChip::loadLayerMap(QString dir)
+bool ClassVisual::loadLayerMap(QString dir)
 {
     QString fileName = dir + "/layermap.bin";
     qInfo() << "Loading" << fileName;
@@ -513,7 +512,7 @@ bool ClassChip::loadLayerMap(QString dir)
 /*
  * Builds the feature map from individual layer images of a die
  */
-void ClassChip::buildFeatureMap()
+void ClassVisual::buildFeatureMap()
 {
     qInfo() << "Building the feature map";
     bool ok = true;
@@ -611,7 +610,7 @@ void ClassChip::buildFeatureMap()
  * Given #1, top-left pixel on each via block is chosen as a reprenentative
  * There are features on the vias' images that are not square, but those are not functional vias
  */
-void ClassChip::shrinkVias(QString source, QString dest)
+void ClassVisual::shrinkVias(QString source, QString dest)
 {
     qInfo() << "Shrinking the via map" << source << "into" << dest;
     bool ok = true;
@@ -659,7 +658,7 @@ void ClassChip::shrinkVias(QString source, QString dest)
 /*
  * Creates a color image from the layer map data
  */
-void ClassChip::createLayerMapImage(QString name, bool onlyVssVcc)
+void ClassVisual::createLayerMapImage(QString name, bool onlyVssVcc)
 {
     // Out of 3 layers, compose one visual image that we'd like to see
     uint16_t *p = new uint16_t[m_mapsize];
@@ -685,7 +684,7 @@ void ClassChip::createLayerMapImage(QString name, bool onlyVssVcc)
 /*
  * Draws all nets as inactive into the given image
  */
-void ClassChip::drawAllNetsAsInactive(QString source, QString dest)
+void ClassVisual::drawAllNetsAsInactive(QString source, QString dest)
 {
     qInfo() << "Drawing all nets as inactive on top of" << source << "into" << dest;
     bool ok = true;
@@ -711,7 +710,7 @@ void ClassChip::drawAllNetsAsInactive(QString source, QString dest)
 /*
  * Redraws all nets using the color assigned to each net
  */
-void ClassChip::redrawNetsColorize(QString source, QString dest)
+void ClassVisual::redrawNetsColorize(QString source, QString dest)
 {
     qInfo() << "Redrawing all nets/colorize" << source << "into" << dest;
     bool ok = true;
@@ -774,7 +773,7 @@ struct xyl
 /*
  * Fills layer map (this class' m_p3) from the feature bitmap (given by p_map pointer)
  */
-void ClassChip::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id)
+void ClassVisual::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id)
 {
     const uchar layerMasks[3] = { DIFF, POLY, METAL };
 
@@ -839,7 +838,7 @@ void ClassChip::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uin
     }
 }
 
-void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
+void ClassVisual::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
 {
     bool ok = true;
     // Get a pointer to the first byte of the feature map data
@@ -857,7 +856,7 @@ void ClassChip::drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id)
 /*
  * Fills layer map with vss and vcc
  */
-void ClassChip::fillLayerMap()
+void ClassVisual::fillLayerMap()
 {
     qInfo() << "Fill layer map with vss and vcc";
 
@@ -868,7 +867,7 @@ void ClassChip::fillLayerMap()
 /*
  * Saves layer map to a file
  */
-void ClassChip::saveLayerMap()
+void ClassVisual::saveLayerMap()
 {
     QSettings settings;
     QString fileName = settings.value("ResourceDir").toString() + "/layermap.bin";
@@ -900,7 +899,7 @@ void ClassChip::saveLayerMap()
  * in the loop). We append those by reading a resource file "latches.ini"
  ****************************************************************************************/
 
-void ClassChip::detectLatches()
+void ClassVisual::detectLatches()
 {
     m_latches.clear();
     for (auto &t : m_transvdefs)
@@ -968,7 +967,7 @@ void ClassChip::detectLatches()
     }
 }
 
-bool ClassChip::loadLatches()
+bool ClassVisual::loadLatches()
 {
     QSettings settings;
     QString fileName = settings.value("ResourceDir").toString() + "/latches.ini";
@@ -1031,7 +1030,7 @@ bool ClassChip::loadLatches()
     return false;
 }
 
-void ClassChip::drawLatches(QPainter &painter, const QRect &viewport)
+void ClassVisual::drawLatches(QPainter &painter, const QRect &viewport)
 {
     painter.setBrush(Qt::blue);
     painter.setPen(Qt::yellow);
@@ -1046,7 +1045,7 @@ void ClassChip::drawLatches(QPainter &painter, const QRect &viewport)
 /*
  * Returns true if a net is part of any latch
  */
-bool ClassChip::isLatch(net_t net)
+bool ClassVisual::isLatch(net_t net)
 {
     auto i = std::find_if(m_latches.begin(), m_latches.end(), [net](latchdef &l) { return (l.n1 == net) || (l.n2 == net); });
     return (i != m_latches.end());
@@ -1055,7 +1054,7 @@ bool ClassChip::isLatch(net_t net)
 /*
  * Returns latch transistors and nets
  */
-void ClassChip::getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2)
+void ClassVisual::getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2)
 {
     (void) std::find_if(m_latches.begin(), m_latches.end(), [net,&t1,&t2,&n1,&n2](latchdef &l)
     { t1 = l.t1; t2 = l.t2; n1 = l.n1; n2 = l.n2; return (l.n1 == net) || (l.n2 == net); });
@@ -1067,7 +1066,7 @@ void ClassChip::getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2
 /*
  * Runs experimental function number n
  */
-void ClassChip::experimental(int n)
+void ClassVisual::experimental(int n)
 {
     if (n==1) return experimental_1();
     if (n==2) return experimental_2();
@@ -1085,7 +1084,7 @@ void ClassChip::experimental(int n)
  * This code merges paths for each net so nets look better, but this process can take > 2 min on a fast PC
  * Hence, the merged nets have been cached in the file "segvdefs.bin"
  */
-void ClassChip::experimental_1()
+void ClassVisual::experimental_1()
 {
     qInfo() << "Experimental: merge visual segment paths. This process is running in the background and may take a few minutes to complete.";
     qInfo() << "After it is done (you should see the message 'Saving segvdefs'), restart the application to use the new, smoother, paths.";
@@ -1115,7 +1114,7 @@ void ClassChip::experimental_1()
 /*
  * Saves visual paths to a file
  */
-bool ClassChip::saveSegvdefs(QString dir)
+bool ClassVisual::saveSegvdefs(QString dir)
 {
     QString fileName = dir + "/segvdefs.bin";
     qInfo() << "Saving segvdefs to" << fileName;
@@ -1140,7 +1139,7 @@ bool ClassChip::saveSegvdefs(QString dir)
 /*
  * Loads visual paths from a file
  */
-bool ClassChip::loadSegvdefs(QString dir)
+bool ClassVisual::loadSegvdefs(QString dir)
 {
     QString fileName = dir + "/segvdefs.bin";
     qInfo() << "Loading segvdefs from" << fileName;
@@ -1187,7 +1186,7 @@ bool ClassChip::loadSegvdefs(QString dir)
  * Experimental code
  ******************************************************************************/
 
-bool ClassChip::scanForTransistor(uchar const *p, QRect t, uint &x, uint &y)
+bool ClassVisual::scanForTransistor(uchar const *p, QRect t, uint &x, uint &y)
 {
     // Find the top-left corner of a transistor within the bounding box
     for (y = t.top(); y < uint(t.bottom() - 1); y++)
@@ -1204,7 +1203,7 @@ static const int dx[8] = { 0, 1, 1, 1, 0,-1,-1,-1 };
 static const int dy[8] = {-1,-1, 0, 1, 1, 1, 0,-1 };
 
 #define OFFSET(dx,dy) (x+(dx) + (y+(dy)) * m_sx)
-inline uint ClassChip::edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir)
+inline uint ClassVisual::edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir)
 {
     for (int i = 0; i < 8; i++)
     {
@@ -1219,7 +1218,7 @@ inline uint ClassChip::edgeWalkFindDir(uchar const *p, uint x, uint y, uint star
 /*
  * Walk the feature (TRANSISTOR) edge and append to the painter path
  */
-void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
+void ClassVisual::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
 {
     uint startx = x, starty = y;
     uint nextdir, dir = edgeWalkFindDir(p, x, y, 2); // Initial dir is 2 (->) since we start at its top-leftmost corner
@@ -1253,7 +1252,7 @@ void ClassChip::edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y)
  * close to each other and their bounding boxes overlap. This function is sometimes not able to detect the
  * second overlapping transistor, so it fails to create the outline in a couple of cases.
  */
-void ClassChip::experimental_2()
+void ClassVisual::experimental_2()
 {
     qInfo() << "Experimental: create transistor paths; transistors' locations hinted by transdef";
     QEventLoop e; // Don't freeze the GUI
@@ -1287,7 +1286,7 @@ void ClassChip::experimental_2()
  * Draws all transistors in two shades: yellow for active and gray for inactive
  * with an additional option to highlight all of them irrespective of their state
  */
-void ClassChip::expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll)
+void ClassVisual::expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll)
 {
     const static QBrush brush[2] = { Qt::gray, Qt::yellow };
     const static QPen pens[2] = { QPen(QColor(), 0, Qt::NoPen), QPen(QColor(255, 0, 255), 1, Qt::SolidLine) };
@@ -1312,7 +1311,7 @@ void ClassChip::expDrawTransistors(QPainter &painter, const QRect &viewport, boo
 /*
  * Scan a feature bitmap for the next transistor area, return false when we traverse the complete map
  */
-bool ClassChip::scanForTransistor_4(uchar const *p, uint &offset)
+bool ClassVisual::scanForTransistor_4(uchar const *p, uint &offset)
 {
     // If we land on a transistor bit, skip the transistor by its width
     while (p[offset] & TRANSISTOR)
@@ -1332,7 +1331,7 @@ bool ClassChip::scanForTransistor_4(uchar const *p, uint &offset)
  * The last part of this function simply refers to the transdef's transistor data (their bounding boxes) to
  * assign the transistor outline paths to each.
  */
-void ClassChip::experimental_3()
+void ClassVisual::experimental_3()
 {
     qInfo() << "Experimental: create transistor paths; transistors' locations scanned from feature bitmap";
     QEventLoop e; // Don't freeze the GUI
@@ -1403,7 +1402,7 @@ void ClassChip::experimental_3()
 /*
  * Dynamically write nearby net names (experimental)
  */
-void ClassChip::expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale)
+void ClassVisual::expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale)
 {
     if (scale < 1.5) // Start naming nets only at the certain level of detail
         return;
