@@ -116,6 +116,7 @@ private:
     void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
     void setZoomMode(ZoomType);         // Sets the view mode
 
+    void updateInfoArea(QPoint pt);
     void calcTransform();
     void clampImageCoords(QPointF &tex, qreal xmax = 1.0, qreal ymax = 1.0);
     void createLayout();

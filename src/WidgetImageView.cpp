@@ -401,6 +401,12 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.drawRect(m_areaRect);
         painter.restore();
     }
+    //------------------------------------------------------------------------
+    // Update the overlay info lines
+    //------------------------------------------------------------------------
+    QPoint mousePos = mapFromGlobal(QCursor::pos());
+    QPoint imageCoords = m_invtx.map(mousePos);
+    updateInfoArea(imageCoords);
 
     // Measure the drawing performance
     qreal ms = timer.elapsed();
@@ -410,6 +416,53 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         ms = 0; for (int i = 0; i < m_perf.count(); i++) ms += m_perf.at(i);
         qDebug() << "Widget paint:" << qRound(ms / m_perf.count()) << "ms";
         if (m_perf.count() == 4) m_perf.dequeue();
+    }
+}
+
+/*
+ * Update overlay info lines with the information about the given coordinate point on the image map
+ */
+void WidgetImageView::updateInfoArea(QPoint pt)
+{
+    if (m_image.valid(pt.x(), pt.y()))
+    {
+        m_ov->setCoords(QString("%1,%2").arg(pt.x()).arg(pt.y()));
+
+        // Get a list of nets, net names and a possible transistor at the mouse location
+        const QVector<net_t> nets = ::controller.getChip().getNetsAt<true>(pt.x(), pt.y());
+        QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
+        const tran_t trans = ::controller.getChip().getTransistorAt(pt.x(), pt.y());
+
+        // Make all active net names bold
+        for (uint i = 0; i < netNames.count(); i++)
+        {
+            if (::controller.getSimZ80().getNetState(nets[i]) == 1)
+                netNames[i] = QString("<b>%1</b>").arg(netNames[i]);
+        }
+        QString transInfo;
+        // Insert the transistor name at the front and make the name bold if the transistor is ON
+        if (trans)
+        {
+            transInfo = ::controller.getNetlist().transInfo(trans);
+            if (::controller.getNetlist().isTransOn(trans))
+                netNames.insert(0, QString("<b>t%1</b>").arg(trans));
+            else
+                netNames.insert(0, QString("t%1").arg(trans));
+        }
+        netNames.removeAll(QString()); // Remove any blanks
+        netNames.removeDuplicates();
+        m_ov->setInfoLine(1, netNames.join(", "));
+
+        QString tip = nets.count() ? ::controller.getTip().get(nets[0]) : QString();
+        m_ov->setInfoLine(2, trans ? transInfo : tip);
+
+        m_ov->setInfoLine(3, ::controller.getChip().getFeaturesAt(pt.x(), pt.y()));
+    }
+    else
+    {
+        // Oops - the pointer is in this widget, but it's not currently over the image
+        m_ov->clearInfoLine(0);
+        m_ov->setCoords(QString());
     }
 }
 
@@ -526,47 +579,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
     {
         // With no buttons pushed, update information on which nets or objects the mouse is pointing to
         QPoint imageCoords = m_invtx.map(event->pos());
-        if (m_image.valid(imageCoords.x(), imageCoords.y()))
-        {
-            m_ov->setCoords(QString("%1,%2").arg(imageCoords.x()).arg(imageCoords.y()));
-
-            // Get a list of nets, net names and a possible transistor at the mouse location
-            const QVector<net_t> nets = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
-            QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
-            const tran_t trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
-
-            // Make all active net names bold
-            for (uint i = 0; i < netNames.count(); i++)
-            {
-                if (::controller.getSimZ80().getNetState(nets[i]) == 1)
-                    netNames[i] = QString("<b>%1</b>").arg(netNames[i]);
-            }
-            QString transInfo;
-            // Insert the transistor name at the front and make the name bold if the transistor is ON
-            if (trans)
-            {
-                transInfo = ::controller.getNetlist().transInfo(trans);
-                if (::controller.getNetlist().isTransOn(trans))
-                    netNames.insert(0, QString("<b>t%1</b>").arg(trans));
-                else
-                    netNames.insert(0, QString("t%1").arg(trans));
-            }
-            netNames.removeAll(QString()); // Remove any blanks
-            netNames.removeDuplicates();
-            m_ov->setInfoLine(1, netNames.join(", "));
-
-            QString tip = nets.count() ? ::controller.getTip().get(nets[0]) : QString();
-            m_ov->setInfoLine(2, trans ? transInfo : tip);
-
-            m_ov->setInfoLine(3, ::controller.getChip().getFeaturesAt(imageCoords.x(), imageCoords.y()));
-        }
-        else
-        {
-            // Oops - the pointer is in this widget, but it's not currently over
-            // the image, so we have no data to report.
-            m_ov->clearInfoLine(0);
-            m_ov->setCoords(QString());
-        }
+        updateInfoArea(imageCoords);
     }
 }
 
