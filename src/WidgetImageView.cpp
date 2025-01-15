@@ -530,17 +530,33 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         {
             m_ov->setCoords(QString("%1,%2").arg(imageCoords.x()).arg(imageCoords.y()));
 
+            // Get a list of nets, net names and a possible transistor at the mouse location
             const QVector<net_t> nets = ::controller.getChip().getNetsAt<true>(imageCoords.x(), imageCoords.y());
             QStringList netNames = ::controller.getNetlist().get(nets); // Translate net numbers to names
             const tran_t trans = ::controller.getChip().getTransistorAt(imageCoords.x(), imageCoords.y());
+
+            // Make all active net names bold
+            for (uint i = 0; i < netNames.count(); i++)
+            {
+                if (::controller.getSimZ80().getNetState(nets[i]) == 1)
+                    netNames[i] = QString("<b>%1</b>").arg(netNames[i]);
+            }
+            QString transInfo;
+            // Insert the transistor name at the front and make the name bold if the transistor is ON
             if (trans)
-                netNames.insert(0, QString("t%1").arg(trans)); // Insert the transistor name at the front
-            netNames.removeAll(QString()); // Remove any blanks (likely due to an infrequent transistor area)
-            netNames.removeDuplicates(); // Don't you simply love Qt?
+            {
+                transInfo = ::controller.getNetlist().transInfo(trans);
+                if (::controller.getNetlist().isTransOn(trans))
+                    netNames.insert(0, QString("<b>t%1</b>").arg(trans));
+                else
+                    netNames.insert(0, QString("t%1").arg(trans));
+            }
+            netNames.removeAll(QString()); // Remove any blanks
+            netNames.removeDuplicates();
             m_ov->setInfoLine(1, netNames.join(", "));
 
             QString tip = nets.count() ? ::controller.getTip().get(nets[0]) : QString();
-            m_ov->setInfoLine(2, trans ? ::controller.getNetlist().transInfo(trans) : tip);
+            m_ov->setInfoLine(2, trans ? transInfo : tip);
 
             m_ov->setInfoLine(3, ::controller.getChip().getFeaturesAt(imageCoords.x(), imageCoords.y()));
         }
