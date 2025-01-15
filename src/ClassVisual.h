@@ -1,5 +1,5 @@
-#ifndef CLASSCHIP_H
-#define CLASSCHIP_H
+#ifndef CLASSVISUAL_H
+#define CLASSVISUAL_H
 
 #include "AppTypes.h"
 #include <QFont>
@@ -112,4 +112,4 @@ private:
     QFont m_fixedFont { QFont("Consolas", 8) }; // Font for net names
 };
 
-#endif // CLASSCHIP_H
+#endif // CLASSVISUAL_H

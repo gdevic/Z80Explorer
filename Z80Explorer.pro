@@ -24,7 +24,6 @@ DEFINES += _CRT_SECURE_NO_WARNINGS
 SOURCES += \
     src/ClassAnnotate.cpp \
     src/ClassApplog.cpp \
-    src/ClassChip.cpp \
     src/ClassColors.cpp \
     src/ClassController.cpp \
     src/ClassLogic.cpp \
@@ -33,6 +32,7 @@ SOURCES += \
     src/ClassSimZ80.cpp \
     src/ClassTip.cpp \
     src/ClassTrickbox.cpp \
+    src/ClassVisual.cpp \
     src/ClassWatch.cpp \
     src/DialogEditAnnotations.cpp \
     src/DialogEditBuses.cpp \
@@ -59,7 +59,6 @@ HEADERS += \
     src/AppTypes.h \
     src/ClassAnnotate.h \
     src/ClassApplog.h \
-    src/ClassChip.h \
     src/ClassColors.h \
     src/ClassController.h \
     src/ClassException.h \
@@ -70,6 +69,7 @@ HEADERS += \
     src/ClassSingleton.h \
     src/ClassTip.h \
     src/ClassTrickbox.h \
+    src/ClassVisual.h \
     src/ClassWatch.h \
     src/DialogEditAnnotations.h \
     src/DialogEditBuses.h \

@@ -1,4 +1,4 @@
-#include "ClassChip.h"
+#include "ClassVisual.h"
 #include "ClassController.h"
 #include "ClassSimZ80.h"
 #include "DialogEditAnnotations.h"

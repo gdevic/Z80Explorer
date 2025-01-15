@@ -2,7 +2,7 @@
 #define CLASSCONTROLLER_H
 
 #include "ClassAnnotate.h"
-#include "ClassChip.h"
+#include "ClassVisual.h"
 #include "ClassColors.h"
 #include "ClassScript.h"
 #include "ClassSimZ80.h"
