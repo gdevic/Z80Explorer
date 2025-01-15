@@ -65,6 +65,8 @@ public:
 
     const QString netInfo(net_t net);           // Returns basic net information as string
     const QString transInfo(tran_t t);          // Returns basic transistor information as string
+    bool isTransOn(tran_t t)                    // Returns true if a transistor is ON
+        { return (t < MAX_TRANS) && m_transdefs[t].id && m_transdefs[t].on; }
     Logic *getLogicTree(net_t net);             // Returns the bipartite tree describing the logic connections of a net
     void optimizeLogicTree(Logic **llr);        // Optimizes, in place, logic tree by coalescing suitable nodes
     QString equation(net_t net);                // Returns a string describing the logic connections of a net
