@@ -727,6 +727,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Period:
         m_drawAllTransistors = !m_drawAllTransistors; break;
+        break;
     case Qt::Key_L:
         m_drawLatches = !m_drawLatches;
         m_ov->setButton(3, m_drawLatches);
@@ -739,7 +740,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_PageUp: setZoom(m_scale * 1.2); break;
     case Qt::Key_PageDown: setZoom(m_scale / 1.2); break;
     // Send all other unhandled keys to the script for user custom handling
-    // init.js file should define key(code,shift,ctrl) function handler
+    // init.js file should define key(code,ctrl) function handler
     default:
         bool verbose = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
         QString cmd = QString("key(%1,%2)").arg(event->key()).arg(ctrl);
