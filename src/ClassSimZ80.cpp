@@ -310,7 +310,7 @@ inline bool ClassSimZ80::getNetValue()
     // - that, either by the number of connected gates, or by the number of connected pins
     // - any node for which state is true
     auto max_state = false;
-    auto max_conn = 0;
+    //auto max_conn = 0;
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
         Net &net = m_netlist[*p];
