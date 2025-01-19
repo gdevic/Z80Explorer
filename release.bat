@@ -10,7 +10,7 @@ cd release
 xcopy /Y ..\Z80Explorer.exe .
 xcopy /Y ..\highDPI.bat .
 xcopy /Y ..\cleanup.reg .
-xcopy /Y ..\Z80Explorer.pdf .
+xcopy /Y ..\index.html .
 
 windeployqt.exe --compiler-runtime Z80Explorer.exe
 if errorlevel 1 goto end
@@ -24,6 +24,9 @@ xcopy /Y "%VCToolsRedistDir%"\x64\Microsoft.VC142.CRT\msvcp140_2.dll     .
 
 mkdir resource
 xcopy /Y /S ..\resource resource
+
+mkdir docs
+xcopy /Y /S ..\docs docs
 
 @REM Remove all unnecessary components and files
 rmdir /S /Q bearer iconengines imageformats translations platforminputcontexts qml qmltooling tls networkinformation generic
