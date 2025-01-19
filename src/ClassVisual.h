@@ -41,7 +41,7 @@ class ClassVisual: public QObject
     Q_OBJECT
 
 public:
-    ClassVisual() {};
+    explicit ClassVisual();
 
     bool loadChipResources(QString dir);// Attempts to load all expected chip resources
     QImage &getImage(uint img);         // Returns a reference to the image by the image index
@@ -58,16 +58,22 @@ public:
     QString getFeaturesAt(int x, int y);  // Returns the list of features at the specified image coordinates
     bool isLatch(net_t net);              // Returns true if a net is part of any latch
     void getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2); // Returns latch transistors and nets
-
-public slots:
     void detectLatches();               // Detects latches and also loads custom latch definitions
     void drawLatches(QPainter &painter, const QRect &viewport);
+    void drawTransistors(QPainter &painter, const QRect &viewport, uint mode);
+    void armTransFlipCount();
+
+public slots:
     void experimental(int n);           // Runs experimental function number n
-    void expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll);
     void expDynamicallyNameNets(QPainter &painter, const QRect &viewport, qreal scale); // Maps nearby net names
+
+private slots:
+    void onRunStopped();
 
 private:
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
+    bool m_transBaseState[MAX_TRANS];   // Base state of each transistor
+    uchar m_transFlipCount[MAX_TRANS];  // Number of times each transistor changed its state
     QHash<net_t, segvdef> m_segvdefs;   // Hash of segment visual definitions, key is the segment net number
     QHash<net_t, segvdef> m_segvdefs2;  // Alternate segment visual definitions
     bool use_alt_segdef {false};        // Use alternate segment definitions
@@ -75,7 +81,7 @@ private:
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
     uint m_sy {};                       // Y size of all images and maps
-    uint m_mapsize;                     // Map size in bytes, equals to (m_sx * m_sy)
+    uint m_mapsize {};                  // Map size in bytes, equals to (m_sx * m_sy)
     uint16_t *m_p3[3] {};               // Layer map: [0] diffusion, [1] poly, [2] metal
     uchar *m_fmap {};                   // Feature bitmap
 

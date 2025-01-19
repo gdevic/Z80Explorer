@@ -43,7 +43,7 @@ WidgetImageView::~WidgetImageView()
     QSettings settings;
     settings.setValue("imageViewDrawActiveNets-" + whatsThis(), m_drawActiveNets);
     settings.setValue("imageViewDrawAnnotations-" + whatsThis(), m_drawAnnotations);
-    settings.setValue("imageViewDrawActiveTransistors-" + whatsThis(), m_drawActiveTransistors);
+    settings.setValue("imageViewDrawTransistors-" + whatsThis(), m_drawTransistors);
     settings.setValue("imageViewDrawLatches-" + whatsThis(), m_drawLatches);
 
     QString layers = m_ov->getLayers();
@@ -66,12 +66,12 @@ void WidgetImageView::init(QString sid)
     QSettings settings;
     m_drawActiveNets = settings.value("imageViewDrawActiveNets-" + whatsThis(), false).toBool();
     m_drawAnnotations = settings.value("imageViewDrawAnnotations-" + whatsThis(), true).toBool();
-    m_drawActiveTransistors = settings.value("imageViewDrawActiveTransistors-" + whatsThis(), true).toBool();
+    m_drawTransistors = settings.value("imageViewDrawTransistors-" + whatsThis(), true).toBool();
     m_drawLatches = settings.value("imageViewDrawLatches-" + whatsThis(), false).toBool();
 
     m_ov->setButton(0, m_drawActiveNets);
     m_ov->setButton(1, m_drawAnnotations);
-    m_ov->setButton(2, m_drawActiveTransistors);
+    m_ov->setButton(2, m_drawTransistors);
     m_ov->setButton(3, m_drawLatches);
 
     m_ov->createImageButtons(::controller.getChip().getImageNames());
@@ -333,10 +333,10 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     //------------------------------------------------------------------------
     // Draw transistors
     //------------------------------------------------------------------------
-    if ((m_drawActiveTransistors || m_drawAllTransistors) && mouseOff)
+    if (m_drawTransistors && mouseOff)
     {
         painter.save();
-        ::controller.getChip().expDrawTransistors(painter, viewportTex, m_drawAllTransistors);
+        ::controller.getChip().drawTransistors(painter, viewportTex, m_drawTransistorMode);
         painter.restore();
     }
     //------------------------------------------------------------------------
@@ -721,12 +721,18 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         m_ov->setButton(1, m_drawAnnotations);
         break;
     case Qt::Key_T:
-        m_drawActiveTransistors = !m_drawActiveTransistors;
-        m_drawAllTransistors = false;
-        m_ov->setButton(2, m_drawActiveTransistors);
+        m_drawTransistors = !m_drawTransistors;
+        m_ov->setButton(2, m_drawTransistors);
+        if (m_drawTransistors) ::controller.getChip().armTransFlipCount();
         break;
     case Qt::Key_Period:
-        m_drawAllTransistors = !m_drawAllTransistors; break;
+        if (m_drawTransistors)
+        {
+            if (++m_drawTransistorMode == 4) // 0:Active, 1:Single-Flip, 2:Sticky and 3:All
+                m_drawTransistorMode = 0;
+            static const QStringList modes = {"Active", "Single-Flip", "Sticky", "All"};
+            qInfo() << "Draw transistor mode:" << modes[m_drawTransistorMode];
+        }
         break;
     case Qt::Key_L:
         m_drawLatches = !m_drawLatches;

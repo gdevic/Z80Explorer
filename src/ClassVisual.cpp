@@ -26,6 +26,35 @@
 #define VIA_POLY   (1 << VIA_POLY_SHIFT)
 #define TRANSISTOR (1 << TRANSISTOR_SHIFT)
 
+ClassVisual::ClassVisual()
+{
+    connect(&::controller, &ClassController::onRunStopped, this, &ClassVisual::onRunStopped);
+}
+
+void ClassVisual::onRunStopped()
+{
+    // Count the number of times each transistor has changed its state from the base (initial) state
+    for (uint i = 0; i < MAX_TRANS; i++)
+    {
+        bool state = ::controller.getNetlist().isTransOn(i);
+        bool oldState = (uchar(m_transBaseState[i]) ^ m_transFlipCount[i]) & 1;
+        if (state != oldState)
+            m_transFlipCount[i] = (m_transFlipCount[i] + 1) & 0x7F; // Prevents the overflow
+    }
+}
+
+/*
+ * Single-Flip and Sticky transistor view modes use base state, an array containing each transistor on/off state at the time of
+ * the start of a test, and another array that counts the number of transitions each time a run stops.
+ */
+void ClassVisual::armTransFlipCount()
+{
+    memset(m_transFlipCount, 0, sizeof(m_transFlipCount));
+    for (uint i = 0; i < MAX_TRANS; i++)
+        m_transBaseState[i] = ::controller.getNetlist().isTransOn(i);
+    qInfo() << "Transistor flip counter reset";
+}
+
 /*
  * Attempts to load and generate all chip resource that we expect to have
  */
@@ -1283,10 +1312,10 @@ void ClassVisual::experimental_2()
 }
 
 /*
- * Draws all transistors in two shades: yellow for active and gray for inactive
- * with an additional option to highlight all of them irrespective of their state
+ * Draws transistors in several ways: 0:Active, 1:Single-Flip, 2:Sticky and 3:All
+ * The base colors that are used are yellow for active and gray for inactive transistors.
  */
-void ClassVisual::expDrawTransistors(QPainter &painter, const QRect &viewport, bool highlightAll)
+void ClassVisual::drawTransistors(QPainter &painter, const QRect &viewport, uint mode)
 {
     const static QBrush brush[2] = { Qt::gray, Qt::yellow };
     const static QPen pens[2] = { QPen(QColor(), 0, Qt::NoPen), QPen(QColor(255, 0, 255), 1, Qt::SolidLine) };
@@ -1296,9 +1325,15 @@ void ClassVisual::expDrawTransistors(QPainter &painter, const QRect &viewport, b
         // Speed up rendering by clipping to the viewport's image rectangle
         if (t.box.intersected(viewport) != QRect())
         {
-            bool state = ::controller.getSimZ80().getNetState(t.gatenet);
+            bool state = true;  // "All" (default)
+            if (mode == 0)      // "Active"
+                state = ::controller.getSimZ80().getNetState(t.gatenet);
+            else if (mode == 1) // "Single-Flip"
+                state = m_transFlipCount[t.id] == 1;
+            else if (mode == 2) // "Sticky"
+                state = m_transFlipCount[t.id];
             painter.setPen(pens[state]);
-            painter.setBrush(brush[state || highlightAll]);
+            painter.setBrush(brush[state]);
             painter.drawPath(t.path);
         }
     }
