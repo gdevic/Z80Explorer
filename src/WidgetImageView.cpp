@@ -234,48 +234,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawNets && mouseOff)
     {
         painter.save();
-        painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
-        painter.setBrush(QColor(255, 0, 255));
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-
-        uint first = 3;
-        uint last = ::controller.getSimZ80().getNetlistCount();
-        int increment = 1;
-        if (m_drawNetsOrder & 1) // Handle the reversed draw order
-        {
-            first = ::controller.getSimZ80().getNetlistCount() - 1;
-            last = 2;
-            increment = -1;
-        }
-        // Draw segments in two ways: from the first to the last, and in the reverse order
-        for (uint i = first; i != last; i += increment)
-        {
-            if (::controller.getSimZ80().getNetState(i) == 1)
-            {
-                for (const auto& path : ::controller.getChip().getSegment(i)->paths)
-                {
-                    // Draw only paths that are not completely outside the viewing area
-                    if (QRectF(viewportTex).intersects(path.boundingRect()))
-                        painter.drawPath(path);
-                }
-            }
-        }
-
-        // Draw nets that do not connect to anything, they are used for test and label patterns
-        painter.setBrush(QColor(Qt::yellow));
-        for (uint i = 3; i < ::controller.getSimZ80().getNetlistCount(); i++)
-        {
-            if (::controller.getSimZ80().isNetOrphan(i))
-            {
-                for (const auto& path : ::controller.getChip().getSegment(i)->paths)
-                {
-                    // Draw only paths that are not completely outside the viewing area
-                    if (QRectF(viewportTex).intersects(path.boundingRect()))
-                        painter.drawPath(path);
-                }
-            }
-        }
-
+        ::controller.getChip().drawNets(painter, viewportTex, m_drawNetsOrder & 1);
         painter.restore();
     }
     //------------------------------------------------------------------------

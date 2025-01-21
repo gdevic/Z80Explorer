@@ -59,7 +59,9 @@ int main(int argc, char *argv[])
         QVBoxLayout *layout = new QVBoxLayout(wndInit);
         DockLog *logWindow = new DockLog(wndInit);
         layout->addWidget(logWindow);
+#ifdef QT_NO_DEBUG
         wndInit->setWindowState(Qt::WindowMaximized);
+#endif // QT_NO_DEBUG
         wndInit->show();
 
         // Initialize the controller object outside the constructor

@@ -777,6 +777,55 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
     m_img.append(img);
 }
 
+/*
+ * Draws active nets in several ways
+ * Order specifies that the segment patches be rendered in reversed order
+ */
+void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order)
+{
+    painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+    painter.setBrush(QColor(255, 0, 255));
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
+    uint first = 3;
+    uint last = ::controller.getSimZ80().getNetlistCount();
+    int increment = 1;
+    if (!order) // Handle the reversed draw order
+    {
+        first = ::controller.getSimZ80().getNetlistCount() - 1;
+        last = 2;
+        increment = -1;
+    }
+    // Draw segments in two ways: from the first to the last, and in the reverse order
+    for (uint i = first; i != last; i += increment)
+    {
+        if (::controller.getSimZ80().getNetState(i) == 1)
+        {
+            for (const auto& path : ::controller.getChip().getSegment(i)->paths)
+            {
+                // Draw only paths that are not completely outside the viewing area
+                if (QRectF(viewport).intersects(path.boundingRect()))
+                    painter.drawPath(path);
+            }
+        }
+    }
+
+    // Draw nets that do not connect to anything, they are used for test and label patterns
+    painter.setBrush(QColor(Qt::yellow));
+    for (uint i = 3; i < ::controller.getSimZ80().getNetlistCount(); i++)
+    {
+        if (::controller.getSimZ80().isNetOrphan(i))
+        {
+            for (const auto& path : ::controller.getChip().getSegment(i)->paths)
+            {
+                // Draw only paths that are not completely outside the viewing area
+                if (QRectF(viewport).intersects(path.boundingRect()))
+                    painter.drawPath(path);
+            }
+        }
+    }
+}
+
 /******************************************************************************
  * This may only run if HAVE_PREBUILT_LAYERMAP is set to 0
  *

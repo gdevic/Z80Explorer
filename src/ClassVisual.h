@@ -58,8 +58,9 @@ public:
     QString getFeaturesAt(int x, int y);  // Returns the list of features at the specified image coordinates
     bool isLatch(net_t net);              // Returns true if a net is part of any latch
     void getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2); // Returns latch transistors and nets
-    void detectLatches();               // Detects latches and also loads custom latch definitions
+    void detectLatches();                 // Detects latches and also loads custom latch definitions
     void drawLatches(QPainter &painter, const QRect &viewport);
+    void drawNets(QPainter &painter, const QRect& viewport, bool order);
     void drawTransistors(QPainter &painter, const QRect &viewport, uint mode);
     void armTransFlipCount();
 
