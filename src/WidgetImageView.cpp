@@ -41,7 +41,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
 WidgetImageView::~WidgetImageView()
 {
     QSettings settings;
-    settings.setValue("imageViewDrawActiveNets-" + whatsThis(), m_drawActiveNets);
+    settings.setValue("imageViewDrawNets-" + whatsThis(), m_drawNets);
     settings.setValue("imageViewDrawAnnotations-" + whatsThis(), m_drawAnnotations);
     settings.setValue("imageViewDrawTransistors-" + whatsThis(), m_drawTransistors);
     settings.setValue("imageViewDrawLatches-" + whatsThis(), m_drawLatches);
@@ -64,12 +64,12 @@ void WidgetImageView::init(QString sid)
     m_ov->show();
 
     QSettings settings;
-    m_drawActiveNets = settings.value("imageViewDrawActiveNets-" + whatsThis(), false).toBool();
+    m_drawNets = settings.value("imageViewDrawNets-" + whatsThis(), false).toBool();
     m_drawAnnotations = settings.value("imageViewDrawAnnotations-" + whatsThis(), true).toBool();
     m_drawTransistors = settings.value("imageViewDrawTransistors-" + whatsThis(), true).toBool();
     m_drawLatches = settings.value("imageViewDrawLatches-" + whatsThis(), false).toBool();
 
-    m_ov->setButton(0, m_drawActiveNets);
+    m_ov->setButton(0, m_drawNets);
     m_ov->setButton(1, m_drawAnnotations);
     m_ov->setButton(2, m_drawTransistors);
     m_ov->setButton(3, m_drawLatches);
@@ -105,9 +105,9 @@ void WidgetImageView::onTimeout()
 {
     if (m_timer_tick)
         m_timer_tick--;
-    // If the drawing mode for the active segments is to toggle the order, reverse it now
-    if (m_drawActiveNetsOrder & 2)
-        m_drawActiveNetsOrder ^= 1;
+    // If the drawing mode for the net segments is to toggle the order, reverse it now
+    if (m_drawNetsOrder & 2)
+        m_drawNetsOrder ^= 1;
     update();
 }
 
@@ -231,7 +231,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     // This method is faster since we only draw active nets (over the base
     // image which already has all the nets pre-drawn as inactive)
     //------------------------------------------------------------------------
-    if (m_drawActiveNets && mouseOff)
+    if (m_drawNets && mouseOff)
     {
         painter.save();
         painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
@@ -241,7 +241,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         uint first = 3;
         uint last = ::controller.getSimZ80().getNetlistCount();
         int increment = 1;
-        if (m_drawActiveNetsOrder & 1) // Handle the reversed draw order
+        if (m_drawNetsOrder & 1) // Handle the reversed draw order
         {
             first = ::controller.getSimZ80().getNetlistCount() - 1;
             last = 2;
@@ -709,12 +709,12 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
             ::controller.getChip().toggleAltSegdef();
         else
         {
-            m_drawActiveNets = !m_drawActiveNets;
-            m_ov->setButton(0, m_drawActiveNets);
+            m_drawNets = !m_drawNets;
+            m_ov->setButton(0, m_drawNets);
         }
         break;
     case Qt::Key_Z:
-        m_drawActiveNetsOrder = shift ? m_drawActiveNetsOrder ^ 2 : (m_drawActiveNetsOrder & 1) ^ 1;
+        m_drawNetsOrder = shift ? m_drawNetsOrder ^ 2 : (m_drawNetsOrder & 1) ^ 1;
         break;
     case Qt::Key_Space:
         m_drawAnnotations = !m_drawAnnotations;

@@ -90,8 +90,8 @@ private:
     const segvdef *m_highlight_segment {}; // Segment to highlight in the current image
     const QRect *m_highlight_trans {};  // Transistor bounding rectangle to highlight in the current image
     QRect m_r;                          // Rectangle used by the show() scripting command to highlight a rectangle
-    bool m_drawActiveNets;              // Draw active nets
-    uint m_drawActiveNetsOrder {};      // The order of drawing active nets bit[0], auto toggle bit[1]
+    bool m_drawNets;                    // Draw nets
+    uint m_drawNetsOrder {};            // The order of drawing nets bit[0], auto toggle bit[1]
     bool m_drawAnnotations;             // Draw image annotations
     bool m_drawTransistors;             // Draw transistors
     uint m_drawTransistorMode {};       // Draw transistors mode
