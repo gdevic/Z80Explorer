@@ -92,6 +92,7 @@ private:
     QRect m_r;                          // Rectangle used by the show() scripting command to highlight a rectangle
     bool m_drawNets;                    // Draw nets
     uint m_drawNetsOrder {};            // The order of drawing nets bit[0], auto toggle bit[1]
+    uint m_drawNetsMode {};             // Draw nets mode
     bool m_drawAnnotations;             // Draw image annotations
     bool m_drawTransistors;             // Draw transistors
     uint m_drawTransistorMode {};       // Draw transistors mode

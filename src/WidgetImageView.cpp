@@ -234,7 +234,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     if (m_drawNets && mouseOff)
     {
         painter.save();
-        ::controller.getChip().drawNets(painter, viewportTex, m_drawNetsOrder & 1);
+        ::controller.getChip().drawNets(painter, viewportTex, m_drawNetsOrder & 1, m_drawNetsMode);
         painter.restore();
     }
     //------------------------------------------------------------------------
@@ -675,6 +675,15 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Z:
         m_drawNetsOrder = shift ? m_drawNetsOrder ^ 2 : (m_drawNetsOrder & 1) ^ 1;
         break;
+    case Qt::Key_Comma:
+        if (m_drawNets)
+        {
+            if (++m_drawNetsMode == 2) // 0:Active, 1:Pulled-up
+                m_drawNetsMode = 0;
+            static const QStringList modes = {"Active", "Pulled-up (static)"};
+            qInfo() << "Draw nets mode:" << modes[m_drawNetsMode];
+        }
+        break;
     case Qt::Key_Space:
         m_drawAnnotations = !m_drawAnnotations;
         m_ov->setButton(1, m_drawAnnotations);
@@ -689,7 +698,7 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         {
             if (++m_drawTransistorMode == 4) // 0:Active, 1:Single-Flip, 2:Sticky and 3:All
                 m_drawTransistorMode = 0;
-            static const QStringList modes = {"Active", "Single-Flip", "Sticky", "All"};
+            static const QStringList modes = {"Active", "Single-Flip", "Sticky", "All (static)"};
             qInfo() << "Draw transistor mode:" << modes[m_drawTransistorMode];
         }
         break;

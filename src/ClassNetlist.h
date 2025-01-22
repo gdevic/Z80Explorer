@@ -55,6 +55,8 @@ public:
     pin_t getNetStateEx(net_t n);               // Returns the net extended logic state (including hi-Z)
     bool isNetOrphan(net_t n)                   // Returns true when a net does not connect to any transistor at all
         { return !m_netlist[n].gates.count() && !m_netlist[n].c1c2s.count(); }
+    bool isNetPulledUp(net_t n)
+        { return m_netlist[n].hasPullup; }
 
     void addBus(const QString &name, const QStringList &netlist); // Adds bus by name and a set of nets listed by their name
     void clearBuses() { m_buses.clear(); }      // Clear all buses, used only by the DialogEditBuses

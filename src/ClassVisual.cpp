@@ -781,7 +781,7 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
  * Draws active nets in several ways
  * Order specifies that the segment patches be rendered in reversed order
  */
-void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order)
+void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order, uint mode)
 {
     painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
     painter.setBrush(QColor(255, 0, 255));
@@ -796,10 +796,16 @@ void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order)
         last = 2;
         increment = -1;
     }
+
     // Draw segments in two ways: from the first to the last, and in the reverse order
     for (uint i = first; i != last; i += increment)
     {
-        if (::controller.getSimZ80().getNetState(i) == 1)
+        bool active;
+        if (mode == 0) // 0:Active
+            active = ::controller.getSimZ80().getNetState(i);
+        else           // 1:Pulled-up (static)
+            active = ::controller.getSimZ80().isNetPulledUp(i);
+        if (active)
         {
             for (const auto& path : ::controller.getChip().getSegment(i)->paths)
             {

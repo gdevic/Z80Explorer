@@ -60,7 +60,7 @@ public:
     void getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2); // Returns latch transistors and nets
     void detectLatches();                 // Detects latches and also loads custom latch definitions
     void drawLatches(QPainter &painter, const QRect &viewport);
-    void drawNets(QPainter &painter, const QRect& viewport, bool order);
+    void drawNets(QPainter &painter, const QRect& viewport, bool order, uint mode);
     void drawTransistors(QPainter &painter, const QRect &viewport, uint mode);
     void armTransFlipCount();
 
