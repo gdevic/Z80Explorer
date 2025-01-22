@@ -262,29 +262,6 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](Trans &t) { return t.id; });
         qInfo() << "Number of transistors" << count;
 
-#if 0 // Optionally dump the netlist connections to a text file
-        {
-            QFile file("dump-netist.txt");
-            // Open the file for writing. Use QIODevice::Text to handle text files.
-            if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                qWarning() << "Could not open file for writing:" << file.errorString();
-                return false;
-            }
-            QTextStream out(&file);
-            for (auto index=0; index<m_netlist.count(); index++)
-            {
-                if (m_netlist[index].gates.count() || m_netlist[index].c1c2s.count())
-                    out << index << " " << ::controller.getNetlist().get(index) << " Gates: " << m_netlist[index].gates.count() << " c1,c2: " << m_netlist[index].c1c2s.count() << "\n";
-            }
-            out << "------ NETS WITH G=0, C1C2=0:------\n";
-            for (auto index=0; index<m_netlist.count(); index++)
-            {
-                if (!m_netlist[index].gates.count() && !m_netlist[index].c1c2s.count())
-                    out << index << " " << ::controller.getNetlist().get(index) << " Gates: " << m_netlist[index].gates.count() << " c1,c2: " << m_netlist[index].c1c2s.count() << "\n";
-            }
-            file.close();
-        }
-#endif
         return true;
     }
     qCritical() << "Error opening transdefs.js";
@@ -568,4 +545,52 @@ bool ClassNetlist::getTnet(tran_t t, net_t &c1, net_t &c2)
         return true;
     }
     return false;
+}
+
+/******************************************************************************
+ * Experimental code
+ ******************************************************************************/
+
+ /*
+  * Run with the command "ex(4)"
+  * Dump the netlist connections to a text file
+  */
+void ClassNetlist::dumpNetlist()
+{
+    QString fileName("dump-netist.txt");
+    QFile file(fileName);
+    if (file.open(QFile::WriteOnly | QFile::Text))
+    {
+        qInfo() << "Saving nets to" << fileName;
+        QTextStream out(&file);
+
+        uint total = 0;
+        for (auto index = 0; index < m_netlist.count(); index++)
+        {
+            Net& net = m_netlist[index];
+            if (net.gates.count() || net.c1c2s.count())
+            {
+                out << index << "  G:" << net.gates.count() << " c1c2s:" << net.c1c2s.count() << " p:" << net.hasPullup << " f:" << net.floats << "  " << get(index) << "\n";
+                total++;
+            }
+        }
+        out << "Total: " << total;
+#if 0
+        out << "\n------ NETS WITH G:0, c1c2s:0 ------\n";
+        total = 0;
+        for (auto index = 0; index < m_netlist.count(); index++)
+        {
+            Net& net = m_netlist[index];
+            if (!net.gates.count() && !net.c1c2s.count())
+            {
+                out << index << "  G:" << net.gates.count() << " c1c2s:" << net.c1c2s.count() << " p:" << net.hasPullup << " f:" << net.floats << "\n";
+                total++;
+            }
+        }
+        out << "Total: " << total;
+#endif
+        file.close();
+    }
+    else
+        qWarning() << "Could not open file for writing:" << file.errorString();
 }

@@ -57,6 +57,8 @@ public:
         { return !m_netlist[n].gates.count() && !m_netlist[n].c1c2s.count(); }
     bool isNetPulledUp(net_t n)
         { return m_netlist[n].hasPullup; }
+    bool isNetGateless(net_t n)
+        { return !m_netlist[n].gates.count(); }
 
     void addBus(const QString &name, const QStringList &netlist); // Adds bus by name and a set of nets listed by their name
     void clearBuses() { m_buses.clear(); }      // Clear all buses, used only by the DialogEditBuses
@@ -64,6 +66,7 @@ public:
     // Do not call these functions directly; call the ::controller functional counterparts
     void eventNetName(Netop op, const QString name, const net_t);
     void onShutdown();                          // Called when the app is closing
+    void dumpNetlist();                         // Dumps netlist data
 
     const QString netInfo(net_t net);           // Returns basic net information as string
     const QString transInfo(tran_t t);          // Returns basic transistor information as string

@@ -676,11 +676,10 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         m_drawNetsOrder = shift ? m_drawNetsOrder ^ 2 : (m_drawNetsOrder & 1) ^ 1;
         break;
     case Qt::Key_Comma:
-        if (m_drawNets)
+        if (m_drawNets) // 0:Active, 1:Pull-up, 2:Gate-less, 3:Gate-less no Pull-up
         {
-            if (++m_drawNetsMode == 2) // 0:Active, 1:Pulled-up
-                m_drawNetsMode = 0;
-            static const QStringList modes = {"Active", "Pulled-up (static)"};
+            m_drawNetsMode = qBound(0, int(m_drawNetsMode + (ctrl ? -1 : 1)) % 4, 3);
+            static const QStringList modes = {"Active", "Pull-up (static)", "Gate-less (static)", "Gate-less no Pull-up (static)"};
             qInfo() << "Draw nets mode:" << modes[m_drawNetsMode];
         }
         break;
@@ -694,10 +693,9 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         if (m_drawTransistors) ::controller.getChip().armTransFlipCount();
         break;
     case Qt::Key_Period:
-        if (m_drawTransistors)
+        if (m_drawTransistors) // 0:Active, 1:Single-Flip, 2:Sticky and 3:All
         {
-            if (++m_drawTransistorMode == 4) // 0:Active, 1:Single-Flip, 2:Sticky and 3:All
-                m_drawTransistorMode = 0;
+            m_drawTransistorMode = qBound(0, int(m_drawTransistorMode + (ctrl ? -1 : 1)) % 4, 3);
             static const QStringList modes = {"Active", "Single-Flip", "Sticky", "All (static)"};
             qInfo() << "Draw transistor mode:" << modes[m_drawTransistorMode];
         }

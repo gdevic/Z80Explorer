@@ -800,18 +800,33 @@ void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order,
     // Draw segments in two ways: from the first to the last, and in the reverse order
     for (uint i = first; i != last; i += increment)
     {
-        bool active;
-        if (mode == 0) // 0:Active
-            active = ::controller.getSimZ80().getNetState(i);
-        else           // 1:Pulled-up (static)
-            active = ::controller.getSimZ80().isNetPulledUp(i);
-        if (active)
+        if (!::controller.getSimZ80().isNetOrphan(i))
         {
-            for (const auto& path : ::controller.getChip().getSegment(i)->paths)
+            bool active;
+            switch (mode)
             {
-                // Draw only paths that are not completely outside the viewing area
-                if (QRectF(viewport).intersects(path.boundingRect()))
-                    painter.drawPath(path);
+            case 0: // 0:Active
+                active = ::controller.getSimZ80().getNetState(i);
+                break;
+            case 1: // 1:Pull-up (static)
+                active = ::controller.getSimZ80().isNetPulledUp(i);
+                break;
+            case 2: // 2:Gate-less (static)
+                active = ::controller.getSimZ80().isNetGateless(i);
+                break;
+            case 3: // Gate-less no Pull-up (static)
+                active = ::controller.getSimZ80().isNetGateless(i) && !::controller.getSimZ80().isNetPulledUp(i);
+                break;
+            }
+
+            if (active)
+            {
+                for (const auto& path : ::controller.getChip().getSegment(i)->paths)
+                {
+                    // Draw only paths that are not completely outside the viewing area
+                    if (QRectF(viewport).intersects(path.boundingRect()))
+                        painter.drawPath(path);
+                }
             }
         }
     }
@@ -1155,6 +1170,7 @@ void ClassVisual::experimental(int n)
     if (n==1) return experimental_1();
     if (n==2) return experimental_2();
     if (n==3) return experimental_3();
+    if (n==4) return ::controller.getNetlist().dumpNetlist();
     qWarning() << "Invalid experimental function index" << n;
 }
 
