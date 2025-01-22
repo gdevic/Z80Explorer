@@ -436,6 +436,9 @@ inline pin_t ClassNetlist::getNetStateEx(net_t n)
     // Every transistor in the contributing nets needs to be off for this net to be hi-Z
     for (auto &tran : m_netlist[n].c1c2s)
         if (tran->on) return !!m_netlist[n].state;
+    // If nothing is explicitly driving this net, it will be "1" if it has an internal pullup
+    if (m_netlist[n].hasPullup)
+        return 1;
     return 2;
 }
 
