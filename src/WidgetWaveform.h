@@ -10,8 +10,8 @@ class WidgetWaveform : public QWidget
     Q_OBJECT
 public:
     explicit WidgetWaveform(QWidget *parent = nullptr);
-    void setDock(DockWaveform *dock)    // Sets a pointer to our UI parent dock
-        { m_dock = dock; }
+    ~WidgetWaveform();
+    void init(DockWaveform *dock, QString sid);
 
 signals:
     void cursorChanged(uint hcycle);    // Cursor selected a new hcycle

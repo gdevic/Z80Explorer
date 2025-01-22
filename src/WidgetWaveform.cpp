@@ -12,16 +12,33 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
     connect(&::controller, &ClassController::onRunHeartbeat, this, [this](){ update(); });
     connect(&::controller, &ClassController::onRunStopped, this, &WidgetWaveform::onRunStopped);
 
-    // Set up two initial cursors
-    m_cursors2x.append(1);
-    m_cursors2x.append(10);
-
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     setMouseTracking(true);
 
     QSettings settings;
     m_dY = settings.value("dockWaveHeight", 20).toInt();
     onEnlarge(0);
+}
+
+void WidgetWaveform::init(DockWaveform *dock, QString sid)
+{
+    // Sets a pointer to our UI parent dock
+    m_dock = dock;
+    setWhatsThis(sid);
+
+    // Set up two initial cursors
+    QSettings settings;
+    m_cursors2x.append(settings.value("dockWaveCursor1-" + sid, 1).toInt());
+    m_cursors2x.append(settings.value("dockWaveCursor2-" + sid, 10).toInt());
+    m_cursor = settings.value("dockWaveCursor-" + sid, 0).toInt();
+}
+
+WidgetWaveform::~WidgetWaveform()
+{
+    QSettings settings;
+    for (uint i = 0; i < m_cursors2x.count(); i++)
+        settings.setValue(QString("dockWaveCursor%1-%2").arg(i+1).arg(whatsThis()), m_cursors2x.at(i));
+    settings.setValue("dockWaveCursor-" + whatsThis(), m_cursor);
 }
 
 void WidgetWaveform::paintEvent(QPaintEvent *pe)

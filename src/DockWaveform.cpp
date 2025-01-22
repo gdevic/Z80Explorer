@@ -19,7 +19,7 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
     ui->setupUi(this);
     setWhatsThis(sid);
     setWindowTitle("Waveform " + sid);
-    ui->widgetWaveform->setDock(this);
+    ui->widgetWaveform->init(this, sid);
     ui->btLink->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     ui->btDecorated->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     QSettings settings;
