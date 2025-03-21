@@ -23,21 +23,9 @@ public:
     explicit WidgetHistoryLineEdit(QWidget* parent);
     ~WidgetHistoryLineEdit() {};
 
-    // History management
     void addToHistory(const QString& text);
-    void clearHistory();
-    QStringList history() const { return m_history.toList(); }
-
-    // Completion management
-    void addCompletionItem(const QString& item);
     void addCompletionItems(const QStringList& items);
-    void removeCompletionItem(const QString& item);
     void clearCompletionItems();
-    QStringList completionItems() const { return QStringList(m_completionItems.begin(), m_completionItems.end()); }
-
-    // Settings
-    int maxHistorySize() const { return m_maxHistorySize; }
-    void setMaxHistorySize(int size);
 
 signals:
     void textEntered(QString text);                // New text entered in the "Find" edit box
@@ -51,7 +39,6 @@ private slots:
 
 private:
     bool isNavigatingHistory() const { return m_historyPosition != -1; }
-    int currentHistoryIndex() const { return m_historyPosition; }
     void removeCurrentHistoryItem();
 
     void navigateHistory(int direction);

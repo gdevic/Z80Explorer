@@ -140,43 +140,16 @@ void WidgetHistoryLineEdit::addToHistory(const QString& text)
     m_currentText.clear();
 }
 
-void WidgetHistoryLineEdit::setMaxHistorySize(int size)
-{
-    if (size < 0)
-        return;
-    m_maxHistorySize = size;
-    trimHistory();
-}
-
-void WidgetHistoryLineEdit::clearHistory()
-{
-    m_history.clear();
-    m_historyPosition = -1;
-    m_currentText.clear();
-}
-
 void WidgetHistoryLineEdit::trimHistory()
 {
     while (m_history.size() > m_maxHistorySize)
         m_history.removeFirst();
 }
 
-void WidgetHistoryLineEdit::addCompletionItem(const QString& item)
-{
-    m_completionItems.insert(item);
-    updateCompleter();
-}
-
 void WidgetHistoryLineEdit::addCompletionItems(const QStringList& items)
 {
     for (const auto& item : items)
         m_completionItems.insert(item);
-    updateCompleter();
-}
-
-void WidgetHistoryLineEdit::removeCompletionItem(const QString& item)
-{
-    m_completionItems.remove(item);
     updateCompleter();
 }
 
