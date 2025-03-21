@@ -120,6 +120,6 @@ void WidgetImageOverlay::selectImageButton(uint img, bool blend)
 void WidgetImageOverlay::netNameChanged()
 {
     ui->editFind->clearCompletionItems();
-    QStringList watches = ::controller.getWatch().getWatchlist();
-    ui->editFind->addCompletionItems(watches);
+    QStringList allNames = ::controller.getNetlist().getNetnames();
+    ui->editFind->addCompletionItems(allNames);
 }
