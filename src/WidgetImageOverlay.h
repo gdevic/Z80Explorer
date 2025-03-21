@@ -33,9 +33,7 @@ signals:
 
 public slots:
     void selectImageButton(uint img, bool blend);
-
-private slots:
-    void onFind();                              // Called by the editFind edit widget when the user presses the Enter key
+    void netNameChanged();                      // Handles any change in net names
 
 private:
     Ui::WidgetImageOverlay *ui;

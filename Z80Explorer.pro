@@ -49,6 +49,7 @@ SOURCES += \
     src/MainWindow.cpp \
     src/WidgetEditColor.cpp \
     src/WidgetGraphicsView.cpp \
+    src/WidgetHistoryLineEdit.cpp \
     src/WidgetImageOverlay.cpp \
     src/WidgetImageView.cpp \
     src/WidgetToolbar.cpp \
@@ -86,6 +87,7 @@ HEADERS += \
     src/MainWindow.h \
     src/WidgetEditColor.h \
     src/WidgetGraphicsView.h \
+    src/WidgetHistoryLineEdit.h \
     src/WidgetImageOverlay.h \
     src/WidgetImageView.h \
     src/WidgetToolbar.h \

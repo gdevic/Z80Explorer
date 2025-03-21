@@ -1,3 +1,4 @@
+#include "ClassController.h"
 #include "WidgetImageOverlay.h"
 #include "ui_WidgetImageOverlay.h"
 
@@ -8,12 +9,15 @@ WidgetImageOverlay::WidgetImageOverlay(QWidget *parent, QString sid) :
     ui->setupUi(this);
     setWhatsThis(sid);
 
-    connect(ui->editFind, &QLineEdit::returnPressed, this, &WidgetImageOverlay::onFind);
+    connect(ui->editFind, &WidgetHistoryLineEdit::textEntered, this, &WidgetImageOverlay::actionFind);
     connect(ui->btCoords, &QPushButton::clicked, this, &WidgetImageOverlay::actionCoords);
     connect(ui->btA, &QToolButton::clicked, this, [this](){ emit actionButton(0); } );
     connect(ui->btB, &QToolButton::clicked, this, [this](){ emit actionButton(1); } );
     connect(ui->btC, &QToolButton::clicked, this, [this](){ emit actionButton(2); } );
     connect(ui->btD, &QToolButton::clicked, this, [this](){ emit actionButton(3); } );
+
+    connect(&::controller, &ClassController::eventNetName, this, &WidgetImageOverlay::netNameChanged);
+    netNameChanged(); // Populate the Find autocompleter
 }
 
 WidgetImageOverlay::~WidgetImageOverlay()
@@ -94,16 +98,6 @@ QString WidgetImageOverlay::getLayers()
 }
 
 /*
- * Called by the editFind edit widget when the user presses the Enter key
- */
-void WidgetImageOverlay::onFind()
-{
-    QString text = ui->editFind->text().trimmed();
-    ui->editFind->clear(); // Clear the edit box from the user input
-    emit actionFind(text);
-}
-
-/*
  * Called when an image is selected to highlight the corresponding button
  * If blend is true, other buttons will not be reset
  */
@@ -117,4 +111,15 @@ void WidgetImageOverlay::selectImageButton(uint img, bool blend)
         else if (!blend) // If we are not blending, reset other buttons
             pb->setFlat(false);
     }
+}
+
+/*
+ * Handles messages about net name changes
+ * Rebuild the autocompletion list kept in the Find edit widget
+ */
+void WidgetImageOverlay::netNameChanged()
+{
+    ui->editFind->clearCompletionItems();
+    QStringList watches = ::controller.getWatch().getWatchlist();
+    ui->editFind->addCompletionItems(watches);
 }

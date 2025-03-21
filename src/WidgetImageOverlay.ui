@@ -155,7 +155,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="editFind">
+    <widget class="WidgetHistoryLineEdit" name="editFind">
      <property name="placeholderText">
       <string>Find</string>
      </property>
@@ -176,6 +176,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WidgetHistoryLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">WidgetHistoryLineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>btA</tabstop>
   <tabstop>btB</tabstop>
