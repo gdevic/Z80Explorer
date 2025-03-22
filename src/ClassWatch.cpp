@@ -232,6 +232,12 @@ bool ClassWatch::load(QString fileName)
                     net = obj["net"].toInt();
                 if (obj.contains("name") && obj["name"].isString())
                     name = obj["name"].toString();
+                // Make sure the net or bus has already been named and is valid
+                if (::controller.getNetlist().verifyNetBus(name, net) == false)
+                {
+                    qWarning() << "Unmatched net/bus name" << name << "(" << net << ") in the watchlist .. Skipping.";
+                    continue;
+                }
                 m_watchlist.append( {name, net} );
             }
             m_jsonFile = fileName;

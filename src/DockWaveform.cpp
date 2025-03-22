@@ -335,14 +335,11 @@ bool DockWaveform::load(QString fileName)
                     if (s.count() == 4)
                         a.color = QColor(s[0].toInt(), s[1].toInt(), s[2].toUInt(), s[3].toInt());
                 }
-                // For nets (but not buses!), ignore the net name from the file and use only the net number
-                // since the name could have changed in the meantime.
-                // The name in the json file is only a help to anyone wishing to edit json by hand
-                if (a.net)
+                // Make sure the net or bus has already been named and is valid
+                if (::controller.getNetlist().verifyNetBus(a.name, a.net) == false)
                 {
-                    // When the name is not valid, show the net number instead
-                    QString name = ::controller.getNetlist().get(a.net);
-                    a.name = name.isEmpty() ? QString("(%1)").arg(a.net) : name;
+                    qWarning() << "Unmatched net/bus name" << a.name << "(" << a.net << ") in the waveform config .. Skipping.";
+                    continue;
                 }
                 m_view.append(a);
             }

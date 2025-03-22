@@ -319,6 +319,16 @@ QStringList ClassNetlist::getNetnames()
 }
 
 /*
+* Returns true if the net or bus name is defined and matches the net number
+*/
+bool ClassNetlist::verifyNetBus(const QString& name, net_t n)
+{
+    if (n && m_netnums.contains(name))
+        return (m_netnums[name] == n);
+    return !n && m_buses.contains(name) && (m_buses[name].count() > 0);
+}
+
+/*
  * Handles requests to manage net names (called only by the controller class)
  */
 void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
