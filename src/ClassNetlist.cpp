@@ -262,6 +262,12 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](Trans &t) { return t.id; });
         qInfo() << "Number of transistors" << count;
 
+        count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](Trans &t) { return t.c2 == 1; });
+        qInfo() << "Number of transistors with c2==GND" << count;
+
+        count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](Trans &t) { return t.c2 == 2; });
+        qInfo() << "Number of transistors with c2==VCC" << count;
+
         return true;
     }
     qCritical() << "Error opening transdefs.js";
