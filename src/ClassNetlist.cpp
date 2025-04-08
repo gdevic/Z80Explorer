@@ -232,8 +232,8 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                     p->c1 = list[2].toUInt();
                     p->c2 = list[3].toUInt();
 
-                    // Pull-up and pull-down transistors should always have their *second* connection to the power/ground
-                    if ((p->c1 == npwr) || (p->c1 == ngnd))
+                    // Pull-up, pull-down and clock gate transistors should always have their *second* connection to the power/ground/clk
+                    if (p->c1 <= nclk) // ngnd=1, npwr=2, nclk=2, ...
                         std::swap(p->c1, p->c2);
                     max = std::max(max, std::max(p->c1, p->c2)); // Find the max net number
 
@@ -545,7 +545,14 @@ const QString ClassNetlist::netInfo(net_t net)
 const QString ClassNetlist::transInfo(tran_t t)
 {
     if ((t < MAX_TRANS) && m_transdefs[t].id)
-        return QString("gate:%2 c1:%3 c2:%4 ON:%5").arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(m_transdefs[t].c2).arg(m_transdefs[t].on);
+    {
+        // Explicitly name those three special nets for readability
+        auto toStr = [](int val) -> QString {
+            return (val == 1) ? "GND" :
+                   (val == 2) ? "VCC" :
+                   (val == 3) ? "CLK" : QString::number(val); };
+        return QString("gate:%2 c1:%3 c2:%4 %5").arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(toStr(m_transdefs[t].c2)).arg(m_transdefs[t].on ? "ON" : "OFF");
+    }
     return QString("Invalid transistor number");
 }
 
