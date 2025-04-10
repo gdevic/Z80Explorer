@@ -23,18 +23,15 @@ DialogSchematic::DialogSchematic(QWidget *parent, Logic *lr) :
     m_scene = new QGraphicsScene(this);
 
     // Build the context menu that the schematic objects children will use
-    m_menu = new QMenu();
-    QAction *actionShow = new QAction("Show", this);
-    QAction *actionNew = new QAction("Schematic...", this);
-    QAction *actionPng = new QAction("Export PNG...", this);
-    m_menu->addAction(actionShow);
-    m_menu->addAction(actionNew);
-    m_menu->addAction(actionPng);
+    m_menu->addAction(m_actionShow);
+    m_menu->addAction(m_actionNew);
+    m_menu->addAction(m_actionPng);
 
-    // Note: The very first menu item should be "Show" since it is hard-coded in SymbolItem::mouseDoubleClickEvent
-    connect(actionShow, &QAction::triggered, this, &DialogSchematic::onShow);
-    connect(actionNew, &QAction::triggered, this, &DialogSchematic::onNewSchematic);
-    connect(actionPng, &QAction::triggered, this, &DialogSchematic::onPng);
+    connect(m_actionShow, &QAction::triggered, this, &DialogSchematic::onShow);
+    connect(m_actionNew, &QAction::triggered, this, &DialogSchematic::onNewSchematic);
+    connect(m_actionPng, &QAction::triggered, this, &DialogSchematic::onPng);
+
+    ui->view->m_menu = m_menu;
 
     QTimer::singleShot(0, this, &DialogSchematic::createDrawing);
 }
@@ -78,7 +75,7 @@ void DialogSchematic::onPng()
  */
 void DialogSchematic::drawSymbol(QPoint loc, Logic *lr)
 {
-    SymbolItem *sym = new SymbolItem(lr, m_menu);
+    SymbolItem *sym = new SymbolItem(lr, m_actionShow);
     m_scene->addItem(sym);
     sym->setPos(loc);
 

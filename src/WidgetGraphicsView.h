@@ -14,7 +14,11 @@ class WidgetGraphicsView : public QGraphicsView
 {
     Q_OBJECT
 public:
-    explicit WidgetGraphicsView(QWidget *parent = nullptr);
+    explicit WidgetGraphicsView(QWidget *parent);
+    QMenu *m_menu;                      // Context menu used by this view (set in the DialogSchematic constructor)
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
     void wheelEvent(QWheelEvent *event) override;
@@ -30,7 +34,7 @@ private:
 class SymbolItem : public QGraphicsPolygonItem
 {
 public:
-    SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent = nullptr);
+    SymbolItem(Logic *lr, QAction *activated, QGraphicsItem *parent = nullptr);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;
     const QString get()                 // Returns the output net name of this logic gate
@@ -39,13 +43,13 @@ public:
         { return m_lr->outnet; }
 
 protected:
-    void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;
-    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) override
+        { m_activated->trigger(); }     // On a double-click, trigger the assigned action
 
 private:
     QPolygonF m_poly;                   // Prebuilt basic symbol shape
     Logic *m_lr;                        // Link to the logic structure it represents
-    QMenu *m_menu;                      // Context menu used by this schematic object
+    QAction *m_activated;               // Action to take when the symbol is double-clicked
 };
 
 #endif // WIDGETGRAPHICSVIEW_H

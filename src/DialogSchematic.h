@@ -39,13 +39,16 @@ private:
     void createDrawing();               // Creates drawing outside of the constructor
     void drawSymbol(QPoint loc, Logic *lr); // Recursively draws symbols and connecting lines
     int preBuild(Logic *lr);            // Pre-builds the tree to calculate screen positions
+    QAction *m_actionShow = new QAction("Show", this);
+    QAction *m_actionNew = new QAction("Schematic...", this);
+    QAction *m_actionPng = new QAction("Export PNG...", this);
 
 private:
     Ui::DialogSchematic *ui;
 
     Logic *m_logic;                     // Logic tree
     QGraphicsScene *m_scene;            // Graphics scene we are painting to
-    QMenu *m_menu;                      // Context menu used by all schematic objects
+    QMenu *m_menu = new QMenu(this);    // Context menu
 };
 
 #endif // DIALOGSCHEMATIC_H

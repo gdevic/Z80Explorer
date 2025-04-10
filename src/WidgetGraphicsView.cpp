@@ -66,10 +66,10 @@ bool WidgetGraphicsView::viewportEvent(QEvent *event)
 /*
  * Constructor creates logic symbols for the logic type it is constructed
  */
-SymbolItem::SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent) :
+SymbolItem::SymbolItem(Logic *lr, QAction *activated, QGraphicsItem *parent) :
     QGraphicsPolygonItem(parent),
     m_lr(lr),
-    m_menu(menu)
+    m_activated(activated)
 {
     QPainterPath path;
 
@@ -191,23 +191,11 @@ QRectF SymbolItem::boundingRect() const
     return box;
 }
 
-/*
- * Context menu handler, called when the user right-clicks on the symbol
- * The symbol does not own the menu; the menu is created and implemented in DialogSchematic class
- */
-void SymbolItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+void WidgetGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 {
-    // Make sure that only one - this symbol - is selected in the scene
-    scene()->clearSelection();
-    setSelected(true);
-    m_menu->exec(event->screenPos());
-}
+    bool haveSelection = scene()->selectedItems().count() > 0;
+    m_menu->actions()[0]->setEnabled(haveSelection);
+    m_menu->actions()[1]->setEnabled(haveSelection);
 
-void SymbolItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *)
-{
-    // Make sure that only one - this symbol - is selected in the scene
-    scene()->clearSelection();
-    setSelected(true);
-    // Hard-coded action[0] to be the menu's "Show" action
-    m_menu->actions()[0]->trigger();
+    m_menu->exec(mapToGlobal(event->pos()));
 }
