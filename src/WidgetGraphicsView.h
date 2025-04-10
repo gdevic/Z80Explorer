@@ -33,10 +33,10 @@ public:
     SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent = nullptr);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;
-    const QString get()                 // Returns the net name that this logic symbol represents
+    const QString get()                 // Returns the output net name of this logic gate
         { return m_lr->name; }
-    net_t getNet()                      // Returns the net number that this logic symbol represents
-        { return m_lr->net; }
+    net_t getNet()                      // Returns the output net number of this logic gate
+        { return m_lr->outnet; }
 
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) override;

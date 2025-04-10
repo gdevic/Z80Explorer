@@ -964,7 +964,7 @@ void WidgetImageView::viewSchematic()
     connect(sch, SIGNAL(doShow(QString)), this, SLOT(onFind(QString)));
     connect(sch, &DialogSchematic::doNewSchematic, this, [=](net_t net) { m_drivingNets.prepend(net); viewSchematic(); } );
     if (ctrl) // Update schematic's window title if the net we passed to it was not optimized
-        sch->setWindowTitle(sch->windowTitle() + " (not optimized)");
+        sch->setWindowTitle(sch->windowTitle() + " (unoptimized)");
     sch->show();
 }
 

@@ -13,7 +13,7 @@ DialogSchematic::DialogSchematic(QWidget *parent, Logic *lr) :
 {
     ui->setupUi(this);
 
-    net_t net = lr->net;
+    net_t net = lr->outnet;
     QString name = ::controller.getNetlist().get(net);
     if (name.isEmpty())
         setWindowTitle(QString("Schematic for net %1").arg(net));
@@ -41,7 +41,6 @@ DialogSchematic::DialogSchematic(QWidget *parent, Logic *lr) :
 
 DialogSchematic::~DialogSchematic()
 {
-    Logic::purge(m_logic);
     delete ui;
 }
 
@@ -66,6 +65,7 @@ void DialogSchematic::onPng()
     image.fill(Qt::white);
 
     QPainter painter(&image);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
     m_scene->render(&painter);
 
     QString fileName = QFileDialog::getSaveFileName(this, "Save diagram as image", "", "PNG file (*.png);;All files (*.*)");
@@ -87,7 +87,7 @@ void DialogSchematic::drawSymbol(QPoint loc, Logic *lr)
     QLine line(lineStart, childLoc);
     int lastY {};
 
-    for (auto k : lr->children)
+    for (auto k : lr->inputs)
     {
         drawSymbol(childLoc, k);
 
@@ -98,23 +98,23 @@ void DialogSchematic::drawSymbol(QPoint loc, Logic *lr)
         line.translate(nextDown);
     }
 
-    // Draw the horizontal line from the end of this node to the first child
-    if (lr->children.count())
+    // Draw a horizontal line from the end of this node to its first input
+    if (lr->inputs.count())
         m_scene->addLine(loc.x() + 50, loc.y(), lineStart.x(), loc.y());
 
-    // Draw the vertical line connecting all the children
-    if (lr->children.count() > 1)
+    // Draw a vertical line connecting all of its inputs
+    if (lr->inputs.count() > 1)
         m_scene->addLine(QLine(lineStart, QPoint(lineStart.x(), lastY)));
 }
 
 /*
- * Pre-builds the nodes to calculate screen positions by adding the number of child nodes
+ * Pre-builds the nodes to calculate screen positions by adding the number of input nodes
  */
 int DialogSchematic::preBuild(Logic *lr)
 {
-    if (lr->children.count() == 0)
+    if (lr->inputs.count() == 0)
         lr->tag = 1;
-    for (auto k : lr->children)
+    for (auto k : lr->inputs)
         lr->tag += preBuild(k);
     return lr->tag;
 }

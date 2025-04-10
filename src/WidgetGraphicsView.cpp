@@ -76,7 +76,7 @@ SymbolItem::SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent) :
     // Pre-build basic diagram shapes for each logic symbol
     switch (lr->op)
     {
-        case LogicOp::Nop:
+        case LogicOp::Net:
             path.lineTo(10, 10);
             path.lineTo(50, 10);
             path.lineTo(50,-10);
@@ -142,6 +142,9 @@ SymbolItem::SymbolItem(Logic *lr, QMenu *menu, QGraphicsItem *parent) :
             path.lineTo(10,-25);
             path.lineTo(10, 0);
         break;
+        case LogicOp::DotDot:
+            path.lineTo(10, 0);
+            break;
     }
     m_poly = path.toFillPolygon();
 
@@ -161,14 +164,16 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         bounds.setRight(39); // Shift the text a little bit to the left for OR and NOR symbols
     if (m_lr->op == LogicOp::ClkGate)
         bounds.setBottomRight(QPoint(35, 50)); // Clock gate has "clk" written on the bottom
-    painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, m_lr->name);
+    if (m_lr->op == LogicOp::DotDot)
+        painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignCenter, ". . .");
+    else
+        painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, m_lr->name);
     if (m_lr->op == LogicOp::Latch)
         painter->drawText(20, 20, "Latch"),
         painter->drawText(0, -5, "Q");
-
     // Print net tips for leaf nodes
     if (m_lr->leaf)
-        painter->drawText(55, 5, ::controller.getTip().get(m_lr->net));
+        painter->drawText(55, 5, ::controller.getTip().get(m_lr->outnet));
 
     QGraphicsPolygonItem::paint(painter, option, widget);
 }
@@ -181,7 +186,7 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 QRectF SymbolItem::boundingRect() const
 {
     QRectF box { 0, -25, 50, 50 };
-    if (m_lr->leaf && !::controller.getTip().get(m_lr->net).isEmpty())
+    if (m_lr->leaf && !::controller.getTip().get(m_lr->outnet).isEmpty())
         box.setWidth(150);
     return box;
 }

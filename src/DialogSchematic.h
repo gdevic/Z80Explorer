@@ -19,6 +19,12 @@ class DialogSchematic : public QDialog
 public:
     explicit DialogSchematic(QWidget *parent, Logic *lr);
     ~DialogSchematic();
+    // Since this is implemented as a dialog, release resources on close (don't wait on the app's end destructor)
+    void closeEvent(QCloseEvent *) override
+    {
+        Logic::purge(m_logic);
+        m_logic = nullptr;
+    }
 
 signals:
     void doShow(QString net);           // Signal back to the image view widget to show the named net

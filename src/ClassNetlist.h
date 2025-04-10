@@ -73,8 +73,9 @@ public:
     const QString transInfo(tran_t t);          // Returns basic transistor information as string
     bool isTransOn(tran_t t)                    // Returns true if a transistor is ON
         { return (t < MAX_TRANS) && m_transdefs[t].id && m_transdefs[t].on; }
-    Logic *getLogicTree(net_t net);             // Returns the bipartite tree describing the logic connections of a net
-    void optimizeLogicTree(Logic **llr);        // Optimizes, in place, logic tree by coalescing suitable nodes
+
+    Logic* getLogicTree(net_t net);             // Returns a tree describing the logic connections of a net
+    void optimizeLogicTree(Logic **plr);        // Optimizes, in place, logic tree by coalescing suitable nodes
     QString equation(net_t net);                // Returns a string describing the logic connections of a net
 
 protected:
@@ -100,7 +101,7 @@ private:
     QHash<QString, QVector<net_t>> m_buses {};  // Hash of bus names to their list (vector) of nets
 
     // Generates a logic equation driving a net
-    void parse(Logic *node);                    // Recursive parse of the netlist starting with the given node
+    Logic *parse(Logic *node, int depth);      // Recursive parse of the netlist starting with the given node
 };
 
 #endif // CLASSNETLIST_H
