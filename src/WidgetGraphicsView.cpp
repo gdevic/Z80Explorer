@@ -159,35 +159,61 @@ SymbolItem::SymbolItem(Logic *lr, QAction *activated, QGraphicsItem *parent) :
  */
 void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    QString name = m_lr->name;
+    auto width = painter->fontMetrics().horizontalAdvance(name);
+    constexpr auto maxTextWidth = 40; // Estimated usable width for text inside a symbol
+
     QRect bounds(0, -25, 48, 50);
     if ((m_lr->op == LogicOp::Or) || (m_lr->op == LogicOp::Nor))
         bounds.setRight(39); // Shift the text a little bit to the left for OR and NOR symbols
-    if (m_lr->op == LogicOp::ClkGate)
-        bounds.setBottomRight(QPoint(35, 50)); // Clock gate has "clk" written on the bottom
-    if (m_lr->op == LogicOp::DotDot)
-        painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignCenter, ". . .");
-    else
-        painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, m_lr->name);
-    if (m_lr->op == LogicOp::Latch)
-        painter->drawText(20, 20, "Latch"),
+    else if (m_lr->op == LogicOp::ClkGate)
+    {
+        painter->drawText(20, 20, "CLK"); // Clock gate has "clk" written on the bottom
+        name = QString(); // Do not print net name
+    } else if (m_lr->op == LogicOp::DotDot)
+        name = ". . .";
+    else if (m_lr->op == LogicOp::Latch)
+    {
+        painter->drawText(15, 20, "Latch");
         painter->drawText(0, -5, "Q");
-    // Print net tips for leaf nodes
-    if (m_lr->leaf)
-        painter->drawText(55, 5, ::controller.getTip().get(m_lr->outnet));
+        width = maxTextWidth; // Force printing the name outside of the latch box
+    }
+
+    // A terminating (leaf) node can accomodate extended text such as the node's tip
+    if (m_lr->inputs.count() == 0)
+    {
+        QString tip = ::controller.getTip().get(m_lr->outnet);
+
+        if (width < maxTextWidth) // The name fits inside the synbol box
+        {
+            painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, name);
+            painter->drawText(55, 5, tip);
+        }
+        else // The name does not fit, so print it outside, to the right, along with the tip
+            painter->drawText(55, 5, name % "  " % tip);
+    }
+    else if (m_lr->root) // The root node is printed below the symbol
+    {
+        bounds.setLeft(50 - width - 2); // Expand the bounding box to the left if needed by the text
+        painter->drawText(bounds, Qt::AlignBottom | Qt::AlignRight, name);
+    }
+    else
+        painter->drawText(bounds, Qt::AlignVCenter | Qt::AlignRight, name);
 
     QGraphicsPolygonItem::paint(painter, option, widget);
 }
 
 /*
  * Provide the default bounding box for each item: 50x50 for most items,
- * but extend the width by 100 pix for leaf nodes that have a tip text
- * XXX For more precision, it should calculate the actual width of the text in pixels
+ * but extend the width for leaf nodes (those with no inputs) and the root node
  */
 QRectF SymbolItem::boundingRect() const
 {
-    QRectF box { 0, -25, 50, 50 };
-    if (m_lr->leaf && !::controller.getTip().get(m_lr->outnet).isEmpty())
+    QRectF box {0, -25, 50, 50};
+    if (m_lr->inputs.count() == 0)
         box.setWidth(150);
+    if (m_lr->root)
+        box.setLeft(-50);
     return box;
 }
 

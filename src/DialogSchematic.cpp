@@ -90,7 +90,7 @@ void DialogSchematic::drawSymbol(QPoint loc, Logic *lr)
 
         m_scene->addLine(line);
         lastY = childLoc.y();
-        QPoint nextDown(0, k->tag * 50);
+        QPoint nextDown(0, k->tag * 54); // Add a few pixels of vertical spacing
         childLoc += nextDown;
         line.translate(nextDown);
     }
