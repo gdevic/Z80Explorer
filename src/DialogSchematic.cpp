@@ -1,4 +1,5 @@
 #include "ClassController.h"
+#include "DialogEditSchematic.h"
 #include "DialogSchematic.h"
 #include "ui_DialogSchematic.h"
 #include <QFileDialog>
@@ -22,14 +23,16 @@ DialogSchematic::DialogSchematic(QWidget *parent, Logic *lr) :
 
     m_scene = new QGraphicsScene(this);
 
-    // Build the context menu that the schematic objects children will use
+    // Build and connect the context menu
     m_menu->addAction(m_actionShow);
     m_menu->addAction(m_actionNew);
     m_menu->addAction(m_actionPng);
+    m_menu->addAction(m_actionSettings);
 
     connect(m_actionShow, &QAction::triggered, this, &DialogSchematic::onShow);
     connect(m_actionNew, &QAction::triggered, this, &DialogSchematic::onNewSchematic);
     connect(m_actionPng, &QAction::triggered, this, &DialogSchematic::onPng);
+    connect(m_actionSettings, &QAction::triggered, this, &DialogSchematic::onSettings);
 
     ui->view->m_menu = m_menu;
 
@@ -68,6 +71,12 @@ void DialogSchematic::onPng()
     QString fileName = QFileDialog::getSaveFileName(this, "Save diagram as image", "", "PNG file (*.png);;All files (*.*)");
     if (!fileName.isEmpty() && !image.save(fileName))
         QMessageBox::critical(this, "Error", "Unable to save image file " + fileName);
+}
+
+void DialogSchematic::onSettings()
+{
+    DialogEditSchematic dlg(this);
+    dlg.exec();
 }
 
 /*

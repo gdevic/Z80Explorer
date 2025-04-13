@@ -34,6 +34,7 @@ private slots:
     void onShow();                      // Menu handler to show selected net
     void onNewSchematic();              // Menu handler to create a new schematic view
     void onPng();                       // Menu handler to export diagram view as a PNG image file
+    void onSettings();                  // Menu handler to show the schematic settings dialog
 
 private:
     void createDrawing();               // Creates drawing outside of the constructor
@@ -42,6 +43,7 @@ private:
     QAction *m_actionShow = new QAction("Show", this);
     QAction *m_actionNew = new QAction("Schematic...", this);
     QAction *m_actionPng = new QAction("Export PNG...", this);
+    QAction *m_actionSettings = new QAction("Settings...", this);
 
 private:
     Ui::DialogSchematic *ui;

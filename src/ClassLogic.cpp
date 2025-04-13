@@ -2,13 +2,14 @@
 #include "ClassLogic.h"
 #include "ClassNetlist.h"
 #include <algorithm>
+#include <QSettings>
 
 /*
  * Generates a logic equation for a net.
  * This code parses the netlist, starting at a given net, traversing upstream (by following the transistor paths that
  * gate eact net), and creates a tree of Logic nodes. It tries to figure out the logic function of each node (combination
  * of gates interconnected in various ways). It stops at the nets that are chosen as meaningful end points:
- * clk, t1..t6, m1..m6, flops and all PLA (instruction decode) signals.
+ * clk, t1..t6, m1..m6, flops and all PLA (instruction decode) signals. This list is customizable.
  */
 // XXX Maybe we don't need to track visitedNets?
 static QVector<net_t> visitedNets; // Avoid loops by keeping nets that are already visited
@@ -16,27 +17,22 @@ static QVector<tran_t> visitedTrans; // Avoid path duplication by keeping transi
 
 Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets) : outnet(n), op(op)
 {
-    // Terminating nets: ngnd,npwr,clk, t1..t6,m1..m6, int_reset, ... any pla wire (below) and any latch
-    // TODO: Make this list user-selectable
-    const static QVector<net_t> term{ 0,1,2,3, 115,137,144,166,134,168,155,173,163,159,209,210,95 };
+    QSettings settings;
+    QString termNodes = settings.value("schematicTermNodes").toString();
+
     name = ::controller.getNetlist().get(n);
     if (name.isEmpty())
         name = QString::number(n);
     // We stop processing nodes at a leaf node which is either one of the predefined nodes or a detected loop
-    leaf = term.contains(n) ||
-        name.startsWith("pla") || name.startsWith("_pla") ||
-        name.startsWith("ab") ||
-        name.startsWith("db") ||
-        name.startsWith("ubus") ||
-        name.startsWith("vbus");
+    leaf = n <= 3; // GND, VCC, CLK are always terminating
+    leaf |= matchName(termNodes, name); // All other nets are user selectable
     if (checkVisitedNets && visitedNets.contains(n))
         leaf = true;
     else
         visitedNets.append(n);
-    qDebug() << "Created" << name << "as" << toString(op);
 }
 
-Logic::~Logic() { qDebug() << "Destruct" << this->name; }
+Logic::~Logic() {}
 
 /*
  * Returns a string describing the logic connections of a net
@@ -55,6 +51,23 @@ QString ClassNetlist::equation(net_t net)
  */
 void ClassNetlist::optimizeLogicTree(Logic **plr)
 {
+    QSettings settings;
+
+    // Load most up to date optimization options
+    maxDepth = settings.value("schematicMaxDepth").toInt();
+    optIntermediate = settings.value("schematicOptIntermediate").toBool();
+    optInverters = settings.value("schematicOptInverters").toBool();
+    optSingleInput = settings.value("schematicOptSingleInput").toBool();
+    optClockGate = settings.value("schematicOptClockGate").toBool();
+
+    optimize(plr);
+}
+
+/*
+ * Recursive optimization of a logic net
+ */
+void ClassNetlist::optimize(Logic **plr)
+{
     Logic *lr = *plr;
 
     // Exit if there are no inputs to process (this also handles leaf nodes / terminating nodes)
@@ -65,53 +78,59 @@ void ClassNetlist::optimizeLogicTree(Logic **plr)
     Logic *next = lr->inputs[0];
 
     // If the node is "AND" or "OR" with only a single input, remove it
-    if (((lr->op == LogicOp::And) || (lr->op == LogicOp::Or)) && (lr->inputs.size() == 1))
+    if (optSingleInput && ((lr->op == LogicOp::And) || (lr->op == LogicOp::Or)) && (lr->inputs.size() == 1))
     {
         *plr = lr->inputs[0]; // Bypass the current node
         delete lr;
-        return optimizeLogicTree(plr);
+        return optimize(plr);
     }
     // If the node is "NAND" or "NOR" with only a single input, replace it with an inverter
-    if (((lr->op == LogicOp::Nand) || (lr->op == LogicOp::Nor)) && (lr->inputs.size() == 1))
+    if (optSingleInput && ((lr->op == LogicOp::Nand) || (lr->op == LogicOp::Nor)) && (lr->inputs.size() == 1))
     {
         lr->op = LogicOp::Inverter;
-        return optimizeLogicTree(plr);
+        return optimize(plr);
     }
     // Coalesce an inverter with And/Or into Nand/Nor
-    if ((lr->op == LogicOp::Inverter) && (next->op == LogicOp::And || next->op == LogicOp::Or))
+    if (optInverters && (lr->op == LogicOp::Inverter) && ((next->op == LogicOp::And) || (next->op == LogicOp::Or)))
     {
         *plr = next; // Bypass the inverter
         next->op = (next->op == LogicOp::And) ? LogicOp::Nand : LogicOp::Nor;
         delete lr;
-        return optimizeLogicTree(plr);
+        return optimize(plr);
     }
     // Coalesce an inverter with Nand/Nor into And/Or
-    if ((lr->op == LogicOp::Inverter) && (next->op == LogicOp::Nand || next->op == LogicOp::Nor))
+    if (optInverters && (lr->op == LogicOp::Inverter) && ((next->op == LogicOp::Nand) || (next->op == LogicOp::Nor)))
     {
         *plr = next; // Bypass the inverter
         next->op = (next->op == LogicOp::Nand) ? LogicOp::And : LogicOp::Or;
         delete lr;
-        return optimizeLogicTree(plr);
+        return optimize(plr);
     }
     // If the node is an inverter and its input is also an inverter, remove both
-    if ((lr->op == LogicOp::Inverter) && (next->op == LogicOp::Inverter) && !next->inputs.isEmpty())
+    if (optInverters && (lr->op == LogicOp::Inverter) && (next->op == LogicOp::Inverter) && !next->inputs.isEmpty())
     {
         *plr = next->inputs[0]; // Bypass both inverters
         delete next;
         delete lr;
-        return optimizeLogicTree(plr);
+        return optimize(plr);
     }
-    // Optionally remove intermediate nets
-    // TODO: Make this optional
-    if ((1) && !lr->root && (lr->op == LogicOp::Net))
+    // Remove intermediate nets
+    if (optIntermediate && !lr->root && (lr->op == LogicOp::Net))
     {
         *plr = next; // Bypass the net
         delete lr;
-        return optimizeLogicTree(plr);
+        return optimize(plr);
+    }
+    // Remove clock gate (this is a special case when the clk gate is the very first node) XXX
+    if (optClockGate && (lr->op == LogicOp::ClkGate))
+    {
+        *plr = next; // Bypass the current node (a clock gate)
+        delete lr;
+        return optimize(plr);
     }
 
     for (int i = 0; i < lr->inputs.count(); i++)
-        optimizeLogicTree(&lr->inputs[i]);
+        optimize(&lr->inputs[i]);
 }
 
 Logic *ClassNetlist::getLogicTree(net_t net)
@@ -121,8 +140,7 @@ Logic *ClassNetlist::getLogicTree(net_t net)
 
     auto root = new Logic(net, LogicOp::Net);
     root->root = true;
-    constexpr uint max_depth = 20;
-    parse(root, max_depth);
+    parse(root, maxDepth);
 
     return root;
 }

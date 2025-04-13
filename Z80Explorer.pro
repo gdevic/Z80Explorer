@@ -38,6 +38,7 @@ SOURCES += \
     src/DialogEditBuses.cpp \
     src/DialogEditColors.cpp \
     src/DialogEditNets.cpp \
+    src/DialogEditSchematic.cpp \
     src/DialogEditWatchlist.cpp \
     src/DialogEditWaveform.cpp \
     src/DialogSchematic.cpp \
@@ -76,6 +77,7 @@ HEADERS += \
     src/DialogEditBuses.h \
     src/DialogEditColors.h \
     src/DialogEditNets.h \
+    src/DialogEditSchematic.h \
     src/DialogEditWatchlist.h \
     src/DialogEditWaveform.h \
     src/DialogSchematic.h \
@@ -99,6 +101,7 @@ FORMS += \
     src/DialogEditBuses.ui \
     src/DialogEditColors.ui \
     src/DialogEditNets.ui \
+    src/DialogEditSchematic.ui \
     src/DialogEditWatchlist.ui \
     src/DialogEditWaveform.ui \
     src/DialogSchematic.ui \

@@ -64,6 +64,27 @@ public:
         }
         return base;
     }
+
+    // Match net name to a list of terminating nets
+    static bool matchName(const QString &namesList, const QString &input)
+    {
+        QStringList names = namesList.split(',', Qt::SkipEmptyParts);
+
+        for (const QString &name : names)
+        {
+            QString trimmedName = name.trimmed();
+            if (trimmedName.endsWith('*'))
+            {
+                // Wildcard match - check if input starts with the name (excluding *)
+                QString pattern = trimmedName.left(trimmedName.length() - 1);
+                if (input.startsWith(pattern))
+                    return true;
+            }
+            else if (input == trimmedName) // Exact match
+                return true;
+        }
+        return false;
+    }
 };
 
 #endif // CLASSLOGIC_H

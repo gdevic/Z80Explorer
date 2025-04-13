@@ -100,8 +100,14 @@ private:
     bool m_netoverrides[MAX_NETS] {};           // Net names that are overriden or new
     QHash<QString, QVector<net_t>> m_buses {};  // Hash of bus names to their list (vector) of nets
 
-    // Generates a logic equation driving a net
-    Logic *parse(Logic *node, int depth);      // Recursive parse of the netlist starting with the given node
+    // Generates a logic equation driving a net and specifies the optimization done in optimizeLogicTree()
+    Logic *parse(Logic *node, int depth);       // Recursive parse of the netlist starting with the given node
+    void optimize(Logic **plr);                 // Performs recursive optimization
+    int maxDepth;                               // Maximum recursion depth when traversing the logic tree
+    bool optIntermediate;                       // Remove intermediate nets
+    bool optInverters;                          // Optimize inverter logic
+    bool optSingleInput;                        // Remove single-input nodes
+    bool optClockGate;                          // Remove clock gates
 };
 
 #endif // CLASSNETLIST_H

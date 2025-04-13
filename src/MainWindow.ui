@@ -90,6 +90,7 @@
     <addaction name="actionEditWatchlist"/>
     <addaction name="actionEditAnnotations"/>
     <addaction name="actionEditColors"/>
+    <addaction name="actionEditSchematic"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -225,6 +226,14 @@
    </property>
    <property name="whatsThis">
     <string>https://github.com/gdevic/Z80Explorer/releases</string>
+   </property>
+  </action>
+  <action name="actionEditSchematic">
+   <property name="text">
+    <string>Schematic...</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit schematic properties</string>
    </property>
   </action>
  </widget>

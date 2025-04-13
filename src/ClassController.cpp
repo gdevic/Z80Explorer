@@ -1,4 +1,5 @@
 #include "ClassController.h"
+#include "DialogEditSchematic.h"
 #include <QDebug>
 #include <QFileDialog>
 #include <QSettings>
@@ -64,6 +65,9 @@ bool ClassController::init(QJSEngine *sc)
 
     m_annotate.load(resDir + "/annotations.json");
     m_tips.load(resDir + "/tips.json");
+
+    // Initialize the schematic generation properties
+    DialogEditSchematic::init();
 
     // Execute init.js initialization script
     QTimer::singleShot(1000, [=](){ m_script.exec( R"(load("init.js"))" ); } );

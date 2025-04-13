@@ -3,6 +3,7 @@
 #include "DialogEditBuses.h"
 #include "DialogEditColors.h"
 #include "DialogEditNets.h"
+#include "DialogEditSchematic.h"
 #include "DialogEditWatchlist.h"
 #include "DockCommand.h"
 #include "DockImageView.h"
@@ -73,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QJSEngine *sc) :
     connect(ui->actionEditNets, SIGNAL(triggered()), this, SLOT(onEditNets()));
     connect(ui->actionEditBuses, SIGNAL(triggered()), this, SLOT(onEditBuses()));
     connect(ui->actionEditColors, SIGNAL(triggered()), this, SLOT(onEditColors()));
+    connect(ui->actionEditSchematic, SIGNAL(triggered()), this, SLOT(onEditSchematic()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
@@ -173,6 +175,15 @@ void MainWindow::onEditWatchlist()
     dlg.setWatchlist(::controller.getWatch().getWatchlist());
     if (dlg.exec() == QDialog::Accepted)
         ::controller.getWatch().updateWatchlist(dlg.getWatchlist());
+}
+
+/*
+ * Handle menu item to edit schematics settings
+ */
+void MainWindow::onEditSchematic()
+{
+    DialogEditSchematic dlg(this);
+    dlg.exec();
 }
 
 /*

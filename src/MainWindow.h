@@ -28,6 +28,7 @@ private slots:
     void onEditBuses();                 // Edits buses
     void onEditColors();                // Edits custom net coloring
     void onEditWatchlist();             // Edits watchlist
+    void onEditSchematic();             // Edits schematic settings
     void onNewImageView();              // Open a new view to the chip data
     void onNewWaveformView();           // Open a new view to the waveforms
     void onOnlineRef();                 // Open the online reference web page
