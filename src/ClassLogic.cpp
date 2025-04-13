@@ -49,7 +49,7 @@ QString ClassNetlist::equation(net_t net)
 /*
  * Optimizes, in place, logic tree by coalescing suitable nodes
  */
-void ClassNetlist::optimizeLogicTree(Logic **plr)
+void ClassNetlist::optimizeLogicTree(Logic **ppl)
 {
     QSettings settings;
 
@@ -59,16 +59,21 @@ void ClassNetlist::optimizeLogicTree(Logic **plr)
     optInverters = settings.value("schematicOptInverters").toBool();
     optSingleInput = settings.value("schematicOptSingleInput").toBool();
     optClockGate = settings.value("schematicOptClockGate").toBool();
+    optCoalesce = settings.value("schematicOptCoalesce").toBool();
 
-    optimize(plr);
+    optimizeLinear(ppl);
+
+    if (optCoalesce)
+        optimizeAndOrGates(*ppl);
 }
 
 /*
  * Recursive optimization of a logic net
+ * Performs optimizations on logic symbols based around only one input
  */
-void ClassNetlist::optimize(Logic **plr)
+void ClassNetlist::optimizeLinear(Logic **ppl)
 {
-    Logic *lr = *plr;
+    Logic *lr = *ppl;
 
     // Exit if there are no inputs to process (this also handles leaf nodes / terminating nodes)
     if (lr->inputs.isEmpty())
@@ -80,57 +85,85 @@ void ClassNetlist::optimize(Logic **plr)
     // If the node is "AND" or "OR" with only a single input, remove it
     if (optSingleInput && ((lr->op == LogicOp::And) || (lr->op == LogicOp::Or)) && (lr->inputs.size() == 1))
     {
-        *plr = lr->inputs[0]; // Bypass the current node
+        *ppl = lr->inputs[0]; // Bypass the current node
         delete lr;
-        return optimize(plr);
+        return optimizeLinear(ppl);
     }
     // If the node is "NAND" or "NOR" with only a single input, replace it with an inverter
     if (optSingleInput && ((lr->op == LogicOp::Nand) || (lr->op == LogicOp::Nor)) && (lr->inputs.size() == 1))
     {
         lr->op = LogicOp::Inverter;
-        return optimize(plr);
+        return optimizeLinear(ppl);
     }
     // Coalesce an inverter with And/Or into Nand/Nor
     if (optInverters && (lr->op == LogicOp::Inverter) && ((next->op == LogicOp::And) || (next->op == LogicOp::Or)))
     {
-        *plr = next; // Bypass the inverter
+        *ppl = next; // Bypass the inverter
         next->op = (next->op == LogicOp::And) ? LogicOp::Nand : LogicOp::Nor;
         delete lr;
-        return optimize(plr);
+        return optimizeLinear(ppl);
     }
     // Coalesce an inverter with Nand/Nor into And/Or
     if (optInverters && (lr->op == LogicOp::Inverter) && ((next->op == LogicOp::Nand) || (next->op == LogicOp::Nor)))
     {
-        *plr = next; // Bypass the inverter
+        *ppl = next; // Bypass the inverter
         next->op = (next->op == LogicOp::Nand) ? LogicOp::And : LogicOp::Or;
         delete lr;
-        return optimize(plr);
+        return optimizeLinear(ppl);
     }
     // If the node is an inverter and its input is also an inverter, remove both
     if (optInverters && (lr->op == LogicOp::Inverter) && (next->op == LogicOp::Inverter) && !next->inputs.isEmpty())
     {
-        *plr = next->inputs[0]; // Bypass both inverters
+        *ppl = next->inputs[0]; // Bypass both inverters
         delete next;
         delete lr;
-        return optimize(plr);
+        return optimizeLinear(ppl);
     }
     // Remove intermediate nets
     if (optIntermediate && !lr->root && (lr->op == LogicOp::Net))
     {
-        *plr = next; // Bypass the net
+        *ppl = next; // Bypass the net
         delete lr;
-        return optimize(plr);
+        return optimizeLinear(ppl);
     }
-    // Remove clock gate (this is a special case when the clk gate is the very first node) XXX
+    // Remove clock gates
     if (optClockGate && (lr->op == LogicOp::ClkGate))
     {
-        *plr = next; // Bypass the current node (a clock gate)
+        *ppl = next; // Bypass the current node (a clock gate)
         delete lr;
-        return optimize(plr);
+        return optimizeLinear(ppl);
     }
 
     for (int i = 0; i < lr->inputs.count(); i++)
-        optimize(&lr->inputs[i]);
+        optimizeLinear(&lr->inputs[i]);
+}
+
+/*
+ * Recursive optimization of a logic net
+ * Performs a more complex optimization of merging (coalescing) identical, successive AND/OR gates
+ */
+void ClassNetlist::optimizeAndOrGates(Logic *p)
+{
+    if ((p->op == LogicOp::And) || (p->op == LogicOp::Or))
+    {
+        // Loop over a copy of inputs since we will be removing selected entries
+        QVector<Logic *> children = p->inputs;
+        QVector<Logic *> grandchildren;
+
+        for (auto *lp : children)
+        {
+            if (lp->op == p->op)
+            {
+                grandchildren.append(lp->inputs);
+                p->inputs.removeOne(lp);
+                delete lp;
+            }
+        }
+        p->inputs.append(grandchildren);
+    }
+
+    for (auto *lp : p->inputs)
+        optimizeAndOrGates(lp);
 }
 
 Logic *ClassNetlist::getLogicTree(net_t net)

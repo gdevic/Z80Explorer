@@ -75,7 +75,7 @@ public:
         { return (t < MAX_TRANS) && m_transdefs[t].id && m_transdefs[t].on; }
 
     Logic* getLogicTree(net_t net);             // Returns a tree describing the logic connections of a net
-    void optimizeLogicTree(Logic **plr);        // Optimizes, in place, logic tree by coalescing suitable nodes
+    void optimizeLogicTree(Logic **ppl);        // Optimizes, in place, logic tree by coalescing suitable nodes
     QString equation(net_t net);                // Returns a string describing the logic connections of a net
 
 protected:
@@ -102,12 +102,14 @@ private:
 
     // Generates a logic equation driving a net and specifies the optimization done in optimizeLogicTree()
     Logic *parse(Logic *node, int depth);       // Recursive parse of the netlist starting with the given node
-    void optimize(Logic **plr);                 // Performs recursive optimization
+    void optimizeLinear(Logic **ppl);           // Optimize linear, single-input nodes
+    void optimizeAndOrGates(Logic *p);          // Coalesce identical, successive AND/OR gates
     int maxDepth;                               // Maximum recursion depth when traversing the logic tree
+    bool optClockGate;                          // Remove clock gates
+    bool optCoalesce;                           // Coalesce successive AND/OR gates
     bool optIntermediate;                       // Remove intermediate nets
     bool optInverters;                          // Optimize inverter logic
     bool optSingleInput;                        // Remove single-input nodes
-    bool optClockGate;                          // Remove clock gates
 };
 
 #endif // CLASSNETLIST_H

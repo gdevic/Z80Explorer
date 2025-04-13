@@ -952,15 +952,15 @@ void WidgetImageView::viewSchematic()
     net_t net = m_drivingNets[0];
 
     // Calculate the logic equation for the net
-    Logic *lr = ::controller.getNetlist().getLogicTree(net);
-    qInfo() << Logic::flatten(lr);
+    Logic *pl = ::controller.getNetlist().getLogicTree(net);
+    qInfo() << Logic::flatten(pl);
 
     // If the user pressed Ctrl key, we will *not* optimize logic tree network
     bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
     if (!ctrl)
-        ::controller.getNetlist().optimizeLogicTree(&lr);
+        ::controller.getNetlist().optimizeLogicTree(&pl);
 
-    DialogSchematic *sch = new DialogSchematic(this, lr);
+    DialogSchematic *sch = new DialogSchematic(this, pl);
     connect(sch, SIGNAL(doShow(QString)), this, SLOT(onFind(QString)));
     connect(sch, &DialogSchematic::doNewSchematic, this, [=](net_t net) { m_drivingNets.prepend(net); viewSchematic(); } );
     if (ctrl) // Update schematic's window title if the net we passed to it was not optimized

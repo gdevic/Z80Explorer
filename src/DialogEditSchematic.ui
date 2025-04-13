@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>490</width>
-    <height>371</height>
+    <height>396</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,13 +77,13 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Optimizations</string>
+      <string>Optimization Hints</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QCheckBox" name="checkOptSingleInput">
         <property name="text">
-         <string>Remove single-input nodes</string>
+         <string>Remove single-input (functionally no-op) nodes</string>
         </property>
        </widget>
       </item>
@@ -105,6 +105,13 @@
        <widget class="QCheckBox" name="checkOptClockGate">
         <property name="text">
          <string>Remove clock gates</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkOptCoalesce">
+        <property name="text">
+         <string>Coalesce successive AND/OR gates</string>
         </property>
        </widget>
       </item>
@@ -199,6 +206,7 @@
   <tabstop>checkOptInverters</tabstop>
   <tabstop>checkOptIntermediate</tabstop>
   <tabstop>checkOptClockGate</tabstop>
+  <tabstop>checkOptCoalesce</tabstop>
   <tabstop>btReset</tabstop>
   <tabstop>editTermNodes</tabstop>
  </tabstops>

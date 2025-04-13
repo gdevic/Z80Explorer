@@ -19,10 +19,11 @@ DialogEditSchematic::DialogEditSchematic(QWidget *parent)
     restoreGeometry(settings.value("editSchematicGeometry").toByteArray());
 
     ui->spinDepth->setValue(settings.value("schematicMaxDepth").toInt());
+    ui->checkOptClockGate->setChecked(settings.value("schematicOptClockGate").toBool());
+    ui->checkOptCoalesce->setChecked(settings.value("schematicOptCoalesce").toBool());
     ui->checkOptIntermediate->setChecked(settings.value("schematicOptIntermediate").toBool());
     ui->checkOptInverters->setChecked(settings.value("schematicOptInverters").toBool());
     ui->checkOptSingleInput->setChecked(settings.value("schematicOptSingleInput").toBool());
-    ui->checkOptClockGate->setChecked(settings.value("schematicOptClockGate").toBool());
     ui->editTermNodes->setPlainText(settings.value("schematicTermNodes").toString());
 
     // Clicking on the Reset button reverts the list of terminating nodes to the default suggested list
@@ -46,7 +47,13 @@ void DialogEditSchematic::init()
     QSettings settings;
 
     if (!settings.contains("schematicMaxDepth"))
-        settings.setValue("schematicMaxDepth", 20);
+        settings.setValue("schematicMaxDepth", 30);
+
+    if (!settings.contains("schematicOptClockGate"))
+        settings.setValue("schematicOptClockGate", true);
+
+    if (!settings.contains("schematicOptCoalesce"))
+        settings.setValue("schematicOptCoalesce", true);
 
     if (!settings.contains("schematicOptIntermediate"))
         settings.setValue("schematicOptIntermediate", true);
@@ -56,9 +63,6 @@ void DialogEditSchematic::init()
 
     if (!settings.contains("schematicOptSingleInput"))
         settings.setValue("schematicOptSingleInput", true);
-
-    if (!settings.contains("schematicOptClockGate"))
-        settings.setValue("schematicOptClockGate", false);
 
     if (!settings.contains("schematicTermNodes"))
         settings.setValue("schematicTermNodes", termNodes);
@@ -72,10 +76,11 @@ void DialogEditSchematic::accept()
     QSettings settings;
 
     settings.setValue("schematicMaxDepth", ui->spinDepth->value());
+    settings.setValue("schematicOptClockGate", ui->checkOptClockGate->isChecked());
+    settings.setValue("schematicOptCoalesce", ui->checkOptCoalesce->isChecked());
     settings.setValue("schematicOptIntermediate", ui->checkOptIntermediate->isChecked());
     settings.setValue("schematicOptInverters", ui->checkOptInverters->isChecked());
     settings.setValue("schematicOptSingleInput", ui->checkOptSingleInput->isChecked());
-    settings.setValue("schematicOptClockGate", ui->checkOptClockGate->isChecked());
     settings.setValue("schematicTermNodes", ui->editTermNodes->toPlainText());
 
     QDialog::done(QDialog::Accepted);
