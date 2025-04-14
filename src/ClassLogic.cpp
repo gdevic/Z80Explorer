@@ -61,10 +61,19 @@ void ClassNetlist::optimizeLogicTree(Logic **ppl)
     optClockGate = settings.value("schematicOptClockGate").toBool();
     optCoalesce = settings.value("schematicOptCoalesce").toBool();
 
-    optimizeLinear(ppl);
+    // Some optimizations may set up opportunity for additional optimizations, so we repeat the process until the
+    // logic tree settles and there are no more changes to it.
+    uint32_t lastSig, newSig = Logic::getLogicTreeSignature(*ppl);
+    do
+    {
+        optimizeLinear(ppl);
+        if (optCoalesce)
+            optimizeAndOrGates(*ppl);
 
-    if (optCoalesce)
-        optimizeAndOrGates(*ppl);
+        qDebug() << "Logic tree optimization pass. Sig:" << newSig;
+        lastSig = newSig;
+        newSig = Logic::getLogicTreeSignature(*ppl);
+    } while (newSig != lastSig);
 }
 
 /*

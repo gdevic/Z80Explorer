@@ -85,6 +85,24 @@ public:
         }
         return false;
     }
+
+    // Calculate a unique signature of the logic tree
+    static uint32_t getLogicTreeSignature(Logic *node)
+    {
+        // Convert pointer to integer and take lower 32 bits
+        uint32_t hash = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(node));
+        // Combine with operation type
+        hash = hash ^ (static_cast<uint32_t>(node->op) * 0x2c2c57ed);
+
+        // Combine with children's hashes
+        for (Logic *child : node->inputs)
+        {
+            uint32_t childHash = getLogicTreeSignature(child);
+            hash = hash ^ ((childHash << 5) | (childHash >> 27)); // rotate left by 5
+            hash = hash * 0x7f4a7c13; // multiply by prime
+        }
+        return hash;
+    }
 };
 
 #endif // CLASSLOGIC_H
