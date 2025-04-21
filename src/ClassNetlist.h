@@ -104,7 +104,6 @@ private:
     Logic *parse(Logic *node, int depth);       // Recursive parse of the netlist starting with the given node
     void optimizeLinear(Logic **ppl);           // Optimize linear, single-input nodes
     void optimizeAndOrGates(Logic *p);          // Coalesce identical, successive AND/OR gates
-    int maxDepth;                               // Maximum recursion depth when traversing the logic tree
     bool optClockGate;                          // Remove clock gates
     bool optCoalesce;                           // Coalesce successive AND/OR gates
     bool optIntermediate;                       // Remove intermediate nets

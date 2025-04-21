@@ -54,7 +54,6 @@ void ClassNetlist::optimizeLogicTree(Logic **ppl)
     QSettings settings;
 
     // Load most up to date optimization options
-    maxDepth = settings.value("schematicMaxDepth").toInt();
     optIntermediate = settings.value("schematicOptIntermediate").toBool();
     optInverters = settings.value("schematicOptInverters").toBool();
     optSingleInput = settings.value("schematicOptSingleInput").toBool();
@@ -177,6 +176,9 @@ void ClassNetlist::optimizeAndOrGates(Logic *p)
 
 Logic *ClassNetlist::getLogicTree(net_t net)
 {
+    QSettings settings;
+    auto maxDepth = settings.value("schematicMaxDepth").toInt();
+
     visitedNets.clear();
     visitedTrans.clear();
 
