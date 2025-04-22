@@ -103,7 +103,8 @@ private:
     // Generates a logic equation driving a net and specifies the optimization done in optimizeLogicTree()
     Logic *parse(Logic *node, int depth);       // Recursive parse of the netlist starting with the given node
     void optimizeLinear(Logic **ppl);           // Optimize linear, single-input nodes
-    void optimizeAndOrGates(Logic *p);          // Coalesce identical, successive AND/OR gates
+    void optimizeAndOr(Logic *p);               // Coalesce identical, successive AND/OR gates
+    void optimizeClkNets(Logic *p);             // Optimize by removing clock inputs
     bool optClockGate;                          // Remove clock gates
     bool optCoalesce;                           // Coalesce successive AND/OR gates
     bool optIntermediate;                       // Remove intermediate nets

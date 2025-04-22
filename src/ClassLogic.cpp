@@ -35,18 +35,6 @@ Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets) : outnet(n), op(op)
 Logic::~Logic() {}
 
 /*
- * Returns a string describing the logic connections of a net
- */
-QString ClassNetlist::equation(net_t net)
-{
-    Logic *lr = getLogicTree(net);
-    QString equation = lr->name % " = " % Logic::flatten(lr);
-    Logic::purge(lr);
-    qDebug() << equation;
-    return equation;
-}
-
-/*
  * Optimizes, in place, logic tree by coalescing suitable nodes
  */
 void ClassNetlist::optimizeLogicTree(Logic **ppl)
@@ -67,7 +55,9 @@ void ClassNetlist::optimizeLogicTree(Logic **ppl)
     {
         optimizeLinear(ppl);
         if (optCoalesce)
-            optimizeAndOrGates(*ppl);
+            optimizeAndOr(*ppl);
+        if (optClockGate)
+            optimizeClkNets(*ppl);
 
         qDebug() << "Logic tree optimization pass. Sig:" << newSig;
         lastSig = newSig;
@@ -150,7 +140,7 @@ void ClassNetlist::optimizeLinear(Logic **ppl)
  * Recursive optimization of a logic net
  * Performs a more complex optimization of merging (coalescing) identical, successive AND/OR gates
  */
-void ClassNetlist::optimizeAndOrGates(Logic *p)
+void ClassNetlist::optimizeAndOr(Logic *p)
 {
     if ((p->op == LogicOp::And) || (p->op == LogicOp::Or))
     {
@@ -171,7 +161,33 @@ void ClassNetlist::optimizeAndOrGates(Logic *p)
     }
 
     for (auto *lp : p->inputs)
-        optimizeAndOrGates(lp);
+        optimizeAndOr(lp);
+}
+
+/*
+ * Recursive optimization of a logic net
+ * Optimize by removing clock inputs
+ */
+void ClassNetlist::optimizeClkNets(Logic *p)
+{
+    // Find the index (if any) of the first CLK net in the inputs and delete it
+    int clkIndex = -1;
+    for (int i = 0; i < p->inputs.count(); i++)
+    {
+        if (p->inputs[i]->outnet == nclk)
+        {
+            clkIndex = i;
+            break;
+        }
+    }
+    if (clkIndex >= 0)
+    {
+        delete p->inputs[clkIndex];
+        p->inputs.removeAt(clkIndex);
+    }
+
+    for (auto *lp : p->inputs)
+        optimizeClkNets(lp);
 }
 
 Logic *ClassNetlist::getLogicTree(net_t net)
@@ -187,6 +203,18 @@ Logic *ClassNetlist::getLogicTree(net_t net)
     parse(root, maxDepth);
 
     return root;
+}
+
+/*
+ * Returns a string describing the logic connections of a net
+ */
+QString ClassNetlist::equation(net_t net)
+{
+    Logic *lr = getLogicTree(net);
+    QString equation = lr->name % " = " % Logic::flatten(lr);
+    Logic::purge(lr);
+    qDebug() << equation;
+    return equation;
 }
 
 // Returns indices of transistors that share the same c2 value (2 or more occurrences)
