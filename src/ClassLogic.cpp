@@ -234,7 +234,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
 {
     if (node->leaf)
         return node;
-    // If we have reached the terminal graph depth, issue a dotdot symbol
+    // If we have reached the terminal graph depth, issue a dotdot symbol and exit
     if (!--depth)
     {
         Logic *next = new Logic(node->outnet, LogicOp::DotDot);
@@ -291,7 +291,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
     {
         qDebug() << "Clock gate t=" << node->trans[0].id;
         visitedTrans.append(node->trans[0].id);
-        net_t net_other = node->trans[0].c2; // The net on the other side of that transistor
+        net_t net_other = node->trans[0].c2; // The net on the other side of the transistor
         Logic *next = new Logic(net_other, LogicOp::ClkGate, false);
         node->inputs.append(next);
         return parse(next, depth);
@@ -301,7 +301,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
     //-------------------------------------------------------------------------------
     if ((node->trans.count() == 1) && (node->trans[0].c2 == ngnd))
     {
-        qDebug() << "Lone inverter t=" << node->trans[0].id;
+        qDebug() << "Inverter t=" << node->trans[0].id;
         visitedTrans.append(node->trans[0].id);
         net_t net_other = node->trans[0].gate; // The net being inverted
         Logic *next = new Logic(net_other, LogicOp::Inverter, false);
