@@ -337,13 +337,34 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
         return parse(next, depth);
     }
     //-------------------------------------------------------------------------------
+    // Detect and handle a clocked push/pull inverter driver
+    //-------------------------------------------------------------------------------
+    if (!net0.hasPullup && (node->trans.count() == 3) && (node->trans[0].c2 == ngnd) && (node->trans[1].c2 == ngnd) && (node->trans[2].c2 == npwr))
+    {
+        net_t aux_net = node->trans[2].gate;
+        Net &netaux = m_netlist[aux_net];
+        if (netaux.hasPullup && (netaux.c1c2s.count() == 2) && (netaux.c1c2s[0]->c2 == ngnd) && (netaux.c1c2s[1]->c2 == ngnd))
+        {
+            qDebug() << "Clocked push/pull inverter driver t=" << node->trans[0].id;
+            visitedTrans.append(netaux.c1c2s[0]->id);
+            visitedTrans.append(netaux.c1c2s[1]->id);
+            visitedTrans.append(node->trans[0].id);
+            visitedTrans.append(node->trans[1].id);
+            net_t net_other = (node->trans[0].gate == nclk) ? node->trans[1].gate : node->trans[0].gate;
+            Logic *aux = new Logic(aux_net, LogicOp::Inverter, false);
+            node->inputs.append(aux);
+            Logic *next = new Logic(net_other, LogicOp::ClkGate, false);
+            next->name = "~"; // Signal drawing of an inverted clock gate
+            aux->inputs.append(next);
+            return parse(next, depth);
+        }
+    }
+    //-------------------------------------------------------------------------------
     // Detect and handle a push/pull inverter driver
-    // Unhandled corner cases:
-    // Net "832" driven by 3 nets QList("582", "1762", "clk"): a P/P driver but also CLK gated
     //-------------------------------------------------------------------------------
     if (!net0.hasPullup && ((node->trans.count() >= 2) && (node->trans[0].c2 == ngnd) && (node->trans[1].c2 == npwr)))
     {
-        qDebug() << "Push/pull driver inverter t=" << node->trans[0].id;
+        qDebug() << "Push/pull inverter driver t=" << node->trans[0].id;
         // A driving net is the one connecting one of the transistors to the ground
         net_t net_other = (node->trans[0].c2 == ngnd) ? node->trans[0].gate : node->trans[1].gate;
         visitedTrans.append(node->trans[0].id);
@@ -364,7 +385,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
     }
 
     // The following cases form inputs to a NOR logic gate
-    // If we end up with only one input, we still create this root NOR gate which will be optimized out
+    // If we end up with only one input, we will change it to a benign net type
     Logic *root = new Logic(net0id, LogicOp::Nor, false);
     root->trans = node->trans;
     node->inputs.append(root);
@@ -382,24 +403,40 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
         {
             net_t net_other = root->trans[shared[0]].c2; // The net on the other side of that transistor (a shared net)
 
-            // Contributing nets form an OR gate
-            for (auto i : shared)
-            {
-                visitedTrans.append(root->trans[i].id);
-
-                net_t net_gate = root->trans[i].gate;
-                Logic *next = new Logic(net_gate);
-                root->inputs.append(next);
-                parse(next, depth);
-            }
-
-            // If the common net was not GND, it also contributes to the OR equation, but inverted
+            // If the common net was not GND, it requires to be combined in with a NOR gate (ex. net 509)
             if (net_other != ngnd)
             {
-                // Insert an inverter
-                Logic *next = new Logic(net_other, LogicOp::Inverter, false);
+                Logic *next = new Logic(net_other, LogicOp::Or, false);
                 root->inputs.append(next);
+
+                Logic *nor = new Logic(net_other, LogicOp::Nor, false);
+
+                // Contributing nets form a NOR gate
+                for (auto i : shared)
+                {
+                    visitedTrans.append(root->trans[i].id);
+
+                    net_t net_gate = root->trans[i].gate;
+                    Logic *next = new Logic(net_gate);
+                    nor->inputs.append(next);
+                    parse(next, depth);
+                }
+
+                next->inputs.append(nor);
                 parse(next, depth);
+            }
+            else
+            {
+                // Contributing nets form an OR gate
+                for (auto i : shared)
+                {
+                    visitedTrans.append(root->trans[i].id);
+
+                    net_t net_gate = root->trans[i].gate;
+                    Logic *next = new Logic(net_gate);
+                    root->inputs.append(next);
+                    parse(next, depth);
+                }
             }
 
             // Remove all transistors that have the same c2 as net_other
@@ -408,28 +445,32 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
                     [net_other](const Trans &t) { return t.c2 == net_other; }),
                 root->trans.end()
             );
+
+            if (root->trans.isEmpty())
+                qDebug() << "Path1 trans not empty" << net0id;
         }
         else // If there are no shared "other side" nets
         {
             //-------------------------------------------------------------------------------
-            // Complex AND gate extends through 2 pass-transistor nets (ex. net 215)
+            // Complex NAND gate extends through 2 pass-transistor nets (ex. net 215)
             //-------------------------------------------------------------------------------
-            net_t net1id = root->trans[0].c2;
+            Trans *t1 = &root->trans[0];
+            net_t net1gt = t1->gate;
+            net_t net1id = t1->c2;
             Net &net1 = m_netlist[net1id];
-            net_t net1gt = root->trans[0].gate;
 
-            // AND gate extending for 2 pass-transistor nets (ex. net 215)
+            // NAND gate extending for 2 pass-transistor nets (ex. net 215)
             if ((net1.gates.count() == 0) && (net1.c1c2s.count() == 2) && !net1.hasPullup)
             {
-                Trans *t2 = (net1.c1c2s[0]->id == net1id) ? net1.c1c2s[1] : net1.c1c2s[0]; // Second transistor in the chain
-                net_t net2id = t2->c2;
+                Trans *t2 = (net1.c1c2s[0]->id == t1->id) ? net1.c1c2s[1] : net1.c1c2s[0]; // Second transistor in the chain
                 net_t net2gt = t2->gate;
+                net_t net2id = t2->c2;
                 Net &net2 = m_netlist[net2id];
 
-                // If the second transistor's c2 is GND, we have a 2-input AND gate (ex. net 215)
+                // If the second transistor's c2 is GND, we have a 2-input NAND gate (ex. net 215)
                 if (net2id == ngnd)
                 {
-                    Logic *next = new Logic(net1id, LogicOp::And);
+                    Logic *next = new Logic(net1id, LogicOp::Nand);
                     root->inputs.append(next);
 
                     Logic *next_and1 = new Logic(net1gt);
@@ -447,18 +488,18 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
                     continue;
                 }
                 //-------------------------------------------------------------------------------
-                // Complex AND gate extends through 3 pass-transistor nets (ex. net 235)
+                // Complex NAND gate extends through 3 pass-transistor nets (ex. net 235)
                 //-------------------------------------------------------------------------------
                 if ((net2.gates.count() == 0) && (net2.c1c2s.count() == 2) && !net2.hasPullup)
                 {
-                    Trans *t3 = (net2.c1c2s[0]->id == net2id) ? net2.c1c2s[1] : net2.c1c2s[0];
+                    Trans *t3 = (net2.c1c2s[0]->id == t2->id) ? net2.c1c2s[1] : net2.c1c2s[0];
                     net_t net3gt = t3->gate;
                     net_t net3id = t3->c2;
 
-                    // If the third transistor's c2 is GND, we have a 3-input AND gate (ex. net 235)
+                    // If the third transistor's c2 is GND, we have a 3-input NAND gate (ex. net 235)
                     if (net3id == ngnd)
                     {
-                        Logic *next = new Logic(net1id, LogicOp::And);
+                        Logic *next = new Logic(net1id, LogicOp::Nand);
                         root->inputs.append(next);
 
                         Logic *next_and1 = new Logic(net1gt);
@@ -520,6 +561,9 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
             }
         }
     }
+    // If the node has only one input, change it to a benign net type
+    if (root->inputs.count() == 1)
+        root->op = LogicOp::Net;
     if (!safety)
         qWarning() << "parse" << net0id << "safety loop count reached!";
     return node;

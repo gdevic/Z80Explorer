@@ -168,7 +168,9 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         bounds.setRight(39); // Shift the text a little bit to the left for OR and NOR symbols
     else if (m_lr->op == LogicOp::ClkGate)
     {
-        painter->drawText(20, 20, "CLK"); // Clock gate has "clk" written on the bottom
+        painter->drawText(20, 20, "CLK"); // Clock gate has "CLK" written on the bottom
+        if (name.contains(QChar('~'))) // Inverted clock variation has a small circle in the middle
+            painter->drawText(25, 10, "O"); // TODO: This feels hacky
         name = QString(); // Do not print net name
     } else if (m_lr->op == LogicOp::DotDot)
         name = ". . .";
