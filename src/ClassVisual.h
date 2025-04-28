@@ -24,12 +24,13 @@ struct segvdef
     QVector<QPainterPath> paths {};     // Outline of the segment topology as a set of QPainter paths
 };
 
-// Contains information about a detected latch
+// Contains information about a latch
 struct latchdef
 {
     tran_t t1, t2;                      // Two transistors that make up a latch
     net_t n1, n2;                       // Two nets that inter-connect into a latch
-    QRect box;                          // Rectangle where it is (roughly) located
+    QRect box;                          // Bounding rectangle of the two main latch transistors
+    QString name;                       // Latch name
 };
 
 /*
@@ -50,14 +51,13 @@ public:
     template<bool includeVssVcc>
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QStringList getImageNames();    // Returns a list of layer / image names
-    const segvdef *getSegment(net_t net); // Returns the segment visual definition, zero if not found
+    const segvdef *getSegment(net_t net); // Returns the segment visual definition, nullptr if not found
     void toggleAltSegdef()                // Toggle alternate segment definition as active
         { use_alt_segdef = !use_alt_segdef; }
     const transvdef *getTrans(tran_t id); // Returns transistor visual definition, nullptr if not found
     tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
     QString getFeaturesAt(int x, int y);  // Returns the list of features at the specified image coordinates
-    bool isLatch(net_t net);              // Returns true if a net is part of any latch
-    void getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2); // Returns latch transistors and nets
+    latchdef *getLatch(net_t net);        // Returns a latch descriptor for the given net, nullptr if not found
     void detectLatches();                 // Detects latches and also loads custom latch definitions
     void drawLatches(QPainter &painter, const QRect &viewport);
     void drawNets(QPainter &painter, const QRect& viewport, bool order, uint mode);

@@ -1031,6 +1031,7 @@ void ClassVisual::detectLatches()
                     latch.n1 = t.gatenet;
                     latch.t2 = 0;
                     latch.n2 = c1c2[index];
+                    latch.name = "t" + QString::number(t.id);
 
                     m_latches.append(latch);
                 }
@@ -1066,6 +1067,13 @@ void ClassVisual::detectLatches()
     }
 }
 
+/*
+ * Load custom latches
+ * Format: pairs of transistor numbers that make up a latch, one pair per line
+ *         latch name after a semicolon
+ * If possible, the first transistor should represent a latch value
+ * "-" for the latch name will remove that latch (use for incorrectly autodetected latches)
+ */
 bool ClassVisual::loadLatches()
 {
     QSettings settings;
@@ -1075,22 +1083,20 @@ bool ClassVisual::loadLatches()
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
         QTextStream in(&file);
-        QString line;
-        QStringList list;
         uint count = 0, ln = 0;
         while(!in.atEnd())
         {
-            line = in.readLine(); ln++;
+            QString line = in.readLine(); ln++;
+            QString name = line.mid(line.indexOf(';') + 1).trimmed();
             line = line.left(line.indexOf(';')).trimmed();
             if (line.length())
             {
-                list = line.split(QLatin1Char(','), Qt::SkipEmptyParts);
+                QStringList list = line.split(QLatin1Char(','), Qt::SkipEmptyParts);
                 if (list.count() == 2)
                 {
-                    uint t1, t2;
                     bool ok1, ok2;
-                    t1 = list[0].toUInt(&ok1);
-                    t2 = list[1].toUInt(&ok2);
+                    tran_t t1 = list[0].toUInt(&ok1);
+                    tran_t t2 = list[1].toUInt(&ok2);
                     if (ok1 && ok2)
                     {
                         const transvdef *vdef1 = getTrans(t1);
@@ -1099,13 +1105,20 @@ bool ClassVisual::loadLatches()
                         {
                             if (vdef2 != nullptr)
                             {
-                                latchdef latch;
-                                latch.t1 = t1;
-                                latch.n1 = vdef1->gatenet;
-                                latch.t2 = t2;
-                                latch.n2 = vdef2->gatenet;
+                                latchdef latch {t1, t2, vdef1->gatenet, vdef2->gatenet, QRect(), name};
 
-                                m_latches.append(latch);
+                                // Check for duplicate/overriden latches
+                                auto it = std::find_if(m_latches.begin(), m_latches.end(), [latch](latchdef &l)
+                                { return (l.t1 == latch.t1) || (l.t2 == latch.t2) || (l.t2 == latch.t1) || (l.t1 == latch.t2); });
+
+                                if (it != m_latches.end())
+                                {
+                                    qInfo() << "Duplicate latch" << t1 << t2 << "overriding.";
+                                    m_latches.erase(it);
+                                }
+
+                                if (name != "-") // Append new latch if the option was not to remove it
+                                    m_latches.append(latch);
                                 count++;
                             }
                             else
@@ -1132,31 +1145,26 @@ bool ClassVisual::loadLatches()
 void ClassVisual::drawLatches(QPainter &painter, const QRect &viewport)
 {
     painter.setBrush(Qt::blue);
-    painter.setPen(Qt::yellow);
+    painter.setPen(Qt::white);
     for (auto &l : m_latches)
     {
         // Speed up rendering by clipping to the viewport's image rectangle
         if (l.box.intersected(viewport) != QRect())
+        {
             painter.drawRect(l.box);
+            painter.drawText(l.box.x(), l.box.y() - 2, l.name);
+        }
     }
 }
 
 /*
- * Returns true if a net is part of any latch
+ * Returns a latch descriptor corresponding to the given net or nullptr if no latch matches
  */
-bool ClassVisual::isLatch(net_t net)
+latchdef *ClassVisual::getLatch(net_t net)
 {
-    auto i = std::find_if(m_latches.begin(), m_latches.end(), [net](latchdef &l) { return (l.n1 == net) || (l.n2 == net); });
-    return (i != m_latches.end());
-}
-
-/*
- * Returns latch transistors and nets
- */
-void ClassVisual::getLatch(net_t net, tran_t &t1, tran_t &t2, net_t &n1, net_t &n2)
-{
-    (void) std::find_if(m_latches.begin(), m_latches.end(), [net,&t1,&t2,&n1,&n2](latchdef &l)
-    { t1 = l.t1; t2 = l.t2; n1 = l.n1; n2 = l.n2; return (l.n1 == net) || (l.n2 == net); });
+    auto it = std::find_if(m_latches.begin(), m_latches.end(), [net](latchdef &l)
+        { return (l.n1 == net) || (l.n2 == net); });
+    return it != m_latches.end() ? &(*it) : nullptr;
 }
 
 /******************************************************************************

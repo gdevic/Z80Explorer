@@ -276,17 +276,14 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
     //-------------------------------------------------------------------------------
     // Detect if a net is a part of a latch
     //-------------------------------------------------------------------------------
-    if (::controller.getChip().isLatch(net0id))
+    latchdef *latch = ::controller.getChip().getLatch(net0id);
+    if (latch != nullptr)
     {
-        tran_t t1, t2;
-        net_t n1, n2;
-        ::controller.getChip().getLatch(net0id, t1, t2, n1, n2);
-        visitedTrans.append(t1);
-        visitedTrans.append(t2);
-        visitedNets.append(n1);
-        visitedNets.append(n2);
+        visitedTrans.append(latch->t1);
+        visitedTrans.append(latch->t2);
 
         Logic *next = new Logic(net0id, LogicOp::Latch, false);
+        next->name = latch->name;
         node->inputs.append(next);
 
         return node;
