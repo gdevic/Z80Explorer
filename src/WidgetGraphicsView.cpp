@@ -181,6 +181,10 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         width = maxTextWidth; // Force printing the name outside of the latch box
     }
 
+    // Show the number of inputs to this logic gate
+    if (m_lr->inputs.count() > 1)
+        painter->drawText(57, 20, QString::number(m_lr->inputs.count()));
+
     // A terminating (leaf) node can accomodate extended text such as the node's tip
     if (m_lr->inputs.count() == 0)
     {
