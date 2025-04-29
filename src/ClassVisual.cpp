@@ -1158,12 +1158,12 @@ void ClassVisual::drawLatches(QPainter &painter, const QRect &viewport)
 }
 
 /*
- * Returns a latch descriptor corresponding to the given net or nullptr if no latch matches
+ * Returns a latch descriptor for a transistor (if any), nullptr if not found
  */
-latchdef *ClassVisual::getLatch(net_t net)
+latchdef *ClassVisual::getLatch(tran_t t)
 {
-    auto it = std::find_if(m_latches.begin(), m_latches.end(), [net](latchdef &l)
-        { return (l.n1 == net) || (l.n2 == net); });
+    auto it = std::find_if(m_latches.begin(), m_latches.end(), [t](latchdef &l)
+        { return (l.t1 == t) || (l.t2 == t); });
     return it != m_latches.end() ? &(*it) : nullptr;
 }
 

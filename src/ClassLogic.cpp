@@ -273,22 +273,6 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
     net_t net0id = node->outnet;
     Net &net0 = m_netlist[net0id];
 
-    //-------------------------------------------------------------------------------
-    // Detect if a net is a part of a latch
-    //-------------------------------------------------------------------------------
-    latchdef *latch = ::controller.getChip().getLatch(net0id);
-    if (latch != nullptr)
-    {
-        visitedTrans.append(latch->t1);
-        visitedTrans.append(latch->t2);
-
-        Logic *next = new Logic(net0id, LogicOp::Latch, false);
-        next->name = latch->name;
-        node->inputs.append(next);
-
-        return node;
-    }
-
     // Copy the list of transistors for which this net is either a source or a drain, but skip over transistors already visited
     // While copying, make sure c1 contains our primary net number, and c2 is "the other end" net
     node->trans.reserve(net0.c1c2s.size());
@@ -448,18 +432,38 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
         }
         else // If there are no shared "other side" nets
         {
+            Trans &t1 = root->trans[0];
+
+            //-------------------------------------------------------------------------------
+            // Detect if a net is a part of a latch
+            //-------------------------------------------------------------------------------
+            latchdef *latch = ::controller.getChip().getLatch(t1.id);
+            if (latch != nullptr)
+            {
+                visitedTrans.append(latch->t1);
+                visitedTrans.append(latch->t2);
+
+                Logic *next = new Logic(net0id, LogicOp::Latch, false);
+                next->leaf = true;
+                next->name = latch->name;
+                root->inputs.append(next);
+
+                // Remove first transistor
+                root->trans.removeFirst();
+                continue;
+            }
+
             //-------------------------------------------------------------------------------
             // Complex NAND gate extends through 2 pass-transistor nets (ex. net 215)
             //-------------------------------------------------------------------------------
-            Trans *t1 = &root->trans[0];
-            net_t net1gt = t1->gate;
-            net_t net1id = t1->c2;
+            net_t net1gt = t1.gate;
+            net_t net1id = t1.c2;
             Net &net1 = m_netlist[net1id];
 
             // NAND gate extending for 2 pass-transistor nets (ex. net 215)
             if ((net1.gates.count() == 0) && (net1.c1c2s.count() == 2) && !net1.hasPullup)
             {
-                Trans *t2 = (net1.c1c2s[0]->id == t1->id) ? net1.c1c2s[1] : net1.c1c2s[0]; // Second transistor in the chain
+                Trans *t2 = (net1.c1c2s[0]->id == t1.id) ? net1.c1c2s[1] : net1.c1c2s[0]; // Second transistor in the chain
                 net_t net2gt = t2->gate;
                 net_t net2id = t2->c2;
                 Net &net2 = m_netlist[net2id];
