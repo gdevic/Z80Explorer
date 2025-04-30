@@ -1167,6 +1167,16 @@ latchdef *ClassVisual::getLatch(tran_t t)
     return it != m_latches.end() ? &(*it) : nullptr;
 }
 
+/*
+ * Returns a latch descriptor for a name (if any), nullptr if not found
+ */
+latchdef *ClassVisual::getLatch(QString name)
+{
+    auto it = std::find_if(m_latches.begin(), m_latches.end(), [name](latchdef &l)
+        { return l.name == name; });
+    return it != m_latches.end() ? &(*it) : nullptr;
+}
+
 /******************************************************************************
  * Experimental code
  ******************************************************************************/

@@ -1023,8 +1023,14 @@ void WidgetImageView::onFind(QString text)
                 else
                     qInfo() << text << "not found!";
             }
-            else
-                qInfo() << text << "not found!";
+            else // Search latches by name
+            {
+                latchdef *latch = ::controller.getChip().getLatch(text);
+                if (latch != nullptr) // Rerun search using the latch primary transistor number
+                    return onFind("t" + QString::number(latch->t1));
+                else
+                    qInfo() << text << "not found!";
+            }
         }
     }
     update();

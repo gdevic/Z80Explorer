@@ -58,6 +58,7 @@ public:
     tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
     QString getFeaturesAt(int x, int y);  // Returns the list of features at the specified image coordinates
     latchdef *getLatch(tran_t t);         // Returns a latch descriptor for a transistor (if any), nullptr if not found
+    latchdef *getLatch(QString name);     // Returns a latch descriptor for a name (if any), nullptr if not found
     void detectLatches();                 // Detects latches and also loads custom latch definitions
     void drawLatches(QPainter &painter, const QRect &viewport);
     void drawNets(QPainter &painter, const QRect& viewport, bool order, uint mode);
