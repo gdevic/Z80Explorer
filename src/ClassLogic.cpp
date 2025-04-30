@@ -313,8 +313,10 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
         qDebug() << "Inverter t=" << node->trans[0].id;
         visitedTrans.append(node->trans[0].id);
         net_t net_other = node->trans[0].gate; // The net being inverted
-        Logic *next = new Logic(net_other, LogicOp::Inverter, false);
-        node->inputs.append(next);
+        Logic *inv = new Logic(net_other, LogicOp::Inverter, false);
+        node->inputs.append(inv);
+        Logic *next = new Logic(net_other, LogicOp::Net, false);
+        inv->inputs.append(next);
         return parse(next, depth);
     }
     //-------------------------------------------------------------------------------
@@ -530,8 +532,10 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
                 qDebug() << "Inverter t=" << root->trans[0].id;
                 visitedTrans.append(root->trans[0].id);
                 net_t net_other = root->trans[0].gate; // The net being inverted
-                Logic *next = new Logic(net_other, LogicOp::Inverter, false);
-                root->inputs.append(next);
+                Logic *inv = new Logic(net_other, LogicOp::Inverter, false);
+                root->inputs.append(inv);
+                Logic *next = new Logic(net_other, LogicOp::Net, false);
+                inv->inputs.append(next);
                 parse(next, depth);
 
                 // Remove first transistor
