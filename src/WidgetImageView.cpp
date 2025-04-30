@@ -238,6 +238,15 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
+    // Draw latches bounding box and the background
+    //------------------------------------------------------------------------
+    if (m_drawLatches)
+    {
+        painter.save();
+        ::controller.getChip().drawLatches(painter, viewportTex);
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
     // Draw nodes picked by the mouse double-click and then expanded
     //------------------------------------------------------------------------
     if (m_drivingNets.count())
@@ -278,15 +287,6 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             for (const auto &path : seg->paths)
                 painter.drawPath(path);
         }
-        painter.restore();
-    }
-    //------------------------------------------------------------------------
-    // Draw latches
-    //------------------------------------------------------------------------
-    if (m_drawLatches)
-    {
-        painter.save();
-        ::controller.getChip().drawLatches(painter, viewportTex);
         painter.restore();
     }
     //------------------------------------------------------------------------
@@ -333,7 +333,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.restore();
     }
     //------------------------------------------------------------------------
-    // Dynamically write nearby net names (experimental)
+    // Dynamically write nearby net names
     //------------------------------------------------------------------------
     if (m_drawNetNames)
     {
@@ -348,6 +348,15 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     {
         painter.save();
         ::controller.getAnnotation().draw(painter, viewportTex, m_scale);
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
+    // Draw latches names
+    //------------------------------------------------------------------------
+    if (m_drawLatches)
+    {
+        painter.save();
+        ::controller.getChip().drawLatches(painter, viewportTex, true);
         painter.restore();
     }
     //------------------------------------------------------------------------

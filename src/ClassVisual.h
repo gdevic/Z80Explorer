@@ -60,7 +60,7 @@ public:
     latchdef *getLatch(tran_t t);         // Returns a latch descriptor for a transistor (if any), nullptr if not found
     latchdef *getLatch(QString name);     // Returns a latch descriptor for a name (if any), nullptr if not found
     void detectLatches();                 // Detects latches and also loads custom latch definitions
-    void drawLatches(QPainter &painter, const QRect &viewport);
+    void drawLatches(QPainter &painter, const QRect &viewport, bool drawText = false);
     void drawNets(QPainter &painter, const QRect& viewport, bool order, uint mode);
     void drawTransistors(QPainter &painter, const QRect &viewport, uint mode);
     void armTransFlipCount();

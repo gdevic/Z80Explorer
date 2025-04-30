@@ -1142,7 +1142,11 @@ bool ClassVisual::loadLatches()
     return false;
 }
 
-void ClassVisual::drawLatches(QPainter &painter, const QRect &viewport)
+/*
+ * Draw latches bounding box and text. At any one time, only one of those can be drawn.
+ * This is to accomodate drawing this feature in two passes, where the text is rendered last.
+ */
+void ClassVisual::drawLatches(QPainter &painter, const QRect &viewport, bool drawText)
 {
     painter.setBrush(Qt::blue);
     painter.setPen(Qt::white);
@@ -1151,8 +1155,10 @@ void ClassVisual::drawLatches(QPainter &painter, const QRect &viewport)
         // Speed up rendering by clipping to the viewport's image rectangle
         if (l.box.intersected(viewport) != QRect())
         {
-            painter.drawRect(l.box);
-            painter.drawText(l.box.x(), l.box.y() - 2, l.name);
+            if (drawText)
+                painter.drawText(l.box.x(), l.box.y() - 2, l.name);
+            else
+                painter.drawRect(l.box);
         }
     }
 }
