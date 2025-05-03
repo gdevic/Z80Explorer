@@ -403,6 +403,10 @@
         {
             "net": 617,
             "tip": "Increments R register using 16-bit inc/dec"
+        },
+        {
+            "net": 754,
+            "tip": "Carry Flag state"
         }
     ]
 }
