@@ -6,6 +6,7 @@
 #include "WidgetImageOverlay.h"
 #include "WidgetImageView.h"
 #include <QDebug>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QInputDialog>
@@ -801,6 +802,10 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     connect(&actionSyncViews, &QAction::triggered, this, [=]() { emit ::controller.syncView(m_tex, m_scale); });
     contextMenu.addAction(&actionSyncViews);
 
+    QAction actionPNG("Export PNG...", this);
+    connect(&actionPNG, SIGNAL(triggered()), this, SLOT(onPng()));
+    contextMenu.addAction(&actionPNG);
+
     // "Schematic" option, only if the user selected a node but not selection area (less confusing)
     QAction actionSchematic("Schematic...", this);
     connect(&actionSchematic, SIGNAL(triggered()), this, SLOT(viewSchematic()));
@@ -975,6 +980,18 @@ void WidgetImageView::viewSchematic()
     if (ctrl) // Update schematic's window title if the net we passed to it was not optimized
         sch->setWindowTitle(sch->windowTitle() + " (unoptimized)");
     sch->show();
+}
+
+/*
+ * Exports window view as a PNG image file
+ */
+void WidgetImageView::onPng()
+{
+    QPixmap pixmap = this->grab(QRect(QPoint(0, 0), this->size()));
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Save window view as image", "", "PNG file (*.png);;All files (*.*)");
+    if (!fileName.isEmpty() && !pixmap.toImage().save(fileName))
+        QMessageBox::critical(this, "Error", "Unable to save image file " + fileName);
 }
 
 /*

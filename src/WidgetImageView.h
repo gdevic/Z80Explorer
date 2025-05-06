@@ -57,6 +57,7 @@ private slots:
     void netsDriven();                  // Shows nets that drive the selected net
     void editNetName();                 // Opens dialog to edit selected net name (alias)
     void viewSchematic();               // Creates a new Schematic window using the selected net
+    void onPng();                       // Exports window view as a PNG image file
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
