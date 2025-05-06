@@ -121,7 +121,6 @@ private:
     void updateInfoArea(QPoint pt);
     void calcTransform();
     void clampImageCoords(QPointF &tex, qreal xmax = 1.0, qreal ymax = 1.0);
-    void createLayout();
 };
 
 #endif // WIDGETIMAGEVIEW_H
