@@ -821,6 +821,10 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     connect(&actionSyncViews, &QAction::triggered, this, [=]() { emit ::controller.syncView(m_tex, m_scale); });
     contextMenu.addAction(&actionSyncViews);
 
+    QAction actionToggleOverlay("Toggle overlay", this);
+    connect(&actionToggleOverlay, &QAction::triggered, this, [=]() { m_ov->isVisible() ? m_ov->hide() : m_ov->show(); });
+    contextMenu.addAction(&actionToggleOverlay);
+
     QAction actionPNG("Export PNG...", this);
     connect(&actionPNG, SIGNAL(triggered()), this, SLOT(onPng()));
     contextMenu.addAction(&actionPNG);
