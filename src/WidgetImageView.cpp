@@ -209,6 +209,25 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     QPainter painter(this);
     m_viewPort = painter.viewport();
 
+    //------------------------------------------------------------------------
+    // Create checkered pattern
+    //------------------------------------------------------------------------
+    const int sz = 20;             // Size of each checker square
+    QColor light(240, 240, 240);   // Very light gray
+    QColor lighter(248, 248, 248); // Almost white
+
+    for (int x = 0; x < width(); x += sz)
+    {
+        for (int y = 0; y < height(); y += sz)
+        {
+            bool isAlternate = (x / sz + y / sz) % 2;
+            painter.fillRect(x, y, sz, sz, isAlternate ? lighter : light);
+        }
+    }
+
+    //------------------------------------------------------------------------
+    // Define image transformation matrices
+    //------------------------------------------------------------------------
     // Point 0 is at the top-left corner; point 1 is at the bottom-right corner of the view.
     // Do the inverse map to get to the coordinates in the texture space.
     QPointF t0 = m_invtx.map(QPoint(0,0));
