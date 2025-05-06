@@ -25,12 +25,14 @@ private slots:
     void onRemove();
     void onSelectionChanged();
     void onDoubleClicked(int row, int);
+    void onSaveAs();
     void accept() override;
 
 private:
     Ui::DialogEditColors *ui;
     QStringList m_methods;
 
+    void onLoad(bool merge);
     void swap(int index, int delta);
     void addItem(const colordef &cdef);
 };

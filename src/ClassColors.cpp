@@ -114,7 +114,7 @@ void ClassColors::setColordefs(QVector<colordef> colordefs)
 /*
  * Loads color definitions from a file
  */
-bool ClassColors::load(QString fileName)
+bool ClassColors::load(QString fileName, bool merge)
 {
     if (m_jsonFile.isEmpty()) // Set the initial file name
         m_jsonFile = fileName;
@@ -129,8 +129,8 @@ bool ClassColors::load(QString fileName)
         if (json.contains("colors") && json["colors"].isArray())
         {
             QJsonArray array = json["colors"].toArray();
-            m_colordefs.clear();
-            m_colordefs.reserve(array.size());
+            if (!merge)
+                m_colordefs.clear();
 
             for (int i = 0; i < array.size(); i++)
             {

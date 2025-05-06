@@ -3,6 +3,8 @@
 #include "DialogEditColors.h"
 #include "WidgetEditColor.h"
 #include "ui_DialogEditColors.h"
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QSettings>
 
 DialogEditColors::DialogEditColors(QWidget *parent) :
@@ -28,6 +30,9 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
     connect(ui->btEdit, &QPushButton::clicked, this, &DialogEditColors::onEdit);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditColors::onRemove);
     connect(ui->table, &QTableWidget::cellDoubleClicked, this, &DialogEditColors::onDoubleClicked);
+    connect(ui->btLoad, &QPushButton::clicked, this, [=](){ onLoad(false); });
+    connect(ui->btMerge, &QPushButton::clicked, this, [=](){ onLoad(true); });
+    connect(ui->btSaveAs, &QPushButton::clicked, this, &DialogEditColors::onSaveAs);
 }
 
 DialogEditColors::~DialogEditColors()
@@ -117,7 +122,7 @@ void DialogEditColors::onUp()
     Q_ASSERT(ui->table->selectedItems().count() >= 1);
     QList<QTableWidgetItem *> sel = ui->table->selectedItems();
     QVector<int> rows;
-    for (auto row : sel)
+    for (auto &row : sel)
         rows.append(row->row());
     std::sort(rows.begin(), rows.end(), std::less<int>());
     for (auto row : rows)
@@ -136,7 +141,7 @@ void DialogEditColors::onDown()
     Q_ASSERT(ui->table->selectedItems().count() >= 1);
     QList<QTableWidgetItem *> sel = ui->table->selectedItems();
     QVector<int> rows;
-    for (auto row : sel)
+    for (auto &row : sel)
         rows.append(row->row());
     std::sort(rows.begin(), rows.end(), std::greater<int>());
     for (auto row : rows)
@@ -210,4 +215,39 @@ void DialogEditColors::onDoubleClicked(int row, int)
     // Make the double-clicked row automatically selected so it can be simply edited
     ui->table->selectRow(row);
     onEdit();
+}
+
+/*
+ * Loads custom color definition from a file
+ */
+void DialogEditColors::onLoad(bool merge)
+{
+    // Prompts the user to select which color definition file to load
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a color definition file to load", "", "colors (*.json);;All files (*.*)");
+    if (!fileName.isEmpty())
+    {
+        if (!::controller.getColors().load(fileName, merge))
+            QMessageBox::critical(this, "Error", "Selected file is not a valid color definition file");
+        else
+        {
+            // Rebuild the color table
+            ui->table->selectAll();
+            onRemove();
+            for (const auto &cdef : ::controller.getColors().getColordefs())
+                addItem(cdef);
+        }
+    }
+}
+
+/*
+ * Saves color definition to a file
+ */
+void DialogEditColors::onSaveAs()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Save a color definition to a file", "", "colors (*.json);;All files (*.*)");
+    if (!fileName.isEmpty())
+    {
+        if (!::controller.getColors().save(fileName))
+            QMessageBox::critical(this, "Error", "Unable to save color definition to " + fileName);
+    }
 }

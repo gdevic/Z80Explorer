@@ -38,7 +38,7 @@ public:
                | ((uint16_t(c.blue())) >> 3); }
 
     void rebuild();                     // Updates internal color table
-    bool load(QString fileName);        // Loads color definitions
+    bool load(QString fileName, bool merge = false); // Loads or merges color definitions
     bool save(QString fileName);        // Saves color definitions
 
     const QStringList getMatchingMethods()
