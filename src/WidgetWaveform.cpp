@@ -84,6 +84,9 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
 {
     const uint wh[4] { 0, m_waveheight, m_waveheight / 2, 0 };
     static const QPen penHiZ = QPen(QColor(Qt::white), 1, Qt::DotLine);
+    QColor fillColor = viewitem->color;
+    fillColor.setAlphaF(0.5); // 50% intensity for fills
+    QBrush stripeBrush(fillColor, Qt::Dense4Pattern); // Create striped brush pattern
     painter.setPen(viewitem->color);
     net_t data_cur, data_prev = ::controller.getWatch().at(w, hstart);
     for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
@@ -96,36 +99,51 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
         uint y1 = wh[data_prev & 3];
         uint y2 = wh[data_cur & 3];
 
-        if (viewitem->format == ClassController::FormatNet::Logic) // Draw simple logic diagram
+        switch (viewitem->format)
         {
-            if (Q_UNLIKELY(data_cur == 2)) // Hi-Z states use special color + dotted lines
-                painter.setPen(penHiZ);
-            if (data_prev != data_cur)
+            case ClassController::FormatNet::Logic: // Draw simple line logic
+            case ClassController::FormatNet::Logic0Filled:
+            case ClassController::FormatNet::Logic1Filled:
             {
-                painter.drawLine(x1, y - y1, x1, y - y2);
+                bool is_filled = ((data_cur == 0) && (viewitem->format == ClassController::FormatNet::Logic0Filled))
+                              || ((data_cur == 1) && (viewitem->format == ClassController::FormatNet::Logic1Filled));
+                if (Q_UNLIKELY(data_cur == 2)) // Hi-Z states use special color + dotted lines
+                    painter.setPen(penHiZ);
+                else if (is_filled)
+                {
+                    painter.setPen(Qt::NoPen); // Remove border
+                    painter.fillRect(x1, y - m_waveheight, x2 - x1, m_waveheight, stripeBrush);
+                    painter.setPen(viewitem->color); // Restore pen for lines
+                }
+                if (data_prev != data_cur)
+                {
+                    painter.drawLine(x1, y - y1, x1, y - y2);
+                    painter.drawLine(x1, y - y2, x2, y - y2);
+                }
                 painter.drawLine(x1, y - y2, x2, y - y2);
-            }
-            painter.drawLine(x1, y - y2, x2, y - y2);
-            if (Q_UNLIKELY(data_cur == 2))
-                painter.setPen(viewitem->color);
-        }
-        else if (data_prev != data_cur) // Draw transition triangles
-        {
-            bool is_up = data_prev < data_cur;
-            uint d = 1 + m_hscale / 5; // Stretch triangles as the scale moves up
-            QBrush brush = painter.brush();
-            painter.setBrush(QBrush(viewitem->color));
-            if (!is_up && (viewitem->format != ClassController::FormatNet::TransUp)) // TransDown or TransAny
+                if (Q_UNLIKELY(data_cur == 2))
+                    painter.setPen(viewitem->color);
+            } break;
+            case ClassController::FormatNet::TransAny: // Draw transition triangles
+            case ClassController::FormatNet::TransUp:
+            case ClassController::FormatNet::TransDown:
             {
-                QPoint shape[3] = { QPoint(x1-d,y-y1), QPoint(x1,y), QPoint(x1+d,y-y1) };
-                painter.drawPolygon(shape, 3);
-            }
-            if (is_up && (viewitem->format != ClassController::FormatNet::TransDown)) // TransUp or TransAny
-            {
-                QPoint shape[3] = { QPoint(x1-d,y), QPoint(x1,y-y2), QPoint(x1+d,y) };
-                painter.drawPolygon(shape, 3);
-            }
-            painter.setBrush(brush);
+                bool is_up = data_prev < data_cur;
+                uint d = 1 + m_hscale / 5; // Stretch triangles as the scale moves up
+                QBrush brush = painter.brush();
+                painter.setBrush(QBrush(viewitem->color));
+                if (!is_up && (viewitem->format != ClassController::FormatNet::TransUp)) // TransDown or TransAny
+                {
+                    QPoint shape[3] = {QPoint(x1 - d,y - y1), QPoint(x1,y), QPoint(x1 + d,y - y1)};
+                    painter.drawPolygon(shape, 3);
+                }
+                if (is_up && (viewitem->format != ClassController::FormatNet::TransDown)) // TransUp or TransAny
+                {
+                    QPoint shape[3] = {QPoint(x1 - d,y), QPoint(x1,y - y2), QPoint(x1 + d,y)};
+                    painter.drawPolygon(shape, 3);
+                }
+                painter.setBrush(brush);
+            } break;
         }
     }
 }

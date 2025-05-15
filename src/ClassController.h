@@ -47,7 +47,7 @@ public: // API
         { return m_simz80.isRunning(); }
 
     const QStringList getFormats(QString name); // Returns a list of formats applicable to the signal name (a net or a bus)
-    enum FormatNet { Logic, TransUp, TransDown, TransAny };
+    enum FormatNet { Logic, Logic0Filled, Logic1Filled, TransUp, TransDown, TransAny };
     enum FormatBus { Hex, Bin, Oct, Dec, Ascii, Disasm, OnesComplement };
     const QString formatBus(uint fmt, uint value, uint width, bool decorated = true); // Returns the formatted string for a bus type value
 

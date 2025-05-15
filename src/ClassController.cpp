@@ -109,7 +109,7 @@ void ClassController::doRunsim(uint ticks)
 const QStringList ClassController::getFormats(QString name)
 {
     static const QStringList formats[2] = {
-        { "Logic", "Transition Up", "Transition Down", "Transition Any" },
+        { "Logic", "Logic (fill 0)", "Logic (fill 1)", "Transition Up", "Transition Down", "Transition Any" },
         { "Hexadecimal", "Binary", "Octal", "Decimal", "ASCII", "Disasm", "Ones' Complement" }
     };
     // If the name represents a bus, get() will return 0 for the net number, selecting formats[!0]
