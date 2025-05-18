@@ -24,7 +24,7 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
     ui->btDecorated->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     QSettings settings;
     restoreGeometry(settings.value("dockWaveformGeometry-" + sid).toByteArray());
-    m_sectionSize = settings.value("dockWaveHeight", 20).toInt();
+    m_sectionSize = settings.value("dockWaveHeight-" + sid, 20).toInt();
     onEnlarge(0);
 
     // Build the menus for this widget
@@ -65,7 +65,7 @@ DockWaveform::~DockWaveform()
 
     QSettings settings;
     settings.setValue("dockWaveformGeometry-" + whatsThis(), saveGeometry());
-    settings.setValue("dockWaveHeight", m_sectionSize);
+    settings.setValue("dockWaveHeight-" + whatsThis(), m_sectionSize);
 
     delete ui;
 }

@@ -14,10 +14,6 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     setMouseTracking(true);
-
-    QSettings settings;
-    m_dY = settings.value("dockWaveHeight", 20).toInt();
-    onEnlarge(0);
 }
 
 void WidgetWaveform::init(DockWaveform *dock, QString sid)
@@ -26,11 +22,13 @@ void WidgetWaveform::init(DockWaveform *dock, QString sid)
     m_dock = dock;
     setWhatsThis(sid);
 
-    // Set up two initial cursors
+    // Set up the two initial cursors and restore the form size
     QSettings settings;
     m_cursors2x.append(settings.value("dockWaveCursor1-" + sid, 1).toInt());
     m_cursors2x.append(settings.value("dockWaveCursor2-" + sid, 10).toInt());
     m_cursor = settings.value("dockWaveCursor-" + sid, 0).toInt();
+    m_dY = settings.value("dockWaveHeight-" + sid, 20).toInt();
+    onEnlarge(0);
 }
 
 WidgetWaveform::~WidgetWaveform()
