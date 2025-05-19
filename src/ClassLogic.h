@@ -33,7 +33,7 @@ public:
     int tag {};                         // Temporary internal variable
 
 public:
-    Logic(net_t n, LogicOp op = LogicOp::Net, bool checkVisitedNets = true);
+    Logic(net_t n, LogicOp op = LogicOp::Net, bool checkVisitedNets = true, bool first = false);
     Logic() = delete;
     ~Logic();
 

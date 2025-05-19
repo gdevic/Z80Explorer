@@ -15,7 +15,7 @@
 static QVector<net_t> visitedNets; // Avoid loops by keeping nets that are already visited
 static QVector<tran_t> visitedTrans; // Avoid path duplication by keeping transistors that are already visited
 
-Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets) : outnet(n), op(op)
+Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets, bool first) : outnet(n), op(op)
 {
     QSettings settings;
     QString termNodes = settings.value("schematicTermNodes").toString();
@@ -25,7 +25,7 @@ Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets) : outnet(n), op(op)
         name = QString::number(n);
     // We stop processing nodes at a leaf node which is either one of the predefined nodes or a detected loop
     leaf = n <= 3; // GND, VCC, CLK are always terminating
-    leaf |= matchName(termNodes, name); // All other nets are user selectable
+    leaf |= !first && matchName(termNodes, name); // All other nets are user selectable; don't check the starting net
     if (checkVisitedNets && visitedNets.contains(n))
         leaf = true;
     else
@@ -198,7 +198,7 @@ Logic *ClassNetlist::getLogicTree(net_t net)
     visitedNets.clear();
     visitedTrans.clear();
 
-    auto root = new Logic(net, LogicOp::Net);
+    auto root = new Logic(net, LogicOp::Net, false, true);
     root->root = true;
     parse(root, maxDepth);
 
