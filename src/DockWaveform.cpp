@@ -38,7 +38,7 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
     connect(ui->widgetWaveform, &WidgetWaveform::cursorChanged, this, &DockWaveform::cursorChanged);
     connect(ui->widgetWaveform, &WidgetWaveform::scroll, this, &DockWaveform::scroll);
-    connect(ui->widgetWaveform, &WidgetWaveform::setLink, this, [this](int value) { ui->btLink->setText(QString::number(value)); }  );
+    connect(ui->widgetWaveform, &WidgetWaveform::setLink, this, [this](int value) { ui->btLink->setText(QString("Δ=%1").arg(value)); }  );
     connect(ui->btLink, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onLinked);
     connect(ui->btDecorated, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onDecorated);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
