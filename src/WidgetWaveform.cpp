@@ -397,7 +397,11 @@ void WidgetWaveform::mouseDoubleClickEvent(QMouseEvent *event)
     emit cursorPosChanged(m_cursor, m_cursors2x[m_cursor]); // Emit cursor position for sync
 }
 
-void WidgetWaveform::setCursorsPos(uint index, uint pos)
+/*
+ * Update cursor position and recalculate linked cursor
+ * This is somewhat a kludge: returns the h-scale factor so the caller can adjust the scroll bar if needed
+ */
+qreal WidgetWaveform::setCursorsPos(uint index, uint pos)
 {
     // Update cursor position if valid
     if (index < m_cursors2x.count())
@@ -414,6 +418,7 @@ void WidgetWaveform::setCursorsPos(uint index, uint pos)
         emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2))); // Emit link delta value
         update();
     }
+    return m_hscale;
 }
 
 void WidgetWaveform::onZoom(bool isUp)

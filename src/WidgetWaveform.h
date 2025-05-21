@@ -12,6 +12,7 @@ public:
     explicit WidgetWaveform(QWidget *parent = nullptr);
     ~WidgetWaveform();
     void init(DockWaveform *dock, QString sid);
+    qreal setCursorsPos(uint index, uint pos); // Request to set our cursor(s)
 
 signals:
     void cursorChanged(uint hcycle);    // Cursor selected a new hcycle
@@ -25,7 +26,6 @@ public slots:
     void onZoom(bool isUp);             // Zooms in and out by a predefined step
     void onEnlarge(int delta);          // Vertically enlarge the view
     void onRunStopped();                // Simulation run stopped
-    void setCursorsPos(uint index, uint pos); // Request to set our cursor(s)
 
 private:
     DockWaveform *m_dock {};

@@ -50,7 +50,7 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
     connect(ui->widgetWaveform, &WidgetWaveform::cursorPosChanged, this, [=](uint index, uint pos)
         { if (ui->btSync->isChecked()) emit ::controller.syncWaveformCursorPos(sid, index, pos); });
     connect(&::controller, &ClassController::syncWaveformCursorPos, this, [=](QString sid, uint index, uint pos)
-        { if (ui->btSync->isChecked() && (sid != whatsThis())) emit ui->widgetWaveform->setCursorsPos(index, pos); });
+        { if (ui->btSync->isChecked() && (sid != whatsThis())) syncScroll(index, pos); });
     connect(&::controller, &ClassController::eventNetName, this, &DockWaveform::eventNetName);
 
     // Load default viewlist for this window id
@@ -265,6 +265,16 @@ void DockWaveform::scroll(int deltaX)
 }
 
 /*
+ * Synchronize the horizontal scroll with the cursor. This is used with the "Sync" option.
+ */
+void DockWaveform::syncScroll(uint index, uint pos)
+{
+    qreal scale = ui->widgetWaveform->setCursorsPos(index, pos);
+    CustomScrollArea *sb = ui->scrollArea;
+    sb->ensureVisible(pos * scale / 2, 50, 50);
+}
+
+/*
  * User changed the scaling on the waveform and that caused a range change
  */
 void DockWaveform::onScrollBarRangeChanged(int, int max)
@@ -275,7 +285,7 @@ void DockWaveform::onScrollBarRangeChanged(int, int max)
 }
 
 /*
- * User managed the horizontal scroll bar on the waveform pane
+ * User moved the horizontal scroll bar on the waveform pane
  */
 void DockWaveform::onScrollBarActionTriggered(int)
 {

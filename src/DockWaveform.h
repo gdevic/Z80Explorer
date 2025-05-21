@@ -98,6 +98,7 @@ private:
     bool load(QString fileName);        // Loads waveform items
     bool save(QString fileName);        // Saves waveform items
 
+    void syncScroll(uint index, uint pos);
     void wheelEvent(QWheelEvent* event) override;
     bool eventFilter(QObject *, QEvent *event) override
     {
