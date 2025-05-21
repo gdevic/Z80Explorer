@@ -287,7 +287,6 @@ void WidgetWaveform::onRunStopped()
                 if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
                 if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
             }
-            Q_ASSERT(m_cursors2x.count() >= 2);
             emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2)));
         }
     }
@@ -329,19 +328,9 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
     if(m_cursormoving) // User is moving the cursor
     {
         int mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
-        m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
-
-        // If the first two cursors are linked together, move them both
-        if (m_linked && (m_cursors2x.count() >= 2))
-        {
-            if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
-            if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
-        }
-        Q_ASSERT(m_cursors2x.count() >= 2);
-        emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2)));
-
+        setCursorsPos(m_cursor, mouse_in_dataX);
         setCursor(Qt::SizeHorCursor);
-        update();
+        emit cursorPosChanged(m_cursor, m_cursors2x[m_cursor]); // Emit cursor position for sync
     }
     else // User is scrolling the pane
     {
@@ -403,20 +392,26 @@ void WidgetWaveform::mouseReleaseEvent (QMouseEvent *)
  */
 void WidgetWaveform::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    if (m_cursors2x.count())
-    {
-        int mouse_in_dataX = event->position().x() / (m_hscale / 2);
-        m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
+    int mouse_in_dataX = event->position().x() / (m_hscale / 2);
+    setCursorsPos(m_cursor, mouse_in_dataX);
+    emit cursorPosChanged(m_cursor, m_cursors2x[m_cursor]); // Emit cursor position for sync
+}
 
-        // If the first two cursors are linked together, move them both
+void WidgetWaveform::setCursorsPos(uint index, uint pos)
+{
+    // Update cursor position if valid
+    if (index < m_cursors2x.count())
+    {
+        m_cursor = index;
+        m_cursors2x[index] = qBound(0, int(pos), MAX_WATCH_HISTORY * 2);
+
+        // Handle linked cursors
         if (m_linked && (m_cursors2x.count() >= 2))
         {
             if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
             if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
         }
-        Q_ASSERT(m_cursors2x.count() >= 2);
-        emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2)));
-
+        emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2))); // Emit link delta value
         update();
     }
 }

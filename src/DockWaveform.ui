@@ -34,7 +34,7 @@
      <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>0</number>
+     <number>6</number>
     </property>
     <item>
      <widget class="WidgetToolbar" name="widget" native="true"/>
@@ -77,6 +77,16 @@
         </property>
         <property name="text">
          <string>Δ=</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btSync">
+        <property name="text">
+         <string>Sync</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -131,7 +141,7 @@
          <x>0</x>
          <y>0</y>
          <width>780</width>
-         <height>470</height>
+         <height>464</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="containerLayout">
@@ -242,7 +252,7 @@ color: rgb(255, 255, 255);</string>
                 <x>0</x>
                 <y>0</y>
                 <width>606</width>
-                <height>439</height>
+                <height>433</height>
                </rect>
               </property>
               <layout class="QHBoxLayout" name="layoutScroll">

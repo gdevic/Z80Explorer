@@ -36,9 +36,6 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
     ui->btFile->setMenu(menu);
 
     connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
-    connect(ui->widgetWaveform, &WidgetWaveform::cursorChanged, this, &DockWaveform::cursorChanged);
-    connect(ui->widgetWaveform, &WidgetWaveform::scroll, this, &DockWaveform::scroll);
-    connect(ui->widgetWaveform, &WidgetWaveform::setLink, this, [this](int value) { ui->btLink->setText(QString("Δ=%1").arg(value)); }  );
     connect(ui->btLink, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onLinked);
     connect(ui->btDecorated, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onDecorated);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
@@ -47,7 +44,13 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
     connect(ui->scrollArea, &CustomScrollArea::enlarge, ui->widgetWaveform, &WidgetWaveform::onEnlarge);
     connect(ui->scrollArea, &CustomScrollArea::enlarge, this, &DockWaveform::onEnlarge);
     connect(ui->containerScroll->verticalScrollBar(), &QScrollBar::sliderReleased, this, [=]() { emit verticalScrollStopped(); });
-
+    connect(ui->widgetWaveform, &WidgetWaveform::cursorChanged, this, &DockWaveform::cursorChanged);
+    connect(ui->widgetWaveform, &WidgetWaveform::scroll, this, &DockWaveform::scroll);
+    connect(ui->widgetWaveform, &WidgetWaveform::setLink, this, [this](int value) { ui->btLink->setText(QString("Δ=%1").arg(value)); });
+    connect(ui->widgetWaveform, &WidgetWaveform::cursorPosChanged, this, [=](uint index, uint pos)
+        { if (ui->btSync->isChecked()) emit ::controller.syncWaveformCursorPos(sid, index, pos); });
+    connect(&::controller, &ClassController::syncWaveformCursorPos, this, [=](QString sid, uint index, uint pos)
+        { if (ui->btSync->isChecked() && (sid != whatsThis())) emit ui->widgetWaveform->setCursorsPos(index, pos); });
     connect(&::controller, &ClassController::eventNetName, this, &DockWaveform::eventNetName);
 
     // Load default viewlist for this window id

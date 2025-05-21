@@ -15,6 +15,7 @@ public:
 
 signals:
     void cursorChanged(uint hcycle);    // Cursor selected a new hcycle
+    void cursorPosChanged(uint index, uint pos); // Alternate cursor change event for sync
     void scroll(int deltaX);            // User moved the view, request to scroll it
     void setLink(int value);            // Sets the link button text to a numeric value
 
@@ -24,6 +25,7 @@ public slots:
     void onZoom(bool isUp);             // Zooms in and out by a predefined step
     void onEnlarge(int delta);          // Vertically enlarge the view
     void onRunStopped();                // Simulation run stopped
+    void setCursorsPos(uint index, uint pos); // Request to set our cursor(s)
 
 private:
     DockWaveform *m_dock {};

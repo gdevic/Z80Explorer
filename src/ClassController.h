@@ -73,7 +73,8 @@ signals:
     void onRunHeartbeat(uint);              // Called by the sim every 500ms when running
     void onRunStopped(uint);                // Called by the sim when the current run stops at a given half-cycle
     void eventNetName(Netop op, const QString name, const net_t); // Dispatches operations on net names
-    void syncView(QPointF pos, qreal zoom); // Broadcast to all image views to sync their views
+    void syncView(QPointF pos, qreal zoom); // Broadcast to all image views to sync
+    void syncWaveformCursorPos(QString sid, uint index, uint pos); // Broadcast to all waveform views to sync the cursors
     void shutdown();                        // Application is shutting down; save all modified app data
 
 private:
