@@ -77,6 +77,9 @@ public:
     inline viewitem *getNext(int &it)   // Iterator
         { return (it < m_view.count()) ? &m_view[it++] : nullptr; }
 
+signals:
+    void verticalScrollStopped();       // Signal emitted when vertical scroll stops
+
 private slots:
     void onLoad();                      // Load view items from a file
     void onSaveAs();                    // Save current set of view items with a new file name

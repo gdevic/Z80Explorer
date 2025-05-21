@@ -29,6 +29,9 @@ void WidgetWaveform::init(DockWaveform *dock, QString sid)
     m_cursor = settings.value("dockWaveCursor-" + sid, 0).toInt();
     m_dY = settings.value("dockWaveHeight-" + sid, 20).toInt();
     onEnlarge(0);
+
+    // Redraw the view when the vertical scrolling stops, this fixes the cursor corruption on vertical scroll
+    connect(dock, &DockWaveform::verticalScrollStopped, this, [=]() { update(); });
 }
 
 WidgetWaveform::~WidgetWaveform()

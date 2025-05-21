@@ -46,6 +46,7 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
     connect(ui->scrollArea, &CustomScrollArea::zoom, ui->widgetWaveform, &WidgetWaveform::onZoom);
     connect(ui->scrollArea, &CustomScrollArea::enlarge, ui->widgetWaveform, &WidgetWaveform::onEnlarge);
     connect(ui->scrollArea, &CustomScrollArea::enlarge, this, &DockWaveform::onEnlarge);
+    connect(ui->containerScroll->verticalScrollBar(), &QScrollBar::sliderReleased, this, [=]() { emit verticalScrollStopped(); });
 
     connect(&::controller, &ClassController::eventNetName, this, &DockWaveform::eventNetName);
 
@@ -203,7 +204,10 @@ void DockWaveform::rebuildList()
         tvi = new QTableWidgetItem("()");
         tv->setItem(row, 1, tvi);
     }
-    ui->frame->update();
+
+    // Update frame and scroll areas after content changes
+    ui->frame->updateGeometry();
+    ui->containerScroll->updateGeometry();
 }
 
 /*
@@ -298,6 +302,10 @@ void DockWaveform::onEnlarge(int delta)
     QFont font = ui->list->font();
     font.setPixelSize(0.7 * m_sectionSize);
     ui->list->setFont(font);
+
+    // Update scroll area size hint and container scroll area to reflect new content height
+    ui->frame->updateGeometry();
+    ui->containerScroll->updateGeometry();
 }
 
 /*
