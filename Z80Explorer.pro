@@ -1,6 +1,6 @@
 QT += core gui widgets xml concurrent qml network
 
-CONFIG += c++11
+CONFIG += c++17
 
 INCLUDEPATH += src
 
