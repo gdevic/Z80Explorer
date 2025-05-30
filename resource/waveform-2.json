@@ -1,0 +1,604 @@
+{
+    "waveform": [
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla0",
+            "net": 287
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla1",
+            "net": 332
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla2",
+            "net": 314
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla3",
+            "net": 333
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla4",
+            "net": 315
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla5",
+            "net": 334
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla6",
+            "net": 316
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla7",
+            "net": 335
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla8",
+            "net": 317
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla9",
+            "net": 336
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla10",
+            "net": 318
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla11",
+            "net": 361
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla12",
+            "net": 261
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla13",
+            "net": 337
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla14",
+            "net": 319
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla15",
+            "net": 363
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla16",
+            "net": 288
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla17",
+            "net": 338
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla18",
+            "net": 320
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla19",
+            "net": 364
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla20",
+            "net": 325
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla21",
+            "net": 324
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla22",
+            "net": 308
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla23",
+            "net": 289
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla24",
+            "net": 339
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla25",
+            "net": 313
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla26",
+            "net": 340
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla27",
+            "net": 290
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla28",
+            "net": 341
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla29",
+            "net": 291
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla30",
+            "net": 342
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla31",
+            "net": 292
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla32",
+            "net": 365
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla33",
+            "net": 293
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla34",
+            "net": 362
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla35",
+            "net": 294
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla36",
+            "net": 331
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla37",
+            "net": 295
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla38",
+            "net": 343
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla39",
+            "net": 296
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla40",
+            "net": 297
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla41",
+            "net": 298
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla42",
+            "net": 344
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla43",
+            "net": 299
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla44",
+            "net": 269
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla45",
+            "net": 300
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla46",
+            "net": 237
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla47",
+            "net": 301
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla48",
+            "net": 345
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla49",
+            "net": 302
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla50",
+            "net": 346
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla51",
+            "net": 264
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla52",
+            "net": 266
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla53",
+            "net": 347
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla54",
+            "net": 303
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla55",
+            "net": 356
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla56",
+            "net": 227
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla57",
+            "net": 366
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla58",
+            "net": 304
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla59",
+            "net": 305
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla60",
+            "net": 271
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla61",
+            "net": 348
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla62",
+            "net": 306
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla63",
+            "net": 309
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla64",
+            "net": 311
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla65",
+            "net": 312
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla66",
+            "net": 307
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla67",
+            "net": 367
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla68",
+            "net": 272
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla69",
+            "net": 349
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla70",
+            "net": 273
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla71",
+            "net": 350
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla72",
+            "net": 274
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla73",
+            "net": 351
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla74",
+            "net": 275
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla75",
+            "net": 276
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla76",
+            "net": 268
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla77",
+            "net": 352
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla78",
+            "net": 277
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla79",
+            "net": 278
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla80",
+            "net": 279
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla81",
+            "net": 280
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla82",
+            "net": 368
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla83",
+            "net": 281
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla84",
+            "net": 282
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla85",
+            "net": 283
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla86",
+            "net": 284
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla87",
+            "net": 285
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla88",
+            "net": 286
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla89",
+            "net": 321
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla90",
+            "net": 353
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla91",
+            "net": 322
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla92",
+            "net": 354
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla93",
+            "net": 323
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla94",
+            "net": 369
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla95",
+            "net": 258
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla96",
+            "net": 249
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla97",
+            "net": 245
+        },
+        {
+            "color": "0,255,0,255",
+            "format": 2,
+            "name": "pla98",
+            "net": 355
+        },
+        {
+            "color": "0,170,255,255",
+            "format": 5,
+            "name": "INSTR",
+            "net": 0
+        }
+    ]
+}

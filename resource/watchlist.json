@@ -105,8 +105,108 @@
             "net": 24
         },
         {
+            "name": "_pla_ir0",
+            "net": 374
+        },
+        {
+            "name": "_pla_ir1",
+            "net": 375
+        },
+        {
+            "name": "_pla_ir2",
+            "net": 378
+        },
+        {
+            "name": "_pla_ir3",
+            "net": 385
+        },
+        {
+            "name": "_pla_ir4",
+            "net": 1386
+        },
+        {
+            "name": "_pla_ir5",
+            "net": 1393
+        },
+        {
+            "name": "_pla_ir6",
+            "net": 1371
+        },
+        {
+            "name": "_pla_ir7",
+            "net": 1377
+        },
+        {
             "name": "_rd",
             "net": 27
+        },
+        {
+            "name": "_REGBIT",
+            "net": 0
+        },
+        {
+            "name": "_regbit0",
+            "net": 708
+        },
+        {
+            "name": "_regbit1",
+            "net": 715
+        },
+        {
+            "name": "_regbit10",
+            "net": 914
+        },
+        {
+            "name": "_regbit11",
+            "net": 923
+        },
+        {
+            "name": "_regbit12",
+            "net": 949
+        },
+        {
+            "name": "_regbit13",
+            "net": 959
+        },
+        {
+            "name": "_regbit14",
+            "net": 980
+        },
+        {
+            "name": "_regbit15",
+            "net": 985
+        },
+        {
+            "name": "_regbit2",
+            "net": 745
+        },
+        {
+            "name": "_regbit3",
+            "net": 753
+        },
+        {
+            "name": "_regbit4",
+            "net": 785
+        },
+        {
+            "name": "_regbit5",
+            "net": 799
+        },
+        {
+            "name": "_regbit6",
+            "net": 834
+        },
+        {
+            "name": "_regbit7",
+            "net": 847
+        },
+        {
+            "name": "_regbit8",
+            "net": 880
+        },
+        {
+            "name": "_regbit9",
+            "net": 886
         },
         {
             "name": "_reset",
@@ -337,6 +437,18 @@
             "net": 994
         },
         {
+            "name": "alu_a",
+            "net": 793
+        },
+        {
+            "name": "alu_b",
+            "net": 735
+        },
+        {
+            "name": "alu_c",
+            "net": 643
+        },
+        {
             "name": "alua0",
             "net": 850
         },
@@ -399,6 +511,10 @@
         {
             "name": "alub7",
             "net": 1005
+        },
+        {
+            "name": "ALUBUS",
+            "net": 0
         },
         {
             "name": "alubus0",
@@ -501,12 +617,16 @@
             "net": 133
         },
         {
-            "name": "d_u_pass",
+            "name": "d_u",
             "net": 546
         },
         {
             "name": "DB",
             "net": 0
+        },
+        {
+            "name": "db_precharge",
+            "net": 1507
         },
         {
             "name": "db0",
@@ -621,6 +741,14 @@
             "net": 82
         },
         {
+            "name": "en_ir",
+            "net": 1800
+        },
+        {
+            "name": "en_pc",
+            "net": 1799
+        },
+        {
             "name": "ex_af",
             "net": 631
         },
@@ -639,6 +767,18 @@
         {
             "name": "ex_dehl1",
             "net": 629
+        },
+        {
+            "name": "flag_cf",
+            "net": 754
+        },
+        {
+            "name": "imfa",
+            "net": 1215
+        },
+        {
+            "name": "imfb",
+            "net": 1268
         },
         {
             "name": "INSTR",
@@ -783,6 +923,38 @@
         {
             "name": "PCBUS",
             "net": 0
+        },
+        {
+            "name": "pla_ir0",
+            "net": 1347
+        },
+        {
+            "name": "pla_ir1",
+            "net": 1358
+        },
+        {
+            "name": "pla_ir2",
+            "net": 1364
+        },
+        {
+            "name": "pla_ir3",
+            "net": 248
+        },
+        {
+            "name": "pla_ir4",
+            "net": 247
+        },
+        {
+            "name": "pla_ir5",
+            "net": 1390
+        },
+        {
+            "name": "pla_ir6",
+            "net": 1368
+        },
+        {
+            "name": "pla_ir7",
+            "net": 1373
         },
         {
             "name": "pla0",
@@ -1197,6 +1369,14 @@
             "net": 608
         },
         {
+            "name": "REG_A",
+            "net": 0
+        },
+        {
+            "name": "REG_A'",
+            "net": 0
+        },
+        {
             "name": "reg_a0",
             "net": 2245
         },
@@ -1259,6 +1439,22 @@
         {
             "name": "reg_aa7",
             "net": 2655
+        },
+        {
+            "name": "REG_AF",
+            "net": 0
+        },
+        {
+            "name": "REG_AF'",
+            "net": 0
+        },
+        {
+            "name": "REG_B",
+            "net": 0
+        },
+        {
+            "name": "REG_B'",
+            "net": 0
         },
         {
             "name": "reg_b0",
@@ -1325,6 +1521,22 @@
             "net": 2653
         },
         {
+            "name": "REG_BC",
+            "net": 0
+        },
+        {
+            "name": "REG_BC'",
+            "net": 0
+        },
+        {
+            "name": "REG_C",
+            "net": 0
+        },
+        {
+            "name": "REG_C'",
+            "net": 0
+        },
+        {
             "name": "reg_c0",
             "net": 1825
         },
@@ -1387,6 +1599,14 @@
         {
             "name": "reg_cc7",
             "net": 2206
+        },
+        {
+            "name": "REG_D",
+            "net": 0
+        },
+        {
+            "name": "REG_D'",
+            "net": 0
         },
         {
             "name": "reg_d0",
@@ -1453,6 +1673,22 @@
             "net": 2651
         },
         {
+            "name": "REG_DE",
+            "net": 0
+        },
+        {
+            "name": "REG_DE'",
+            "net": 0
+        },
+        {
+            "name": "REG_E",
+            "net": 0
+        },
+        {
+            "name": "REG_E'",
+            "net": 0
+        },
+        {
             "name": "reg_e0",
             "net": 1823
         },
@@ -1515,6 +1751,14 @@
         {
             "name": "reg_ee7",
             "net": 2204
+        },
+        {
+            "name": "REG_F",
+            "net": 0
+        },
+        {
+            "name": "REG_F'",
+            "net": 0
         },
         {
             "name": "reg_f0",
@@ -1581,6 +1825,14 @@
             "net": 2208
         },
         {
+            "name": "REG_H",
+            "net": 0
+        },
+        {
+            "name": "REG_H'",
+            "net": 0
+        },
+        {
             "name": "reg_h0",
             "net": 2239
         },
@@ -1645,6 +1897,18 @@
             "net": 2649
         },
         {
+            "name": "REG_HL",
+            "net": 0
+        },
+        {
+            "name": "REG_HL'",
+            "net": 0
+        },
+        {
+            "name": "REG_I",
+            "net": 0
+        },
+        {
             "name": "reg_i0",
             "net": 2233
         },
@@ -1675,6 +1939,14 @@
         {
             "name": "reg_i7",
             "net": 2644
+        },
+        {
+            "name": "REG_IR",
+            "net": 0
+        },
+        {
+            "name": "REG_IX",
+            "net": 0
         },
         {
             "name": "reg_ixh0",
@@ -1741,6 +2013,10 @@
             "net": 2201
         },
         {
+            "name": "REG_IY",
+            "net": 0
+        },
+        {
             "name": "reg_iyh0",
             "net": 2236
         },
@@ -1803,6 +2079,14 @@
         {
             "name": "reg_iyl7",
             "net": 2200
+        },
+        {
+            "name": "REG_L",
+            "net": 0
+        },
+        {
+            "name": "REG_L'",
+            "net": 0
         },
         {
             "name": "reg_l0",
@@ -1869,6 +2153,10 @@
             "net": 2202
         },
         {
+            "name": "REG_PC",
+            "net": 0
+        },
+        {
             "name": "reg_pch0",
             "net": 2232
         },
@@ -1933,6 +2221,10 @@
             "net": 2196
         },
         {
+            "name": "REG_R",
+            "net": 0
+        },
+        {
             "name": "reg_r0",
             "net": 1815
         },
@@ -1963,6 +2255,66 @@
         {
             "name": "reg_r7",
             "net": 2197
+        },
+        {
+            "name": "reg_sel_af",
+            "net": 677
+        },
+        {
+            "name": "reg_sel_af'",
+            "net": 674
+        },
+        {
+            "name": "reg_sel_bc",
+            "net": 673
+        },
+        {
+            "name": "reg_sel_bc'",
+            "net": 670
+        },
+        {
+            "name": "reg_sel_de",
+            "net": 669
+        },
+        {
+            "name": "reg_sel_de'",
+            "net": 666
+        },
+        {
+            "name": "reg_sel_exx",
+            "net": 634
+        },
+        {
+            "name": "reg_sel_exx'",
+            "net": 640
+        },
+        {
+            "name": "reg_sel_hl",
+            "net": 665
+        },
+        {
+            "name": "reg_sel_hl'",
+            "net": 662
+        },
+        {
+            "name": "reg_sel_ix",
+            "net": 661
+        },
+        {
+            "name": "reg_sel_iy",
+            "net": 658
+        },
+        {
+            "name": "reg_sel_sp",
+            "net": 657
+        },
+        {
+            "name": "reg_sel_wz",
+            "net": 654
+        },
+        {
+            "name": "REG_SP",
+            "net": 0
         },
         {
             "name": "reg_sph0",
@@ -2061,6 +2413,10 @@
             "net": 2645
         },
         {
+            "name": "REG_WZ",
+            "net": 0
+        },
+        {
             "name": "reg_z0",
             "net": 1816
         },
@@ -2091,6 +2447,10 @@
         {
             "name": "reg_z7",
             "net": 2198
+        },
+        {
+            "name": "REGBIT",
+            "net": 0
         },
         {
             "name": "regbit0",
@@ -2197,7 +2557,7 @@
             "net": 168
         },
         {
-            "name": "u_v_pass",
+            "name": "u_v",
             "net": 750
         },
         {
@@ -2283,162 +2643,6 @@
         {
             "name": "wr_ab",
             "net": 393
-        },
-        {
-            "name": "_regbit8",
-            "net": 880
-        },
-        {
-            "name": "reg_load_de",
-            "net": 669
-        },
-        {
-            "name": "reg_load_bc'",
-            "net": 670
-        },
-        {
-            "name": "reg_load_bc",
-            "net": 673
-        },
-        {
-            "name": "reg_load_af'",
-            "net": 674
-        },
-        {
-            "name": "reg_load_af",
-            "net": 677
-        },
-        {
-            "name": "reg_load_de'",
-            "net": 666
-        },
-        {
-            "name": "reg_load_hl",
-            "net": 665
-        },
-        {
-            "name": "reg_load_hl'",
-            "net": 662
-        },
-        {
-            "name": "reg_load_ix",
-            "net": 661
-        },
-        {
-            "name": "reg_load_iy",
-            "net": 658
-        },
-        {
-            "name": "reg_load_sp",
-            "net": 657
-        },
-        {
-            "name": "reg_load_wz",
-            "net": 654
-        },
-        {
-            "name": "1800",
-            "net": 1800
-        },
-        {
-            "name": "1799",
-            "net": 1799
-        },
-        {
-            "name": "1798",
-            "net": 1798
-        },
-        {
-            "name": "607",
-            "net": 607
-        },
-        {
-            "name": "1650",
-            "net": 1650
-        },
-        {
-            "name": "519",
-            "net": 519
-        },
-        {
-            "name": "535",
-            "net": 535
-        },
-        {
-            "name": "reg_sel_exx",
-            "net": 634
-        },
-        {
-            "name": "ALUBUS",
-            "net": 0
-        },
-        {
-            "name": "_regbit15",
-            "net": 985
-        },
-        {
-            "name": "_regbit14",
-            "net": 980
-        },
-        {
-            "name": "_regbit13",
-            "net": 959
-        },
-        {
-            "name": "_regbit12",
-            "net": 949
-        },
-        {
-            "name": "_regbit11",
-            "net": 923
-        },
-        {
-            "name": "_regbit10",
-            "net": 914
-        },
-        {
-            "name": "_regbit9",
-            "net": 886
-        },
-        {
-            "name": "_regbit7",
-            "net": 847
-        },
-        {
-            "name": "_regbit6",
-            "net": 834
-        },
-        {
-            "name": "_regbit5",
-            "net": 799
-        },
-        {
-            "name": "_regbit4",
-            "net": 785
-        },
-        {
-            "name": "_regbit3",
-            "net": 753
-        },
-        {
-            "name": "_regbit2",
-            "net": 745
-        },
-        {
-            "name": "_regbit1",
-            "net": 715
-        },
-        {
-            "name": "_regbit0",
-            "net": 708
-        },
-        {
-            "name": "_REGBIT",
-            "net": 0
-        },
-        {
-            "name": "REGBIT",
-            "net": 0
         }
     ]
 }
