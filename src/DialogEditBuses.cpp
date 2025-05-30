@@ -4,6 +4,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QStringBuilder>
 
 DialogEditBuses::DialogEditBuses(QWidget *parent) :
     QDialog(parent),
@@ -84,8 +85,8 @@ void DialogEditBuses::onCreate()
     for (auto &net : ui->listNets->selectedItems())
         nets.append(net->text());
     bool ok;
-    QString name = QInputDialog::getText(this, "Create a bus", "Enter the bus name for a group of these nets:\n" + nets.join(','),
-                                         QLineEdit::Normal, "", &ok, Qt::MSWindowsFixedSizeDialogHint);
+    QString prompt = QLatin1String("Enter the bus name for a group of these nets [") % QString::number(nets.count()) % QLatin1String("]:\n") % nets.join(',');
+    QString name = QInputDialog::getText(this, "Create a bus", prompt, QLineEdit::Normal, "", &ok, Qt::MSWindowsFixedSizeDialogHint);
     if (ok && name.trimmed().length() > 0)
     {
         name = name.trimmed().toUpper(); // Bus names are always upper-cased
