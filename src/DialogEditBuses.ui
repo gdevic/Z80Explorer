@@ -112,6 +112,9 @@
      </item>
      <item>
       <widget class="QListWidget" name="listBuses">
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+       </property>
        <property name="sortingEnabled">
         <bool>true</bool>
        </property>

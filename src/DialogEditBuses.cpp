@@ -99,9 +99,9 @@ void DialogEditBuses::onCreate()
 
 void DialogEditBuses::onDelete()
 {
-    QVector<QListWidgetItem *> sel = ui->listBuses->selectedItems().toVector();
-    int row = ui->listBuses->row(sel[0]);
-    delete ui->listBuses->takeItem(row);
+    QVector<QListWidgetItem *> selectedItems = ui->listBuses->selectedItems();
+    for (QListWidgetItem *item : selectedItems)
+        delete ui->listBuses->takeItem(ui->listBuses->row(item));
 }
 
 /*
@@ -129,12 +129,12 @@ void DialogEditBuses::netSelChanged()
 void DialogEditBuses::busSelChanged()
 {
     QVector<QListWidgetItem *> sel = ui->listBuses->selectedItems().toVector();
-    if (sel.size())
+    if (sel.size() == 1)
     {
         ui->labelNets->setText(sel[0]->toolTip());
         ui->labelNets->setAlignment(Qt::AlignRight);
     }
     else
         ui->labelNets->clear();
-    ui->btDelete->setEnabled(sel.size() == 1);
+    ui->btDelete->setEnabled(sel.size() > 0);
 }
