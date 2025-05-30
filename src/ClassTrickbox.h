@@ -32,7 +32,7 @@ public:
     void reset();                           // Reset the control counters etc.
     void onTick(uint ticks);                // Called by the simulator on every half-clock tick
     Q_PROPERTY(bool enabled MEMBER m_trickEnabled) //* Enables or disables trickbox control
-    Q_PROPERTY(uint rom MEMBER m_rom);      //* Designates the initial memory block as read-only
+    Q_PROPERTY(uint rom MEMBER m_rom)       //* Designates the initial memory block as read-only
 
 public slots:
     bool loadHex(const QString fileName);   //* Loads a HEX file into simulated RAM; empty name for last loaded
@@ -58,7 +58,6 @@ signals:
     void refresh();                         // Outgoing request to refresh the monitor information display
 
 private:
-    bool readHex(QString fileName);
     uint8_t m_mem[65536] {};                // Simulated 64K memory
     uint8_t m_mio[65536];                   // Simulated 64K IO space as r/w
     trick *m_trick;                         // Start of the trickbox control area
