@@ -208,7 +208,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         QString line;
         QStringList list;
         m_transdefs.fill(Trans{}); // Clear the array with the defaults
-        uint count = 0;
+        uint count = 0, pull_ups = 0;
         m_netlist.fill(Net{});
 
         while(!in.atEnd())
@@ -219,35 +219,48 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                 line.replace('[', ' ').replace(']', ' '); // Make it a simple list of numbers
                 line.chop(2);
                 list = line.split(QLatin1Char(','), Qt::SkipEmptyParts);
-                if (list.length()==14 && list[0].length() > 2)
+                if ((list.length() == 14) && (list[0].length() > 2))
                 {
-                    // ----- Add the transistor to the transistor array -----
-                    QString tnum = list[0].mid(3, list[0].length() - 4);
-                    tran_t i = tnum.toUInt();
-                    Q_ASSERT(i < MAX_TRANS);
-                    Trans *p = &m_transdefs[i];
+                    // In the legacy transdefs.js file (from the Visual 6502 team) there are 32 transistors that are in fact pull-ups
+                    // and can be ignored. They are marked as pull-ups, and we don't load them.
+                    if (list[13] != "true")
+                    {
+                        // ----- Add the transistor to the transistor array -----
+                        QString tnum = list[0].mid(3, list[0].length() - 4);
+                        tran_t i = tnum.toUInt();
+                        Q_ASSERT(i < MAX_TRANS);
+                        Trans* p = &m_transdefs[i];
 
-                    p->id = i;
-                    p->gate = list[1].toUInt();
-                    p->c1 = list[2].toUInt();
-                    p->c2 = list[3].toUInt();
+                        p->id = i;
+                        p->gate = list[1].toUInt();
+                        p->c1 = list[2].toUInt();
+                        p->c2 = list[3].toUInt();
 
-                    // Pull-up, pull-down and clock gate transistors should always have their *second* connection to the power/ground/clk
-                    if (p->c1 <= nclk) // ngnd=1, npwr=2, nclk=2, ...
-                        std::swap(p->c1, p->c2);
-                    max = std::max(max, std::max(p->c1, p->c2)); // Find the max net number
+                        // Pull-up, pull-down and clock gate transistors should always have their *second* connection to the power/ground/clk
+                        if (p->c1 <= nclk) // ngnd=1, npwr=2, nclk=2, ...
+                            std::swap(p->c1, p->c2);
+                        max = std::max(max, std::max(p->c1, p->c2)); // Find the max net number
 
-                    // ----- Add the transistor to the netlist -----
-                    m_netlist[p->gate].gates.append(p);
-                    m_netlist[p->c1].c1c2s.append(p);
-                    m_netlist[p->c2].c1c2s.append(p);
-                    count++;
+                        // ----- Add the transistor to the netlist -----
+                        m_netlist[p->gate].gates.append(p);
+                        m_netlist[p->c1].c1c2s.append(p);
+                        m_netlist[p->c2].c1c2s.append(p);
+                        count++;
+                    }
+                    else
+                        pull_ups++;
                 }
                 else
                     qWarning() << "Invalid line" << list;
             }
             else
                 qDebug() << "Skipping" << line;
+        }
+        // In the legacy netlist we expect exactly 32 pull-ups
+        if (pull_ups != 32)
+        {
+            qCritical() << "Unexpected number of pull-ups in transdefs.js";
+            return false;
         }
         qInfo() << "Loaded" << count << "transistor definitions";
         qInfo() << "Index of the last connected net" << max;

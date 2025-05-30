@@ -381,14 +381,6 @@ inline void ClassSimZ80::recalcNetlist()
     {
         for (int i=0; i<m_listIndex; i++)
             recalcNet(m_list[i]);
-
-        // This performance code path depends on this check since it does not have any other loop limiter. The early exit check below is tightly tied to this specific
-        // Z80 netlist and the order of nets and transistors, and will detect the only case when the nets are toggling endlessly.
-        //if ((m_recalcListIndex == 32) && (m_recalcList[0] == 791) && (m_recalcList[1] == 703) && (m_recalcList[2] == 907) && (m_recalcList[3] == 713) && (m_recalcList[4] == 917) && (m_recalcList[5] == 798) && (m_recalcList[6] == 922) && (m_recalcList[7] == 806) && (m_recalcList[8] == 933) && (m_recalcList[9] == 714) && (m_recalcList[10] == 810) && (m_recalcList[11] == 936) && (m_recalcList[12] == 731) && (m_recalcList[13] == 953) && (m_recalcList[14] == 841) && (m_recalcList[15] == 958) && (m_recalcList[16] == 846) && (m_recalcList[17] == 739) && (m_recalcList[18] == 969) && (m_recalcList[19] == 863) && (m_recalcList[20] == 749) && (m_recalcList[21] == 974) && (m_recalcList[22] == 982) && (m_recalcList[23] == 871) && (m_recalcList[24] == 752) && (m_recalcList[25] == 984) && (m_recalcList[26] == 884) && (m_recalcList[27] == 998) && (m_recalcList[28] == 774) && (m_recalcList[29] == 885) && (m_recalcList[30] == 901) && (m_recalcList[31] == 777))
-        // Empirically found that it is necessary to only check the first one, when 32 nets are on the list
-        if ((m_recalcListIndex == 32) && (m_recalcList[0] == 791))
-            break;
-
         memcpy(m_list, m_recalcList, m_recalcListIndex * sizeof (net_t));
         m_listIndex = m_recalcListIndex;
         m_recalcListIndex = 0;
@@ -400,16 +392,6 @@ inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
     recalcList.clear();
     for (int i=0; i<100 && list.count(); i++) // loop limiter
     {
-        // This strictly a performance improvement complements the loop limiter. The early exit check below is tightly tied to this specific
-        // Z80 netlist and the order of nets and transistors, and will detect the only case when the nets are toggling endlessly.
-        if (list.count() == 32) // There are 32 nets that are unstable, exit early when the list contains only those
-        {
-            //if ((list[0] == 791) && (list[1] == 703) && (list[2] == 907) && (list[3] == 713) && (list[4] == 917) && (list[5] == 798) && (list[6] == 922) && (list[7] == 806) && (list[8] == 933) && (list[9] == 714) && (list[10] == 810) && (list[11] == 936) && (list[12] == 731) && (list[13] == 953) && (list[14] == 841) && (list[15] == 958) && (list[16] == 846) && (list[17] == 739) && (list[18] == 969) && (list[19] == 863) && (list[20] == 749) && (list[21] == 974) && (list[22] == 982) && (list[23] == 871) && (list[24] == 752) && (list[25] == 984) && (list[26] == 884) && (list[27] == 998) && (list[28] == 774) && (list[29] == 885) && (list[30] == 901) && (list[31] == 777))
-            // Empirically found that it is necessary to only check the first one, when 32 nets are on the list
-            if (list[0] == 791)
-                break;
-        }
-
         for (auto n : list)
             recalcNet(n);
         list = recalcList;
