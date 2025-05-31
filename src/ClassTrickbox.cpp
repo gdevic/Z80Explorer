@@ -273,7 +273,7 @@ void ClassTrickbox::setAtPC(QString pin, quint16 addr, quint16 hold)
  *
  * https://en.wikipedia.org/wiki/Intel_HEX
  */
-bool ClassTrickbox::loadHex(const QString fileName)
+bool ClassTrickbox::loadHex(const QString fileName, bool clearMem)
 {
     QString name = fileName.isEmpty() ? m_lastLoadedHex : fileName;
     if (QFileInfo(name).size() == 0)
@@ -287,11 +287,13 @@ bool ClassTrickbox::loadHex(const QString fileName)
         qWarning() << "Unable to open" << name;
         return false;
     }
-
-    // Clear the RAM memory and IO space before loading any programs
-    memset(m_mem, 0, sizeof(m_mem));
-    memset(m_mio, 0xFF, sizeof(m_mio));
-    qInfo() << "Clearing simulator RAM and setting IO space to FF";
+    if (clearMem)
+    {
+        // Clear the RAM memory and IO space before loading any programs
+        memset(m_mem, 0, sizeof(m_mem));
+        memset(m_mio, 0xFF, sizeof(m_mio));
+        qInfo() << "Clearing simulator RAM and setting IO space to FF";
+    }
 
     QTextStream in(&file);
     while (!in.atEnd())

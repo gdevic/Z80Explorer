@@ -4,6 +4,7 @@
 // by dragging and dropping it into the app's Command Window
 
 function loadHex(fileName) { mon.loadHex(fileName); }
+function patchHex(fileName) { mon.patchHex(fileName); }
 function loadBin(fileName, address) { mon.loadBin(fileName, address); }
 function saveBin(fileName, address, size) { mon.saveBin(fileName, address, size); }
 function echo(s) { mon.echo(s); }
@@ -87,6 +88,7 @@ function help()
     print("save()         - Saves all changes to all custom and config files");
     print("-- Object 'monitor' methods:");
     print("mon.loadHex(\"file\") - Loads a HEX file into simulated memory");
+    print("mon.patchHex(\"file\") - Merges a HEX file into simulated memory");
     print("mon.loadBin(\"file\",address) - Merges a binary file into simulated memory at address");
     print("mon.saveBin(\"file\",address,size) - Saves the content of the simulated memory to a file");
     print("mon.echo(ascii) - Echoes ASCII code to the monitor output terminal");

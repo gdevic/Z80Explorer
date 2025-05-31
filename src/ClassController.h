@@ -41,6 +41,8 @@ public: // API
         { m_trick.writeIO(ab, db); }
     bool loadHex(QString fileName)                // Loads file into simulated RAM memory; empty name for last loaded
         { return m_trick.loadHex(fileName); }
+    bool patchHex(QString fileName)               // Merges file into simulated RAM memory; empty name for last loaded
+        { return m_trick.patchHex(fileName); }
     void readState(z80state &state)               // Reads chip state structure
         { m_simz80.readState(state); }
     bool isSimRunning()                           // Returns true is the simulation is currently running

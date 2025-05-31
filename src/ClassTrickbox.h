@@ -35,7 +35,9 @@ public:
     Q_PROPERTY(uint rom MEMBER m_rom)       //* Designates the initial memory block as read-only
 
 public slots:
-    bool loadHex(const QString fileName);   //* Loads a HEX file into simulated RAM; empty name for last loaded
+    bool loadHex(const QString fileName, bool clearMem = true); //* Loads a HEX file into simulated RAM; empty name for last loaded
+    bool patchHex(const QString fileName)   //* Merges a HEX file into simulated RAM; empty name for last loaded
+        { return loadHex(fileName, false); }//  This function does not clear the RAM and IO space
     bool loadBin(const QString fileName, quint16 address); //* Loads a binary file to simulated RAM at the given address
     bool saveBin(const QString fileName, quint16 address, uint size); //* Saves the content of the simulated RAM
     void zx();                              //* A little something
