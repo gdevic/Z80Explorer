@@ -102,7 +102,7 @@ void ClassTrickbox::writeIO(quint16 ab, quint8 db)
     m_mio[ab] = db;
     // IO address 0x81 holds the value to be shown on the bus during interrupt - see ClassSimZ80::handleIrq()
     // IO address 0x80 is a character out address
-    if (ab == 0x80)
+    if (m_trickEnabled && (ab == 0x80))
     {
         if (db == 10) // Ignore LF in CR/LF sequence
             return;
@@ -149,6 +149,9 @@ uint ClassTrickbox::getHCycle()
 void ClassTrickbox::onTick(uint ticks)
 {
     m_trick->curCycle = ticks;
+
+    if (!m_trickEnabled)
+        return;
 
     // Check for explicit break on a net value
     if (m_bpnet && (::controller.getSimZ80().getNetState(m_bpnet) == !!m_bpval))
