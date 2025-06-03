@@ -4,19 +4,19 @@
             "color": "200,200,200,255",
             "enabled": true,
             "expr": "clk",
-            "method": 1
+            "method": 0
         },
         {
-            "color": "128,192,128,255",
+            "color": "255,255,0,255",
             "enabled": true,
-            "expr": "m",
-            "method": 1
+            "expr": "^m[1-6]$",
+            "method": 2
         },
         {
-            "color": "128,128,192,255",
+            "color": "255,255,255,255",
             "enabled": true,
-            "expr": "t",
-            "method": 1
+            "expr": "^t[1-6]$",
+            "method": 2
         },
         {
             "color": "128,192,192,255",
