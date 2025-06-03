@@ -32,6 +32,7 @@ private:
     Ui::DialogEditColors *ui;
     QStringList m_methods;
 
+    void showFileName();
     void onLoad(bool merge);
     void swap(int index, int delta);
     void addItem(const colordef &cdef);

@@ -12,6 +12,7 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
     ui(new Ui::DialogEditColors)
 {
     ui->setupUi(this);
+    showFileName();
 
     QSettings settings;
     restoreGeometry(settings.value("editColorsGeometry").toByteArray());
@@ -42,6 +43,14 @@ DialogEditColors::~DialogEditColors()
     settings.setValue("editColorsGeometry", saveGeometry());
 
     delete ui;
+}
+
+/*
+ * Show the current colors file name
+ */
+void DialogEditColors::showFileName()
+{
+    setWindowTitle(QString("Edit Colors: %1").arg(::controller.getColors().getFileName()));
 }
 
 /*
@@ -246,6 +255,7 @@ void DialogEditColors::onLoad(bool merge)
             onRemove();
             for (const auto &cdef : ::controller.getColors().getColordefs())
                 addItem(cdef);
+            showFileName();
         }
     }
 }
@@ -260,5 +270,6 @@ void DialogEditColors::onSaveAs()
     {
         if (!::controller.getColors().save(fileName))
             QMessageBox::critical(this, "Error", "Unable to save color definition to " + fileName);
+        showFileName();
     }
 }

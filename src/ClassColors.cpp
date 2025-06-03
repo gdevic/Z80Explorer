@@ -153,7 +153,8 @@ bool ClassColors::load(QString fileName, bool merge)
                 m_colordefs.append(c);
             }
             rebuild();
-            m_jsonFile = fileName;
+            if (!merge) // Do not update file name if merging
+                m_jsonFile = fileName;
             return true;
         }
         else

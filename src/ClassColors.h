@@ -41,6 +41,8 @@ public:
     void rebuild();                     // Updates internal color table
     bool load(QString fileName, bool merge = false); // Loads or merges color definitions
     bool save(QString fileName);        // Saves color definitions
+    QString getFileName()               // Returns the current colors file name
+        { return m_jsonFile; }
 
     const QStringList getMatchingMethods()
         { return {"Exact match", "Starts with", "Regex", "Net number"}; };
