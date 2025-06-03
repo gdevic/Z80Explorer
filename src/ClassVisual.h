@@ -99,7 +99,7 @@ private:
     bool loadLayerMap(QString dir);     // Loads layer map
     void buildFeatureMap();             // Builds the feature map from individual layer images of a die
     void shrinkVias(QString source, QString dest); // Creates a via layer with 1x1 vias
-    void createLayerMapImage(QString name, bool onlyVssVcc); // Creates a color image from the layer map data
+    void createVssVccImage(QString name); // Creates a colored image with Vss, Vcc nets
     void fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, uint16_t id);
     void drawFeature(uint16_t x, uint16_t y, uint layer, uint16_t id);
     void fillLayerMap();                // Fills layer map with vss and vcc

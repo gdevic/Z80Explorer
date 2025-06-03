@@ -24,19 +24,16 @@ class ClassColors : public QObject
 public:
     explicit ClassColors(QObject *parent = nullptr);
 
-    bool isDefined(net_t net)           // Returns true if a net has a defined custom color
-        { return m_colors.contains(net); }
-
-    const QColor &get(net_t net)        // Returns the color of a net as QColor
+    const QColor &get(net_t net)        // Returns a custom color of a net
         { return m_colors.contains(net) ? m_colors[net] : m_colors[0]; }
-
-    uint16_t get16(net_t net)           // Returns the color of a net as 565 rgb
-        { return toUint16(get(net)); }
-
-    uint16_t toUint16(const QColor &c)  // Converts from color to uint16_t 565 rgb
-        { return ((uint16_t(c.red()) & 0xF8) << 8)
-               | ((uint16_t(c.green()) & 0xFC) << 3)
-               | ((uint16_t(c.blue())) >> 3); }
+    const QColor getActive()            // Returns the default color of an active net
+        { return QColor(255,0,255); }
+    const QColor getInactive()          // Returns the default color of an inactive net
+        { return QColor(128,0,128); }
+    const QColor getVss()               // Returns the default vss net color: medium green
+        { return QColor(0,127,0); }
+    const QColor getVcc()               // Returns the default vcc net color: red-ish
+        { return QColor(172,0,0); }
 
     void rebuild();                     // Updates internal color table
     bool load(QString fileName, bool merge = false); // Loads or merges color definitions

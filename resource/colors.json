@@ -1,7 +1,7 @@
 {
     "colors": [
         {
-            "color": "200,200,200,255",
+            "color": "192,192,192,255",
             "enabled": true,
             "expr": "clk",
             "method": 0
@@ -47,6 +47,18 @@
             "enabled": true,
             "expr": ".abus.$|abus.$",
             "method": 2
+        },
+        {
+            "color": "100,0,100,255",
+            "enabled": false,
+            "expr": "0",
+            "method": 3
+        },
+        {
+            "color": "145,0,0,255",
+            "enabled": false,
+            "expr": "2",
+            "method": 3
         }
     ]
 }

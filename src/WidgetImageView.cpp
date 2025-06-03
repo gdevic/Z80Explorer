@@ -77,7 +77,7 @@ void WidgetImageView::init(QString sid)
 
     m_ov->createImageButtons(::controller.getChip().getImageNames());
 
-    QString layers = settings.value("imageViewLayers-" + whatsThis(), "01").toString();
+    QString layers = settings.value("imageViewLayers-" + whatsThis(), "001").toString();
     for (uint i=0, blend=0; i<layers.size(); i++)
     {
         if (layers.at(i)=='1')
@@ -283,24 +283,17 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         {
             net_t net = m_drivingNets[i];
 
-            // Coloring heuristic:
-            // 1. The very first net has a distinct color since that's our base net
-            // 2. Each successive net is colored in the increasing brightness of another color (blue)
-            // 3. Except for nets that have defined custom colors (like clk, for example)
+            // The very first net has a distinct color since that's our base net
+            // Each successive net is colored in the increasing brightness of another color (blue)
             if (i == 0)
                 painter.setBrush(QColor(255,255,255)); // The color of the first net
             else
             {
-                if (::controller.getColors().isDefined(net))
-                    painter.setBrush(::controller.getColors().get(net));
-                else
-                {
-                    // Proportionally increment the lightness component to visually separate different nets
-                    col.setHsl(h, s, l + 127);
-                    painter.setBrush(col);
-                    if (m_drivingNets.count() > 1) // Precompute the lightness for the next net
-                        l += 128 / (m_drivingNets.count() - 1);
-                }
+                // Proportionally increment the lightness component to visually separate different nets
+                col.setHsl(h, s, l + 127);
+                painter.setBrush(col);
+                if (m_drivingNets.count() > 1) // Precompute the lightness for the next net
+                    l += 128 / (m_drivingNets.count() - 1);
             }
 
             const segvdef *seg = ::controller.getChip().getSegment(net);

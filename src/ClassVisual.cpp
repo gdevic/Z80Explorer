@@ -85,9 +85,9 @@ bool ClassVisual::loadChipResources(QString dir)
             fillLayerMap(); // Generates a partial layer map; limited inspection functionality
             saveLayerMap(); // Saves partial layer map to a file to be loaded next time
         }
-        createLayerMapImage("vss.vcc", true); // Create a base image showing GND and +5V traces
+        createVssVccImage("vss.vcc"); // Create a base image showing GND and +5V traces
         drawAllNetsAsInactive("vss.vcc", "vss.vcc.nets"); // Using the vss.vcc as a base, faintly add all nets
-        redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); // Using the vss.vcc as a base, colorize selected buses
+        redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); // Using the vss.vcc as a base, apply custom colors to the nets
         connect(&::controller, &ClassController::eventNetName, this, [this]() // May need different colors for renamed nets
             { redrawNetsColorize("vss.vcc", "vss.vcc.nets.col"); } ); // Dynamically rebuild the colorized image
         detectLatches(); // Detect latches and load custom latch definitions
@@ -95,6 +95,7 @@ bool ClassVisual::loadChipResources(QString dir)
 
         setFirstImage("vss.vcc.nets.col");
         setFirstImage("vss.vcc.nets");
+        setFirstImage("vss.vcc");
 
         qInfo() << "Completed loading chip resources";
         return true;
@@ -685,22 +686,26 @@ void ClassVisual::shrinkVias(QString source, QString dest)
 }
 
 /*
- * Creates a color image from the layer map data
+ * Creates a colored image with Vss, Vcc nets
  */
-void ClassVisual::createLayerMapImage(QString name, bool onlyVssVcc)
+void ClassVisual::createVssVccImage(QString name)
 {
+    auto toUint16 = [](const QColor& c)  // Converts from color to uint16_t 565 rgb
+    {
+        return ((uint16_t(c.red()) & 0xF8) << 8)
+             | ((uint16_t(c.green()) & 0xFC) << 3)
+             | ((uint16_t(c.blue())) >> 3);
+    };
+
     // Out of 3 layers, compose one visual image that we'd like to see
-    uint16_t *p = new uint16_t[m_mapsize];
+    uint16_t *p = new uint16_t[m_mapsize]();
+    auto vss = toUint16(::controller.getColors().getVss()); // Default Vss color
+    auto vcc = toUint16(::controller.getColors().getVcc()); // Default Vcc color
 
     for (uint i = 0; i < m_mapsize; i++)
     {
-        uint16_t net[3] { m_p3[0][i], m_p3[1][i], m_p3[2][i] };
-        uint16_t c = 0;
-        if ((net[0] == 1) || (net[1] == 1) || (net[2] == 1)) c = ::controller.getColors().get16(1); // vss
-        if ((net[0] == 2) || (net[1] == 2) || (net[2] == 2)) c = ::controller.getColors().get16(2); // vcc
-        if (!onlyVssVcc)
-            c = (net[0] << 4) | (net[1] << 2) | (net[2]); // Visualize all layermap net values
-        p[i] = c;
+        if ((m_p3[0][i] == 1) || (m_p3[1][i] == 1) || (m_p3[2][i] == 1)) p[i] = vss;
+        if ((m_p3[0][i] == 2) || (m_p3[1][i] == 2) || (m_p3[2][i] == 2)) p[i] = vcc;
     }
 
     QImage image((uchar *)p, m_sx, m_sy, m_sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
@@ -723,10 +728,10 @@ void ClassVisual::drawAllNetsAsInactive(QString source, QString dest)
 
     QPainter painter(&img);
     painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
-    painter.setBrush(QColor(128, 0, 128));
+    painter.setBrush(::controller.getColors().getInactive());
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    for (uint i=3; i<::controller.getSimZ80().getNetlistCount(); i++)
+    for (uint i = 3; i < ::controller.getSimZ80().getNetlistCount(); i++)
     {
         for (const auto &path : ::controller.getChip().getSegment(i)->paths)
             painter.drawPath(path);
@@ -749,16 +754,11 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
 
     QPainter painter(&img);
     painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
-    painter.setBrush(QColor(128, 0, 128));
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    for (uint i=3; i<::controller.getSimZ80().getNetlistCount(); i++)
+    for (uint i = 2; i < ::controller.getSimZ80().getNetlistCount(); i++)
     {
-        if (::controller.getColors().isDefined(i))
-            painter.setBrush(::controller.getColors().get(i));
-        else
-            painter.setBrush(QColor(128, 0, 128));
-
+        painter.setBrush(::controller.getColors().get(i));
         for (const auto &path : ::controller.getChip().getSegment(i)->paths)
             painter.drawPath(path);
     }
@@ -766,7 +766,7 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
     img.setText("name", dest);
 
     // If the dest image already exists, swap it with the newly drawn one
-    for (int i=0; i<m_img.count(); i++)
+    for (int i = 0; i < m_img.count(); i++)
     {
         if (m_img[i].text("name") == dest)
         {
@@ -778,13 +778,13 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
 }
 
 /*
- * Draws active nets in several ways
+ * Draws nets in several ways
  * Order specifies that the segment patches be rendered in reversed order
  */
 void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order, uint mode)
 {
     painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
-    painter.setBrush(QColor(255, 0, 255));
+    painter.setBrush(::controller.getColors().getActive());
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     uint first = 3;
