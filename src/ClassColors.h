@@ -12,6 +12,7 @@ struct colordef
     QString expr;                       // Expression condition
     uint method {1};                    // Name matching method
     QColor color {QColor(Qt::yellow)};  // Color
+    bool enabled {true};                // Enables this coloring pattern
 };
 
 /*

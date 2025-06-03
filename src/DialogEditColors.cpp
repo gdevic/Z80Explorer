@@ -19,6 +19,7 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
     m_methods = ::controller.getColors().getMatchingMethods();
 
     ui->table->setMouseTracking(true);
+    ui->table->resizeColumnToContents(2);
     connect(ui->table, &QTableWidget::itemSelectionChanged, this, &DialogEditColors::onSelectionChanged);
 
     for (const auto &cdef : ::controller.getColors().getColordefs())
@@ -54,7 +55,8 @@ void DialogEditColors::accept()
         colordef cdef;
         cdef.expr = ui->table->item(row,0)->text();
         cdef.method = ui->table->item(row,1)->data(Qt::UserRole).toInt();
-        cdef.color = ui->table->item(row,2)->data(Qt::UserRole).value<QColor>();
+        cdef.enabled = ui->table->item(row,2)->checkState() == Qt::Checked;
+        cdef.color = ui->table->item(row,3)->data(Qt::UserRole).value<QColor>();
         colordefs.append(cdef);
     }
     ::controller.getColors().setColordefs(colordefs);
@@ -76,16 +78,21 @@ void DialogEditColors::addItem(const colordef &cdef)
     item1->setData(Qt::UserRole, cdef.method);
     item1->setFlags(Qt::ItemIsEnabled);
 
+    QTableWidgetItem *item2 = new QTableWidgetItem("");
+    item2->setCheckState(cdef.enabled ? Qt::Checked : Qt::Unchecked);
+    item2->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
+
     QString s = QString("(%1,%2,%3)").arg(cdef.color.red()).arg(cdef.color.green()).arg(cdef.color.blue());
-    QTableWidgetItem *item2 = new QTableWidgetItem(s);
-    item2->setData(Qt::UserRole, QVariant::fromValue(cdef.color));
-    item2->setBackground(QBrush(QColor(cdef.color)));
-    item2->setFlags(Qt::ItemIsEnabled);
+    QTableWidgetItem *item3 = new QTableWidgetItem(s);
+    item3->setData(Qt::UserRole, QVariant::fromValue(cdef.color));
+    item3->setBackground(QBrush(QColor(cdef.color)));
+    item3->setFlags(Qt::ItemIsEnabled);
 
     ui->table->insertRow(row);
     ui->table->setItem(row, 0, item0);
     ui->table->setItem(row, 1, item1);
     ui->table->setItem(row, 2, item2);
+    ui->table->setItem(row, 3, item3);
 }
 
 /*
@@ -106,12 +113,14 @@ void DialogEditColors::onAdd()
 
 void DialogEditColors::swap(int index, int delta)
 {
-    QTableWidgetItem *i[3] { ui->table->takeItem(index+delta,0), ui->table->takeItem(index+delta,1), ui->table->takeItem(index+delta,2) };
+    QTableWidgetItem *i[4] { ui->table->takeItem(index+delta,0), ui->table->takeItem(index+delta,1),
+                             ui->table->takeItem(index+delta,2), ui->table->takeItem(index+delta,3) };
     ui->table->removeRow(index+delta);
     ui->table->insertRow(index);
     ui->table->setItem(index,0,i[0]);
     ui->table->setItem(index,1,i[1]);
     ui->table->setItem(index,2,i[2]);
+    ui->table->setItem(index,3,i[3]);
 }
 
 /*
@@ -164,7 +173,8 @@ void DialogEditColors::onEdit()
     colordef cdef;
     cdef.expr = selItem->text();
     cdef.method = ui->table->item(index,1)->data(Qt::UserRole).toInt();
-    cdef.color = ui->table->item(index,2)->data(Qt::UserRole).value<QColor>();
+    cdef.enabled = ui->table->item(index,2)->checkState() == Qt::Checked;
+    cdef.color = ui->table->item(index,3)->data(Qt::UserRole).value<QColor>();
 
     WidgetEditColor edit(this, ::controller.getColors().getMatchingMethods());
     edit.adjustSize(); // XXX https://stackoverflow.com/questions/49700394/qt-unable-to-set-geometry
@@ -176,9 +186,10 @@ void DialogEditColors::onEdit()
         QString s = QString("(%1,%2,%3)").arg(cdef.color.red()).arg(cdef.color.green()).arg(cdef.color.blue());
         ui->table->item(index,1)->setText(m_methods[cdef.method]);
         ui->table->item(index,1)->setData(Qt::UserRole, cdef.method);
-        ui->table->item(index,2)->setText(s);
-        ui->table->item(index,2)->setBackground(QBrush(cdef.color));
-        ui->table->item(index,2)->setData(Qt::UserRole, QVariant::fromValue(cdef.color));
+        ui->table->item(index,2)->setCheckState(cdef.enabled ? Qt::Checked : Qt::Unchecked);
+        ui->table->item(index,3)->setText(s);
+        ui->table->item(index,3)->setBackground(QBrush(cdef.color));
+        ui->table->item(index,3)->setData(Qt::UserRole, QVariant::fromValue(cdef.color));
     }
 }
 

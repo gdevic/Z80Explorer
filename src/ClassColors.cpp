@@ -39,6 +39,8 @@ void ClassColors::rebuild()
 
     for (auto &colordef : m_colordefs)
     {
+        if (!colordef.enabled) // Ignore disabled color specifications
+            continue;
         re.setPattern(colordef.expr);
         // Compare each colordef with all known (named) nets for the matching methods 0, 1 and 2
         for (auto name : netNames)
@@ -134,7 +136,7 @@ bool ClassColors::load(QString fileName, bool merge)
 
             for (int i = 0; i < array.size(); i++)
             {
-                colordef c;
+                colordef c {};
                 QJsonObject obj = array[i].toObject();
                 if (obj.contains("expr") && obj["expr"].isString())
                     c.expr = obj["expr"].toString();
@@ -146,6 +148,8 @@ bool ClassColors::load(QString fileName, bool merge)
                     if (s.count() == 4)
                         c.color = QColor(s[0].toInt(), s[1].toInt(), s[2].toUInt(), s[3].toInt());
                 }
+                if (obj.contains("enabled") && obj["enabled"].isBool())
+                    c.enabled = obj["enabled"].toBool();
                 m_colordefs.append(c);
             }
             rebuild();
@@ -177,6 +181,7 @@ bool ClassColors::save(QString fileName)
             obj["expr"] = c.expr;
             obj["method"] = int(c.method);
             obj["color"] = QString("%1,%2,%3,%4").arg(c.color.red()).arg(c.color.green()).arg(c.color.blue()).arg(c.color.alpha());
+            obj["enabled"] = c.enabled;
             jsonArray.append(obj);
         }
         json["colors"] = jsonArray;
