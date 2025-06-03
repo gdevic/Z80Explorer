@@ -54,6 +54,9 @@ public slots:
     void setAt(QString pin, quint16 hcycle, quint16 hold); //* Activates (sets to 0) a named pin at the specified hcycle
     void setAtPC(QString pin, quint16 addr, quint16 hold); //* Activates (sets to 0) a named pin when PC equals the address
 
+private slots:
+    void onShutdown();                      // Called on the app shutdown
+
 signals:
     void echo(char c);                      //* Request to write out a character to a terminal
     void echo(QString s);                   //* Request to write out a string to a terminal
@@ -69,6 +72,7 @@ private:
     QString m_lastLoadedHex;                // File name of the last loaded hex code
     quint16 m_bpnet {};                     // Net number to check for break
     quint8 m_bpval {};                      // Value to break at
+    void *m_zx {};                          // Aux zx class
 };
 
 #endif // CLASSTRICKBOX_H

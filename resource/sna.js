@@ -1,9 +1,12 @@
 // This script sets up the configuration and runs a Sinclair ZX Spectrum SNA format file.
-// Currently it is hard-coded to run one sample game, but you can change the SNA name and run
-// anything, ex. have the FUSE emulator save a game in the SNA format and then load it here.
+// If you have the FUSE emulator, save a game in the SNA format and then load it into the sim.
 //
 // To use, type the following command in the the Command window:
 //    load("sna.js")
+//
+// After it has been loaded once, you can simply invoke the script function from the Command window
+// with another SNA file:
+//    ZXSpectrumSNA("cookie.sna")
 //
 function ZXSpectrumSNA(filename)
 {
@@ -37,4 +40,4 @@ function ZXSpectrumSNA(filename)
     }
 }
 
-ZXSpectrumSNA("cookie.sna");
+ZXSpectrumSNA("mm.sna");

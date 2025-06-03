@@ -11,6 +11,8 @@ const static QStringList pins = { "int", "nmi", "busrq", "wait", "reset" };
 
 ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 {
+    connect(&::controller, &ClassController::shutdown, this, &ClassTrickbox::onShutdown);
+
     static_assert(sizeof(trick) == (2 + 2 + 4 + MAX_PIN_CTRL*6), "unexpected trick struct size (packing?)");
     m_trick = (trick *)&m_mem[TRICKBOX_START];
     memset(m_mio, 0xFF, sizeof(m_mio));
@@ -399,6 +401,8 @@ struct zx : public QWidget
 {
     zx(uint8_t* a) : ram(a)
     {
+        setAttribute(Qt::WA_DeleteOnClose); // A single window that cannot be closed by the user
+        setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
         resize(512, 384);
         QTimer* t = new QTimer(this);
         connect(t, &QTimer::timeout, this, [=]() { update(); });
@@ -406,7 +410,7 @@ struct zx : public QWidget
     };
     const QColor ink[8]{ Qt::black, Qt::blue, Qt::red, Qt::magenta, Qt::green, Qt::cyan, Qt::yellow, Qt::white };
     uint8_t* ram;
-    bool blink;
+    bool blink {};
     void paintEvent(QPaintEvent*) override
     {
         QPainter painter(this);
@@ -431,6 +435,16 @@ struct zx : public QWidget
 
 void ClassTrickbox::zx()
 {
-    struct zx *w = new struct zx(m_mem);
+    if (m_zx)
+        return;
+    struct zx* w = static_cast<struct zx*>(m_zx);
+    w = new struct zx(m_mem);
     w->show();
+    m_zx = static_cast<void*>(w);
+}
+
+void ClassTrickbox::onShutdown()
+{
+    if (m_zx)
+        static_cast<struct zx *>(m_zx)->close();
 }
