@@ -2,6 +2,7 @@
 #include <ClassController.h>
 #include <QDebug>
 #include <QFile>
+#include <QProcess>
 
 ClassScript::ClassScript(QObject *parent) : QObject(parent)
 {}
@@ -24,6 +25,7 @@ void ClassScript::init(QJSEngine *sc)
     m_engine->globalObject().setProperty("relatch", ext.property("relatch"));
     m_engine->globalObject().setProperty("save", ext.property("save"));
     m_engine->globalObject().setProperty("ex", ext.property("ex"));
+    m_engine->globalObject().setProperty("execApp", ext.property("execApp"));
 }
 
 /*
@@ -150,4 +152,83 @@ void ClassScript::ex(uint n)
 {
     qDebug() << n;
     ::controller.getChip().experimental(n);
+}
+
+/*
+ * Run external application
+ * Returns a QVariantMap with success status, output, error, and exit code
+ */
+QVariantMap ClassScript::execApp(const QString &path, const QStringList &args, bool synchronous)
+{
+    QVariantMap result;
+    result["success"] = false;
+    result["stdout"] = "";
+    result["stderr"] = "";
+    result["errorString"] = "";
+    result["exitCode"] = -1; // Default error exit code
+
+    // Using a new QProcess for each call is generally safer and simpler for this use case
+    QProcess process(this);
+
+    qDebug() << "Attempting to run:" << path << "with arguments:" << args;
+    qDebug() << "Synchronous:" << synchronous;
+
+    if (synchronous)
+    {
+        // To get stdout/stderr reliably in synchronous mode, use start() and waitForFinished()
+        process.setProgram(path);
+        process.setArguments(args);
+
+        process.start();
+
+        if (!process.waitForStarted())
+        {
+            qWarning() << "Failed to start process:" << process.errorString();
+            result["errorString"] = process.errorString();
+            result["success"] = false;
+            return result;
+        }
+
+        if (process.waitForFinished(-1)) // -1 waits indefinitely
+        {
+            result["stdout"] = QString::fromUtf8(process.readAllStandardOutput());
+            result["stderr"] = QString::fromUtf8(process.readAllStandardError());
+            result["exitCode"] = process.exitCode();
+            result["success"] = (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0);
+            qDebug() << "Synchronous execution finished. Exit code:" << process.exitCode();
+            qDebug() << "Stdout:" << result["stdout"].toString();
+            qDebug() << "Stderr:" << result["stderr"].toString();
+        }
+        else
+        {
+            qWarning() << "Synchronous execution failed or timed out:" << process.errorString();
+            result["errorString"] = process.errorString();
+            result["stderr"] = QString::fromUtf8(process.readAllStandardError()); // Capture any error output
+        }
+    }
+    else // Asynchronous
+    {
+        // For asynchronous, we start and don't wait.
+        // The script won't get immediate feedback other than if 'start' itself failed.
+        // This function, as designed for a direct JS call, can only indicate if 'start' was successful.
+        process.setProgram(path);
+        process.setArguments(args);
+
+        bool started = process.startDetached(); // Simpler for fire-and-forget async
+
+        if (started)
+        {
+            qDebug() << "Asynchronous process started successfully (detached).";
+            result["success"] = true;
+            result["message"] = "Process started asynchronously (detached).";
+            // Note: For detached processes, getting exit code or output directly back in this call is not possible.
+        }
+        else
+        {
+            qWarning() << "Failed to start asynchronous process:" << process.errorString();
+            result["errorString"] = process.errorString();
+            result["success"] = false;
+        }
+    }
+    return result;
 }

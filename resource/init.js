@@ -74,18 +74,42 @@ function key(code, ctrl)
     //-------------------------------------------------------------------------------
 }
 
+// Helper function in JS for convenience
+function exec(path, args, isSync)
+{
+    args = args || []; // Default to empty array if not provided
+    isSync = (typeof isSync === 'boolean') ? isSync : true; // Default to synchronous
+
+    print("JS: Attempting to run '" + path + "' with args: [" + args + "], Sync: " + isSync);
+    var result = execApp(path, args, isSync);
+
+    print("JS: Result for '" + path + "':");
+    print("  Success: " + result.success);
+    if (result.exitCode)
+        print("  Exit Code: " + result.exitCode);
+    if (result.stdout)
+        print("  Stdout: " + result.stdout.trim());
+    if (result.stderr)
+        print("  Stderr: " + result.stderr.trim());
+    if (result.message) // For async start messages
+        print("  Message: " + result.message);
+    if (result.errorString)
+        print("  Error String: " + result.errorString);
+}
+
 function help()
 {
-    print("load(\"file\")   - Loads and executes a JavaScript file (\"script.js\" by default)");
-    print("run(hcycles)   - Runs the simulation for the given number of half-clocks or 0 for all");
-    print("stop()         - Stops the running simulation");
-    print("reset()        - Resets the simulation state");
-    print("t(trans)       - Shows a transistor state");
-    print("n(net|\"name\")  - Shows a net state by net number or net \"name\"");
-    print("eq(net|\"name\") - Computes and shows the logic equation that drives a given net");
-    print("print(\"msg\")   - Prints a string message");
-    print("relatch()      - Reloads all custom latches from 'latches.ini' file");
-    print("save()         - Saves all changes to all custom and config files");
+    print("load(\"file\")       - Loads and executes a JavaScript file (\"script.js\" by default)");
+    print("run(hcycles)       - Runs the simulation for the given number of half-clocks or 0 for all");
+    print("stop()             - Stops the running simulation");
+    print("reset()            - Resets the simulation state");
+    print("t(trans)           - Shows a transistor state");
+    print("n(net|\"name\")      - Shows a net state by net number or net \"name\"");
+    print("eq(net|\"name\")     - Computes and shows the logic equation that drives a given net");
+    print("print(\"msg\")       - Prints a string message");
+    print("relatch()          - Reloads all custom latches from 'latches.ini' file");
+    print("save()             - Saves all changes to all custom and config files");
+    print("exec(\"path\",\"args\")- Runs external executable");
     print("-- Object 'monitor' methods:");
     print("mon.loadHex(\"file\") - Loads a HEX file into simulated memory");
     print("mon.patchHex(\"file\") - Merges a HEX file into simulated memory");

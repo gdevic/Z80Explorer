@@ -31,9 +31,10 @@ public:
     Q_INVOKABLE void eq(QVariant n);
     Q_INVOKABLE void relatch();
     Q_INVOKABLE void ex(uint n);
+    Q_INVOKABLE QVariantMap execApp(const QString &path, const QStringList &args, bool synchronous = true);
 
 private:
-    QJSEngine *m_engine;
+    QJSEngine *m_engine {};
 };
 
 #endif // CLASSSCRIPT_H
