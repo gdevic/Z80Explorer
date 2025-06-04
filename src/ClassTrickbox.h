@@ -20,6 +20,8 @@ struct trick
 };
 #pragma pack(pop)
 
+struct zx;
+
 /*
  * This class implements the supporting environment for the simulation
  */
@@ -72,7 +74,7 @@ private:
     QString m_lastLoadedHex;                // File name of the last loaded hex code
     quint16 m_bpnet {};                     // Net number to check for break
     quint8 m_bpval {};                      // Value to break at
-    void *m_zx {};                          // Aux zx class
+    struct zx *m_zx {};                     // Aux zx class
 };
 
 #endif // CLASSTRICKBOX_H

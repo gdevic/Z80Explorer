@@ -437,14 +437,12 @@ void ClassTrickbox::zx()
 {
     if (m_zx)
         return;
-    struct zx *w = static_cast<struct zx *>(m_zx);
-    w = new struct zx(m_mem);
-    w->show();
-    m_zx = static_cast<void *>(w);
+    m_zx = new struct zx(m_mem);
+    m_zx->show();
 }
 
 void ClassTrickbox::onShutdown()
 {
     if (m_zx)
-        static_cast<struct zx *>(m_zx)->close();
+        m_zx->close();
 }
