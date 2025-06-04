@@ -29,6 +29,7 @@ SOURCES += \
     src/ClassLogic.cpp \
     src/ClassNetlist.cpp \
     src/ClassScript.cpp \
+    src/ClassServer.cpp \
     src/ClassSimZ80.cpp \
     src/ClassTip.cpp \
     src/ClassTrickbox.cpp \
@@ -67,6 +68,7 @@ HEADERS += \
     src/ClassLogic.h \
     src/ClassNetlist.h \
     src/ClassScript.h \
+    src/ClassServer.h \
     src/ClassSimZ80.h \
     src/ClassSingleton.h \
     src/ClassTip.h \

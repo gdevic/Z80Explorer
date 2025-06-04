@@ -69,6 +69,27 @@ bool ClassController::init(QJSEngine *sc)
     // Initialize the schematic generation properties
     DialogEditSchematic::init();
 
+#if SOCKET_SERVER
+    // Initialize and start the socket command server
+    quint16 port = 12345;
+    if (m_server.startListening(port))
+    {
+        qInfo() << "Command server is listening on port" << m_server.serverPort();
+        qInfo() << "Send text commands (one per line) to this port.";
+
+        connect(&m_server, &ClassServer::commandReceived, this, [=](const QString &command, QTcpSocket *sock)
+        {
+            qDebug() << "Processing command:" << command;
+            ::controller.getScript().exec(command);
+            sock->write("OK\n");
+        });
+    }
+    else
+    {
+        qCritical() << "Failed to start command server.";
+        return false;
+    }
+#endif
     // Execute init.js initialization script
     QTimer::singleShot(1000, [=]() { m_script.exec(R"(load("init.js"))"); });
 

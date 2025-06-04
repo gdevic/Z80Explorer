@@ -5,6 +5,7 @@
 #include "ClassVisual.h"
 #include "ClassColors.h"
 #include "ClassScript.h"
+#include "ClassServer.h"
 #include "ClassSimZ80.h"
 #include "ClassTip.h"
 #include "ClassTrickbox.h"
@@ -25,6 +26,7 @@ public: // API
     inline ClassVisual   &getChip()       { return m_chip; }      // Returns a reference to the chip class
     inline ClassColors   &getColors()     { return m_colors; }    // Returns a reference to the colors class
     inline ClassScript   &getScript()     { return m_script; }    // Returns a reference to the script class
+    inline ClassServer   &getServer()     { return m_server; }    // Returns a reference to the server class
     inline ClassSimZ80   &getSimZ80()     { return m_simz80; }    // Returns a reference to the Z80 simulator class
     inline ClassWatch    &getWatch()      { return m_watch; }     // Returns a reference to the watch class
     inline ClassNetlist  &getNetlist()    { return m_simz80; }    // Returns a reference to the netlist class (a subclass)
@@ -84,6 +86,7 @@ private:
     ClassVisual   m_chip;       // Global visual chip resource class
     ClassColors   m_colors;     // Global application colors
     ClassScript   m_script;     // Global scripting support
+    ClassServer   m_server;     // Global socket server class
     ClassSimZ80   m_simz80;     // Global Z80 simulator class
     ClassWatch    m_watch;      // Global watchlist
     ClassTip      m_tips;       // Global tips
