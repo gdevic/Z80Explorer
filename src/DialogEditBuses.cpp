@@ -58,7 +58,7 @@ void DialogEditBuses::accept()
 
     // Rebuild all buses at the netlist class
     Net.clearBuses(); // from scratch
-    for (int i=0; i<ui->listBuses->count(); i++)
+    for (int i = 0; i < ui->listBuses->count(); i++)
     {
         QListWidgetItem *it = ui->listBuses->item(i);
         QStringList nets = it->toolTip().split(',');

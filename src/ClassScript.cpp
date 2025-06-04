@@ -4,8 +4,7 @@
 #include <QFile>
 
 ClassScript::ClassScript(QObject *parent) : QObject(parent)
-{
-}
+{}
 
 void ClassScript::init(QJSEngine *sc)
 {

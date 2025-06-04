@@ -45,7 +45,7 @@ DialogEditWaveform::~DialogEditWaveform()
 void DialogEditWaveform::getList(QVector<viewitem> &list)
 {
     list.clear();
-    for (int i=0; i < ui->listView->count(); i++)
+    for (int i = 0; i < ui->listView->count(); i++)
     {
         QListWidgetItem *item = ui->listView->item(i);
         viewitem view = get(item);
@@ -92,9 +92,9 @@ void DialogEditWaveform::viewSelChanged()
     ui->btDown->setEnabled(sel.size());
     ui->btColor->setEnabled(sel.size());
     // We can modify only one format at a time
-    ui->comboFormat->setEnabled(sel.size()==1);
+    ui->comboFormat->setEnabled(sel.size() == 1);
     ui->comboFormat->clear();
-    if (sel.size()==1)
+    if (sel.size() == 1)
     {
         viewitem view = get(sel[0]);
         // Store the format value since addItems will call IndexChanged and reset it in the widget

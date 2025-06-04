@@ -41,12 +41,12 @@ bool ClassSimZ80::initChip()
         m_netlist[get("ubus0")].floats = true;
         m_netlist[get("vbus0")].floats = true;
 
-        for (int i=0; i<16; i++)
+        for (int i = 0; i < 16; i++)
             m_netlist[get(QString("ab%1").arg(i))].floats = true;
 #if DATA_PINS_HI_Z
         // It turns out data pins very rarely drive the data bus: most of the time they are in hi-Z
         // (or input mode). Uncomment this to see DB tristated unless actively driving a value out.
-        for (int i=0; i<8; i++)
+        for (int i = 0; i < 8; i++)
             m_netlist[get(QString("db%1").arg(i))].floats = true;
 #endif
     }
@@ -159,7 +159,7 @@ uint ClassSimZ80::doReset()
     m_hcycletotal = 0;
 
     // Propagate the reset before deasserting it
-    for (int i=0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
         halfCycle();
 
     set(1, "_reset");
@@ -172,7 +172,7 @@ uint ClassSimZ80::doReset()
  */
 inline void ClassSimZ80::halfCycle()
 {
-    pin_t clk = ! readBit("clk");
+    pin_t clk = !readBit("clk");
     if (clk && readBit("_rfsh")) // Before the clock rise, service the chip pins (unless it is a refresh cycle)
     {
         bool m1   = readBit("_m1");
@@ -377,11 +377,11 @@ inline bool ClassSimZ80::getNetValue()
 inline void ClassSimZ80::recalcNetlist()
 {
     m_recalcListIndex = 0;
-    while(m_listIndex)
+    while (m_listIndex)
     {
-        for (int i=0; i<m_listIndex; i++)
+        for (int i = 0; i < m_listIndex; i++)
             recalcNet(m_list[i]);
-        memcpy(m_list, m_recalcList, m_recalcListIndex * sizeof (net_t));
+        memcpy(m_list, m_recalcList, m_recalcListIndex * sizeof(net_t));
         m_listIndex = m_recalcListIndex;
         m_recalcListIndex = 0;
     }
@@ -390,7 +390,7 @@ inline void ClassSimZ80::recalcNetlist()
 inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
 {
     recalcList.clear();
-    for (int i=0; i<100 && list.count(); i++) // loop limiter
+    for (int i = 0; (i < 100) && list.count(); i++) // loop limiter
     {
         for (auto n : list)
             recalcNet(n);
@@ -403,7 +403,7 @@ inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
 #if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::recalcNet(net_t n)
 {
-    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
     getNetGroup(n);
     bool newState = getNetValue();
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
@@ -436,7 +436,7 @@ inline void ClassSimZ80::recalcNet(net_t n)
 #else
 inline void ClassSimZ80::recalcNet(net_t n)
 {
-    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
     getNetGroup(n);
     bool newState = getNetValue();
     for (auto i : group)
@@ -444,7 +444,7 @@ inline void ClassSimZ80::recalcNet(net_t n)
         Net &net = m_netlist[i];
         if (net.state == newState) continue;
         net.state = newState;
-        for (int i=0; i<net.gates.count(); i++)
+        for (int i = 0; i < net.gates.count(); i++)
         {
             if (net.state)
                 setTransOn(net.gates[i]);
@@ -454,14 +454,14 @@ inline void ClassSimZ80::recalcNet(net_t n)
     }
 }
 
-inline void ClassSimZ80::setTransOn(struct Trans* t)
+inline void ClassSimZ80::setTransOn(struct Trans *t)
 {
     if (t->on) return;
     t->on = true;
     addRecalcNet(t->c1);
 }
 
-inline void ClassSimZ80::setTransOff(struct Trans* t)
+inline void ClassSimZ80::setTransOff(struct Trans *t)
 {
     if (!t->on) return;
     t->on = false;
@@ -474,9 +474,9 @@ inline void ClassSimZ80::setTransOff(struct Trans* t)
 void ClassSimZ80::allNets()
 {
     m_listIndex = 0;
-    for (net_t n=0; n < m_netlist.count(); n++)
+    for (net_t n = 0; n < m_netlist.count(); n++)
     {
-        if ((n==ngnd) || (n==npwr) || (m_netlist[n].gates.count()==0 && m_netlist[n].c1c2s.count()==0))
+        if ((n == ngnd) || (n == npwr) || (m_netlist[n].gates.count() == 0 && m_netlist[n].c1c2s.count() == 0))
             continue;
         m_list[m_listIndex++] = n;
     }
@@ -485,9 +485,9 @@ void ClassSimZ80::allNets()
 QVector<net_t> ClassSimZ80::allNets()
 {
     QVector<net_t> nets;
-    for (net_t n=0; n < m_netlist.count(); n++)
+    for (net_t n = 0; n < m_netlist.count(); n++)
     {
-        if ((n==ngnd) || (n==npwr) || (m_netlist[n].gates.count()==0 && m_netlist[n].c1c2s.count()==0))
+        if ((n == ngnd) || (n == npwr) || (m_netlist[n].gates.count() == 0 && m_netlist[n].c1c2s.count() == 0))
             continue;
         nets.append(n);
     }
@@ -498,7 +498,7 @@ QVector<net_t> ClassSimZ80::allNets()
 #if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::addRecalcNet(net_t n)
 {
-    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
     for (net_t *p = m_recalcList; p < (m_recalcList + m_recalcListIndex); p++)
         if (*p == n)
             return;
@@ -507,7 +507,7 @@ inline void ClassSimZ80::addRecalcNet(net_t n)
 #else
 inline void ClassSimZ80::addRecalcNet(net_t n)
 {
-    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
     if (!recalcList.contains(n))
         recalcList.append(n);
 }
@@ -534,7 +534,7 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
         if (*p == n)
             return;
     m_group[m_groupIndex++] = n;
-    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
     for (auto &t : m_netlist[n].c1c2s)
     {
         if (!t->on) continue;
@@ -550,7 +550,7 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
 {
     if (group.contains(n)) return;
     group.append(n);
-    if (Q_UNLIKELY((n==ngnd) || (n==npwr))) return;
+    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
     for (auto &t : m_netlist[n].c1c2s)
     {
         if (!t->on) continue;
@@ -587,7 +587,7 @@ void ClassSimZ80::readState(z80state &z)
     z.nmi = readBit("_nmi");
     z.reset = readBit("_reset");
     z.rfsh = readBit("_rfsh");
-    z.wait= readBit("_wait");
+    z.wait = readBit("_wait");
 
     z.af = (readByte("reg_a") << 8) | readByte("reg_f");
     z.bc = (readByte("reg_b") << 8) | readByte("reg_c");
@@ -625,7 +625,7 @@ const QString z80state::decode[256] {
     "ret nz","pop bc","jp nz,nn","jp nn","call nz,nn","push bc","add a,n","rst 00h","ret z","ret","jp z,nn","CB  ","call z,nn","call nn","adc a,n","rst 08h",
     "ret nc","pop de","jp nc,nn","out (n),a","call nc,nn","push de","sub n","rst 10h","ret c","exx","jp c,nn","in a,(n)","call c,nn","DD (IX)","sbc a,n","rst 18h",
     "ret po","pop hl","jp po,nn","ex (sp),hl","call po,nn","push hl","and n","rst 20h","ret pe","jp (hl)","jp pe,nn","ex de,hl","call pe,nn","ED","xor n","rst 28h",
-    "ret p","pop af","jp p,nn","di","call p,nn","push af","or n","rst 30h","ret m","ld sp,hl","jp m,nn","ei","call m,nn","FD (IY)","cp n","rst 38h"};
+    "ret p","pop af","jp p,nn","di","call p,nn","push af","or n","rst 30h","ret m","ld sp,hl","jp m,nn","ei","call m,nn","FD (IY)","cp n","rst 38h" };
 
 const QString z80state::decodeED[256] {
     "","","","","","","","","","","","","","","","",
@@ -663,4 +663,4 @@ const QString z80state::decodeCB[256] {
     "set 0,b","set 0,c","set 0,d","set 0,e","set 0,h","set 0,l","set 0,(hl)","set 0,a","set 1,b","set 1,c","set 1,d","set 1,e","set 1,h","set 1,l","set 1,(hl)","set 1,a",
     "set 2,b","set 2,c","set 2,d","set 2,e","set 2,h","set 2,l","set 2,(hl)","set 2,a","set 3,b","set 3,c","set 3,d","set 3,e","set 3,h","set 3,l","set 3,(hl)","set 3,a",
     "set 4,b","set 4,c","set 4,d","set 4,e","set 4,h","set 4,l","set 4,(hl)","set 4,a","set 5,b","set 5,c","set 5,d","set 5,e","set 5,h","set 5,l","set 5,(hl)","set 5,a",
-    "set 6,b","set 6,c","set 6,d","set 6,e","set 6,h","set 6,l","set 6,(hl)","set 6,a","set 7,b","set 7,c","set 7,d","set 7,e","set 7,h","set 7,l","set 7,(hl)","set 7,a"};
+    "set 6,b","set 6,c","set 6,d","set 6,e","set 6,h","set 6,l","set 6,(hl)","set 6,a","set 7,b","set 7,c","set 7,d","set 7,e","set 7,h","set 7,l","set 7,(hl)","set 7,a" };

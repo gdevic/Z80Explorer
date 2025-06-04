@@ -67,7 +67,7 @@ QListWidgetItem *DialogEditWatchlist::getListItem(ClassNetlist &Net, QString nam
 QStringList DialogEditWatchlist::getWatchlist()
 {
     QStringList list {};
-    for (int i=0; i<ui->listSelected->count(); i++)
+    for (int i = 0; i < ui->listSelected->count(); i++)
         list.append(ui->listSelected->item(i)->text());
     return list;
 }
@@ -77,7 +77,7 @@ void DialogEditWatchlist::onAdd()
     for (auto &item : ui->listAll->selectedItems())
     {
         // Make sure we don't add duplicate entries
-        if (ui->listSelected->findItems(item->text(), Qt::MatchFixedString).count()==0)
+        if (ui->listSelected->findItems(item->text(), Qt::MatchFixedString).count() == 0)
         {
             QListWidgetItem *li = new QListWidgetItem(item->text());
             li->setToolTip(item->toolTip());

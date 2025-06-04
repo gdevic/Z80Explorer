@@ -26,31 +26,31 @@ void appLogMsgHandler(QtMsgType type, const QMessageLogContext &context, const Q
     // enum QtMsgType   QtDebugMsg, QtInfoMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
     switch (type)
     {
-    case QtFatalMsg:
-        applog->WriteLine(s1, LogVerbose_Error);
-        applog->WriteLine(s2, LogVerbose_Error);
-        applog->WriteLine(msg, LogVerbose_Error);
-        break;
-    case QtCriticalMsg:
-        if (logLevel >= 1)
+        case QtFatalMsg:
+            applog->WriteLine(s1, LogVerbose_Error);
+            applog->WriteLine(s2, LogVerbose_Error);
             applog->WriteLine(msg, LogVerbose_Error);
-        break;
-    case QtWarningMsg:
-        if (logLevel >= 2)
-            applog->WriteLine(msg, LogVerbose_Warning);
-        break;
-    case QtInfoMsg:
-        if (logLevel >= 3)
-            applog->WriteLine(msg, LogVerbose_Info);
-        break;
-    case QtDebugMsg:
-        if (logLevel >= 4)
-            applog->WriteLine(msg, LogVerbose_Debug);
-        break;
+            break;
+        case QtCriticalMsg:
+            if (logLevel >= 1)
+                applog->WriteLine(msg, LogVerbose_Error);
+            break;
+        case QtWarningMsg:
+            if (logLevel >= 2)
+                applog->WriteLine(msg, LogVerbose_Warning);
+            break;
+        case QtInfoMsg:
+            if (logLevel >= 3)
+                applog->WriteLine(msg, LogVerbose_Info);
+            break;
+        case QtDebugMsg:
+            if (logLevel >= 4)
+                applog->WriteLine(msg, LogVerbose_Debug);
+            break;
     }
 }
 
-CAppLogHandler::CAppLogHandler(char* logname, int logoption)
+CAppLogHandler::CAppLogHandler(char *logname, int logoption)
 {
     m_log_name = logname;
     m_log_options = logoption;
@@ -92,7 +92,7 @@ void CAppLogHandler::SetLogOptions(int logoption)
 /*
  * Set new log file information
  */
-void CAppLogHandler::SetNewLogFile(char* filepath, char* filename, int maxlogfilesize)
+void CAppLogHandler::SetNewLogFile(char *filepath, char *filename, int maxlogfilesize)
 {
     if (filepath != nullptr)
         m_log_file_path = filepath;
@@ -127,7 +127,7 @@ void CAppLogHandler::InitLogFile()
         if (logFile.exists())
         {
             qint64 size = logFile.size();
-            if (size/1024 > m_max_log_file_size)
+            if ((size / 1024) > m_max_log_file_size)
             {
                 QString newfilename = file + "." + GetCurrentTimeFileString() + ".txt";
                 newfilename = QDir::toNativeSeparators(newfilename);
@@ -136,7 +136,7 @@ void CAppLogHandler::InitLogFile()
         }
         logFile.close();
 
-        flog.open(file.toStdString().c_str(),  ios::out | ios::app);
+        flog.open(file.toStdString().c_str(), ios::out | ios::app);
     }
     else
         flog.open(file.toStdString().c_str());
@@ -163,7 +163,7 @@ QString CAppLogHandler::GetCurrentTimeFileString()
 /*
  * Write to log
  */
-void CAppLogHandler::Write(char* message, int verbose)
+void CAppLogHandler::Write(char *message, int verbose)
 {
     Q_UNUSED(verbose)
     QString logmessage = message;
@@ -196,7 +196,7 @@ void CAppLogHandler::WriteLine(const QString message, int verbose)
         qDebug() << logmessage;
 }
 
-void CAppLogHandler::WriteLine(char* message, int verbose)
+void CAppLogHandler::WriteLine(char *message, int verbose)
 {
     WriteLine(QString(message), verbose);
 }

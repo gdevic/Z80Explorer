@@ -50,9 +50,9 @@ void DockMonitor::onReload()
  */
 void DockMonitor::onEcho(char c)
 {
-    ui->textTerminal->moveCursor (QTextCursor::End);
+    ui->textTerminal->moveCursor(QTextCursor::End);
     ui->textTerminal->insertPlainText(QChar(c));
-    ui->textTerminal->moveCursor (QTextCursor::End);
+    ui->textTerminal->moveCursor(QTextCursor::End);
 }
 
 /*
@@ -60,9 +60,9 @@ void DockMonitor::onEcho(char c)
  */
 void DockMonitor::onEcho(QString s)
 {
-    ui->textTerminal->moveCursor (QTextCursor::End);
+    ui->textTerminal->moveCursor(QTextCursor::End);
     ui->textTerminal->insertPlainText(s);
-    ui->textTerminal->moveCursor (QTextCursor::End);
+    ui->textTerminal->moveCursor(QTextCursor::End);
 }
 
 /*

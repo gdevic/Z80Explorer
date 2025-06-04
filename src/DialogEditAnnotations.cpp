@@ -57,7 +57,7 @@ void DialogEditAnnotations::onApply()
 {
     // Rebuild the list of annotations
     QVector<annotation> list;
-    for (int i=0; i < ui->listAll->count(); i++)
+    for (int i = 0; i < ui->listAll->count(); i++)
         list.append(get(ui->listAll->item(i)));
 
     ::controller.getAnnotation().set(list);

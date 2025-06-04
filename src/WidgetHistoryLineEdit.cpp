@@ -4,7 +4,7 @@
 #include <QLineEdit>
 #include <QTimer>
 
-WidgetHistoryLineEdit::WidgetHistoryLineEdit(QWidget* parent) :
+WidgetHistoryLineEdit::WidgetHistoryLineEdit(QWidget *parent) :
     QLineEdit(parent), m_completer(new QCompleter(this)), m_completionModel(new QStringListModel(this))
 {
     // Setup completer
@@ -17,32 +17,32 @@ WidgetHistoryLineEdit::WidgetHistoryLineEdit(QWidget* parent) :
     connect(this, &QLineEdit::returnPressed, this, &WidgetHistoryLineEdit::onReturnPressed);
 }
 
-void WidgetHistoryLineEdit::keyPressEvent(QKeyEvent* event)
+void WidgetHistoryLineEdit::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key())
     {
-    case Qt::Key_Escape: // Hitting ESC closes the completer box first, then clears the edit text
-        if (m_completer->popup()->isVisible())
-            m_completer->popup()->hide();
-        else
-            clear();
-        break;
-    case Qt::Key_Up:
-        navigateHistory(-1);
-        break;
-    case Qt::Key_Down:
-        navigateHistory(1);
-        break;
-    case Qt::Key_Delete:
-        if (isNavigatingHistory())
-        {
-            removeCurrentHistoryItem();
-            event->accept();
-            return;
-        }
-        [[fallthrough]];
-    default:
-        QLineEdit::keyPressEvent(event);
+        case Qt::Key_Escape: // Hitting ESC closes the completer box first, then clears the edit text
+            if (m_completer->popup()->isVisible())
+                m_completer->popup()->hide();
+            else
+                clear();
+            break;
+        case Qt::Key_Up:
+            navigateHistory(-1);
+            break;
+        case Qt::Key_Down:
+            navigateHistory(1);
+            break;
+        case Qt::Key_Delete:
+            if (isNavigatingHistory())
+            {
+                removeCurrentHistoryItem();
+                event->accept();
+                return;
+            }
+            [[fallthrough]];
+        default:
+            QLineEdit::keyPressEvent(event);
     }
 }
 
@@ -129,7 +129,7 @@ void WidgetHistoryLineEdit::navigateHistory(int direction)
     }
 }
 
-void WidgetHistoryLineEdit::addToHistory(const QString& text)
+void WidgetHistoryLineEdit::addToHistory(const QString &text)
 {
     if (!text.isEmpty() && (m_history.isEmpty() || (text != m_history.last())))
     {
@@ -146,9 +146,9 @@ void WidgetHistoryLineEdit::trimHistory()
         m_history.removeFirst();
 }
 
-void WidgetHistoryLineEdit::addCompletionItems(const QStringList& items)
+void WidgetHistoryLineEdit::addCompletionItems(const QStringList &items)
 {
-    for (const auto& item : items)
+    for (const auto &item : items)
         m_completionItems.insert(item);
     updateCompleter();
 }
@@ -166,7 +166,7 @@ void WidgetHistoryLineEdit::updateCompleter()
     m_completionModel->setStringList(items);
 }
 
-void WidgetHistoryLineEdit::onTextEdited(const QString& text)
+void WidgetHistoryLineEdit::onTextEdited(const QString &text)
 {
     if (!text.isEmpty())
         m_completer->complete();

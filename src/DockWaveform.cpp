@@ -13,22 +13,21 @@
 #include <QSettings>
 #include <QStringBuilder>
 
-DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent),
-    ui(new Ui::DockWaveform)
+DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent), ui(new Ui::DockWaveform)
 {
     ui->setupUi(this);
     setWhatsThis(sid);
     setWindowTitle("Waveform " + sid);
     ui->widgetWaveform->init(this, sid);
-    ui->btLink->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
-    ui->btDecorated->setMinimumSize(ui->btEdit->sizeHint().width(),0); // Tie the toolbutton width to btEdit's width so it's not too narrow
+    ui->btLink->setMinimumSize(ui->btEdit->sizeHint().width(), 0); // Tie the toolbutton width to btEdit's width so it's not too narrow
+    ui->btDecorated->setMinimumSize(ui->btEdit->sizeHint().width(), 0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     QSettings settings;
     restoreGeometry(settings.value("dockWaveformGeometry-" + sid).toByteArray());
     m_sectionSize = settings.value("dockWaveHeight-" + sid, 20).toInt();
     onEnlarge(0);
 
     // Build the menus for this widget
-    QMenu* menu = new QMenu(this);
+    QMenu *menu = new QMenu(this);
     menu->addAction("Load View...", this, SLOT(onLoad()));
     menu->addAction("Save View As...", this, SLOT(onSaveAs()));
     menu->addAction("Save View", this, SLOT(onSave()));
@@ -119,7 +118,7 @@ void DockWaveform::onPng()
 void DockWaveform::onEdit()
 {
     DialogEditWaveform dlg(this, m_view);
-    if (dlg.exec()==QDialog::Accepted)
+    if (dlg.exec() == QDialog::Accepted)
     {
         dlg.getList(m_view);
         rebuildList();
@@ -152,7 +151,7 @@ viewitem *DockWaveform::find(net_t net)
 
 void DockWaveform::add(QString name)
 {
-    m_view.append(viewitem { name, ::controller.getNetlist().get(name) });
+    m_view.append(viewitem{ name, ::controller.getNetlist().get(name) });
 }
 
 /*
@@ -200,7 +199,7 @@ void DockWaveform::rebuildList()
     QTableWidget *tv = ui->list;
     tv->clearContents();
     tv->setRowCount(m_view.count());
-    for (int row=0; row < m_view.count(); row++)
+    for (int row = 0; row < m_view.count(); row++)
     {
         QTableWidgetItem *tvi = new QTableWidgetItem(m_view[row].name);
         tv->setItem(row, 0, tvi);
@@ -223,7 +222,7 @@ void DockWaveform::cursorChanged(uint hcycle)
     m_lastcursor = hcycle;
 
     QTableWidget *tv = ui->list;
-    for (int row=0; row < m_view.count(); row++)
+    for (int row = 0; row < m_view.count(); row++)
     {
         QTableWidgetItem *tvi = tv->item(row, 1);
         watch *w = ::controller.getWatch().find(m_view[row].name);
@@ -298,7 +297,7 @@ void DockWaveform::onScrollBarActionTriggered(int)
 /*
  * Handles mouse wheel event in the scroll area to support vertical resize
  */
-void DockWaveform::wheelEvent(QWheelEvent* event)
+void DockWaveform::wheelEvent(QWheelEvent *event)
 {
     bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
     if (ctrl)

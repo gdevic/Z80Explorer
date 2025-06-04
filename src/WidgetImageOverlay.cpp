@@ -11,10 +11,10 @@ WidgetImageOverlay::WidgetImageOverlay(QWidget *parent, QString sid) :
 
     connect(ui->editFind, &WidgetHistoryLineEdit::textEntered, this, &WidgetImageOverlay::actionFind);
     connect(ui->btCoords, &QPushButton::clicked, this, &WidgetImageOverlay::actionCoords);
-    connect(ui->btA, &QToolButton::clicked, this, [this](){ emit actionButton(0); } );
-    connect(ui->btB, &QToolButton::clicked, this, [this](){ emit actionButton(1); } );
-    connect(ui->btC, &QToolButton::clicked, this, [this](){ emit actionButton(2); } );
-    connect(ui->btD, &QToolButton::clicked, this, [this](){ emit actionButton(3); } );
+    connect(ui->btA, &QToolButton::clicked, this, [this]() { emit actionButton(0); });
+    connect(ui->btB, &QToolButton::clicked, this, [this]() { emit actionButton(1); });
+    connect(ui->btC, &QToolButton::clicked, this, [this]() { emit actionButton(2); });
+    connect(ui->btD, &QToolButton::clicked, this, [this]() { emit actionButton(3); });
 
     connect(&::controller, &ClassController::eventNetName, this, &WidgetImageOverlay::netNameChanged);
     netNameChanged(); // Populate the Find autocompleter
@@ -70,17 +70,17 @@ void WidgetImageOverlay::setCoords(const QString coords)
 void WidgetImageOverlay::createImageButtons(QStringList imageNames)
 {
     static const QString c = "123456789abcdefghijklmnopq";
-    for (uint i=0; i < imageNames.count(); i++)
+    for (uint i = 0; i < imageNames.count(); i++)
     {
         QPushButton *p = new QPushButton(this);
         m_imageButtons.append(p);
         p->setStyleSheet("text-align:left;");
         p->setText(QString(c[i % c.length()]) + " ... " + imageNames[i]);
         connect(p, &QPushButton::clicked, this, [this, i]()
-                {
-                    bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
-                    emit actionSetImage(i, ctrl);
-                });
+        {
+            bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+            emit actionSetImage(i, ctrl);
+        });
         ui->layout->addWidget(p);
     }
     ui->layout->setSizeConstraint(QLayout::SetMinimumSize);
@@ -92,7 +92,7 @@ void WidgetImageOverlay::createImageButtons(QStringList imageNames)
 QString WidgetImageOverlay::getLayers()
 {
     QString layers;
-    for (uint i=0; i < m_imageButtons.size(); i++)
+    for (uint i = 0; i < m_imageButtons.size(); i++)
         layers.append((m_imageButtons[i]->isFlat()) ? '1' : '0');
     return layers;
 }
@@ -103,7 +103,7 @@ QString WidgetImageOverlay::getLayers()
  */
 void WidgetImageOverlay::selectImageButton(uint img, bool blend)
 {
-    for (uint i=0; i < m_imageButtons.count(); i++)
+    for (uint i = 0; i < m_imageButtons.count(); i++)
     {
         QPushButton *pb = m_imageButtons[i];
         if (i == img)

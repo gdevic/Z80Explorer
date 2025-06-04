@@ -6,8 +6,7 @@
 #include <QJsonObject>
 
 ClassTip::ClassTip(QObject *parent) : QObject(parent)
-{
-}
+{}
 
 void ClassTip::onShutdown()
 {

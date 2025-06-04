@@ -74,7 +74,7 @@ QVector<uint> ClassAnnotate::get(QRect r)
 void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
 {
     const uint hcycle = ::controller.getSimZ80().getCurrentHCycle() - 1;
-    QPen pens[] { QPen(Qt::white), QPen(Qt::black) };
+    QPen pens[]{ QPen(Qt::white), QPen(Qt::black) };
     for (auto &a : m_annot)
     {
         // Annotations outside the image area are always shown, and drawn with black pen
@@ -92,7 +92,7 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
         if (show && a.drawrect)
         {
             painter.save();
-            painter.setBrush(QColor(0,0,0, qBound(0.0, apparent * 2 + 50, 255.0)));
+            painter.setBrush(QColor(0, 0, 0, qBound(0.0, apparent * 2 + 50, 255.0)));
             painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
             painter.drawRect(a.rect);
             painter.restore();
@@ -142,13 +142,13 @@ void ClassAnnotate::draw(QPainter &painter, const QRect &viewport, qreal scale)
                             uint width, value = ::controller.getWatch().at(w, hcycle, width);
                             if (width)
                                 finalText.append(::controller.formatBus(isInverted ? ClassController::FormatBus::OnesComplement : ClassController::FormatBus::Hex,
-                                                                        value, width, false));
+                                                 value, width, false));
                             else
                                 finalText.append("X");
                         }
                         else
                             finalText.append("error");
-                        finalText.append(s.mid(i+1));
+                        finalText.append(s.mid(i + 1));
                     }
                     else
                         finalText.append(s);

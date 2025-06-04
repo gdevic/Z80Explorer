@@ -13,14 +13,14 @@ ClassTrickbox::ClassTrickbox(QObject *parent) : QObject(parent)
 {
     connect(&::controller, &ClassController::shutdown, this, &ClassTrickbox::onShutdown);
 
-    static_assert(sizeof(trick) == (2 + 2 + 4 + MAX_PIN_CTRL*6), "unexpected trick struct size (packing?)");
+    static_assert(sizeof(trick) == (2 + 2 + 4 + MAX_PIN_CTRL * 6), "unexpected trick struct size (packing?)");
     m_trick = (trick *)&m_mem[TRICKBOX_START];
     memset(m_mio, 0xFF, sizeof(m_mio));
 }
 
 void ClassTrickbox::reset()
 {
-    memset(m_trick, 0, sizeof (trick));
+    memset(m_trick, 0, sizeof(trick));
     for (uint i = 0; i < MAX_PIN_CTRL; i++)
         m_trick->pinCtrl[i].hold = 6;
 }
@@ -128,11 +128,11 @@ const QString ClassTrickbox::readState()
     for (int i = 0; i < MAX_PIN_CTRL; i++)
     {
         if (m_trick->pinCtrl[i].atPC) // Two mutually exclusive ways to trigger a pin assert
-            s += QString("%1 PC: %2 hold-for: %3\n").arg(pins[i],7)
-                    .arg(QString("%1").arg(QString::number(m_trick->pinCtrl[i].atPC,16).toUpper(),4,QChar('0'))) // 4-nibble hex, 0-prefixed
+            s += QString("%1 PC: %2 hold-for: %3\n").arg(pins[i], 7)
+                    .arg(QString("%1").arg(QString::number(m_trick->pinCtrl[i].atPC, 16).toUpper(), 4, QChar('0'))) // 4-nibble hex, 0-prefixed
                     .arg(m_trick->pinCtrl[i].hold);
         else
-            s += QString("%1 at: %2 hold-for: %3\n").arg(pins[i],7).arg(m_trick->pinCtrl[i].atCycle).arg(m_trick->pinCtrl[i].hold);
+            s += QString("%1 at: %2 hold-for: %3\n").arg(pins[i], 7).arg(m_trick->pinCtrl[i].atCycle).arg(m_trick->pinCtrl[i].hold);
     }
     return s;
 }
@@ -399,19 +399,19 @@ bool ClassTrickbox::saveBin(const QString fileName, quint16 address, uint size)
 
 struct zx : public QWidget
 {
-    zx(uint8_t* a) : ram(a)
+    zx(uint8_t *a) : ram(a)
     {
         setAttribute(Qt::WA_DeleteOnClose); // A single window that cannot be closed by the user
         setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
         resize(512, 384);
-        QTimer* t = new QTimer(this);
+        QTimer *t = new QTimer(this);
         connect(t, &QTimer::timeout, this, [=]() { update(); });
         t->start(640);
     };
     const QColor ink[8]{ Qt::black, Qt::blue, Qt::red, Qt::magenta, Qt::green, Qt::cyan, Qt::yellow, Qt::white };
-    uint8_t* ram;
-    bool blink {};
-    void paintEvent(QPaintEvent*) override
+    uint8_t *ram;
+    bool blink{};
+    void paintEvent(QPaintEvent *) override
     {
         QPainter painter(this);
         blink = !blink;
@@ -437,10 +437,10 @@ void ClassTrickbox::zx()
 {
     if (m_zx)
         return;
-    struct zx* w = static_cast<struct zx*>(m_zx);
+    struct zx *w = static_cast<struct zx *>(m_zx);
     w = new struct zx(m_mem);
     w->show();
-    m_zx = static_cast<void*>(w);
+    m_zx = static_cast<void *>(w);
 }
 
 void ClassTrickbox::onShutdown()

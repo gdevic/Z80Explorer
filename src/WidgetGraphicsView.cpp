@@ -32,33 +32,33 @@ bool WidgetGraphicsView::viewportEvent(QEvent *event)
 {
     switch (event->type())
     {
-    case QEvent::TouchBegin:
-    case QEvent::TouchUpdate:
-    case QEvent::TouchEnd:
-    {
-        QTouchEvent *touchEvent = static_cast<QTouchEvent *>(event);
-        QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->points();
-        if (touchPoints.count() == 2)
+        case QEvent::TouchBegin:
+        case QEvent::TouchUpdate:
+        case QEvent::TouchEnd:
         {
-            // Determine the current scale factor independently of m_scale
-            const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
-            const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
-            qreal currentScaleFactor =
+            QTouchEvent *touchEvent = static_cast<QTouchEvent *>(event);
+            QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->points();
+            if (touchPoints.count() == 2)
+            {
+                // Determine the current scale factor independently of m_scale
+                const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
+                const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
+                qreal currentScaleFactor =
                     QLineF(touchPoint0.globalLastPosition(), touchPoint1.globalLastPosition()).length() /
                     QLineF(touchPoint0.globalPressPosition(), touchPoint1.globalPressPosition()).length();
-            if (touchEvent->touchPointStates() & Qt::TouchPointReleased)
-            {
-                m_scale *= currentScaleFactor;
-                m_scale = qBound(0.2, m_scale, 3.0);
-                currentScaleFactor = 1;
+                if (touchEvent->touchPointStates() & Qt::TouchPointReleased)
+                {
+                    m_scale *= currentScaleFactor;
+                    m_scale = qBound(0.2, m_scale, 3.0);
+                    currentScaleFactor = 1;
+                }
+                setTransform(QTransform::fromScale(qMin(m_scale * currentScaleFactor, 3.0),
+                             qMin(m_scale * currentScaleFactor, 3.0)));
             }
-            setTransform(QTransform::fromScale(qMin(m_scale * currentScaleFactor, 3.0),
-                                               qMin(m_scale * currentScaleFactor, 3.0)));
+            return true;
         }
-        return true;
-    }
-    default:
-        break;
+        default:
+            break;
     }
     return QGraphicsView::viewportEvent(event);
 }
@@ -85,7 +85,7 @@ SymbolItem::SymbolItem(Logic *lr, QAction *activated, QGraphicsItem *parent) :
         case LogicOp::Inverter:
             path.lineTo(10, 0);
             path.arcTo(QRectF(10, -5, 10, 10), 180, -180);
-            path.lineTo(50.0, -20.0);
+            path.lineTo(50.0,-20.0);
             path.lineTo(50.0, 20.0);
             path.lineTo(20.0,  0.0);
             path.arcTo(QRectF(10, -5, 10, 10), 0, -180);
@@ -133,7 +133,7 @@ SymbolItem::SymbolItem(Logic *lr, QAction *activated, QGraphicsItem *parent) :
             path.lineTo(50, -20);
             path.lineTo(10, 20);
             path.lineTo(10, 0);
-        break;
+            break;
         case LogicOp::Latch:
             path.lineTo(10, 0);
             path.lineTo(10, 25);
@@ -141,7 +141,7 @@ SymbolItem::SymbolItem(Logic *lr, QAction *activated, QGraphicsItem *parent) :
             path.lineTo(50,-25);
             path.lineTo(10,-25);
             path.lineTo(10, 0);
-        break;
+            break;
         case LogicOp::DotDot:
             path.lineTo(10, 0);
             break;
@@ -172,7 +172,8 @@ void SymbolItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         if (name.contains(QChar('~'))) // Inverted clock variation has a small circle in the middle
             painter->drawText(25, 10, "O"); // TODO: This feels hacky
         name = QString(); // Do not print net name
-    } else if (m_lr->op == LogicOp::DotDot)
+    }
+    else if (m_lr->op == LogicOp::DotDot)
         name = ". . .";
     else if (m_lr->op == LogicOp::Latch)
     {

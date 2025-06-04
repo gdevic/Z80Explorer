@@ -83,11 +83,11 @@ int main(int argc, char *argv[])
         delete wndInit;
     }
 #ifdef QT_NO_DEBUG
-    catch(std::exception& e)
+    catch (std::exception &e)
     {
         crashMessage(e.what());
     }
-    catch(...)
+    catch (...)
     {
         crashMessage();
     }

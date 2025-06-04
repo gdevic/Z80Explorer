@@ -8,8 +8,7 @@
 #include <QRegularExpression>
 
 ClassColors::ClassColors(QObject *parent) : QObject(parent)
-{
-}
+{}
 
 void ClassColors::onShutdown()
 {
@@ -135,7 +134,7 @@ bool ClassColors::load(QString fileName, bool merge)
 
             for (int i = 0; i < array.size(); i++)
             {
-                colordef c {};
+                colordef c{};
                 QJsonObject obj = array[i].toObject();
                 if (obj.contains("expr") && obj["expr"].isString())
                     c.expr = obj["expr"].toString();

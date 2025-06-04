@@ -228,8 +228,8 @@ void MainWindow::onOnlineRef()
 void MainWindow::onAbout()
 {
     QString version = QString("Version %1.%2")
-            .arg(APP_VERSION / 100)
-            .arg(APP_VERSION % 100, 2, 10, QChar('0'));
+        .arg(APP_VERSION / 100)
+        .arg(APP_VERSION % 100, 2, 10, QChar('0'));
     QMessageBox::about(this, "About Z80 Explorer", version + "<br>Goran Devic<br><a href='https://baltazarstudios.com'>https://baltazarstudios.com</a><br>");
 }
 

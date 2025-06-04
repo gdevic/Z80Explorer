@@ -7,7 +7,7 @@
 
 bool ClassController::init(QJSEngine *sc)
 {
-    qInfo() <<  "App init...";
+    qInfo() << "App init...";
 
     sc->globalObject().setProperty("script", sc->newQObject(&m_script));
     sc->globalObject().setProperty("mon", sc->newQObject(&m_trick));
@@ -28,7 +28,7 @@ bool ClassController::init(QJSEngine *sc)
     connect(this, &ClassController::shutdown, &m_watch, &ClassWatch::onShutdown);
 
     QSettings settings;
-    QString resDir = settings.value("ResourceDir", QDir::currentPath()  + "/resource").toString();
+    QString resDir = settings.value("ResourceDir", QDir::currentPath() + "/resource").toString();
 
 #if HAVE_PREBUILT_LAYERMAP
     // Check if the current resource path contains required resource(s)
@@ -70,7 +70,7 @@ bool ClassController::init(QJSEngine *sc)
     DialogEditSchematic::init();
 
     // Execute init.js initialization script
-    QTimer::singleShot(1000, [=](){ m_script.exec( R"(load("init.js"))" ); } );
+    QTimer::singleShot(1000, [=]() { m_script.exec(R"(load("init.js"))"); });
 
     return true;
 }

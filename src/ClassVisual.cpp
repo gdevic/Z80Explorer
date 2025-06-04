@@ -70,9 +70,9 @@ bool ClassVisual::loadChipResources(QString dir)
         shrinkVias("bw.featuremap", "bw.featuremap2");
 
         // Allocate buffers for, and load the layer map
-        m_p3[0] = new uint16_t[m_mapsize] {};
-        m_p3[1] = new uint16_t[m_mapsize] {};
-        m_p3[2] = new uint16_t[m_mapsize] {};
+        m_p3[0] = new uint16_t[m_mapsize]{};
+        m_p3[1] = new uint16_t[m_mapsize]{};
+        m_p3[2] = new uint16_t[m_mapsize]{};
 
         // The layer map is large (chip map size X * Y * 2 bytes) times 3 layers
         // If we cannot load the layer map, we need to create it, but we can create only a partial layer map
@@ -182,7 +182,7 @@ bool ClassVisual::loadSegdefsJs(QString dir)
         QString line;
         QStringList list;
         m_segvdefs.clear();
-        while(!in.atEnd())
+        while (!in.atEnd())
         {
             line = in.readLine();
             if (line.startsWith('['))
@@ -196,14 +196,14 @@ bool ClassVisual::loadSegdefsJs(QString dir)
                     segvdef s;
                     net_t key = list[0].toUInt();
                     QPainterPath path;
-                    for (int i=3; i<list.length()-1; i+=2)
+                    for (int i = 3; i < list.length() - 1; i += 2)
                     {
                         uint x = list[i].toUInt();
-                        uint y = m_img[0].height() - list[i+1].toUInt() - 1;
+                        uint y = m_img[0].height() - list[i + 1].toUInt() - 1;
                         if (i == 3)
-                            path.moveTo(x,y);
+                            path.moveTo(x, y);
                         else
-                            path.lineTo(x,y);
+                            path.lineTo(x, y);
                     }
                     path.closeSubpath();
 
@@ -245,7 +245,7 @@ bool ClassVisual::loadTransdefs(QString dir)
         QStringList list;
         m_transvdefs.clear();
         uint y = m_img[0].height() - 1;
-        while(!in.atEnd())
+        while (!in.atEnd())
         {
             line = in.readLine();
             if (line.startsWith('['))
@@ -253,7 +253,7 @@ bool ClassVisual::loadTransdefs(QString dir)
                 line.replace('[', ' ').replace(']', ' '); // Make it a simple list of numbers
                 line.chop(2);
                 list = line.split(QLatin1Char(','), Qt::SkipEmptyParts);
-                if (list.length()==14 && list[0].length() > 2)
+                if (list.length() == 14 && list[0].length() > 2)
                 {
                     // ----- Add the transistor to the transistor array -----
                     QString tnum = list[0].mid(3, list[0].length() - 4);
@@ -313,7 +313,7 @@ QImage &ClassVisual::getImage(QString name, bool &ok)
  */
 void ClassVisual::setFirstImage(QString name)
 {
-    for (int i=1; i < m_img.count(); i++)
+    for (int i = 1; i < m_img.count(); i++)
     {
         if (m_img[i].text("name") == name)
         {
@@ -407,7 +407,7 @@ const transvdef *ClassVisual::getTrans(tran_t id)
 {
     if ((id < MAX_TRANS) && id)
     {
-        for (int i=0; i<m_transvdefs.size(); i++)
+        for (int i = 0; i < m_transvdefs.size(); i++)
         {
             if (m_transvdefs.at(i).id == id)
                 return &m_transvdefs.at(i);
@@ -526,7 +526,7 @@ bool ClassVisual::loadLayerMap(QString dir)
         int64_t size = m_mapsize * sizeof(uint16_t); // Size of one layer
         for (uint i = 0; i < 3; i++)
         {
-            int64_t read = file.read((char *) m_p3[i], size);
+            int64_t read = file.read((char *)m_p3[i], size);
             if (read != size)
             {
                 qWarning() << "Error reading" << fileName << "layer" << i;
@@ -561,7 +561,7 @@ void ClassVisual::buildFeatureMap()
     // ...and of the destination buffer
     m_fmap = new uchar[m_mapsize];
 
-    for (uint i=0; i < m_mapsize; i++)
+    for (uint i = 0; i < m_mapsize; i++)
     {
         uchar ions = !!p_ions[i] << IONS_SHIFT;
         uchar diff = !!p_diff[i] << DIFF_SHIFT;
@@ -627,7 +627,7 @@ void ClassVisual::buildFeatureMap()
 
         m_fmap[i] = c;
     }
-    QImage featuremap(m_fmap, m_sx, m_sy, m_sx * sizeof(uint8_t), QImage::Format_Grayscale8, [](void *p){ delete[] static_cast<uchar *>(p); }, (void *)m_fmap);
+    QImage featuremap(m_fmap, m_sx, m_sy, m_sx * sizeof(uint8_t), QImage::Format_Grayscale8, [](void *p) { delete[] static_cast<uchar *>(p); }, (void *)m_fmap);
     featuremap.setText("name", "bw.featuremap");
     m_img.append(featuremap);
 }
@@ -667,13 +667,13 @@ void ClassVisual::shrinkVias(QString source, QString dest)
             {
                 // Reduce a square via to a single point
                 uint line = offset;
-                while(true)
+                while (true)
                 {
                     uint pix = line;
                     while (p[pix] & via)
                         p[pix] = p[pix] & ~via, pix++;
                     line += m_sx; // The next pixel below
-                    if (! (p[line] & via))
+                    if (!(p[line] & via))
                         break;
                 }
                 p[offset] |= via; // Bring back the top-leftmost via
@@ -690,7 +690,7 @@ void ClassVisual::shrinkVias(QString source, QString dest)
  */
 void ClassVisual::createVssVccImage(QString name)
 {
-    auto toUint16 = [](const QColor& c)  // Converts from color to uint16_t 565 rgb
+    auto toUint16 = [](const QColor &c) // Converts from color to uint16_t 565 rgb
     {
         return ((uint16_t(c.red()) & 0xF8) << 8)
              | ((uint16_t(c.green()) & 0xFC) << 3)
@@ -708,7 +708,7 @@ void ClassVisual::createVssVccImage(QString name)
         if ((m_p3[0][i] == 2) || (m_p3[1][i] == 2) || (m_p3[2][i] == 2)) p[i] = vcc;
     }
 
-    QImage image((uchar *)p, m_sx, m_sy, m_sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p){ delete[] static_cast<int16_t *>(p); }, (void *)p);
+    QImage image((uchar *)p, m_sx, m_sy, m_sx * sizeof(int16_t), QImage::Format_RGB16, [](void *p) { delete[] static_cast<int16_t *>(p); }, (void *)p);
     image.setText("name", name);
 
     m_img.append(image);
@@ -781,7 +781,7 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
  * Draws nets in several ways
  * Order specifies that the segment patches be rendered in reversed order
  */
-void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order, uint mode)
+void ClassVisual::drawNets(QPainter &painter, const QRect &viewport, bool order, uint mode)
 {
     painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
     painter.setBrush(::controller.getColors().getActive());
@@ -805,23 +805,23 @@ void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order,
             bool active;
             switch (mode)
             {
-            case 0: // 0:Active
-                active = ::controller.getSimZ80().getNetState(i);
-                break;
-            case 1: // 1:Pull-up (static)
-                active = ::controller.getSimZ80().isNetPulledUp(i);
-                break;
-            case 2: // 2:Gate-less (static)
-                active = ::controller.getSimZ80().isNetGateless(i);
-                break;
-            case 3: // Gate-less no Pull-up (static)
-                active = ::controller.getSimZ80().isNetGateless(i) && !::controller.getSimZ80().isNetPulledUp(i);
-                break;
+                case 0: // 0:Active
+                    active = ::controller.getSimZ80().getNetState(i);
+                    break;
+                case 1: // 1:Pull-up (static)
+                    active = ::controller.getSimZ80().isNetPulledUp(i);
+                    break;
+                case 2: // 2:Gate-less (static)
+                    active = ::controller.getSimZ80().isNetGateless(i);
+                    break;
+                case 3: // Gate-less no Pull-up (static)
+                    active = ::controller.getSimZ80().isNetGateless(i) && !::controller.getSimZ80().isNetPulledUp(i);
+                    break;
             }
 
             if (active)
             {
-                for (const auto& path : ::controller.getChip().getSegment(i)->paths)
+                for (const auto &path : ::controller.getChip().getSegment(i)->paths)
                 {
                     // Draw only paths that are not completely outside the viewing area
                     if (QRectF(viewport).intersects(path.boundingRect()))
@@ -837,7 +837,7 @@ void ClassVisual::drawNets(QPainter& painter, const QRect& viewport, bool order,
     {
         if (::controller.getSimZ80().isNetOrphan(i))
         {
-            for (const auto& path : ::controller.getChip().getSegment(i)->paths)
+            for (const auto &path : ::controller.getChip().getSegment(i)->paths)
             {
                 // Draw only paths that are not completely outside the viewing area
                 if (QRectF(viewport).intersects(path.boundingRect()))
@@ -877,7 +877,7 @@ void ClassVisual::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, u
     const uchar layerMasks[3] = { DIFF, POLY, METAL };
 
     QVector<xyl> listLayers;
-    listLayers.append(xyl {x,y,layer});
+    listLayers.append(xyl{ x,y,layer });
 
     while (!listLayers.isEmpty())
     {
@@ -886,7 +886,7 @@ void ClassVisual::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, u
         const uchar layerMask = layerMasks[posl.layer];
 
         QVector<xy> listSeed;
-        listSeed.append(xy {posl.x, posl.y});
+        listSeed.append(xy{ posl.x, posl.y });
 
         while (!listSeed.isEmpty())
         {
@@ -930,7 +930,7 @@ void ClassVisual::fill(const uchar *p_map, uint16_t x, uint16_t y, uint layer, u
                     Q_ASSERT(layer < 3);
 
                     if (m_p3[layer])
-                        listLayers.append(xyl {pos.x, pos.y, layer});
+                        listLayers.append(xyl{ pos.x, pos.y, layer });
                 }
             }
         }
@@ -959,8 +959,8 @@ void ClassVisual::fillLayerMap()
 {
     qInfo() << "Fill layer map with vss and vcc";
 
-    drawFeature(100,100, 2, 1); // vss
-    drawFeature(4456,2512, 2, 2); // vcc
+    drawFeature(100, 100, 2, 1); // vss
+    drawFeature(4456, 2512, 2, 2); // vcc
 }
 
 /*
@@ -977,7 +977,7 @@ void ClassVisual::saveLayerMap()
         int64_t size = m_mapsize * sizeof(uint16_t); // Size of one layer
         for (uint i = 0; i < 3; i++)
         {
-            int64_t written = file.write((const char *) m_p3[i], size);
+            int64_t written = file.write((const char *)m_p3[i], size);
             if (written != size)
             {
                 qWarning() << "Error writing" << fileName << "layer" << i;
@@ -1084,7 +1084,7 @@ bool ClassVisual::loadLatches()
     {
         QTextStream in(&file);
         uint count = 0, ln = 0;
-        while(!in.atEnd())
+        while (!in.atEnd())
         {
             QString line = in.readLine(); ln++;
             QString name = line.mid(line.indexOf(';') + 1).trimmed();
@@ -1191,10 +1191,10 @@ latchdef *ClassVisual::getLatch(QString name)
  */
 void ClassVisual::experimental(int n)
 {
-    if (n==1) return experimental_1();
-    if (n==2) return experimental_2();
-    if (n==3) return experimental_3();
-    if (n==4) return ::controller.getNetlist().dumpNetlist();
+    if (n == 1) return experimental_1();
+    if (n == 2) return experimental_2();
+    if (n == 3) return experimental_3();
+    if (n == 4) return ::controller.getNetlist().dumpNetlist();
     qWarning() << "Invalid experimental function index" << n;
 }
 
@@ -1297,7 +1297,8 @@ bool ClassVisual::loadSegvdefs(QString dir)
                 return true;
             }
             qWarning() << "Incorrect number of segvdefs!";
-        } catch (...)
+        }
+        catch (...)
         {
             qWarning() << "Invalid data format";
         }
@@ -1332,7 +1333,7 @@ inline uint ClassVisual::edgeWalkFindDir(uchar const *p, uint x, uint y, uint st
     for (int i = 0; i < 8; i++)
     {
         uint dir = (i + startDir) & 7;
-        if (p[ OFFSET(dx[dir], dy[dir]) ] & TRANSISTOR) return dir;
+        if (p[OFFSET(dx[dir], dy[dir])] & TRANSISTOR) return dir;
     }
     Q_ASSERT(0);
     return 0;
@@ -1487,7 +1488,7 @@ void ClassVisual::experimental_3()
         uint y = offset / m_sx;
 
         // Skip already detected and rendered transistor
-        if (img.pixel(x,y) == 0xFFFFFFFF)
+        if (img.pixel(x, y) == 0xFFFFFFFF)
             continue;
 
         // Build the path around a transistor

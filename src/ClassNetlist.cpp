@@ -4,11 +4,10 @@
 #include <QFile>
 #include <QSettings>
 
-ClassNetlist::ClassNetlist():
+ClassNetlist::ClassNetlist() :
     m_transdefs(MAX_TRANS),
     m_netlist(MAX_NETS)
-{
-}
+{}
 
 void ClassNetlist::onShutdown()
 {
@@ -27,7 +26,7 @@ bool ClassNetlist::loadResources(const QString dir)
 
         // Check for net names / net numbers consistency
         int strings = 0;
-        for (int i=0; i<MAX_NETS; i++)
+        for (int i = 0; i < MAX_NETS; i++)
             if (!m_netnames[i].isEmpty())
                 strings++;
 
@@ -83,7 +82,7 @@ bool ClassNetlist::saveNetNames(const QString fileName)
         out << "var nodenames_override = {\n";
 
         QStringList names; // Write out custom names, sorted alphabetically
-        for (int i=0; i<MAX_NETS; i++)
+        for (int i = 0; i < MAX_NETS; i++)
         {
             if (m_netoverrides[i])
                 names.append(m_netnames[i]);
@@ -133,7 +132,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
         QTextStream in(&file);
         QString line;
         QStringList list;
-        while(!in.atEnd())
+        while (!in.atEnd())
         {
             line = in.readLine();
             int comment = line.indexOf('/'); // Strip comments
@@ -143,7 +142,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
             {
                 line.chop(1); // Remove comma at the end of each line
                 list = line.split(QLatin1Char(':'), Qt::SkipEmptyParts);
-                if (list.length()==2)
+                if (list.length() == 2)
                 {
                     QString name = list[0].trimmed();
                     net_t n = list[1].toUInt();
@@ -152,7 +151,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
                     if (loadCustom)
                     {
                         // Bus is the collections of 2 or more individual nets
-                        QStringList buslist = list[1].replace('[',' ').replace(']',' ').split(QLatin1Char(','), Qt::SkipEmptyParts);
+                        QStringList buslist = list[1].replace('[', ' ').replace(']', ' ').split(QLatin1Char(','), Qt::SkipEmptyParts);
                         if (buslist.count() > 1)
                         {
                             QVector<net_t> nets;
@@ -211,7 +210,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         uint count = 0, pull_ups = 0;
         m_netlist.fill(Net{});
 
-        while(!in.atEnd())
+        while (!in.atEnd())
         {
             line = in.readLine();
             if (line.startsWith('['))
@@ -229,7 +228,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
                         QString tnum = list[0].mid(3, list[0].length() - 4);
                         tran_t i = tnum.toUInt();
                         Q_ASSERT(i < MAX_TRANS);
-                        Trans* p = &m_transdefs[i];
+                        Trans *p = &m_transdefs[i];
 
                         p->id = i;
                         p->gate = list[1].toUInt();
@@ -268,7 +267,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
             { return !!(net.gates.count() || net.c1c2s.count()); });
         qInfo() << "Total number of nets" << count;
 
-        count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net& net)
+        count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net &net)
             { return (net.gates.count() == 0) && (net.c1c2s.count() == 0); });
         qInfo() << "Number of bogus (disconnected) nets" << (count - 1); // Ignore net #0
 
@@ -340,7 +339,7 @@ QStringList ClassNetlist::getNetnames()
 /*
 * Returns true if the net or bus name is defined and matches the net number
 */
-bool ClassNetlist::verifyNetBus(const QString& name, net_t n)
+bool ClassNetlist::verifyNetBus(const QString &name, net_t n)
 {
     if (n && m_netnums.contains(name))
         return (m_netnums[name] == n);
@@ -465,8 +464,8 @@ void ClassNetlist::addBus(const QString &name, const QStringList &list)
  */
 uint16_t ClassNetlist::readAB()
 {
-    uint16_t value= 0;
-    for (int i=15; i >= 0; --i)
+    uint16_t value = 0;
+    for (int i = 15; i >= 0; --i)
     {
         value <<= 1;
         value |= !!readBit(QString("ab" % QString::number(i)));
@@ -481,7 +480,7 @@ uint16_t ClassNetlist::readAB()
 uint8_t ClassNetlist::readByte(const QString &name)
 {
     uint value = 0;
-    for (int i=7; i >= 0; --i)
+    for (int i = 7; i >= 0; --i)
     {
         value <<= 1;
         value |= !!readBit(QString(name % QString::number(i)));
@@ -522,11 +521,11 @@ const QString ClassNetlist::netInfo(net_t net)
         // Transistor numbers for which this net is either a source or a drain
         QStringList c1c2s;
         for (auto &t : m_netlist[net].c1c2s)
-            c1c2s.append( QString::number(t - &m_transdefs[0]) );
+            c1c2s.append(QString::number(t - &m_transdefs[0]));
         // Transistor numbers for which this net is a gate
         QStringList gates;
         for (auto &t : m_netlist[net].gates)
-            gates.append( QString::number(t - &m_transdefs[0]) );
+            gates.append(QString::number(t - &m_transdefs[0]));
         // Limit printing up to 20 gate nets which is more than a practical limit.
         // This prevents large nets like clk to take over the log window
         if (gates.count() > 20)
@@ -541,12 +540,12 @@ const QString ClassNetlist::netInfo(net_t net)
         if (!s.isEmpty())
             s = s % ":";
         s = s % QString("%1: pulled-up:%2").arg(net).arg(m_netlist[net].hasPullup)
-        % QString("\nstate:%1 can-float:%2 is-high:%3 is-low:%4")
-                .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].isHigh).arg(m_netlist[net].isLow)
-        % "\nsource/drain (t):"
-        % c1c2s.join(",")
-        % "\nto-gates (t):"
-        % gates.join(",");
+              % QString("\nstate:%1 can-float:%2 is-high:%3 is-low:%4")
+               .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].isHigh).arg(m_netlist[net].isLow)
+              % "\nsource/drain (t):"
+              % c1c2s.join(",")
+              % "\nto-gates (t):"
+              % gates.join(",");
         return s;
     }
     return QString("Invalid net number");
@@ -603,7 +602,7 @@ void ClassNetlist::dumpNetlist()
         uint total = 0;
         for (auto index = 0; index < m_netlist.count(); index++)
         {
-            Net& net = m_netlist[index];
+            Net &net = m_netlist[index];
             if (net.gates.count() || net.c1c2s.count())
             {
                 out << index << "  G:" << net.gates.count() << " c1c2s:" << net.c1c2s.count() << " p:" << net.hasPullup << " f:" << net.floats << "  " << get(index) << "\n";
@@ -616,7 +615,7 @@ void ClassNetlist::dumpNetlist()
         total = 0;
         for (auto index = 0; index < m_netlist.count(); index++)
         {
-            Net& net = m_netlist[index];
+            Net &net = m_netlist[index];
             if (!net.gates.count() && !net.c1c2s.count())
             {
                 out << index << "  G:" << net.gates.count() << " c1c2s:" << net.c1c2s.count() << " p:" << net.hasPullup << " f:" << net.floats << "\n";

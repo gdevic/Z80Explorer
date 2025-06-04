@@ -238,7 +238,7 @@ bool ClassWatch::load(QString fileName)
                     qWarning() << "Unmatched net/bus name" << name << "(" << net << ") in the watchlist .. Skipping.";
                     continue;
                 }
-                m_watchlist.append( {name, net} );
+                m_watchlist.append({ name, net });
             }
             m_jsonFile = fileName;
             return true;

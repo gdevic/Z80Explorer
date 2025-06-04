@@ -32,8 +32,8 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
     connect(ui->btEdit, &QPushButton::clicked, this, &DialogEditColors::onEdit);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditColors::onRemove);
     connect(ui->table, &QTableWidget::cellDoubleClicked, this, &DialogEditColors::onDoubleClicked);
-    connect(ui->btLoad, &QPushButton::clicked, this, [=](){ onLoad(false); });
-    connect(ui->btMerge, &QPushButton::clicked, this, [=](){ onLoad(true); });
+    connect(ui->btLoad, &QPushButton::clicked, this, [=]() { onLoad(false); });
+    connect(ui->btMerge, &QPushButton::clicked, this, [=]() { onLoad(true); });
     connect(ui->btSaveAs, &QPushButton::clicked, this, &DialogEditColors::onSaveAs);
 }
 
@@ -62,10 +62,10 @@ void DialogEditColors::accept()
     for (int row = 0; row < ui->table->rowCount(); row++)
     {
         colordef cdef;
-        cdef.expr = ui->table->item(row,0)->text();
-        cdef.method = ui->table->item(row,1)->data(Qt::UserRole).toInt();
-        cdef.enabled = ui->table->item(row,2)->checkState() == Qt::Checked;
-        cdef.color = ui->table->item(row,3)->data(Qt::UserRole).value<QColor>();
+        cdef.expr = ui->table->item(row, 0)->text();
+        cdef.method = ui->table->item(row, 1)->data(Qt::UserRole).toInt();
+        cdef.enabled = ui->table->item(row, 2)->checkState() == Qt::Checked;
+        cdef.color = ui->table->item(row, 3)->data(Qt::UserRole).value<QColor>();
         colordefs.append(cdef);
     }
     ::controller.getColors().setColordefs(colordefs);
@@ -122,14 +122,14 @@ void DialogEditColors::onAdd()
 
 void DialogEditColors::swap(int index, int delta)
 {
-    QTableWidgetItem *i[4] { ui->table->takeItem(index+delta,0), ui->table->takeItem(index+delta,1),
-                             ui->table->takeItem(index+delta,2), ui->table->takeItem(index+delta,3) };
-    ui->table->removeRow(index+delta);
+    QTableWidgetItem *i[4]{ ui->table->takeItem(index + delta,0), ui->table->takeItem(index + delta,1),
+                            ui->table->takeItem(index + delta,2), ui->table->takeItem(index + delta,3) };
+    ui->table->removeRow(index + delta);
     ui->table->insertRow(index);
-    ui->table->setItem(index,0,i[0]);
-    ui->table->setItem(index,1,i[1]);
-    ui->table->setItem(index,2,i[2]);
-    ui->table->setItem(index,3,i[3]);
+    ui->table->setItem(index, 0, i[0]);
+    ui->table->setItem(index, 1, i[1]);
+    ui->table->setItem(index, 2, i[2]);
+    ui->table->setItem(index, 3, i[3]);
 }
 
 /*
@@ -181,9 +181,9 @@ void DialogEditColors::onEdit()
 
     colordef cdef;
     cdef.expr = selItem->text();
-    cdef.method = ui->table->item(index,1)->data(Qt::UserRole).toInt();
-    cdef.enabled = ui->table->item(index,2)->checkState() == Qt::Checked;
-    cdef.color = ui->table->item(index,3)->data(Qt::UserRole).value<QColor>();
+    cdef.method = ui->table->item(index, 1)->data(Qt::UserRole).toInt();
+    cdef.enabled = ui->table->item(index, 2)->checkState() == Qt::Checked;
+    cdef.color = ui->table->item(index, 3)->data(Qt::UserRole).value<QColor>();
 
     WidgetEditColor edit(this, ::controller.getColors().getMatchingMethods());
     edit.adjustSize(); // XXX https://stackoverflow.com/questions/49700394/qt-unable-to-set-geometry
@@ -193,12 +193,12 @@ void DialogEditColors::onEdit()
         edit.get(cdef);
         selItem->setText(cdef.expr);
         QString s = QString("(%1,%2,%3)").arg(cdef.color.red()).arg(cdef.color.green()).arg(cdef.color.blue());
-        ui->table->item(index,1)->setText(m_methods[cdef.method]);
-        ui->table->item(index,1)->setData(Qt::UserRole, cdef.method);
-        ui->table->item(index,2)->setCheckState(cdef.enabled ? Qt::Checked : Qt::Unchecked);
-        ui->table->item(index,3)->setText(s);
-        ui->table->item(index,3)->setBackground(QBrush(cdef.color));
-        ui->table->item(index,3)->setData(Qt::UserRole, QVariant::fromValue(cdef.color));
+        ui->table->item(index, 1)->setText(m_methods[cdef.method]);
+        ui->table->item(index, 1)->setData(Qt::UserRole, cdef.method);
+        ui->table->item(index, 2)->setCheckState(cdef.enabled ? Qt::Checked : Qt::Unchecked);
+        ui->table->item(index, 3)->setText(s);
+        ui->table->item(index, 3)->setBackground(QBrush(cdef.color));
+        ui->table->item(index, 3)->setData(Qt::UserRole, QVariant::fromValue(cdef.color));
     }
 }
 
@@ -208,9 +208,9 @@ void DialogEditColors::onEdit()
 void DialogEditColors::onRemove()
 {
     // Start from the end so we can use selected indices that will not change as we delete items
-    for (int row = ui->table->rowCount()-1; row >= 0; row--)
+    for (int row = ui->table->rowCount() - 1; row >= 0; row--)
     {
-        if (ui->table->item(row,0)->isSelected())
+        if (ui->table->item(row, 0)->isSelected())
             ui->table->removeRow(row);
     }
 }

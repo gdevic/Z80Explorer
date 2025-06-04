@@ -9,7 +9,7 @@
 WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
 {
     // Refresh graph when running simulation and when stopped
-    connect(&::controller, &ClassController::onRunHeartbeat, this, [this](){ update(); });
+    connect(&::controller, &ClassController::onRunHeartbeat, this, [this]() { update(); });
     connect(&::controller, &ClassController::onRunStopped, this, &WidgetWaveform::onRunStopped);
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
@@ -38,7 +38,7 @@ WidgetWaveform::~WidgetWaveform()
 {
     QSettings settings;
     for (uint i = 0; i < m_cursors2x.count(); i++)
-        settings.setValue(QString("dockWaveCursor%1-%2").arg(i+1).arg(whatsThis()), m_cursors2x.at(i));
+        settings.setValue(QString("dockWaveCursor%1-%2").arg(i + 1).arg(whatsThis()), m_cursors2x.at(i));
     settings.setValue("dockWaveCursor-" + whatsThis(), m_cursor);
 }
 
@@ -83,7 +83,7 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
 
 void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
 {
-    const uint wh[4] { 0, m_waveheight, m_waveheight / 2, 0 };
+    const uint wh[4]{ 0, m_waveheight, m_waveheight / 2, 0 };
     static const QPen penHiZ = QPen(QColor(Qt::white), 1, Qt::DotLine);
     QColor fillColor = viewitem->color;
     fillColor.setAlphaF(0.5); // 50% intensity for fills
@@ -135,12 +135,12 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
                 painter.setBrush(QBrush(viewitem->color));
                 if (!is_up && (viewitem->format != ClassController::FormatNet::TransUp)) // TransDown or TransAny
                 {
-                    QPoint shape[3] = {QPoint(x1 - d,y - y1), QPoint(x1,y), QPoint(x1 + d,y - y1)};
+                    QPoint shape[3] = { QPoint(x1 - d,y - y1), QPoint(x1,y), QPoint(x1 + d,y - y1) };
                     painter.drawPolygon(shape, 3);
                 }
                 if (is_up && (viewitem->format != ClassController::FormatNet::TransDown)) // TransUp or TransAny
                 {
-                    QPoint shape[3] = {QPoint(x1 - d,y), QPoint(x1,y - y2), QPoint(x1 + d,y)};
+                    QPoint shape[3] = { QPoint(x1 - d,y), QPoint(x1,y - y2), QPoint(x1 + d,y) };
                     painter.drawPolygon(shape, 3);
                 }
                 painter.setBrush(brush);
@@ -196,10 +196,10 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
             }
             last_data_x = x1;
 
-            painter.drawLine(x1, y1, x1+3, y2);
-            painter.drawLine(x1, y2, x1+3, y1);
-            painter.drawLine(x1+3, y1, x2, y1);
-            painter.drawLine(x1+3, y2, x2, y2);
+            painter.drawLine(x1, y1, x1 + 3, y2);
+            painter.drawLine(x1, y2, x1 + 3, y1);
+            painter.drawLine(x1 + 3, y1, x2, y1);
+            painter.drawLine(x1 + 3, y2, x2, y2);
 
             // Format the text of the new bus data value
             text = ::controller.formatBus(viewitem->format, data_cur, width, m_decorated);
@@ -237,7 +237,7 @@ void WidgetWaveform::drawCursors(QPainter &painter, const QRect &r, uint hstart)
         painter.drawLine(x1, y, x2, y);
     }
 
-    for (int i=0; i<m_cursors2x.count(); i++)
+    for (int i = 0; i < m_cursors2x.count(); i++)
     {
         uint cursorX = m_cursors2x.at(i);
         uint x = cursorX * m_hscale / 2.0;
@@ -325,7 +325,7 @@ void WidgetWaveform::mouseMoveEvent(QMouseEvent *event)
     m_mousePos = event->pos();
     if (!m_mousePressed)
         return;
-    if(m_cursormoving) // User is moving the cursor
+    if (m_cursormoving) // User is moving the cursor
     {
         int mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
         setCursorsPos(m_cursor, mouse_in_dataX);
@@ -360,15 +360,15 @@ void WidgetWaveform::mousePressEvent(QMouseEvent *event)
         else
         // Next, try to find the cursor that is close to the mouse pointer (off by a few pixels)
         // If found, make that cursor active and ready to move it.
-        for (int i=0; i<m_cursors2x.count(); i++)
-        {
-            int data_to_screenX = m_cursors2x.at(i) * (m_hscale / 2);
-            if (abs(m_mousePos.x() - data_to_screenX) < 10)
+            for (int i = 0; i < m_cursors2x.count(); i++)
             {
-                m_cursor = i;
-                m_cursormoving = true;
+                int data_to_screenX = m_cursors2x.at(i) * (m_hscale / 2);
+                if (abs(m_mousePos.x() - data_to_screenX) < 10)
+                {
+                    m_cursor = i;
+                    m_cursormoving = true;
+                }
             }
-        }
         if (m_cursormoving)
         {
             // If we identified a cursor, set it's new X coordiate
@@ -380,7 +380,7 @@ void WidgetWaveform::mousePressEvent(QMouseEvent *event)
     update();
 }
 
-void WidgetWaveform::mouseReleaseEvent (QMouseEvent *)
+void WidgetWaveform::mouseReleaseEvent(QMouseEvent *)
 {
     setCursor(Qt::ArrowCursor);
     m_mousePressed = false;

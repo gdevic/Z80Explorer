@@ -30,7 +30,7 @@ WidgetImageView::WidgetImageView(QWidget *parent) :
     setCursor(QCursor(Qt::CrossCursor));
     setAcceptDrops(true);
 
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(contextMenu(const QPoint&)));
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(contextMenu(const QPoint &)));
     // Called by the sim when the current run stops at a given half-cycle
     connect(&::controller, &ClassController::onRunStopped, this, [=]() { update(); });
     connect(&::controller, &ClassController::syncView, this, &WidgetImageView::syncView);
@@ -78,9 +78,9 @@ void WidgetImageView::init(QString sid)
     m_ov->createImageButtons(::controller.getChip().getImageNames());
 
     QString layers = settings.value("imageViewLayers-" + whatsThis(), "001").toString();
-    for (uint i=0, blend=0; i<layers.size(); i++)
+    for (uint i = 0, blend = 0; i < layers.size(); i++)
     {
-        if (layers.at(i)=='1')
+        if (layers.at(i) == '1')
             setImage(i, blend++);
     }
 
@@ -89,14 +89,14 @@ void WidgetImageView::init(QString sid)
 
     connect(m_ov, SIGNAL(actionCoords()), this, SLOT(onCoords()));
     connect(m_ov, SIGNAL(actionFind(QString)), this, SLOT(onFind(QString)));
-    connect(m_ov, SIGNAL(actionSetImage(uint,bool)), this, SLOT(setImage(uint,bool)));
+    connect(m_ov, SIGNAL(actionSetImage(uint, bool)), this, SLOT(setImage(uint, bool)));
     // Map overlay buttons directly to our keyboard handler and pass the corresponding key commands
     connect(m_ov, &WidgetImageOverlay::actionButton, this, [this](int i)
-            {
-                static const int key[4] = { Qt::Key_X, Qt::Key_Space, Qt::Key_T, Qt::Key_L };
-                QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
-                keyPressEvent(&event);
-            });
+    {
+        static const int key[4] = { Qt::Key_X, Qt::Key_Space, Qt::Key_T, Qt::Key_L };
+        QKeyEvent event(QEvent::None, key[i], Qt::NoModifier, 0, 0, 0);
+        keyPressEvent(&event);
+    });
 }
 
 /*
@@ -114,32 +114,32 @@ void WidgetImageView::onTimeout()
 
 void WidgetImageView::setZoomMode(ZoomType mode)
 {
-    qreal sx = (qreal) width()/m_image.width();
-    qreal sy = (qreal) height()/m_image.height();
+    qreal sx = (qreal)width() / m_image.width();
+    qreal sy = (qreal)height() / m_image.height();
 
     m_view_mode = mode;
-    switch(m_view_mode)
+    switch (m_view_mode)
     {
-    case Fit:
-        m_tex = QPointF(0.5, 0.5); // Map texture center to view center
-        m_scale = sx > sy ? sy : sx;
-        if(sx>1.0 && sy>1.0)
+        case Fit:
+            m_tex = QPointF(0.5, 0.5); // Map texture center to view center
+            m_scale = sx > sy ? sy : sx;
+            if (sx > 1.0 && sy > 1.0)
+                m_scale = 1.0;
+            break;
+
+        case Fill:
+            m_tex = QPointF(0.5, 0.5); // Map texture center to view center
+            m_scale = sx > sy ? sx : sy;
+            if (sx > 1.0 && sy > 1.0)
+                m_scale = 1.0;
+            break;
+
+        case Identity: // 1:1 Zoom ratio
             m_scale = 1.0;
-        break;
+            break;
 
-    case Fill:
-        m_tex = QPointF(0.5, 0.5); // Map texture center to view center
-        m_scale = sx > sy ? sx : sy;
-        if(sx>1.0 && sy>1.0)
-            m_scale = 1.0;
-        break;
-
-    case Identity: // 1:1 Zoom ratio
-        m_scale = 1.0;
-        break;
-
-    default: // Any other value is a real number zoom ratio
-        break;
+        default: // Any other value is a real number zoom ratio
+            break;
     }
 
     calcTransform();
@@ -178,7 +178,7 @@ void WidgetImageView::onCoords()
                                            QLineEdit::Normal, "", &ok, Qt::MSWindowsFixedSizeDialogHint);
     if (ok && !coords.isEmpty())
     {
-        QRegularExpression re( R"((\d+)\s*,\s*(\d+))" );
+        QRegularExpression re(R"((\d+)\s*,\s*(\d+))");
         QRegularExpressionMatch match = re.match(coords);
         if (match.hasMatch())
         {
@@ -230,7 +230,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     //------------------------------------------------------------------------
     // Point 0 is at the top-left corner; point 1 is at the bottom-right corner of the view.
     // Do the inverse map to get to the coordinates in the texture space.
-    QPointF t0 = m_invtx.map(QPoint(0,0));
+    QPointF t0 = m_invtx.map(QPoint(0, 0));
     QPointF t1 = m_invtx.map(QPoint(m_viewPort.right(), m_viewPort.bottom()));
     clampImageCoords(t0, m_image.width() - 1, m_image.height() - 1);
     clampImageCoords(t1, m_image.width() - 1, m_image.height() - 1);
@@ -286,7 +286,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             // The very first net has a distinct color since that's our base net
             // Each successive net is colored in the increasing brightness of another color (blue)
             if (i == 0)
-                painter.setBrush(QColor(255,255,255)); // The color of the first net
+                painter.setBrush(QColor(255, 255, 255)); // The color of the first net
             else
             {
                 // Proportionally increment the lightness component to visually separate different nets
@@ -321,19 +321,19 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
         if (m_timer_tick & 1)
         {
-            painter.setBrush(QColor(255,255,0));
+            painter.setBrush(QColor(255, 255, 0));
             painter.setCompositionMode(QPainter::CompositionMode_Clear);
         }
         else
         {
-            painter.setBrush(QColor(100,200,200));
+            painter.setBrush(QColor(100, 200, 200));
             painter.setCompositionMode(QPainter::CompositionMode_Plus);
         }
         if (m_highlight_trans)
         {
             painter.drawRect(*m_highlight_trans);
             painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
-            painter.drawLine(QPoint(0,0), m_highlight_trans->topLeft());
+            painter.drawLine(QPoint(0, 0), m_highlight_trans->topLeft());
             painter.setPen(QPen(QColor(), 0, Qt::NoPen)); // No outlines
         }
         if (m_highlight_segment)
@@ -341,7 +341,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             for (const auto &path : m_highlight_segment->paths)
                 painter.drawPath(path);
             painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
-            painter.drawLine(QPoint(0,0), m_highlight_segment[0].paths[0].elementAt(0));
+            painter.drawLine(QPoint(0, 0), m_highlight_segment[0].paths[0].elementAt(0));
         }
         painter.restore();
     }
@@ -454,7 +454,7 @@ void WidgetImageView::calcTransform()
 
     QTransform mtr1(1, 0, 0, 1, -sx * m_tex.x(), -sy * m_tex.y());
     QTransform msc1(m_scale, 0, 0, m_scale, 0, 0);
-    QTransform mtr2(1, 0, 0, 1, m_viewPort.width()/2, m_viewPort.height()/2);
+    QTransform mtr2(1, 0, 0, 1, m_viewPort.width() / 2, m_viewPort.height() / 2);
 
     m_tx = mtr1 * msc1 * mtr2;
     m_invtx = m_tx.inverted();
@@ -476,7 +476,7 @@ bool WidgetImageView::event(QEvent *event)
         QVector<net_t> nets = ::controller.getChip().getNetsAt<false>(pos.x(), pos.y());
         if (nets.count() == 1)
         {
-            QStringList tooltip { ::controller.getNetlist().get(nets[0]), ::controller.getTip().get(nets[0]) };
+            QStringList tooltip{ ::controller.getNetlist().get(nets[0]), ::controller.getTip().get(nets[0]) };
             tooltip.removeAll({}); // Remove empty components (from the above, if none defined)
             QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
             QToolTip::showText(helpEvent->globalPos(), tooltip.join("<br>"));
@@ -505,7 +505,7 @@ bool WidgetImageView::event(QEvent *event)
                 qreal touchScale = QLineF(touchPoint0.globalLastPosition(), touchPoint1.globalLastPosition()).length() /
                                    QLineF(touchPoint0.globalPressPosition(), touchPoint1.globalPressPosition()).length();
                 if (touchEvent->touchPointStates() & Qt::TouchPointPressed)
-                    m_touchScale =  m_scale / touchScale; // On "pressed" event, set the scale factor
+                    m_touchScale = m_scale / touchScale; // On "pressed" event, set the scale factor
                 m_scale = touchScale * m_touchScale;
                 setZoom(m_scale);
             }
@@ -525,7 +525,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
 {
     m_mousePos = event->pos();
 
-    if(m_mouseLeftPressed) // With a left mouse button pressed: pan (move) the image
+    if (m_mouseLeftPressed) // With a left mouse button pressed: pan (move) the image
     {
         // This is beautiful.
         double dX = m_mousePos.x() - m_pinMousePos.x();
@@ -535,7 +535,7 @@ void WidgetImageView::mouseMoveEvent(QMouseEvent *event)
         dX = dX / m_image.width();
         dY = dY / m_image.height();
 
-        moveBy(QPointF(dX/m_scale, dY/m_scale));
+        moveBy(QPointF(dX / m_scale, dY / m_scale));
     }
     else if (m_mouseRightPressed) // With a right mouse button pressed: define the selection area
     {
@@ -594,7 +594,7 @@ void WidgetImageView::mouseReleaseEvent(QMouseEvent *event)
         {
             QPoint pos1 = m_invtx.map(m_pinMousePos);
             qInfo() << "Selected area:" << QString("%1,%2,%3,%4")
-                       .arg(pos1.x()).arg(pos1.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
+                .arg(pos1.x()).arg(pos1.y()).arg(m_areaRect.width()).arg(m_areaRect.height());
         }
         contextMenu(event->pos());
     }
@@ -608,7 +608,7 @@ void WidgetImageView::mouseReleaseEvent(QMouseEvent *event)
 void WidgetImageView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     m_pinMousePos = QPoint();
-    m_areaRect.setRect(0,0,0,0);
+    m_areaRect.setRect(0, 0, 0, 0);
 
     if (event->button() == Qt::LeftButton)
     {
@@ -665,81 +665,81 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
     // Handle the rest of the keys
     switch (event->key())
     {
-    case Qt::Key_Escape: // ESC key removes, in this order: Found transistor and net; driven by; selected net
-        if (m_highlight_segment || m_highlight_trans)
-        {
-            m_highlight_trans = nullptr;
-            m_highlight_segment = nullptr;
-        }
-        else if (m_drivingNets.count() > 1)
-            m_drivingNets.remove(1, m_drivingNets.count() - 1);
-        else if (m_drivingNets.count() == 1)
-            m_drivingNets.clear();
-        break;
-    case Qt::Key_F1:
-        switch(m_view_mode)
-        {
-            case Fit: setZoomMode(Fill); break;
-            case Fill: setZoomMode(Identity); break;
-            case Identity: setZoomMode(Fit); break;
-            case Value: setZoomMode(Fit); break;
-        }
-        break;
-    case Qt::Key_X:
-        if (shift)
-            ::controller.getChip().toggleAltSegdef();
-        else
-        {
-            m_drawNets = !m_drawNets;
-            m_ov->setButton(0, m_drawNets);
-        }
-        break;
-    case Qt::Key_Z:
-        m_drawNetsOrder = shift ? m_drawNetsOrder ^ 2 : (m_drawNetsOrder & 1) ^ 1;
-        break;
-    case Qt::Key_Comma:
-        if (m_drawNets) // 0:Active, 1:Pull-up, 2:Gate-less, 3:Gate-less no Pull-up
-        {
-            m_drawNetsMode = qBound(0, int(m_drawNetsMode + (ctrl ? -1 : 1)) % 4, 3);
-            static const QStringList modes = {"Active", "Pull-up (static)", "Gate-less (static)", "Gate-less no Pull-up (static)"};
-            qInfo() << "Draw nets mode:" << modes[m_drawNetsMode];
-        }
-        break;
-    case Qt::Key_Space:
-        m_drawAnnotations = !m_drawAnnotations;
-        m_ov->setButton(1, m_drawAnnotations);
-        break;
-    case Qt::Key_T:
-        m_drawTransistors = !m_drawTransistors;
-        m_ov->setButton(2, m_drawTransistors);
-        if (m_drawTransistors) ::controller.getChip().armTransFlipCount();
-        break;
-    case Qt::Key_Period:
-        if (m_drawTransistors) // 0:Active, 1:Single-Flip, 2:Sticky and 3:All
-        {
-            m_drawTransistorMode = qBound(0, int(m_drawTransistorMode + (ctrl ? -1 : 1)) % 4, 3);
-            static const QStringList modes = {"Active", "Single-Flip", "Sticky", "All (static)"};
-            qInfo() << "Draw transistor mode:" << modes[m_drawTransistorMode];
-        }
-        break;
-    case Qt::Key_L:
-        m_drawLatches = !m_drawLatches;
-        m_ov->setButton(3, m_drawLatches);
-        break;
-    case Qt::Key_N: m_drawNetNames = !m_drawNetNames; break;
-    case Qt::Key_Left: moveBy(QPointF(dx,0)); break;
-    case Qt::Key_Right: moveBy(QPointF(-dx,0)); break;
-    case Qt::Key_Up: moveBy(QPointF(0,dy)); break;
-    case Qt::Key_Down: moveBy(QPointF(0,-dy)); break;
-    case Qt::Key_PageUp: setZoom(m_scale * 1.2); break;
-    case Qt::Key_PageDown: setZoom(m_scale / 1.2); break;
-    // Send all other unhandled keys to the script for user custom handling
-    // init.js file should define key(code,ctrl) function handler
-    default:
-        bool verbose = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
-        QString cmd = QString("key(%1,%2)").arg(event->key()).arg(ctrl);
-        ::controller.getScript().exec(cmd, verbose);
-        break;
+        case Qt::Key_Escape: // ESC key removes, in this order: Found transistor and net; driven by; selected net
+            if (m_highlight_segment || m_highlight_trans)
+            {
+                m_highlight_trans = nullptr;
+                m_highlight_segment = nullptr;
+            }
+            else if (m_drivingNets.count() > 1)
+                m_drivingNets.remove(1, m_drivingNets.count() - 1);
+            else if (m_drivingNets.count() == 1)
+                m_drivingNets.clear();
+            break;
+        case Qt::Key_F1:
+            switch (m_view_mode)
+            {
+                case Fit: setZoomMode(Fill); break;
+                case Fill: setZoomMode(Identity); break;
+                case Identity: setZoomMode(Fit); break;
+                case Value: setZoomMode(Fit); break;
+            }
+            break;
+        case Qt::Key_X:
+            if (shift)
+                ::controller.getChip().toggleAltSegdef();
+            else
+            {
+                m_drawNets = !m_drawNets;
+                m_ov->setButton(0, m_drawNets);
+            }
+            break;
+        case Qt::Key_Z:
+            m_drawNetsOrder = shift ? m_drawNetsOrder ^ 2 : (m_drawNetsOrder & 1) ^ 1;
+            break;
+        case Qt::Key_Comma:
+            if (m_drawNets) // 0:Active, 1:Pull-up, 2:Gate-less, 3:Gate-less no Pull-up
+            {
+                m_drawNetsMode = qBound(0, int(m_drawNetsMode + (ctrl ? -1 : 1)) % 4, 3);
+                static const QStringList modes = { "Active", "Pull-up (static)", "Gate-less (static)", "Gate-less no Pull-up (static)" };
+                qInfo() << "Draw nets mode:" << modes[m_drawNetsMode];
+            }
+            break;
+        case Qt::Key_Space:
+            m_drawAnnotations = !m_drawAnnotations;
+            m_ov->setButton(1, m_drawAnnotations);
+            break;
+        case Qt::Key_T:
+            m_drawTransistors = !m_drawTransistors;
+            m_ov->setButton(2, m_drawTransistors);
+            if (m_drawTransistors) ::controller.getChip().armTransFlipCount();
+            break;
+        case Qt::Key_Period:
+            if (m_drawTransistors) // 0:Active, 1:Single-Flip, 2:Sticky and 3:All
+            {
+                m_drawTransistorMode = qBound(0, int(m_drawTransistorMode + (ctrl ? -1 : 1)) % 4, 3);
+                static const QStringList modes = { "Active", "Single-Flip", "Sticky", "All (static)" };
+                qInfo() << "Draw transistor mode:" << modes[m_drawTransistorMode];
+            }
+            break;
+        case Qt::Key_L:
+            m_drawLatches = !m_drawLatches;
+            m_ov->setButton(3, m_drawLatches);
+            break;
+        case Qt::Key_N: m_drawNetNames = !m_drawNetNames; break;
+        case Qt::Key_Left: moveBy(QPointF(dx, 0)); break;
+        case Qt::Key_Right: moveBy(QPointF(-dx, 0)); break;
+        case Qt::Key_Up: moveBy(QPointF(0, dy)); break;
+        case Qt::Key_Down: moveBy(QPointF(0, -dy)); break;
+        case Qt::Key_PageUp: setZoom(m_scale * 1.2); break;
+        case Qt::Key_PageDown: setZoom(m_scale / 1.2); break;
+        // Send all other unhandled keys to the script for user custom handling
+        // init.js file should define key(code,ctrl) function handler
+        default:
+            bool verbose = QGuiApplication::keyboardModifiers().testFlag(Qt::AltModifier);
+            QString cmd = QString("key(%1,%2)").arg(event->key()).arg(ctrl);
+            ::controller.getScript().exec(cmd, verbose);
+            break;
     }
 }
 
@@ -750,7 +750,7 @@ void WidgetImageView::setImage(uint img, bool blend)
         QImage &image = ::controller.getChip().getImage(img);
         QPainter painter(&m_image);
         painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
-        painter.drawImage(0,0, image);
+        painter.drawImage(0, 0, image);
         painter.end();
         m_ov->selectImageButton(img, true);
     }
@@ -765,14 +765,14 @@ void WidgetImageView::setImage(uint img, bool blend)
 /*
  * Context menu handler, called when the user right-clicks somewhere on the image view
  */
-void WidgetImageView::contextMenu(const QPoint& pos)
+void WidgetImageView::contextMenu(const QPoint &pos)
 {
     // If the user dragged the selection rectangle in the "opposite" way, we need to swap the corners
     m_areaRect = m_areaRect.normalized();
 
     // If the selection area is too small, clear it
     if ((m_areaRect.width() < 4) || (m_areaRect.height() < 4))
-        m_areaRect.setRect(0,0,0,0);
+        m_areaRect.setRect(0, 0, 0, 0);
 
     QMenu contextMenu(this);
 
@@ -811,7 +811,7 @@ void WidgetImageView::contextMenu(const QPoint& pos)
     contextMenu.addAction(&actionEditAnnotation);
 
     QAction actionSyncViews("Sync image views", this);
-    connect(&actionSyncViews, &QAction::triggered, this, [=]() { emit ::controller.syncView(m_tex, m_scale); });
+    connect(&actionSyncViews, &QAction::triggered, this, [=]() { emit::controller.syncView(m_tex, m_scale); });
     contextMenu.addAction(&actionSyncViews);
 
     QAction actionToggleOverlay("Toggle overlay", this);
@@ -837,7 +837,7 @@ void WidgetImageView::contextMenu(const QPoint& pos)
 
     m_drawSelection = false;
     m_pinMousePos = QPoint();
-    m_areaRect.setRect(0,0,0,0);
+    m_areaRect.setRect(0, 0, 0, 0);
 }
 
 /*
@@ -884,7 +884,7 @@ void WidgetImageView::editTip()
     QString name = ::controller.getNetlist().get(net);
     QString oldTip = ::controller.getTip().get(net);
     bool ok;
-    QString tip = QInputDialog::getText(this, "Edit tip", QString("Enter the tip for the selected net %1 (%2)").arg(name,QString::number(net)),
+    QString tip = QInputDialog::getText(this, "Edit tip", QString("Enter the tip for the selected net %1 (%2)").arg(name, QString::number(net)),
                                         QLineEdit::Normal, oldTip, &ok, Qt::MSWindowsFixedSizeDialogHint);
     if (ok)
         ::controller.getTip().set(tip, net);
@@ -992,7 +992,7 @@ void WidgetImageView::viewSchematic()
 
     DialogSchematic *sch = new DialogSchematic(this, pl);
     connect(sch, SIGNAL(doShow(QString)), this, SLOT(onFind(QString)));
-    connect(sch, &DialogSchematic::doNewSchematic, this, [=](net_t net) { m_drivingNets.prepend(net); viewSchematic(); } );
+    connect(sch, &DialogSchematic::doNewSchematic, this, [=](net_t net) { m_drivingNets.prepend(net); viewSchematic(); });
     if (ctrl) // Update schematic's window title if the net we passed to it was not optimized
         sch->setWindowTitle(sch->windowTitle() + " (unoptimized)");
     sch->show();
