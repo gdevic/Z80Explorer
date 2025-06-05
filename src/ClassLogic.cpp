@@ -447,7 +447,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
 
                 Logic *next = new Logic(net0id, LogicOp::Latch, false);
                 next->leaf = true;
-                next->name = latch->name;
+                next->name = latch->name + " " + latch->comment;
                 root->inputs.append(next);
 
                 // Remove first transistor

@@ -31,6 +31,7 @@ struct latchdef
     net_t n1, n2;                       // Two nets that inter-connect into a latch
     QRect box;                          // Bounding rectangle of the two main latch transistors
     QString name;                       // Latch name
+    QString comment;                    // Optional comment assigned to a latch
 };
 
 /*

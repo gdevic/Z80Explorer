@@ -1071,6 +1071,7 @@ void ClassVisual::detectLatches()
  * Load custom latches
  * Format: pairs of transistor numbers that make up a latch, one pair per line
  *         latch name after a semicolon
+ *         optional latch comment after the second semicolon
  * If possible, the first transistor should represent a latch value
  * "-" for the latch name will remove that latch (use for incorrectly autodetected latches)
  */
@@ -1087,7 +1088,7 @@ bool ClassVisual::loadLatches()
         while (!in.atEnd())
         {
             QString line = in.readLine(); ln++;
-            QString name = line.mid(line.indexOf(';') + 1).trimmed();
+            QString right = line.mid(line.indexOf(';') + 1).trimmed(); // The rest of the line
             line = line.left(line.indexOf(';')).trimmed();
             if (line.length())
             {
@@ -1105,7 +1106,12 @@ bool ClassVisual::loadLatches()
                         {
                             if (vdef2 != nullptr)
                             {
-                                latchdef latch {t1, t2, vdef1->gatenet, vdef2->gatenet, QRect(), name};
+                                QString name(right), comment;
+                                if (right.contains(';')) // Separate name from the (optional) comment
+                                    name = right.section(';', 0, 0).trimmed(),
+                                    comment = right.section(';', 1).trimmed();
+
+                                latchdef latch {t1, t2, vdef1->gatenet, vdef2->gatenet, QRect(), name, comment};
 
                                 // Check for duplicate/overriden latches
                                 auto it = std::find_if(m_latches.begin(), m_latches.end(), [latch](latchdef &l)
