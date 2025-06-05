@@ -28,7 +28,7 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     connect(ui->btUp, &QPushButton::clicked, this, &DialogEditWaveform::onUp);
     connect(ui->btDown, &QPushButton::clicked, this, &DialogEditWaveform::onDown);
     connect(ui->btColor, &QPushButton::clicked, this, &DialogEditWaveform::onColor);
-    connect(ui->comboFormat, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogEditWaveform::onFormatIndexChanged);
+    connect(ui->comboFormat, QOverload<int>::of(&QComboBox::activated), this, &DialogEditWaveform::onFormatIndexChanged);
     connect(ui->btSaveAs, &QPushButton::clicked, this, &DialogEditWaveform::onSaveAs);
 
     // Populate the view list widget with the given list of view items
