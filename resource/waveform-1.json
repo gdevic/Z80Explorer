@@ -38,73 +38,73 @@
         },
         {
             "color": "208,104,0,255",
-            "format": 0,
+            "format": 2,
             "name": "m1",
             "net": 155
         },
         {
             "color": "208,104,0,255",
-            "format": 0,
+            "format": 2,
             "name": "m2",
             "net": 173
         },
         {
             "color": "208,104,0,255",
-            "format": 0,
+            "format": 2,
             "name": "m3",
             "net": 163
         },
         {
             "color": "208,104,0,255",
-            "format": 0,
+            "format": 2,
             "name": "m4",
             "net": 159
         },
         {
             "color": "208,104,0,255",
-            "format": 0,
+            "format": 2,
             "name": "m5",
             "net": 209
         },
         {
             "color": "208,104,0,255",
-            "format": 0,
+            "format": 2,
             "name": "m6",
             "net": 210
         },
         {
             "color": "170,170,255,255",
-            "format": 0,
+            "format": 2,
             "name": "t1",
             "net": 115
         },
         {
             "color": "170,170,255,255",
-            "format": 0,
+            "format": 2,
             "name": "t2",
             "net": 137
         },
         {
             "color": "170,170,255,255",
-            "format": 0,
+            "format": 2,
             "name": "t3",
             "net": 144
         },
         {
             "color": "170,170,255,255",
-            "format": 0,
+            "format": 2,
             "name": "t4",
             "net": 166
         },
         {
             "color": "170,170,255,255",
-            "format": 0,
+            "format": 2,
             "name": "t5",
             "net": 134
         },
         {
             "color": "170,170,255,255",
-            "format": 0,
+            "format": 2,
             "name": "t6",
             "net": 168
         },

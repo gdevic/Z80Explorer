@@ -585,24 +585,92 @@
             "net": 3
         },
         {
-            "name": "ctl_cb_active",
-            "net": 263
-        },
-        {
-            "name": "ctl_ed_active",
-            "net": 265
-        },
-        {
-            "name": "ctl_ed_cb_active",
-            "net": 267
-        },
-        {
             "name": "ctl_edx",
             "net": 1248
         },
         {
             "name": "ctl_inc_r",
             "net": 617
+        },
+        {
+            "name": "ctl_load_ir_1",
+            "net": 244
+        },
+        {
+            "name": "ctl_load_ir_2",
+            "net": 255
+        },
+        {
+            "name": "ctl_m1",
+            "net": 259
+        },
+        {
+            "name": "ctl_m2",
+            "net": 140
+        },
+        {
+            "name": "ctl_m3",
+            "net": 1228
+        },
+        {
+            "name": "ctl_m4",
+            "net": 1225
+        },
+        {
+            "name": "ctl_m5",
+            "net": 1221
+        },
+        {
+            "name": "ctl_m6",
+            "net": 241
+        },
+        {
+            "name": "ctl_set_t1",
+            "net": 1111
+        },
+        {
+            "name": "ctl_set_t2",
+            "net": 167
+        },
+        {
+            "name": "ctl_set_t3",
+            "net": 1143
+        },
+        {
+            "name": "ctl_set_t4",
+            "net": 1315
+        },
+        {
+            "name": "ctl_set_t5",
+            "net": 1190
+        },
+        {
+            "name": "ctl_set_t6",
+            "net": 1106
+        },
+        {
+            "name": "ctl_t1",
+            "net": 92
+        },
+        {
+            "name": "ctl_t2",
+            "net": 147
+        },
+        {
+            "name": "ctl_t3",
+            "net": 118
+        },
+        {
+            "name": "ctl_t4",
+            "net": 1271
+        },
+        {
+            "name": "ctl_t5",
+            "net": 1170
+        },
+        {
+            "name": "ctl_t6",
+            "net": 89
         },
         {
             "name": "ctl_tri",
@@ -821,8 +889,24 @@
             "net": 95
         },
         {
+            "name": "last_m",
+            "net": 101
+        },
+        {
             "name": "last_t",
             "net": 215
+        },
+        {
+            "name": "latch_cb",
+            "net": 1255
+        },
+        {
+            "name": "latch_ed",
+            "net": 1259
+        },
+        {
+            "name": "latch_ixiy",
+            "net": 1254
         },
         {
             "name": "load_ir",
@@ -925,6 +1009,18 @@
             "net": 0
         },
         {
+            "name": "pla_cb",
+            "net": 263
+        },
+        {
+            "name": "pla_ed",
+            "net": 265
+        },
+        {
+            "name": "pla_ed_cb",
+            "net": 267
+        },
+        {
             "name": "pla_ir0",
             "net": 1347
         },
@@ -941,8 +1037,16 @@
             "net": 248
         },
         {
+            "name": "pla_ir3n",
+            "net": 449
+        },
+        {
             "name": "pla_ir4",
             "net": 247
+        },
+        {
+            "name": "pla_ir4n",
+            "net": 1446
         },
         {
             "name": "pla_ir5",
@@ -1021,6 +1125,18 @@
             "net": 308
         },
         {
+            "name": "pla22b",
+            "net": 1294
+        },
+        {
+            "name": "pla22c",
+            "net": 1253
+        },
+        {
+            "name": "pla22d",
+            "net": 193
+        },
+        {
             "name": "pla23",
             "net": 289
         },
@@ -1091,6 +1207,10 @@
         {
             "name": "pla39",
             "net": 296
+        },
+        {
+            "name": "pla39b",
+            "net": 3058
         },
         {
             "name": "pla4",
@@ -1351,6 +1471,318 @@
         {
             "name": "pla98",
             "net": 355
+        },
+        {
+            "name": "pla98b",
+            "net": 3049
+        },
+        {
+            "name": "px1399",
+            "net": 1399
+        },
+        {
+            "name": "px1406",
+            "net": 1406
+        },
+        {
+            "name": "px1429",
+            "net": 1429
+        },
+        {
+            "name": "px1444",
+            "net": 1444
+        },
+        {
+            "name": "px1447",
+            "net": 1447
+        },
+        {
+            "name": "px1456",
+            "net": 1456
+        },
+        {
+            "name": "px1457",
+            "net": 1457
+        },
+        {
+            "name": "px1459",
+            "net": 1459
+        },
+        {
+            "name": "px1461",
+            "net": 1461
+        },
+        {
+            "name": "px1463",
+            "net": 1463
+        },
+        {
+            "name": "px1464",
+            "net": 1464
+        },
+        {
+            "name": "px1467",
+            "net": 1467
+        },
+        {
+            "name": "px1483",
+            "net": 1483
+        },
+        {
+            "name": "px1486",
+            "net": 1486
+        },
+        {
+            "name": "px1488",
+            "net": 1488
+        },
+        {
+            "name": "px1489",
+            "net": 1489
+        },
+        {
+            "name": "px1490",
+            "net": 1490
+        },
+        {
+            "name": "px1494",
+            "net": 1494
+        },
+        {
+            "name": "px202",
+            "net": 202
+        },
+        {
+            "name": "px213",
+            "net": 213
+        },
+        {
+            "name": "px232",
+            "net": 232
+        },
+        {
+            "name": "px238",
+            "net": 238
+        },
+        {
+            "name": "px239",
+            "net": 239
+        },
+        {
+            "name": "px242",
+            "net": 242
+        },
+        {
+            "name": "px243",
+            "net": 243
+        },
+        {
+            "name": "px251",
+            "net": 251
+        },
+        {
+            "name": "px3039",
+            "net": 3039
+        },
+        {
+            "name": "px330",
+            "net": 330
+        },
+        {
+            "name": "px360",
+            "net": 360
+        },
+        {
+            "name": "px377",
+            "net": 377
+        },
+        {
+            "name": "px387",
+            "net": 387
+        },
+        {
+            "name": "px391",
+            "net": 391
+        },
+        {
+            "name": "px395",
+            "net": 395
+        },
+        {
+            "name": "px398",
+            "net": 398
+        },
+        {
+            "name": "px400",
+            "net": 400
+        },
+        {
+            "name": "px402",
+            "net": 402
+        },
+        {
+            "name": "px403",
+            "net": 403
+        },
+        {
+            "name": "px404",
+            "net": 404
+        },
+        {
+            "name": "px405",
+            "net": 405
+        },
+        {
+            "name": "px409",
+            "net": 409
+        },
+        {
+            "name": "px411",
+            "net": 411
+        },
+        {
+            "name": "px413",
+            "net": 413
+        },
+        {
+            "name": "px415",
+            "net": 415
+        },
+        {
+            "name": "px416",
+            "net": 416
+        },
+        {
+            "name": "px417",
+            "net": 417
+        },
+        {
+            "name": "px420",
+            "net": 420
+        },
+        {
+            "name": "px421",
+            "net": 421
+        },
+        {
+            "name": "px422",
+            "net": 422
+        },
+        {
+            "name": "px423",
+            "net": 423
+        },
+        {
+            "name": "px424",
+            "net": 424
+        },
+        {
+            "name": "px425",
+            "net": 425
+        },
+        {
+            "name": "px426",
+            "net": 426
+        },
+        {
+            "name": "px427",
+            "net": 427
+        },
+        {
+            "name": "px428",
+            "net": 428
+        },
+        {
+            "name": "px429",
+            "net": 429
+        },
+        {
+            "name": "px430",
+            "net": 430
+        },
+        {
+            "name": "px431",
+            "net": 431
+        },
+        {
+            "name": "px432",
+            "net": 432
+        },
+        {
+            "name": "px433",
+            "net": 433
+        },
+        {
+            "name": "px435",
+            "net": 435
+        },
+        {
+            "name": "px437",
+            "net": 437
+        },
+        {
+            "name": "px438",
+            "net": 438
+        },
+        {
+            "name": "px439",
+            "net": 439
+        },
+        {
+            "name": "px441",
+            "net": 441
+        },
+        {
+            "name": "px442",
+            "net": 442
+        },
+        {
+            "name": "px443",
+            "net": 443
+        },
+        {
+            "name": "px444",
+            "net": 444
+        },
+        {
+            "name": "px445",
+            "net": 445
+        },
+        {
+            "name": "px446",
+            "net": 446
+        },
+        {
+            "name": "px448",
+            "net": 448
+        },
+        {
+            "name": "px455",
+            "net": 455
+        },
+        {
+            "name": "px459",
+            "net": 459
+        },
+        {
+            "name": "px464",
+            "net": 464
+        },
+        {
+            "name": "px467",
+            "net": 467
+        },
+        {
+            "name": "px468",
+            "net": 468
+        },
+        {
+            "name": "px470",
+            "net": 470
+        },
+        {
+            "name": "px478",
+            "net": 478
         },
         {
             "name": "r_p",

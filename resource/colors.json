@@ -19,46 +19,64 @@
             "method": 2
         },
         {
-            "color": "128,192,192,255",
+            "color": "0,0,255,255",
             "enabled": true,
-            "expr": "pla",
+            "expr": "pla_",
+            "method": 1
+        },
+        {
+            "color": "0,0,213,255",
+            "enabled": true,
+            "expr": "_pla_ir",
             "method": 1
         },
         {
             "color": "0,192,0,255",
-            "enabled": true,
+            "enabled": false,
             "expr": "dbus",
             "method": 1
         },
         {
             "color": "128,255,0,255",
-            "enabled": true,
+            "enabled": false,
             "expr": "ubus",
             "method": 1
         },
         {
             "color": "0,255,128,255",
-            "enabled": true,
+            "enabled": false,
             "expr": "vbus",
             "method": 1
         },
         {
             "color": "128,128,255,255",
-            "enabled": true,
+            "enabled": false,
             "expr": ".abus.$|abus.$",
             "method": 2
         },
         {
             "color": "100,0,100,255",
-            "enabled": false,
+            "enabled": true,
             "expr": "0",
             "method": 3
         },
         {
             "color": "145,0,0,255",
-            "enabled": false,
+            "enabled": true,
             "expr": "2",
             "method": 3
+        },
+        {
+            "color": "255,255,0,255",
+            "enabled": false,
+            "expr": "px",
+            "method": 1
+        },
+        {
+            "color": "0,255,0,255",
+            "enabled": true,
+            "expr": "^pla([0-9]|[0-9][0-9])",
+            "method": 2
         }
     ]
 }

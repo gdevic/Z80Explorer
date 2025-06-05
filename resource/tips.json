@@ -5,6 +5,14 @@
             "tip": "Clock tree"
         },
         {
+            "net": 167,
+            "tip": "Sets T2 on the next CLK low"
+        },
+        {
+            "net": 193,
+            "tip": "IX/IY+CB"
+        },
+        {
             "net": 227,
             "tip": "rst, bit 3 at bottom"
         },
@@ -13,12 +21,20 @@
             "tip": "retx"
         },
         {
+            "net": 244,
+            "tip": "Load IR due to latch"
+        },
+        {
             "net": 245,
             "tip": "di/ei"
         },
         {
             "net": 249,
             "tip": "im n"
+        },
+        {
+            "net": 255,
+            "tip": "Load IR due to IXY/CB"
         },
         {
             "net": 258,
@@ -407,6 +423,26 @@
         {
             "net": 754,
             "tip": "Carry Flag state"
+        },
+        {
+            "net": 1106,
+            "tip": "Sets T6 on the next CLK low"
+        },
+        {
+            "net": 1111,
+            "tip": "Sets T1 on the next CLK low"
+        },
+        {
+            "net": 1143,
+            "tip": "Sets T3 on the next CLK low"
+        },
+        {
+            "net": 1190,
+            "tip": "Sets T5 on the next CLK low"
+        },
+        {
+            "net": 1315,
+            "tip": "Sets T4 on the next CLK low"
         }
     ]
 }
