@@ -81,9 +81,8 @@ signals:
     void verticalScrollStopped();       // Signal emitted when vertical scroll stops
 
 private slots:
-    void onLoad();                      // Load view items from a file
+    void onLoad(bool merge);            // Load view items from a file
     void onSaveAs();                    // Save current set of view items with a new file name
-    void onSave();                      // Save current set of view items
     void onPng();                       // Exports window view as a PNG image file
     void onEdit();                      // Edit current set of view items
     void scroll(int deltaX);            // User moved the view, scroll it
@@ -95,7 +94,7 @@ private slots:
 
 private:
     void rebuildList();
-    bool load(QString fileName);        // Loads waveform items
+    bool load(QString fileName, bool merge); // Loads waveform items
     bool save(QString fileName);        // Saves waveform items
 
     void syncScroll(uint index, uint pos);

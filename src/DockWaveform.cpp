@@ -28,9 +28,9 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent), 
 
     // Build the menus for this widget
     QMenu *menu = new QMenu(this);
-    menu->addAction("Load View...", this, SLOT(onLoad()));
-    menu->addAction("Save View As...", this, SLOT(onSaveAs()));
-    menu->addAction("Save View", this, SLOT(onSave()));
+    menu->addAction("Load...", this, [=]() { onLoad(false); });
+    menu->addAction("Merge...", this, [=]() { onLoad(true); });
+    menu->addAction("Save As...", this, SLOT(onSaveAs()));
     menu->addAction("Export PNG...", this, SLOT(onPng()));
     ui->btFile->setMenu(menu);
 
@@ -55,7 +55,7 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent), 
     // Load default viewlist for this window id
     QString resDir = settings.value("ResourceDir").toString();
     m_fileViewlist = settings.value("waveform-" + sid, resDir + "/waveform-" + sid + ".json").toString();
-    load(m_fileViewlist);
+    load(m_fileViewlist, false);
 
     rebuildList();
 }
@@ -73,13 +73,13 @@ DockWaveform::~DockWaveform()
     delete ui;
 }
 
-void DockWaveform::onLoad()
+void DockWaveform::onLoad(bool merge)
 {
     // Prompts the user to select which waveform view configuration file to load
     QString fileName = QFileDialog::getOpenFileName(this, "Select a waveform view configuration file to load", "", "waveform (*.json);;All files (*.*)");
     if (!fileName.isEmpty())
     {
-        if (!load(fileName))
+        if (!load(fileName, merge))
             QMessageBox::critical(this, "Error", "Selected file is not a valid viewlist file");
         rebuildList();
     }
@@ -94,13 +94,6 @@ void DockWaveform::onSaveAs()
         if (!save(fileName))
             QMessageBox::critical(this, "Error", "Unable to save waveform view configuration to " + fileName);
     }
-}
-
-void DockWaveform::onSave()
-{
-    Q_ASSERT(!m_fileViewlist.isEmpty());
-    if (!save(m_fileViewlist))
-        QMessageBox::critical(this, "Error", "Unable to save waveform view configuration to " + m_fileViewlist);
 }
 
 void DockWaveform::onPng()
@@ -323,7 +316,7 @@ void DockWaveform::onEnlarge(int delta)
 /*
  * Loads waveform view configuration from a file
  */
-bool DockWaveform::load(QString fileName)
+bool DockWaveform::load(QString fileName, bool merge)
 {
     qInfo() << "Loading waveform view configuration from" << fileName;
     QFile loadFile(fileName);
@@ -336,8 +329,11 @@ bool DockWaveform::load(QString fileName)
         if (json.contains("waveform") && json["waveform"].isArray())
         {
             QJsonArray array = json["waveform"].toArray();
-            m_view.clear();
-            m_view.reserve(array.size());
+            if (!merge)
+            {
+                m_view.clear();
+                m_view.reserve(array.size());
+            }
 
             for (int i = 0; i < array.size(); i++)
             {
@@ -375,6 +371,7 @@ bool DockWaveform::load(QString fileName)
 
 /*
  * Saves waveform view configuration to a file
+ * Note: Saving of waveform items function is duplicated in DialogEditWaveform.cpp where we save only selected items
  */
 bool DockWaveform::save(QString fileName)
 {
