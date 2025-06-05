@@ -2,6 +2,10 @@
 #include "DialogEditWaveform.h"
 #include "ui_DialogEditWaveform.h"
 #include <QColorDialog>
+#include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QMessageBox>
 #include <QSettings>
 
 DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) :
@@ -25,6 +29,7 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     connect(ui->btDown, &QPushButton::clicked, this, &DialogEditWaveform::onDown);
     connect(ui->btColor, &QPushButton::clicked, this, &DialogEditWaveform::onColor);
     connect(ui->comboFormat, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogEditWaveform::onFormatIndexChanged);
+    connect(ui->btSaveAs, &QPushButton::clicked, this, &DialogEditWaveform::onSaveAs);
 
     // Populate the view list widget with the given list of view items
     for (auto &i : list)
@@ -101,6 +106,7 @@ void DialogEditWaveform::viewSelChanged()
         ui->comboFormat->addItems(::controller.getFormats(view.name));
         ui->comboFormat->setCurrentIndex(format);
     }
+    ui->btSaveAs->setEnabled(sel.size());
 }
 
 void DialogEditWaveform::onFormatIndexChanged(int index)
@@ -203,5 +209,42 @@ void DialogEditWaveform::onColor()
             view.color = col;
             set(i, view);
         }
+    }
+}
+
+/*
+ * Saves selected waveform items to a file
+ * Note: Saving of waveform items function is duplicated in DockWaveform.cpp where we save all items
+ */
+void DialogEditWaveform::onSaveAs()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Save selected waveform items to a file", "", "waveform (*.json);;All files (*.*)");
+    if (!fileName.isEmpty())
+    {
+        qInfo() << "Saving selected waveform items to" << fileName;
+        QList<QListWidgetItem *> sel = ui->listView->selectedItems();
+
+        QFile saveFile(fileName);
+        if (saveFile.open(QIODevice::WriteOnly | QFile::Text))
+        {
+            QJsonObject json;
+            QJsonArray jsonArray;
+            for (auto vi : sel)
+            {
+                viewitem a = get(vi);
+                QJsonObject obj;
+                obj["name"] = a.name;
+                obj["net"] = a.net;
+                obj["format"] = int(a.format);
+                obj["color"] = QString("%1,%2,%3,%4").arg(a.color.red()).arg(a.color.green()).arg(a.color.blue()).arg(a.color.alpha());
+                jsonArray.append(obj);
+            }
+            json["waveform"] = jsonArray;
+
+            QJsonDocument saveDoc(json);
+            saveFile.write(saveDoc.toJson());
+        }
+        else
+            QMessageBox::critical(this, "Error", "Unable to save waveform items to " + fileName);
     }
 }

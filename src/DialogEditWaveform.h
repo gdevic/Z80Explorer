@@ -19,7 +19,7 @@ public:
     explicit DialogEditWaveform(QWidget *parent, QVector<viewitem> list);
     ~DialogEditWaveform();
 
-    void getList(QVector<viewitem> &list); // Returns (by setting "list") the edited list of view items
+    void getList(QVector<viewitem> &list); // Returns the edited list of view items
 
 private slots:
     void onAdd();
@@ -30,15 +30,15 @@ private slots:
     void allSelChanged();
     void viewSelChanged();
     void onFormatIndexChanged(int);
-
-private:
-    // current working viewitem data is kept in each list widget item as a QVariant field data()
-    viewitem get(QListWidgetItem *item);
-    void set(QListWidgetItem *item, viewitem &view);
-    void append(viewitem &view);
+    void onSaveAs();
 
 private:
     Ui::DialogEditWaveform *ui;
+
+    // The current working viewitem data is kept in each list widget item as a QVariant field data()
+    viewitem get(QListWidgetItem *item);
+    void set(QListWidgetItem *item, viewitem &view);
+    void append(viewitem &view);
 };
 
 #endif // DIALOGEDITWAVEFORM_H
