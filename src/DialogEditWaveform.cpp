@@ -91,10 +91,9 @@ void DialogEditWaveform::viewSelChanged()
     ui->btUp->setEnabled(sel.size());
     ui->btDown->setEnabled(sel.size());
     ui->btColor->setEnabled(sel.size());
-    // We can modify only one format at a time
-    ui->comboFormat->setEnabled(sel.size() == 1);
+    ui->comboFormat->setEnabled(sel.size());
     ui->comboFormat->clear();
-    if (sel.size() == 1)
+    if (sel.size())
     {
         viewitem view = get(sel[0]);
         // Store the format value since addItems will call IndexChanged and reset it in the widget
@@ -109,10 +108,12 @@ void DialogEditWaveform::onFormatIndexChanged(int index)
     if (index >= 0)
     {
         QList<QListWidgetItem *> sel = ui->listView->selectedItems();
-        Q_ASSERT(sel.size() == 1);
-        viewitem view = get(sel[0]);
-        view.format = index;
-        set(sel[0], view);
+        for (auto &i : sel)
+        {
+            viewitem view = get(i);
+            view.format = index;
+            set(i, view);
+        }
     }
 }
 
