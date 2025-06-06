@@ -176,9 +176,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="btReset">
+       <widget class="QPushButton" name="btReload">
         <property name="text">
-         <string>Reset</string>
+         <string>Reload</string>
         </property>
        </widget>
       </item>
@@ -207,7 +207,7 @@
   <tabstop>checkOptIntermediate</tabstop>
   <tabstop>checkOptClockGate</tabstop>
   <tabstop>checkOptCoalesce</tabstop>
-  <tabstop>btReset</tabstop>
+  <tabstop>btReload</tabstop>
   <tabstop>editTermNodes</tabstop>
  </tabstops>
  <resources/>

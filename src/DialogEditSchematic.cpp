@@ -1,13 +1,10 @@
 #include "DialogEditSchematic.h"
 #include "ui_DialogEditSchematic.h"
+#include <QFile>
 #include <QSettings>
 
-// Default list of terminating nodes
-// XXX This list should probably be part of the Z80 json file set and not hard coded into the app's settings
-static const QString termNodes =
-    "ubus*, vbus*, pla*, _pla*, ab*, db*,\n"
-    "t1, t2, t3, t4, t5, t6, m1, m2, m3, m4, m5, m6,\n"
-    "int_reset";
+// Initial and failsafe list of terminating nodes
+static QString termNodes("pla*, _pla*, t*, m*");
 
 DialogEditSchematic::DialogEditSchematic(QWidget *parent)
     : QDialog(parent)
@@ -26,9 +23,12 @@ DialogEditSchematic::DialogEditSchematic(QWidget *parent)
     ui->checkOptSingleInput->setChecked(settings.value("schematicOptSingleInput").toBool());
     ui->editTermNodes->setPlainText(settings.value("schematicTermNodes").toString());
 
-    // Clicking on the Reset button reverts the list of terminating nodes to the default suggested list
-    connect(ui->btReset, &QPushButton::clicked, this, [=]()
-            { ui->editTermNodes->setPlainText(termNodes);} );
+    // Clicking on the Reload button reloads the list of terminating nodes from the ini file
+    connect(ui->btReload, &QPushButton::clicked, this, [=]()
+    {
+        if (load("schem.ini", termNodes))
+            ui->editTermNodes->setPlainText(termNodes);
+    });
 }
 
 DialogEditSchematic::~DialogEditSchematic()
@@ -64,8 +64,40 @@ void DialogEditSchematic::init()
     if (!settings.contains("schematicOptSingleInput"))
         settings.setValue("schematicOptSingleInput", true);
 
+    // Load the list of terminating nodes but apply it only if the settings does not have it
+    load("schem.ini", termNodes);
+
     if (!settings.contains("schematicTermNodes"))
         settings.setValue("schematicTermNodes", termNodes);
+}
+
+/*
+ * Load the list of terminating nodes from the ini file
+ */
+bool DialogEditSchematic::load(const QString &fileName, QString &loadedText)
+{
+    qInfo() << "Loading schematic' terminating nets from" << fileName;
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QStringList validLines;
+        QTextStream in(&file);
+        while (!in.atEnd())
+        {
+            QString line = in.readLine();
+            QString trimmedLine = line.trimmed();
+            // Ignore comment lines or empty lines
+            if (trimmedLine.startsWith(';') || trimmedLine.isEmpty())
+                continue;
+            validLines.append(line);
+        }
+        file.close();
+        loadedText = validLines.join("\n");
+        return true;
+    }
+    else
+        qWarning() << "Unable to load" << fileName;
+    return false;
 }
 
 /*

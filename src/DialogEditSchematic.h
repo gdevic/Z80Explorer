@@ -22,6 +22,9 @@ private slots:
 
 private:
     Ui::DialogEditSchematic *ui;
+
+    // Load the list of terminating nodes from the ini file
+    static bool load(const QString &filePath, QString &loadedText);
 };
 
 #endif // DIALOGEDITSCHEMATIC_H
