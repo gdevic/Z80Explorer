@@ -67,8 +67,8 @@
             "method": 3
         },
         {
-            "color": "255,255,0,255",
-            "enabled": false,
+            "color": "85,170,255,255",
+            "enabled": true,
             "expr": "px",
             "method": 1
         },

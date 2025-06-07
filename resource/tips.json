@@ -5,6 +5,10 @@
             "tip": "Clock tree"
         },
         {
+            "net": 135,
+            "tip": "NMI Acknowledge"
+        },
+        {
             "net": 167,
             "tip": "Sets T2 on the next CLK low"
         },
