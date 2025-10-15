@@ -33,8 +33,17 @@ Thumbs.db
 /.qmake.stash
 zout
 
-# qtcreator generated files
+# qmake generated files
 *.pro.user*
+
+# cmake generated files
+CMakeLists.txt.user*
+
+# qtcreator generated build folder
+/build
+
+# installation folder
+/installation
 
 # xemacs temporary files
 *.flc
