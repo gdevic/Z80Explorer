@@ -104,11 +104,14 @@ qt_add_executable(Z80Explorer
 	
     src/Z80Explorer.rc
 
+    installer/config.xml
+    installer/z80explorer.package.xml
+
     resource/init.js
 
     .gitignore
 
-    LICENSE.txt
+    LICENSE
     README.md
 )
 
@@ -138,11 +141,8 @@ if (WIN32)
             WINDOWS
             _CRT_SECURE_NO_WARNINGS
     )
-endif()
-
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set_property(CACHE
-        CMAKE_INSTALL_PREFIX PROPERTY VALUE "${CMAKE_CURRENT_BINARY_DIR}/installation"
+    set(CMAKE_INSTALL_PREFIX
+        "${CMAKE_CURRENT_BINARY_DIR}/installer/packages/com.baltazarstudios.z80explorer/data"
     )
 endif()
 
@@ -204,8 +204,32 @@ install(DIRECTORY
 
 if (WIN32)
     install(FILES cleanup.reg TYPE DATA)
+    install(FILES installer/config.xml DESTINATION ../../../config)
+    install(FILES installer/z80explorer.package.xml DESTINATION ../meta RENAME package.xml)
+    install(FILES LICENSE DESTINATION ../meta)
     install(CODE [=[
         file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}/qml")
         file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}/bin")
     ]=])
 endif()
+
+add_custom_command(
+    OUTPUT installer/Z80ExplorerInstaller.exe
+    MAIN_DEPENDENCY "${CMAKE_INSTALL_PREFIX}/Z80Explorer.exe"
+    DEPENDS "installer/config.xml" "installer/z80explorer.package.xml"
+    COMMENT "Creating the installer"
+    COMMAND "C:/Qt/Tools/QtInstallerFramework/4.10/bin/binarycreator.exe"
+    ARGS
+        #--verbose
+        -c installer/config/config.xml
+        -p installer/packages
+        installer/Z80ExplorerInstaller.exe
+)
+
+add_custom_target(installer
+    DEPENDS installer/Z80ExplorerInstaller.exe
+)
+
+add_dependencies(installer install)
+
+

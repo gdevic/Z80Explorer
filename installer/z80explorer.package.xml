@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>The Z80 Explorer Application</DisplayName>
+    <Description>Install the Z80 Explorer application.</Description>
+    <Version>0.1.0-1</Version>
+    <ReleaseDate>2010-09-21</ReleaseDate>
+    <Licenses>
+        <License name="CC BY-NC-SA 4.0" file="LICENSE" />
+    </Licenses>
+    <Default>true</Default>
+    <Operations>
+        <Operation name="CreateShortcut">
+            <Argument>@TargetDir@/Z80Explorer.exe</Argument>
+            <Argument>@StartMenuDir@/Z80Explorer</Argument>
+            <Argument>workingDirectory=@TargetDir@</Argument>
+            <Argument>description=Open Z80 Explorer</Argument>
+        </Operation>
+    </Operations>
+</Package>
