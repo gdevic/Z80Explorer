@@ -686,10 +686,10 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
             }
             break;
         case Qt::Key_X:
-            if (shift)
+            if (shift) {
                 ::controller.getChip().toggleAltSegdef();
-            else
-            {
+                update();
+            } else {
                 m_drawNets = !m_drawNets;
                 m_ov->setButton(0, m_drawNets);
             }
