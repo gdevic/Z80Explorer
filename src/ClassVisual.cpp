@@ -131,29 +131,34 @@ bool ClassVisual::loadImages(QString dir)
     };
 
     QEventLoop e; // Don't freeze the GUI
-    QImage img;
-    m_img.clear();
-    for (auto &image : files)
-    {
+
+    QtConcurrent::mapped(files, [dir](const QString &image) {
+        QImage img;
         QString png_file = dir + "/z80_" + image + ".png";
-        qInfo() << "Loading" + png_file;
-        e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
-        if (img.load(png_file))
-        {
+        qInfo() << "Loading" << png_file;
+        if (img.load(png_file)) {
             int w = img.width();
             int h = img.height();
             int d = img.depth();
             QImage::Format f = img.format();
-            qInfo() << "Image w=" << w << "h=" << h << "depth=" << d << "format=" << f;
+            qInfo() << "Image" << image << "w=" << w << "h=" << h << "depth=" << d << "format=" << f;
             img.setText("name", image); // Set the key with the layer/image name
-            m_img.append(img);
+        } else {
+            qCritical() << "Error loading" << image;
         }
-        else
-        {
-            qCritical() << "Error loading" + image;
-            return false;
+        return img;
+    }).then([this, &e](QFuture<QImage> images) {
+        bool result = true;
+        for (auto &image : images) {
+            result &= !image.isNull();
+            m_img.append(image);
         }
-    }
+        e.exit(result);
+    });
+
+    if (!e.exec())
+        return false;
+
     m_sx = m_img[0].width();
     m_sy = m_img[0].height();
     m_mapsize = m_sx * m_sy;
