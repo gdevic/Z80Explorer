@@ -530,17 +530,17 @@ bool ClassVisual::convertToGrayscale()
 {
     qInfo() << "Converting images to grayscale format...";
     QEventLoop e; // Don't freeze the GUI
-    QVector<QImage> new_images;
-    for (auto &image : m_img)
-    {
+    QtConcurrent::mapped(m_img, [this](const QImage &image) -> QImage {
         qInfo() << "Processing image" << image << image.text("name");
-        e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
         QImage new_image = image.convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
         new_image.setText("name", "bw." + image.text("name"));
-        new_images.append(new_image);
-    }
-    m_img.append(new_images);
-    return true;
+        return new_image;
+    }).then([this, &e](QFuture<QImage> result) {
+        for (const QImage &image : result)
+            m_img.append(image);
+        e.exit(true);
+    });
+    return e.exec();
 }
 
 /*
