@@ -286,14 +286,12 @@ bool ClassVisual::loadTransdefs(QString dir)
                     tran_t i = tnum.toUInt();
                     Q_ASSERT(i < MAX_TRANS);
 
-                    transvdef t;
+                    transvdef &t = m_transvdefs.emplaceBack();
                     t.id = i;
                     t.gatenet = list[1].toUInt();
                     // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
                     // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
                     t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt() - 1, y - list[6].toInt() - 1));
-
-                    m_transvdefs.append(t);
                 }
                 else
                     qWarning() << "Invalid line" << list;
