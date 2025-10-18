@@ -163,18 +163,31 @@ bool ClassVisual::loadImages(QString dir)
 }
 
 /*
- * Loads segdefs.js and segvdefs
- * The first file contains segment definitions from the Visual 6502 team for this processor
- * I had processed that file further to merge each of the nets into single path and we use that
- * as the alternate visual segment representation
+ * Loads segdefs.js and merge each of the nets into a single path to use as the alternate
+ * visual segment representation.
+ * The file contains segment definitions from the Visual 6502 team for this processor
  */
 bool ClassVisual::loadSegdefs(QString dir)
 {
-    if (!loadSegdefsJs(dir))
-        return false;
-    // Load processed and smoother paths; don't care if the file "segvdefs.bin" does not exist
-    loadSegvdefs(dir);
-    return true;
+    QEventLoop e;
+    QFuture<void> future = QtConcurrent::run([this, dir, &e]() {
+        if (!loadSegdefsJs(dir))
+            return e.exit(false);
+        qInfo() << "Merging segment shapes";
+        QElapsedTimer timer;
+        timer.start();
+        // Concurrently simplify all paths
+        m_segvdefs2 = m_segvdefs;
+        m_segvdefs2.detach();
+        QtConcurrent::map(m_segvdefs, [this](const segvdef &s) {
+            qsizetype i = &s - m_segvdefs.data();
+            m_segvdefs2[i].path = s.path.simplified();
+        }).then([this, timer = std::move(timer), &e]() {
+            qInfo() << "Merging took" << "took" << timer.elapsed() / 1000.0 << "s";
+            e.exit(true);
+        });
+    });
+    return e.exec();
 }
 
 /*
@@ -1218,86 +1231,11 @@ void ClassVisual::experimental(int n)
 
 /*
  * Run with the command "ex(1)"
- * Merges net paths for a better visual display
- * This code merges paths for each net so nets look better, but this process can take > 2 min on a fast PC
- * Hence, the merged nets have been cached in the file "segvdefs.bin"
+| * Currently unused.
  */
 void ClassVisual::experimental_1()
 {
-    qInfo() << "Experimental: merge visual segment paths. This process is running in the background and may take a few minutes to complete.";
-    qInfo() << "After it is done (you should see the message 'Saving segvdefs'), restart the application to use the new, smoother, paths.";
-
-    // Code in this block will run in another thread
-    QFuture<void> future = QtConcurrent::run([=]()
-    {
-        for (auto &seg : m_segvdefs)
-            seg.path = seg.path.simplified();
-
-        // Save created visual paths to a file
-        {
-            QSettings settings;
-            QString resDir = settings.value("ResourceDir").toString();
-            saveSegvdefs(resDir);
-        }
-    });
-}
-
-/*
- * Saves visual paths to a file
- */
-bool ClassVisual::saveSegvdefs(QString dir)
-{
-    QString fileName = dir + "/segvdefs.bin";
-    qInfo() << "Saving segvdefs to" << fileName;
-    QFile saveFile(fileName);
-    if (saveFile.open(QIODevice::WriteOnly))
-    {
-        QDataStream out(&saveFile);
-        out << m_segvdefs.count();
-        for (auto &seg : m_segvdefs)
-            out << seg.netnum << seg.path;
-        return true;
-    }
-    qWarning() << "Unable to save" << fileName;
-    return false;
-}
-
-/*
- * Loads visual paths from a file
- */
-bool ClassVisual::loadSegvdefs(QString dir)
-{
-    QString fileName = dir + "/segvdefs.bin";
-    qInfo() << "Loading segvdefs from" << fileName;
-    QFile loadFile(fileName);
-    if (loadFile.open(QIODevice::ReadOnly))
-    {
-        m_segvdefs2 = m_segvdefs;
-
-        try // May throw an exception if the data is not formatted exactly as expected
-        {
-            QDataStream in(&loadFile);
-            int count, num_paths;
-            in >> count;
-            if (count == m_segvdefs2.count())
-            {
-                while (count-- > 0)
-                {
-                    net_t netnum;
-                    in >> netnum;
-                    in >> m_segvdefs2[netnum].path;
-                }
-                return true;
-            }
-            qWarning() << "Incorrect number of segvdefs!";
-        }
-        catch (...)
-        {
-            qWarning() << "Invalid data format";
-        }
-    }
-    qWarning() << "Unable to load" << fileName;
-    return false;
+    qWarning() << "ex(1) doesn't do anything since segment merging is done on startup.";
 }
 
 /******************************************************************************
