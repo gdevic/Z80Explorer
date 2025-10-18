@@ -187,6 +187,7 @@ bool ClassVisual::loadSegdefsJs(QString dir)
     QFile file(segdefs_file);
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
+        int count = 0;
         QTextStream in(&file);
         QString line;
         QStringList list;
@@ -202,28 +203,26 @@ bool ClassVisual::loadSegdefsJs(QString dir)
                 list = line.split(',');
                 if (list.length() > 4)
                 {
-                    segvdef s;
                     net_t key = list[0].toUInt();
-                    QPainterPath path;
+                    if (m_segvdefs.size() <= key)
+                        m_segvdefs.resize(key + 1);
+
+                    segvdef &s = m_segvdefs[key];
+                    if (!s.netnum) {
+                        s.netnum = key;
+                        count++;
+                    }
+
                     for (int i = 3; i < list.length() - 1; i += 2)
                     {
                         uint x = list[i].toUInt();
                         uint y = m_img[0].height() - list[i + 1].toUInt() - 1;
                         if (i == 3)
-                            path.moveTo(x, y);
+                            s.path.moveTo(x, y);
                         else
-                            path.lineTo(x, y);
+                            s.path.lineTo(x, y);
                     }
-                    path.closeSubpath();
-
-                    if (!m_segvdefs.contains(key))
-                    {
-                        s.netnum = key;
-                        s.paths.append(path);
-                        m_segvdefs[key] = s;
-                    }
-                    else
-                        m_segvdefs[key].paths.append(path);
+                    s.path.closeSubpath();
                 }
                 else
                     qWarning() << "Invalid line" << line;
@@ -231,7 +230,7 @@ bool ClassVisual::loadSegdefsJs(QString dir)
             else
                 qDebug() << "Skipping" << line;
         }
-        qInfo() << "Loaded" << m_segvdefs.count() << "segment visual definitions";
+        qInfo() << "Loaded" << count << "segment visual definitions";
         return true;
     }
     else
@@ -398,15 +397,19 @@ template const QVector<net_t> ClassVisual::getNetsAt<true>(int, int);
 template const QVector<net_t> ClassVisual::getNetsAt<false>(int, int);
 
 /*
- * Returns the segment visual definition, zero if not found
+ * Returns the segment visual definition, or an empty definition if there's
+ * no net with such number. The m_segvdefs members are sparse and have empty
+ * definitions for segments that don't exist but are within the length of the
+ * vector.
  */
 const segvdef *ClassVisual::getSegment(net_t net)
 {
     static const segvdef empty;
-    if (use_alt_segdef && m_segvdefs2.contains(net))
-        return &m_segvdefs2[net];
+    Q_ASSERT(m_segvdefs2.size() == m_segvdefs.size());
+    if (net < m_segvdefs.size())
+        return use_alt_segdef ? &m_segvdefs2[net] : &m_segvdefs[net];
     else
-        return m_segvdefs.contains(net) ? &m_segvdefs[net] : &empty;
+        return &empty;
 }
 
 /*
@@ -742,8 +745,8 @@ void ClassVisual::drawAllNetsAsInactive(QString source, QString dest)
 
     for (uint i = 3; i < ::controller.getSimZ80().getNetlistCount(); i++)
     {
-        for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-            painter.drawPath(path);
+        const auto &path = ::controller.getChip().getSegment(i)->path;
+        painter.drawPath(path);
     }
 
     img.setText("name", dest);
@@ -767,9 +770,9 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
 
     for (uint i = 2; i < ::controller.getSimZ80().getNetlistCount(); i++)
     {
+        const auto &path = ::controller.getChip().getSegment(i)->path;
         painter.setBrush(::controller.getColors().get(i));
-        for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-            painter.drawPath(path);
+        painter.drawPath(path);
     }
 
     img.setText("name", dest);
@@ -830,12 +833,10 @@ void ClassVisual::drawNets(QPainter &painter, const QRect &viewport, bool order,
 
             if (active)
             {
-                for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-                {
-                    // Draw only paths that are not completely outside the viewing area
-                    if (QRectF(viewport).intersects(path.boundingRect()))
-                        painter.drawPath(path);
-                }
+                const auto &path = ::controller.getChip().getSegment(i)->path;
+                // TODO: Draw only *sub*-paths that are not completely outside the viewing area
+                if (QRectF(viewport).intersects(path.boundingRect()))
+                    painter.drawPath(path);
             }
         }
     }
@@ -846,12 +847,10 @@ void ClassVisual::drawNets(QPainter &painter, const QRect &viewport, bool order,
     {
         if (::controller.getSimZ80().isNetOrphan(i))
         {
-            for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-            {
-                // Draw only paths that are not completely outside the viewing area
-                if (QRectF(viewport).intersects(path.boundingRect()))
-                    painter.drawPath(path);
-            }
+            const auto &path = ::controller.getChip().getSegment(i)->path;
+            // TODO: Draw only *sub*-paths that are not completely outside the viewing area
+            if (QRectF(viewport).intersects(path.boundingRect()))
+                painter.drawPath(path);
         }
     }
 }
@@ -1231,15 +1230,8 @@ void ClassVisual::experimental_1()
     // Code in this block will run in another thread
     QFuture<void> future = QtConcurrent::run([=]()
     {
-        QPainterPath path;
         for (auto &seg : m_segvdefs)
-        {
-            path.clear();
-            for (auto &p : seg.paths)
-                path |= p;
-            seg.paths.clear();
-            seg.paths.append(path.simplified());
-        }
+            seg.path = seg.path.simplified();
 
         // Save created visual paths to a file
         {
@@ -1263,12 +1255,7 @@ bool ClassVisual::saveSegvdefs(QString dir)
         QDataStream out(&saveFile);
         out << m_segvdefs.count();
         for (auto &seg : m_segvdefs)
-        {
-            out << seg.netnum;
-            out << seg.paths.count();
-            for (auto &path : seg.paths)
-                out << path;
-        }
+            out << seg.netnum << seg.path;
         return true;
     }
     qWarning() << "Unable to save" << fileName;
@@ -1296,18 +1283,9 @@ bool ClassVisual::loadSegvdefs(QString dir)
             {
                 while (count-- > 0)
                 {
-                    segvdef segvdef;
-                    in >> segvdef.netnum >> num_paths;
-                    while (num_paths-- > 0)
-                    {
-                        QPainterPath path;
-                        in >> path;
-                        segvdef.paths.append(path);
-                    }
-
-                    if (m_segvdefs2.contains(segvdef.netnum))
-                        m_segvdefs2.remove(segvdef.netnum);
-                    m_segvdefs2[segvdef.netnum] = segvdef;
+                    net_t netnum;
+                    in >> netnum;
+                    in >> m_segvdefs2[netnum].path;
                 }
                 return true;
             }

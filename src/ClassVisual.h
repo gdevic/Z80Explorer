@@ -3,10 +3,10 @@
 
 #include "AppTypes.h"
 #include <QFont>
-#include <QHash>
 #include <QImage>
 #include <QObject>
 #include <QPainterPath>
+#include <QVector>
 
 // Contains visual definition of a transistor
 struct transvdef
@@ -21,7 +21,8 @@ struct transvdef
 struct segvdef
 {
     net_t netnum {};                    // A non-zero net number
-    QVector<QPainterPath> paths {};     // Outline of the segment topology as a set of QPainter paths
+    QPainterPath path;                  // Outline of the segment topology, thus may contain multiple
+                                        // sub-paths
 };
 
 // Contains information about a latch
@@ -76,8 +77,8 @@ private:
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
     bool m_transBaseState[MAX_TRANS];   // Base state of each transistor
     uchar m_transFlipCount[MAX_TRANS];  // Number of times each transistor changed its state
-    QHash<net_t, segvdef> m_segvdefs;   // Hash of segment visual definitions, key is the segment net number
-    QHash<net_t, segvdef> m_segvdefs2;  // Alternate segment visual definitions
+    QVector<segvdef> m_segvdefs;        // List of segment visual definitions, index is the segment net number
+    QVector<segvdef> m_segvdefs2;       // Alternate segment visual definitions
     bool use_alt_segdef {false};        // Use alternate segment definitions
     QVector<latchdef> m_latches;        // Array of latches
     QVector<QImage> m_img;              // Chip layer images
