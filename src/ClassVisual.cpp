@@ -31,6 +31,15 @@ ClassVisual::ClassVisual()
     connect(&::controller, &ClassController::onRunStopped, this, &ClassVisual::onRunStopped);
 }
 
+void ClassVisual::toggleAltSegdef()
+{
+    use_alt_segdef = !use_alt_segdef;
+    if (use_alt_segdef)
+        qInfo() << "Alternate segment definitions are in use";
+    else
+        qInfo() << "Primary segment definitions are in use";
+}
+
 void ClassVisual::onRunStopped()
 {
     // Count the number of times each transistor has changed its state from the base (initial) state

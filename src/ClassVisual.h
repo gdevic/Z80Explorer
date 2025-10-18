@@ -53,8 +53,7 @@ public:
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QStringList getImageNames();    // Returns a list of layer / image names
     const segvdef *getSegment(net_t net); // Returns the segment visual definition, nullptr if not found
-    void toggleAltSegdef()                // Toggle alternate segment definition as active
-        { use_alt_segdef = !use_alt_segdef; }
+    void toggleAltSegdef();               // Toggle alternate segment definition as active
     const transvdef *getTrans(tran_t id); // Returns transistor visual definition, nullptr if not found
     tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
     QString getFeaturesAt(int x, int y);  // Returns the list of features at the specified image coordinates
