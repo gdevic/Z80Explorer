@@ -22,7 +22,7 @@ bool ClassController::init(QJSEngine *sc)
 
     connect(this, &ClassController::shutdown, &m_annotate, &ClassAnnotate::onShutdown);
     connect(this, &ClassController::shutdown, &m_colors, &ClassColors::onShutdown);
-    connect(this, &ClassController::shutdown, &m_script, &ClassScript::stop);
+    connect(this, &ClassController::shutdown, &m_script, &ClassScript::stopx);
     connect(this, &ClassController::shutdown, &m_simz80, &ClassSimZ80::onShutdown);
     connect(this, &ClassController::shutdown, &m_tips, &ClassTip::onShutdown);
     connect(this, &ClassController::shutdown, &m_watch, &ClassWatch::onShutdown);
