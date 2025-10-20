@@ -158,14 +158,14 @@ void ClassScript::ex(uint n)
  * Run external application
  * Returns a QVariantMap with success status, output, error, and exit code
  */
-QVariantMap ClassScript::execApp(const QString &path, const QStringList &args, bool synchronous)
+QJSValue ClassScript::execApp(const QString &path, const QStringList &args, bool synchronous)
 {
-    QVariantMap result;
-    result["success"] = false;
-    result["stdout"] = "";
-    result["stderr"] = "";
-    result["errorString"] = "";
-    result["exitCode"] = -1; // Default error exit code
+    QJSValue result = m_engine->newObject();
+    result.setProperty("success", false);
+    result.setProperty("stdout", "");
+    result.setProperty("stderr", "");
+    result.setProperty("errorString", "");
+    result.setProperty("exitCode", -1); // Default error exit code
 
     // Using a new QProcess for each call is generally safer and simpler for this use case
     QProcess process(this);
@@ -184,26 +184,26 @@ QVariantMap ClassScript::execApp(const QString &path, const QStringList &args, b
         if (!process.waitForStarted())
         {
             qWarning() << "Failed to start process:" << process.errorString();
-            result["errorString"] = process.errorString();
-            result["success"] = false;
+            result.setProperty("errorString", process.errorString());
+            result.setProperty("success", false);
             return result;
         }
 
         if (process.waitForFinished(-1)) // -1 waits indefinitely
         {
-            result["stdout"] = QString::fromUtf8(process.readAllStandardOutput());
-            result["stderr"] = QString::fromUtf8(process.readAllStandardError());
-            result["exitCode"] = process.exitCode();
-            result["success"] = (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0);
+            result.setProperty("stdout", QString::fromUtf8(process.readAllStandardOutput()));
+            result.setProperty("stderr", QString::fromUtf8(process.readAllStandardError()));
+            result.setProperty("exitCode", process.exitCode());
+            result.setProperty("success", (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0));
             qDebug() << "Synchronous execution finished. Exit code:" << process.exitCode();
-            qDebug() << "Stdout:" << result["stdout"].toString();
-            qDebug() << "Stderr:" << result["stderr"].toString();
+            qDebug() << "Stdout:" << result.property("stdout").toString();
+            qDebug() << "Stderr:" << result.property("stderr").toString();
         }
         else
         {
             qWarning() << "Synchronous execution failed or timed out:" << process.errorString();
-            result["errorString"] = process.errorString();
-            result["stderr"] = QString::fromUtf8(process.readAllStandardError()); // Capture any error output
+            result.setProperty("errorString", process.errorString());
+            result.setProperty("stderr", QString::fromUtf8(process.readAllStandardError())); // Capture any error output
         }
     }
     else // Asynchronous
@@ -219,15 +219,15 @@ QVariantMap ClassScript::execApp(const QString &path, const QStringList &args, b
         if (started)
         {
             qDebug() << "Asynchronous process started successfully (detached).";
-            result["success"] = true;
-            result["message"] = "Process started asynchronously (detached).";
+            result.setProperty("success", true);
+            result.setProperty("message", "Process started asynchronously (detached).");
             // Note: For detached processes, getting exit code or output directly back in this call is not possible.
         }
         else
         {
             qWarning() << "Failed to start asynchronous process:" << process.errorString();
-            result["errorString"] = process.errorString();
-            result["success"] = false;
+            result.setProperty("errorString", process.errorString());
+            result.setProperty("success", false);
         }
     }
     return result;
