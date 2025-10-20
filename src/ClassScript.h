@@ -22,7 +22,7 @@ public slots:
     void exec(QString cmd, bool echo = true); // Evaluates and runs commands
 
 public:
-    Q_INVOKABLE void load(QString fileName);
+    Q_INVOKABLE void load(QString fileName = {});
     Q_INVOKABLE void run(uint hcycles);
     Q_INVOKABLE void stop();
     Q_INVOKABLE void reset();
