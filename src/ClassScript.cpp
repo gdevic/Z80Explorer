@@ -1,5 +1,6 @@
 #include "ClassScript.h"
 #include <ClassController.h>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
 #include <QProcess>
@@ -160,6 +161,8 @@ void ClassScript::ex(uint n)
  */
 QJSValue ClassScript::execApp(const QString &path, const QStringList &args, bool synchronous)
 {
+    QCoreApplication::processEvents(); // Refresh the GUI to show preceding output from init.js:exec
+
     QJSValue result = m_engine->newObject();
     result.setProperty("success", false);
     result.setProperty("stdout", "");
