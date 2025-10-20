@@ -42,7 +42,7 @@ void ClassScript::load(QString fileName)
 
     QFile scriptFile(fileName);
     if (!scriptFile.open(QIODevice::ReadOnly))
-        m_engine->throwError(scriptFile.errorString());
+        m_engine->throwError(QString("%1: %2").arg(fileName, scriptFile.errorString()));
     else
     {
         QTextStream stream(&scriptFile);
