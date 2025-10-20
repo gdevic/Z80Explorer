@@ -75,26 +75,38 @@ function key(code, ctrl)
 }
 
 // Helper function in JS for convenience
-function exec(path, args, isSync)
+function exec(path, args, sync)
 {
     args = args || []; // Default to empty array if not provided
-    isSync = (typeof isSync === 'boolean') ? isSync : true; // Default to synchronous
+    sync = (typeof sync === 'boolean' || typeof sync === 'function') ? sync : true; // Default to synchronous
+    continuation = typeof sync === 'function'
 
-    print("JS: Attempting to run '" + path + "' with args: [" + args + "], Sync: " + isSync);
-    var result = execApp(path, args, isSync);
+    function showResults(result) {
+        print("JS: Result for '" + path + "':");
+        print("  Success: " + result.success);
+        if (result.exitCode)
+            print("  Exit Code: " + result.exitCode);
+        if (result.stdout)
+            print("  Stdout: " + result.stdout.trim());
+        if (result.stderr)
+            print("  Stderr: " + result.stderr.trim());
+        if (result.message) // For async start messages
+            print("  Message: " + result.message);
+        if (result.errorString)
+            print("  Error String: " + result.errorString);
+    }
 
-    print("JS: Result for '" + path + "':");
-    print("  Success: " + result.success);
-    if (result.exitCode)
-        print("  Exit Code: " + result.exitCode);
-    if (result.stdout)
-        print("  Stdout: " + result.stdout.trim());
-    if (result.stderr)
-        print("  Stderr: " + result.stderr.trim());
-    if (result.message) // For async start messages
-        print("  Message: " + result.message);
-    if (result.errorString)
-        print("  Error String: " + result.errorString);
+    if (continuation) {
+        syncArg = function(result) {
+            showResults(result);
+            sync(result);
+        }
+    }
+    else
+        syncArg = sync
+
+    print("JS: Attempting to run '" + path + "' with args: [" + args + "], sync: " + sync);
+    var result = execApp(path, args, syncArg);
 }
 
 function help()
@@ -109,7 +121,7 @@ function help()
     print("print(\"msg\")       - Prints a string message");
     print("relatch()          - Reloads all custom latches from 'latches.ini' file");
     print("save()             - Saves all changes to all custom and config files");
-    print("exec(\"path\",\"args\")- Runs external executable");
+    print("exec(\"path\",\"args\",isSync)- Runs external executable. isSync can be true, false, or a continuation");
     print("-- Object 'monitor' methods:");
     print("mon.loadHex(\"file\") - Loads a HEX file into simulated memory");
     print("mon.patchHex(\"file\") - Merges a HEX file into simulated memory");

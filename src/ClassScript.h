@@ -1,6 +1,7 @@
 #ifndef CLASSSCRIPT_H
 #define CLASSSCRIPT_H
 
+#include <QFuture>
 #include <QJSEngine>
 
 /*
@@ -22,6 +23,7 @@ public slots:
 
 public:
     Q_INVOKABLE void load(QString fileName = {});
+    Q_INVOKABLE QJSValue execImpl(QString cmd);
     Q_INVOKABLE void run(uint hcycles);
     Q_INVOKABLE void stop();
     Q_INVOKABLE void reset();
@@ -30,10 +32,14 @@ public:
     Q_INVOKABLE void eq(QVariant n);
     Q_INVOKABLE void relatch();
     Q_INVOKABLE void ex(uint n);
-    Q_INVOKABLE QJSValue execApp(const QString &path, const QStringList &args, bool synchronous = true);
+    Q_INVOKABLE QJSValue execApp(const QString &path, const QStringList &args = {}, const QJSValue &synchronous = true);
+
+private:
+    void submitCall(QJSValue continuation, QJSValueList arguments);
 
 private:
     QJSEngine *m_engine {};
+    QFuture<QJSValue> m_exec;
 };
 
 #endif // CLASSSCRIPT_H
