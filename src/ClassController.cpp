@@ -4,6 +4,34 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QStringBuilder>
+#include <QtConcurrentRun>
+
+using QtConcurrent::run;
+
+template<typename... Args>
+static QFuture<bool> whenAll(QEventLoop &e, Args &&...args)
+{
+    return QtFuture::whenAll(args...).then([&e, &args...](auto) {
+        bool result = (args.result() && ...);
+        if (!e.thread()->isCurrentThread())
+            while (!e.isRunning())
+                QThread::yieldCurrentThread();
+        e.exit();
+
+        return result;
+    });
+}
+
+template<typename... Args>
+static bool execWaitFor(Args &&...args)
+{
+    QEventLoop e;
+    QFuture<bool> all = whenAll(e, std::forward<Args>(args)...);
+    if (!all.isFinished())
+        e.exec();
+    Q_ASSERT(all.isFinished());
+    return all.result();
+}
 
 bool ClassController::init(QJSEngine *sc)
 {
@@ -54,17 +82,25 @@ bool ClassController::init(QJSEngine *sc)
     QDir::setCurrent(resDir);
 
     // Initialize all global classes using the given path to resource
-    if (!m_simz80.loadResources(resDir) || !m_colors.load(resDir + "/colors.json") || !m_chip.loadChipResources(resDir) || !m_simz80.initChip())
+    auto loadSimZ80 = run([this, resDir] {
+        return m_simz80.loadResources(resDir) && m_colors.load(resDir + "/colors.json")
+               && m_chip.loadChipResources(resDir) && m_simz80.initChip();
+    });
+
+    auto loadAnnotate = run(&ClassAnnotate::load, &m_annotate, resDir + "/annotations.json");
+    auto loadTips = run(&ClassTip::load, &m_tips, resDir + "/tips.json");
+
+    if (!execWaitFor(loadSimZ80))
     {
         qCritical() << "Unable to load chip resources from" << resDir;
         return false;
     }
 
-    m_watch.load(resDir + "/watchlist.json");
-    connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
+    auto loadWatch = run(&ClassWatch::load, &m_watch, resDir + "/watchlist.json");
 
-    m_annotate.load(resDir + "/annotations.json");
-    m_tips.load(resDir + "/tips.json");
+    execWaitFor(loadAnnotate, loadTips, loadWatch);
+
+    connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
     // Initialize the schematic generation properties
     DialogEditSchematic::init();
