@@ -22,7 +22,7 @@ public slots:
     void exec(QString cmd, bool echo = true); // Evaluates and runs commands
 
 public:
-    Q_INVOKABLE void load(QString fileName);
+    Q_INVOKABLE void load(QString fileName = {});
     Q_INVOKABLE void run(uint hcycles);
     Q_INVOKABLE void stop();
     Q_INVOKABLE void reset();
@@ -31,7 +31,7 @@ public:
     Q_INVOKABLE void eq(QVariant n);
     Q_INVOKABLE void relatch();
     Q_INVOKABLE void ex(uint n);
-    Q_INVOKABLE QVariantMap execApp(const QString &path, const QStringList &args, bool synchronous = true);
+    Q_INVOKABLE QJSValue execApp(const QString &path, const QStringList &args, bool synchronous = true);
 
 private:
     QJSEngine *m_engine {};
