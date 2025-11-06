@@ -18,7 +18,6 @@ signals:
     Q_INVOKABLE void save();        // Saves all changes to all custom and config files (connected from ClassController)
 
 public slots:
-    void stopx();                   // Stops any running script evaluation
     void exec(QString cmd, bool echo = true); // Evaluates and runs commands
 
 public:

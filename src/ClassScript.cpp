@@ -54,22 +54,6 @@ void ClassScript::load(QString fileName)
 }
 
 /*
- * Stops any running script evaluation (kills long-running scripts)
- */
-void ClassScript::stopx()
-{
-    // TODO: Make JS evaluate in a different thread (QtConcurrent::run())
-    // m_engine->setInterrupted(true);
-#if 0
-    if (m_engine->isEvaluating())
-    {
-        qInfo() << "Stopping script evaluation";
-        m_engine->abortEvaluation();
-    }
-#endif
-}
-
-/*
  * Command line execution of built-in scripting
  */
 void ClassScript::exec(QString cmd, bool echo)
