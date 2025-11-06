@@ -27,7 +27,7 @@ https://github.com/gdevic/Z80Explorer/releases
 The application is built on the Qt framework.
 
 * On Windows, install MS Visual Studio 2022 Community Edition. On Linux, use gcc
-* Install Qt 6.9.0 framework (with support for x64 MS Visual Studio 2022 on Windows)
+* Install Qt 6.9.3 framework (with support for x64 MS Visual Studio 2022 on Windows)
 * Compile with QtCreator selecting the “Release” build
 
 On Linux, follow the guide here: https://doc.qt.io/qt-6/linux.html
