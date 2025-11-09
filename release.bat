@@ -33,6 +33,7 @@ xcopy /Y /S ..\docs docs
 rmdir /S /Q bearer iconengines imageformats translations platforminputcontexts qml qmltooling tls networkinformation generic
 rm -f Qt6Pdf.dll Qt6VirtualKeyboard.dll Qt6Quick3DUtils.dll Qt6Quick.dll Qt6QmlModels.dll Qt6Svg.dll
 rm -f Qt6OpenGL.dll opengl32sw.dll dxcompiler.dll d3dcompiler_47.dll dxil.dll
+rm -f Qt6QmlWorkerScript.dll Qt6QmlMeta.dll
 rm -f vc_redist.x64.exe
 rm -f resource\layermap.bin
 @echo It is OK if The system cannot find the file specified.
