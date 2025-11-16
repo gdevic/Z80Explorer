@@ -377,6 +377,8 @@ inline bool ClassSimZ80::getNetValue()
 inline void ClassSimZ80::recalcNetlist()
 {
     m_recalcListIndex = 0;
+    clearBitset(m_recalcBitset);
+
     while (m_listIndex)
     {
         for (int i = 0; i < m_listIndex; i++)
@@ -384,6 +386,7 @@ inline void ClassSimZ80::recalcNetlist()
         memcpy(m_list, m_recalcList, m_recalcListIndex * sizeof(net_t));
         m_listIndex = m_recalcListIndex;
         m_recalcListIndex = 0;
+        clearBitset(m_recalcBitset);
     }
 }
 #else
@@ -499,9 +502,12 @@ QVector<net_t> ClassSimZ80::allNets()
 inline void ClassSimZ80::addRecalcNet(net_t n)
 {
     if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
-    for (net_t *p = m_recalcList; p < (m_recalcList + m_recalcListIndex); p++)
-        if (*p == n)
-            return;
+
+    // Use bitset for O(1) duplicate check instead of O(n) linear search
+    if (testBit(m_recalcBitset, n))
+        return;
+
+    setBit(m_recalcBitset, n);
     m_recalcList[m_recalcListIndex++] = n;
 }
 #else
@@ -517,6 +523,7 @@ inline void ClassSimZ80::addRecalcNet(net_t n)
 inline void ClassSimZ80::getNetGroup(net_t n)
 {
     m_groupIndex = 0;
+    clearBitset(m_groupBitset);
     addNetToGroup(n);
 }
 #else
@@ -530,9 +537,11 @@ inline void ClassSimZ80::getNetGroup(net_t n)
 #if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::addNetToGroup(net_t n)
 {
-    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
-        if (*p == n)
-            return;
+    // Use bitset for O(1) duplicate check instead of O(n) linear search
+    if (testBit(m_groupBitset, n))
+        return;
+
+    setBit(m_groupBitset, n);
     m_group[m_groupIndex++] = n;
     if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
     for (auto &t : m_netlist[n].c1c2s)

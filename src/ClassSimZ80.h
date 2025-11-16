@@ -56,12 +56,29 @@ private:
     void recalcNetlist();
     void allNets();
 
+    // Bitset helper functions for O(1) duplicate detection
+    inline void setBit(uint64_t *bitset, net_t n) {
+        assert(n <= MAX_NETS);
+        bitset[n >> 6] |= (1ULL << (n & 63));
+    }
+    inline bool testBit(uint64_t *bitset, net_t n) {
+        assert(n <= MAX_NETS);
+        return bitset[n >> 6] & (1ULL << (n & 63));
+    }
+    inline void clearBitset(uint64_t *bitset) {
+        memset(bitset, 0, 64 * sizeof(uint64_t));
+    }
+
     net_t m_recalcList[MAX_NETS];
     int m_recalcListIndex {0};
     net_t m_list[MAX_NETS];
     int m_listIndex {0};
     net_t m_group[MAX_NETS];
     int m_groupIndex {0};
+
+    // Bitsets for O(1) duplicate detection ((3597 + 63) / 64 = 57) where MAX_NETS is 3597
+    uint64_t m_groupBitset[64];
+    uint64_t m_recalcBitset[64];
 #else
     QVector<net_t> allNets();
     void recalcNetlist(QVector<net_t> &list);
