@@ -416,7 +416,7 @@ inline void ClassSimZ80::recalcNet(net_t n)
         net.state = newState;
 
         if (net.state)
-            for (Trans *t : net.gates)
+            for (Trans *&t : net.gates)
             {
                 if (!t->on)
                 {
@@ -425,7 +425,7 @@ inline void ClassSimZ80::recalcNet(net_t n)
                 }
             }
         else
-            for (Trans *t : net.gates)
+            for (Trans *&t : net.gates)
             {
                 if (t->on)
                 {
