@@ -292,51 +292,33 @@ inline void ClassSimZ80::set(bool on, QString name)
 #if USE_PERFORMANCE_SIM
 inline bool ClassSimZ80::getNetValue()
 {
-    // 1. Deal with power connections first
-    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
-        if (*p == ngnd) return false;
-    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
-        if (*p == npwr) return true;
+    // 1. Deal with power connections first - check first element for fast path
+    //if (m_groupIndex > 0)
+    {
+        if (m_group[0] <= npwr) return bool(m_group[0] == npwr); // ngnd || npwr => false || true
+    }
     // 2. Deal with pullup/pulldowns next
+    // 3. Resolve connected set of floating nodes
+    auto state = false; // We simply pick the first node which state is high
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
     {
         Net &net = m_netlist[*p];
         if (net.isHigh) return true;
         if (net.isLow) return false;
+        if (net.state) state = true; // Last priority is the state, after we have checked for isHigh/isLow
     }
-    // 3. Resolve connected set of floating nodes
-    // Several approaches work:
-    // - based on state of largest (by #connections) node
-    // - that, either by the number of connected gates, or by the number of connected pins
-    // - any node for which state is true
-    auto max_state = false;
-    //auto max_conn = 0;
-    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
-    {
-        Net &net = m_netlist[*p];
-#if 0
-        // We just want to pick the larger, or "stronger" net, assuming that one would have more transistor connections
-        //auto conn = net.gates.count() + net.c1c2s.count();
-        //auto conn = net.c1c2s.count();
-        auto conn = net.gates.count();
-        if (conn > max_conn)
-        {
-            max_conn = conn;
-            max_state = net.state;
-        }
-#endif
-        // Or we simply pick the first node which state is high
-        if (net.state == true)
-            return true;
-    }
-    return max_state;
+    return state;
 }
 #else
 inline bool ClassSimZ80::getNetValue()
 {
-    // 1. Deal with power connections first
-    if (Q_UNLIKELY(group.contains(ngnd))) return false;
-    if (Q_UNLIKELY(group.contains(npwr))) return true;
+    // 1. Deal with power connections first - check first element for fast path
+    if (!group.isEmpty())
+    {
+        if (group[0] == ngnd) return false;
+        if (group[0] == npwr) return true;
+    }
+
     // 2. Deal with pullup/pulldowns next
     for (auto i : group)
     {
@@ -406,7 +388,7 @@ inline void ClassSimZ80::recalcNetlist(QVector<net_t> &list)
 #if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::recalcNet(net_t n)
 {
-    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
+    if (Q_UNLIKELY(n <= npwr)) return; // ngnd || npwr
     getNetGroup(n);
     bool newState = getNetValue();
     for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
@@ -501,7 +483,7 @@ QVector<net_t> ClassSimZ80::allNets()
 #if USE_PERFORMANCE_SIM
 inline void ClassSimZ80::addRecalcNet(net_t n)
 {
-    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
+    if (Q_UNLIKELY(n <= npwr)) return; // ngnd || npwr
 
     // Use bitset for O(1) duplicate check instead of O(n) linear search
     if (testBit(m_recalcBitset, n))
@@ -542,8 +524,18 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
         return;
 
     setBit(m_groupBitset, n);
+
+    // If ground or power, place at position 0 for fast detection in getNetValue()
+    if (Q_UNLIKELY(n <= npwr)) // ngnd || npwr
+    {
+        m_group[m_groupIndex] = n;
+        // Swap with position 0 if not already there
+        std::swap(m_group[0], m_group[m_groupIndex]);
+        m_groupIndex++;
+        return;
+    }
+
     m_group[m_groupIndex++] = n;
-    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
 
     for (Trans *t : m_netlist[n].c1c2s)
     {
@@ -559,8 +551,22 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
 inline void ClassSimZ80::addNetToGroup(net_t n)
 {
     if (group.contains(n)) return;
+
+    // If ground or power, place at position 0 for fast detection in getNetValue()
+    if (Q_UNLIKELY((n == ngnd) || (n == npwr)))
+    {
+        group.append(n);
+        // Swap with position 0 if not already there
+        if (group.size() > 1)
+        {
+            net_t temp = group[0];
+            group[0] = n;
+            group[group.size() - 1] = temp;
+        }
+        return;
+    }
+
     group.append(n);
-    if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
 
     for (Trans *t : m_netlist[n].c1c2s)
     {

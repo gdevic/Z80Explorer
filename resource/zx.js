@@ -14,7 +14,7 @@ function ZXSpectrum()
       run(0);
       print("\nZX Spectrum simulation is running.")
       print("For a faster simulation, remove all nets from Watchlist and close Waveform views.");
-      print("It takes about 20 minutes to get to the initial screen when running at around 4kHz.");
+      print("It takes about 10 minutes to get to the initial screen when running at around 10kHz.");
    }
    else
    {
