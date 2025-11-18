@@ -6,9 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.08] - 2025-11-18
 ### Improved
 - Massive performance boost of ~2x
-  - On i7-13700K @5.3GHz the simulation runs at 10.3kHz
+  - On i7-13700K @5.3GHz the simulation runs at 10.5kHz
 
 ## [1.07] - 2025-11-09
 ### Added
