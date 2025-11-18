@@ -407,9 +407,9 @@ const QStringList ClassNetlist::get(const QVector<net_t> &nets)
 const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 {
     QVector<net_t> nets;
-    const QVector<Trans *> &gates = m_netlist[n].gates;
+    const QVector<Trans*> &gates = m_netlist[n].gates;
 
-    for (const auto t : gates)
+    for (Trans *t : gates)
     {
         if ((t->c1 > 2) && !nets.contains(t->c1)) // c1 is the source
             nets.append(t->c1);
@@ -426,9 +426,11 @@ const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 {
     QVector<net_t> nets;
-    for (auto &t : m_netlist[n].c1c2s)
+    for (Trans *t : m_netlist[n].c1c2s)
+    {
         if (!nets.contains(t->gate))
             nets.append(t->gate);
+    }
     std::sort(nets.begin(), nets.end()); // Sorting numbers only
     return nets;
 }
@@ -439,8 +441,8 @@ const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 inline pin_t ClassNetlist::getNetStateEx(net_t n)
 {
     // Every transistor in the contributing nets needs to be off for this net to be hi-Z
-    for (auto &tran : m_netlist[n].c1c2s)
-        if (tran->on) return !!m_netlist[n].state;
+    for (Trans *t : m_netlist[n].c1c2s)
+        if (t->on) return !!m_netlist[n].state;
     // If nothing is explicitly driving this net, it will be "1" if it has an internal pullup
     if (m_netlist[n].hasPullup)
         return 1;
@@ -520,12 +522,12 @@ const QString ClassNetlist::netInfo(net_t net)
     {
         // Transistor numbers for which this net is either a source or a drain
         QStringList c1c2s;
-        for (auto &t : m_netlist[net].c1c2s)
-            c1c2s.append(QString::number(t - &m_transdefs[0]));
+        for (Trans *t : m_netlist[net].c1c2s)
+            c1c2s.append(QString::number(t->id));
         // Transistor numbers for which this net is a gate
         QStringList gates;
-        for (auto &t : m_netlist[net].gates)
-            gates.append(QString::number(t - &m_transdefs[0]));
+        for (Trans *t : m_netlist[net].gates)
+            gates.append(QString::number(t->id));
         // Limit printing up to 20 gate nets which is more than a practical limit.
         // This prevents large nets like clk to take over the log window
         if (gates.count() > 20)

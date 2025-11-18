@@ -276,7 +276,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
     // Copy the list of transistors for which this net is either a source or a drain, but skip over transistors already visited
     // While copying, make sure c1 contains our primary net number, and c2 is "the other end" net
     node->trans.reserve(net0.c1c2s.size());
-    for (const Trans *t : net0.c1c2s)
+    for (Trans *t : net0.c1c2s)
     {
         if (!visitedTrans.contains(t->id)) // Skip over transistors already visited
         {

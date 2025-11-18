@@ -6,19 +6,24 @@
 #include <QHash>
 
 // Contains individual transistor definition
+// Fields are organized for cache efficiency: hot data (frequently accessed) first
 struct Trans
 {
-    tran_t id;                          // Transistor number
-    net_t gate;                         // Net connected to its gate
-    net_t c1, c2;                       // Connections 1, 2 (source, drain) nets
-    bool on {false};                    // Is the transistor on?
+    // Hot data - accessed in critical path (recalcNet, addNetToGroup)
+    bool on {false};                    // Is the transistor on? (1 byte)
+    // Padding for alignment (1 byte) - compiler will add this automatically
+    net_t c1, c2;                       // Connections 1, 2 (source, drain) nets (4 bytes total)
+
+    // Cold data - rarely accessed in hot path
+    net_t gate;                         // Net connected to its gate (2 bytes)
+    tran_t id;                          // Transistor number (2 bytes)
 };
 
 // Contains netlist net definition: net is a trace with equal potential and it connects a number of transistors
 struct Net
 {
-    QVector<Trans *> gates;             // The list of transistors for which this net is a gate
-    QVector<Trans *> c1c2s;             // The list of transistors for which this net is either a source or a drain
+    QVector<Trans*> gates;              // Transistors for which this net is a gate
+    QVector<Trans*> c1c2s;              // Transistors for which this net is either a source or a drain
     bool state {false};                 // The voltage on the net is high (if not floating)
     bool floats {false};                // Net can float (used with ab, db, mreq, iorq, rd, wr to read hi-Z state)
     bool isHigh {false};                // Net is being pulled high

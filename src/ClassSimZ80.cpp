@@ -357,7 +357,7 @@ inline bool ClassSimZ80::getNetValue()
 #if 0
         // We just want to pick the larger, or "stronger" net, assuming that one would have more transistor connections
         //auto conn = net.gates.count() + net.c1c2s.count();
-        auto conn = net.c1c2s.count();
+        //auto conn = net.c1c2s.count();
         auto conn = net.gates.count();
         if (conn > max_conn)
         {
@@ -416,7 +416,7 @@ inline void ClassSimZ80::recalcNet(net_t n)
         net.state = newState;
 
         if (net.state)
-            for (Trans *&t : net.gates)
+            for (Trans *t : net.gates)
             {
                 if (!t->on)
                 {
@@ -425,7 +425,7 @@ inline void ClassSimZ80::recalcNet(net_t n)
                 }
             }
         else
-            for (Trans *&t : net.gates)
+            for (Trans *t : net.gates)
             {
                 if (t->on)
                 {
@@ -447,12 +447,12 @@ inline void ClassSimZ80::recalcNet(net_t n)
         Net &net = m_netlist[i];
         if (net.state == newState) continue;
         net.state = newState;
-        for (int i = 0; i < net.gates.count(); i++)
+        for (Trans *t : net.gates)
         {
             if (net.state)
-                setTransOn(net.gates[i]);
+                setTransOn(t);
             else
-                setTransOff(net.gates[i]);
+                setTransOff(t);
         }
     }
 }
@@ -544,7 +544,8 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
     setBit(m_groupBitset, n);
     m_group[m_groupIndex++] = n;
     if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
-    for (auto &t : m_netlist[n].c1c2s)
+
+    for (Trans *t : m_netlist[n].c1c2s)
     {
         if (!t->on) continue;
         net_t other = 0;
@@ -560,7 +561,8 @@ inline void ClassSimZ80::addNetToGroup(net_t n)
     if (group.contains(n)) return;
     group.append(n);
     if (Q_UNLIKELY((n == ngnd) || (n == npwr))) return;
-    for (auto &t : m_netlist[n].c1c2s)
+
+    for (Trans *t : m_netlist[n].c1c2s)
     {
         if (!t->on) continue;
         net_t other = 0;
