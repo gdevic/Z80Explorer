@@ -172,17 +172,17 @@ uint ClassSimZ80::doReset()
  */
 inline void ClassSimZ80::halfCycle()
 {
-    pin_t clk = !readBit("clk");
-    if (clk && readBit("_rfsh")) // Before the clock rise, service the chip pins (unless it is a refresh cycle)
+    const pin_t clk = readBit("clk");
+    if (!clk && readBit("_rfsh")) // Before the clock rise, service the chip pins (unless it is a refresh cycle)
     {
-        bool m1   = readBit("_m1");
-        bool rfsh = 1; //readBit("_rfsh");
-        bool mreq = readBit("_mreq");
-        bool rd   = readBit("_rd");
-        bool wr   = readBit("_wr");
-        bool iorq = readBit("_iorq");
-        bool t2   = readBit("t2");
-        bool t3   = readBit("t3");
+        const bool m1   = readBit("_m1");
+        const bool rfsh = 1; //readBit("_rfsh");
+        const bool mreq = readBit("_mreq");
+        const bool rd   = readBit("_rd");
+        const bool wr   = readBit("_wr");
+        const bool iorq = readBit("_iorq");
+        const bool t2   = readBit("t2");
+        const bool t3   = readBit("t3");
 
         if (!m1 && rfsh && !mreq && !rd &&  wr &&  iorq && t2)
             handleMemRead(readAB()); // Instruction read
@@ -203,7 +203,7 @@ inline void ClassSimZ80::halfCycle()
             handleIrq(); // Interrupt request/Ack cycle
     }
 
-    set(clk, "clk"); // Let the clock edge propagate through the chip
+    set(!clk, "clk"); // Let the clock edge propagate through the chip
 
     // After each half-cycle, populate the watch data
     if (::controller.getWatch().getWatchlistLen()) // Removing all watches increases the performance
