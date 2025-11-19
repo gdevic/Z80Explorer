@@ -2,6 +2,7 @@
 #define WIDGETGRAPHICSVIEW_H
 
 #include "ClassLogic.h"
+#include "ClassNetlist.h"
 #include <QGraphicsPolygonItem>
 #include <QGraphicsView>
 

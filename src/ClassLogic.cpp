@@ -15,7 +15,7 @@
 static QVector<net_t> visitedNets; // Avoid loops by keeping nets that are already visited
 static QVector<tran_t> visitedTrans; // Avoid path duplication by keeping transistors that are already visited
 
-Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets, bool first) : outnet(n), op(op)
+Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets, bool first) : op(op), outnet(n)
 {
     QSettings settings;
     QString termNodes = settings.value("schematicTermNodes").toString();
