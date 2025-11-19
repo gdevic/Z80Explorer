@@ -802,7 +802,7 @@ void ClassVisual::drawNets(QPainter &painter, const QRect &viewport, bool order,
     {
         if (!::controller.getSimZ80().isNetOrphan(i))
         {
-            bool active;
+            bool active = false;
             switch (mode)
             {
                 case 0: // 0:Active

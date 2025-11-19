@@ -3,6 +3,7 @@
 
 #include "AppTypes.h"
 #include "ClassLogic.h"
+#include "ClassNetlist.h"
 #include <QDialog>
 #include <QGraphicsScene>
 #include <QMenu>
