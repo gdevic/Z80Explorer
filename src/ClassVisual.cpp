@@ -31,6 +31,15 @@ ClassVisual::ClassVisual()
     connect(&::controller, &ClassController::onRunStopped, this, &ClassVisual::onRunStopped);
 }
 
+void ClassVisual::toggleAltSegdef()
+{
+    use_alt_segdef = !use_alt_segdef;
+    if (use_alt_segdef)
+        qInfo() << "Alternate segment definitions are in use";
+    else
+        qInfo() << "Primary segment definitions are in use";
+}
+
 void ClassVisual::onRunStopped()
 {
     // Count the number of times each transistor has changed its state from the base (initial) state
@@ -122,29 +131,34 @@ bool ClassVisual::loadImages(QString dir)
     };
 
     QEventLoop e; // Don't freeze the GUI
-    QImage img;
-    m_img.clear();
-    for (auto &image : files)
-    {
+
+    QtConcurrent::mapped(files, [dir](const QString &image) {
+        QImage img;
         QString png_file = dir + "/z80_" + image + ".png";
-        qInfo() << "Loading" + png_file;
-        e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
-        if (img.load(png_file))
-        {
+        qInfo() << "Loading" << png_file;
+        if (img.load(png_file)) {
             int w = img.width();
             int h = img.height();
             int d = img.depth();
             QImage::Format f = img.format();
-            qInfo() << "Image w=" << w << "h=" << h << "depth=" << d << "format=" << f;
+            qInfo() << "Image" << image << "w=" << w << "h=" << h << "depth=" << d << "format=" << f;
             img.setText("name", image); // Set the key with the layer/image name
-            m_img.append(img);
+        } else {
+            qCritical() << "Error loading" << image;
         }
-        else
-        {
-            qCritical() << "Error loading" + image;
-            return false;
+        return img;
+    }).then([this, &e](QFuture<QImage> images) {
+        bool result = true;
+        for (auto &image : images) {
+            result &= !image.isNull();
+            m_img.append(image);
         }
-    }
+        e.exit(result);
+    });
+
+    if (!e.exec())
+        return false;
+
     m_sx = m_img[0].width();
     m_sy = m_img[0].height();
     m_mapsize = m_sx * m_sy;
@@ -154,18 +168,31 @@ bool ClassVisual::loadImages(QString dir)
 }
 
 /*
- * Loads segdefs.js and segvdefs
- * The first file contains segment definitions from the Visual 6502 team for this processor
- * I had processed that file further to merge each of the nets into single path and we use that
- * as the alternate visual segment representation
+ * Loads segdefs.js and merge each of the nets into a single path to use as the alternate
+ * visual segment representation.
+ * The file contains segment definitions from the Visual 6502 team for this processor
  */
 bool ClassVisual::loadSegdefs(QString dir)
 {
-    if (!loadSegdefsJs(dir))
-        return false;
-    // Load processed and smoother paths; don't care if the file "segvdefs.bin" does not exist
-    loadSegvdefs(dir);
-    return true;
+    QEventLoop e;
+    QFuture<void> future = QtConcurrent::run([this, dir, &e]() {
+        if (!loadSegdefsJs(dir))
+            return e.exit(false);
+        qInfo() << "Merging segment shapes";
+        QElapsedTimer timer;
+        timer.start();
+        // Concurrently simplify all paths
+        m_segvdefs2 = m_segvdefs;
+        m_segvdefs2.detach();
+        QtConcurrent::map(m_segvdefs, [this](const segvdef &s) {
+            qsizetype i = &s - m_segvdefs.data();
+            m_segvdefs2[i].path = s.path.simplified();
+        }).then([this, timer = std::move(timer), &e]() {
+            qInfo() << "Merging took" << "took" << timer.elapsed() / 1000.0 << "s";
+            e.exit(true);
+        });
+    });
+    return e.exec();
 }
 
 /*
@@ -178,6 +205,7 @@ bool ClassVisual::loadSegdefsJs(QString dir)
     QFile file(segdefs_file);
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
+        int count = 0;
         QTextStream in(&file);
         QString line;
         QStringList list;
@@ -193,28 +221,26 @@ bool ClassVisual::loadSegdefsJs(QString dir)
                 list = line.split(',');
                 if (list.length() > 4)
                 {
-                    segvdef s;
                     net_t key = list[0].toUInt();
-                    QPainterPath path;
+                    if (m_segvdefs.size() <= key)
+                        m_segvdefs.resize(key + 1);
+
+                    segvdef &s = m_segvdefs[key];
+                    if (!s.netnum) {
+                        s.netnum = key;
+                        count++;
+                    }
+
                     for (int i = 3; i < list.length() - 1; i += 2)
                     {
                         uint x = list[i].toUInt();
                         uint y = m_img[0].height() - list[i + 1].toUInt() - 1;
                         if (i == 3)
-                            path.moveTo(x, y);
+                            s.path.moveTo(x, y);
                         else
-                            path.lineTo(x, y);
+                            s.path.lineTo(x, y);
                     }
-                    path.closeSubpath();
-
-                    if (!m_segvdefs.contains(key))
-                    {
-                        s.netnum = key;
-                        s.paths.append(path);
-                        m_segvdefs[key] = s;
-                    }
-                    else
-                        m_segvdefs[key].paths.append(path);
+                    s.path.closeSubpath();
                 }
                 else
                     qWarning() << "Invalid line" << line;
@@ -222,7 +248,7 @@ bool ClassVisual::loadSegdefsJs(QString dir)
             else
                 qDebug() << "Skipping" << line;
         }
-        qInfo() << "Loaded" << m_segvdefs.count() << "segment visual definitions";
+        qInfo() << "Loaded" << count << "segment visual definitions";
         return true;
     }
     else
@@ -260,14 +286,12 @@ bool ClassVisual::loadTransdefs(QString dir)
                     tran_t i = tnum.toUInt();
                     Q_ASSERT(i < MAX_TRANS);
 
-                    transvdef t;
+                    transvdef &t = m_transvdefs.emplaceBack();
                     t.id = i;
                     t.gatenet = list[1].toUInt();
                     // The order of values in the data file is: [4,5,6,7] => left, right, bottom, top
                     // The Y coordinates in the input data stream are inverted, with 0 starting at the bottom
                     t.box = QRect(QPoint(list[4].toInt(), y - list[7].toInt()), QPoint(list[5].toInt() - 1, y - list[6].toInt() - 1));
-
-                    m_transvdefs.append(t);
                 }
                 else
                     qWarning() << "Invalid line" << list;
@@ -389,15 +413,19 @@ template const QVector<net_t> ClassVisual::getNetsAt<true>(int, int);
 template const QVector<net_t> ClassVisual::getNetsAt<false>(int, int);
 
 /*
- * Returns the segment visual definition, zero if not found
+ * Returns the segment visual definition, or an empty definition if there's
+ * no net with such number. The m_segvdefs members are sparse and have empty
+ * definitions for segments that don't exist but are within the length of the
+ * vector.
  */
 const segvdef *ClassVisual::getSegment(net_t net)
 {
     static const segvdef empty;
-    if (use_alt_segdef && m_segvdefs2.contains(net))
-        return &m_segvdefs2[net];
+    Q_ASSERT(m_segvdefs2.size() == m_segvdefs.size());
+    if (net < m_segvdefs.size())
+        return use_alt_segdef ? &m_segvdefs2[net] : &m_segvdefs[net];
     else
-        return m_segvdefs.contains(net) ? &m_segvdefs[net] : &empty;
+        return &empty;
 }
 
 /*
@@ -500,17 +528,17 @@ bool ClassVisual::convertToGrayscale()
 {
     qInfo() << "Converting images to grayscale format...";
     QEventLoop e; // Don't freeze the GUI
-    QVector<QImage> new_images;
-    for (auto &image : m_img)
-    {
+    QtConcurrent::mapped(m_img, [this](const QImage &image) -> QImage {
         qInfo() << "Processing image" << image << image.text("name");
-        e.processEvents(QEventLoop::AllEvents); // Don't freeze the GUI
         QImage new_image = image.convertToFormat(QImage::Format_Grayscale8, Qt::AutoColor);
         new_image.setText("name", "bw." + image.text("name"));
-        new_images.append(new_image);
-    }
-    m_img.append(new_images);
-    return true;
+        return new_image;
+    }).then([this, &e](QFuture<QImage> result) {
+        for (const QImage &image : result)
+            m_img.append(image);
+        e.exit(true);
+    });
+    return e.exec();
 }
 
 /*
@@ -733,8 +761,8 @@ void ClassVisual::drawAllNetsAsInactive(QString source, QString dest)
 
     for (uint i = 3; i < ::controller.getSimZ80().getNetlistCount(); i++)
     {
-        for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-            painter.drawPath(path);
+        const auto &path = ::controller.getChip().getSegment(i)->path;
+        painter.drawPath(path);
     }
 
     img.setText("name", dest);
@@ -758,9 +786,9 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
 
     for (uint i = 2; i < ::controller.getSimZ80().getNetlistCount(); i++)
     {
+        const auto &path = ::controller.getChip().getSegment(i)->path;
         painter.setBrush(::controller.getColors().get(i));
-        for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-            painter.drawPath(path);
+        painter.drawPath(path);
     }
 
     img.setText("name", dest);
@@ -821,12 +849,10 @@ void ClassVisual::drawNets(QPainter &painter, const QRect &viewport, bool order,
 
             if (active)
             {
-                for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-                {
-                    // Draw only paths that are not completely outside the viewing area
-                    if (QRectF(viewport).intersects(path.boundingRect()))
-                        painter.drawPath(path);
-                }
+                const auto &path = ::controller.getChip().getSegment(i)->path;
+                // TODO: Draw only *sub*-paths that are not completely outside the viewing area
+                if (QRectF(viewport).intersects(path.boundingRect()))
+                    painter.drawPath(path);
             }
         }
     }
@@ -837,12 +863,10 @@ void ClassVisual::drawNets(QPainter &painter, const QRect &viewport, bool order,
     {
         if (::controller.getSimZ80().isNetOrphan(i))
         {
-            for (const auto &path : ::controller.getChip().getSegment(i)->paths)
-            {
-                // Draw only paths that are not completely outside the viewing area
-                if (QRectF(viewport).intersects(path.boundingRect()))
-                    painter.drawPath(path);
-            }
+            const auto &path = ::controller.getChip().getSegment(i)->path;
+            // TODO: Draw only *sub*-paths that are not completely outside the viewing area
+            if (QRectF(viewport).intersects(path.boundingRect()))
+                painter.drawPath(path);
         }
     }
 }
@@ -1210,107 +1234,11 @@ void ClassVisual::experimental(int n)
 
 /*
  * Run with the command "ex(1)"
- * Merges net paths for a better visual display
- * This code merges paths for each net so nets look better, but this process can take > 2 min on a fast PC
- * Hence, the merged nets have been cached in the file "segvdefs.bin"
+| * Currently unused.
  */
 void ClassVisual::experimental_1()
 {
-    qInfo() << "Experimental: merge visual segment paths. This process is running in the background and may take a few minutes to complete.";
-    qInfo() << "After it is done (you should see the message 'Saving segvdefs'), restart the application to use the new, smoother, paths.";
-
-    // Code in this block will run in another thread
-    QFuture<void> future = QtConcurrent::run([=]()
-    {
-        QPainterPath path;
-        for (auto &seg : m_segvdefs)
-        {
-            path.clear();
-            for (auto &p : seg.paths)
-                path |= p;
-            seg.paths.clear();
-            seg.paths.append(path.simplified());
-        }
-
-        // Save created visual paths to a file
-        {
-            QSettings settings;
-            QString resDir = settings.value("ResourceDir").toString();
-            saveSegvdefs(resDir);
-        }
-    });
-}
-
-/*
- * Saves visual paths to a file
- */
-bool ClassVisual::saveSegvdefs(QString dir)
-{
-    QString fileName = dir + "/segvdefs.bin";
-    qInfo() << "Saving segvdefs to" << fileName;
-    QFile saveFile(fileName);
-    if (saveFile.open(QIODevice::WriteOnly))
-    {
-        QDataStream out(&saveFile);
-        out << m_segvdefs.count();
-        for (auto &seg : m_segvdefs)
-        {
-            out << seg.netnum;
-            out << seg.paths.count();
-            for (auto &path : seg.paths)
-                out << path;
-        }
-        return true;
-    }
-    qWarning() << "Unable to save" << fileName;
-    return false;
-}
-
-/*
- * Loads visual paths from a file
- */
-bool ClassVisual::loadSegvdefs(QString dir)
-{
-    QString fileName = dir + "/segvdefs.bin";
-    qInfo() << "Loading segvdefs from" << fileName;
-    QFile loadFile(fileName);
-    if (loadFile.open(QIODevice::ReadOnly))
-    {
-        m_segvdefs2 = m_segvdefs;
-
-        try // May throw an exception if the data is not formatted exactly as expected
-        {
-            QDataStream in(&loadFile);
-            int count, num_paths;
-            in >> count;
-            if (count == m_segvdefs2.count())
-            {
-                while (count-- > 0)
-                {
-                    segvdef segvdef;
-                    in >> segvdef.netnum >> num_paths;
-                    while (num_paths-- > 0)
-                    {
-                        QPainterPath path;
-                        in >> path;
-                        segvdef.paths.append(path);
-                    }
-
-                    if (m_segvdefs2.contains(segvdef.netnum))
-                        m_segvdefs2.remove(segvdef.netnum);
-                    m_segvdefs2[segvdef.netnum] = segvdef;
-                }
-                return true;
-            }
-            qWarning() << "Incorrect number of segvdefs!";
-        }
-        catch (...)
-        {
-            qWarning() << "Invalid data format";
-        }
-    }
-    qWarning() << "Unable to load" << fileName;
-    return false;
+    qWarning() << "ex(1) doesn't do anything since segment merging is done on startup.";
 }
 
 /******************************************************************************

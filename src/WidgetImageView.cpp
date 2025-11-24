@@ -297,8 +297,7 @@ void WidgetImageView::paintEvent(QPaintEvent *)
             }
 
             const segvdef *seg = ::controller.getChip().getSegment(net);
-            for (const auto &path : seg->paths)
-                painter.drawPath(path);
+            painter.drawPath(seg->path);
         }
         painter.restore();
     }
@@ -338,10 +337,9 @@ void WidgetImageView::paintEvent(QPaintEvent *)
         }
         if (m_highlight_segment)
         {
-            for (const auto &path : m_highlight_segment->paths)
-                painter.drawPath(path);
+            painter.drawPath(m_highlight_segment->path);
             painter.setPen(QPen(Qt::white, guideLineScale, Qt::SolidLine));
-            painter.drawLine(QPoint(0, 0), m_highlight_segment[0].paths[0].elementAt(0));
+            painter.drawLine(QPoint(0, 0), m_highlight_segment[0].path.elementAt(0));
         }
         painter.restore();
     }
@@ -686,10 +684,10 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
             }
             break;
         case Qt::Key_X:
-            if (shift)
+            if (shift) {
                 ::controller.getChip().toggleAltSegdef();
-            else
-            {
+                update();
+            } else {
                 m_drawNets = !m_drawNets;
                 m_ov->setButton(0, m_drawNets);
             }

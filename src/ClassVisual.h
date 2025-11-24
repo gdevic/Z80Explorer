@@ -3,10 +3,10 @@
 
 #include "AppTypes.h"
 #include <QFont>
-#include <QHash>
 #include <QImage>
 #include <QObject>
 #include <QPainterPath>
+#include <QVector>
 
 // Contains visual definition of a transistor
 struct transvdef
@@ -21,7 +21,8 @@ struct transvdef
 struct segvdef
 {
     net_t netnum {};                    // A non-zero net number
-    QVector<QPainterPath> paths {};     // Outline of the segment topology as a set of QPainter paths
+    QPainterPath path;                  // Outline of the segment topology, thus may contain multiple
+                                        // sub-paths
 };
 
 // Contains information about a latch
@@ -53,8 +54,7 @@ public:
     const QVector<net_t> getNetsAt(int x, int y); // Returns a list of (unique) nets located at the specified image coordinates
     const QStringList getImageNames();    // Returns a list of layer / image names
     const segvdef *getSegment(net_t net); // Returns the segment visual definition, nullptr if not found
-    void toggleAltSegdef()                // Toggle alternate segment definition as active
-        { use_alt_segdef = !use_alt_segdef; }
+    void toggleAltSegdef();               // Toggle alternate segment definition as active
     const transvdef *getTrans(tran_t id); // Returns transistor visual definition, nullptr if not found
     tran_t getTransistorAt(int x, int y); // Returns a transistor at the specified image coordinates
     QString getFeaturesAt(int x, int y);  // Returns the list of features at the specified image coordinates
@@ -77,8 +77,8 @@ private:
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
     bool m_transBaseState[MAX_TRANS];   // Base state of each transistor
     uchar m_transFlipCount[MAX_TRANS];  // Number of times each transistor changed its state
-    QHash<net_t, segvdef> m_segvdefs;   // Hash of segment visual definitions, key is the segment net number
-    QHash<net_t, segvdef> m_segvdefs2;  // Alternate segment visual definitions
+    QVector<segvdef> m_segvdefs;        // List of segment visual definitions, index is the segment net number
+    QVector<segvdef> m_segvdefs2;       // Alternate segment visual definitions
     bool use_alt_segdef {false};        // Use alternate segment definitions
     QVector<latchdef> m_latches;        // Array of latches
     QVector<QImage> m_img;              // Chip layer images
@@ -106,7 +106,7 @@ private:
     void fillLayerMap();                // Fills layer map with vss and vcc
     void saveLayerMap();                // Saves layer map to a file
     // Experimental code
-    void experimental_1();              // Merges net paths for a better visual display
+    void experimental_1();
     void experimental_2();              // Creates transistors paths hinted by transdef bounding boxes
     void experimental_3();              // Creates transistors paths based on our feature bitmap
     bool saveSegvdefs(QString dir);     // Saves m_segvdefs
