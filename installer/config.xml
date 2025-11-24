@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Z80 Explorer</Name>
+    <Version>0.0.1</Version>
+    <Title>Z80 Explorer Installer</Title>
+    <Publisher>Baltazar Studios, LLC</Publisher>
+    <StartMenuDir>Baltazar Studios</StartMenuDir>
+    <!--
+    <TargetDir>@ApplicationsDir@/Z80Explorer</TargetDir>
+    <AdminTargetDir>@ApplicationsDir@/Z80Explorer</AdminTargetDir>
+    -->
+    <TargetDir>@ApplicationsDirUser@/Z80Explorer</TargetDir>
+    <AllowSpaceInPath>true</AllowSpaceInPath>
+    <InstallerApplicationIcon>../../../src/app.ico</InstallerApplicationIcon>
+    <ProductUrl>https://github.com/gdevic/Z80Explorer</ProductUrl>
+</Installer>
