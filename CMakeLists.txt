@@ -13,6 +13,7 @@ qt_add_executable(Z80Explorer
     src/ClassApplog.cpp
     src/ClassColors.cpp
     src/ClassController.cpp
+    src/ClassJSLoader.cpp
     src/ClassLogic.cpp
     src/ClassNetlist.cpp
     src/ClassScript.cpp
@@ -51,6 +52,7 @@ qt_add_executable(Z80Explorer
     src/ClassColors.h
     src/ClassController.h
     src/ClassException.h
+    src/ClassJSLoader.h
     src/ClassLogic.h
     src/ClassNetlist.h
     src/ClassScript.h
@@ -144,6 +146,13 @@ if (WIN32)
     set(CMAKE_INSTALL_PREFIX
         "${CMAKE_CURRENT_BINARY_DIR}/installer/packages/com.baltazarstudios.z80explorer/data"
     )
+endif()
+
+if (1)
+    qt_add_executable(JSLoader WIN32 MACOSX_BUNDLE src/ClassJSLoader.h src/ClassJSLoader.cpp)
+    target_link_libraries(JSLoader PRIVATE Qt::Core)
+    target_include_directories(JSLoader PRIVATE src)
+    target_compile_definitions(JSLoader PRIVATE QT_DEPRECATED_WARNINGS WINDOWS _CRT_SECURE_NO_WARNINGS JSLOADER_INTERACTIVE)
 endif()
 
 if (WIN32)

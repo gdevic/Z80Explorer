@@ -1,5 +1,6 @@
-#include "ClassController.h"
 #include "ClassNetlist.h"
+#include "ClassController.h"
+#include "ClassJSLoader.h"
 #include <QCollator>
 #include <QFile>
 #include <QSettings>
@@ -199,61 +200,61 @@ bool ClassNetlist::loadTransdefs(const QString dir)
 {
     QString transdefs_file = dir + "/transdefs.js";
     qInfo() << "Loading" << transdefs_file;
-    QFile file(transdefs_file);
-    net_t max = 0;
-    if (file.open(QFile::ReadOnly | QFile::Text))
+    ClassJSLoader loader;
+    if (loader.load(transdefs_file))
     {
-        QTextStream in(&file);
-        QString line;
-        QStringList list;
-        m_transdefs.fill(Trans{}); // Clear the array with the defaults
+        using JS = ClassJSLoader;
+        net_t max = 0;
         uint count = 0, pull_ups = 0;
-        m_netlist.fill(Net{});
+        m_transdefs.fill(Trans {}); // Clear the array with the defaults
+        m_netlist.fill(Net {});
 
-        while (!in.atEnd())
+        const JS::Array *rows = loader.rootArray();
+        if (!rows)
         {
-            line = in.readLine();
-            if (line.startsWith('['))
+            qCritical() << "The root object is not an array";
+            return false;
+        }
+        for (const JS::Value &arow : *rows)
+        {
+            // example:
+            // ['t251',1,1,1,[4216,4221,4058,4085],[1,1,1,1,135],false,],
+            const JS::Array *row = std::get_if<JS::Array>(&arow);
+            if (row && row->count() == 7 && std::get_if<JS::String>(&(*row)[0])->length() > 2)
             {
-                line.replace('[', ' ').replace(']', ' '); // Make it a simple list of numbers
-                line.chop(2);
-                list = line.split(QLatin1Char(','), Qt::SkipEmptyParts);
-                if ((list.length() == 14) && (list[0].length() > 2))
+                // In the legacy transdefs.js file (from the Visual 6502 team) there are 32 transistors that are in fact pull-ups
+                // and can be ignored. They are marked as pull-ups, and we don't load them.
+                if (std::get<bool>(row->last()) == false)
                 {
-                    // In the legacy transdefs.js file (from the Visual 6502 team) there are 32 transistors that are in fact pull-ups
-                    // and can be ignored. They are marked as pull-ups, and we don't load them.
-                    if (list[13] != "true")
-                    {
-                        // ----- Add the transistor to the transistor array -----
-                        QString tnum = list[0].mid(3, list[0].length() - 4);
-                        tran_t i = tnum.toUInt();
-                        Q_ASSERT(i < MAX_TRANS);
-                        Trans *p = &m_transdefs[i];
+                    const JS::Array &list = *row;
 
-                        p->id = i;
-                        p->gate = list[1].toUInt();
-                        p->c1 = list[2].toUInt();
-                        p->c2 = list[3].toUInt();
+                    // ----- Add the transistor to the transistor array -----
+                    QStringView tnum = std::get<JS::String>(list[0]).mid(1);
+                    tran_t i = tnum.toUInt();
+                    Q_ASSERT(i < MAX_TRANS);
+                    Trans *p = &m_transdefs[i];
 
-                        // Pull-up, pull-down and clock gate transistors should always have their *second* connection to the power/ground/clk
-                        if (p->c1 <= nclk) // ngnd=1, npwr=2, nclk=2, ...
-                            std::swap(p->c1, p->c2);
-                        max = std::max(max, std::max(p->c1, p->c2)); // Find the max net number
+                    p->id = i;
+                    p->gate = uint(std::get<double>(list[1]));
+                    p->c1 = uint(std::get<double>(list[2]));
+                    p->c2 = uint(std::get<double>(list[3]));
 
-                        // ----- Add the transistor to the netlist -----
-                        m_netlist[p->gate].gates.append(p);
-                        m_netlist[p->c1].c1c2s.append(p);
-                        m_netlist[p->c2].c1c2s.append(p);
-                        count++;
-                    }
-                    else
-                        pull_ups++;
+                    // Pull-up, pull-down and clock gate transistors should always have their *second* connection to the power/ground/clk
+                    if (p->c1 <= nclk) // ngnd=1, npwr=2, nclk=2, ...
+                        std::swap(p->c1, p->c2);
+                    max = std::max(max, std::max(p->c1, p->c2)); // Find the max net number
+
+                    // ----- Add the transistor to the netlist -----
+                    m_netlist[p->gate].gates.append(p);
+                    m_netlist[p->c1].c1c2s.append(p);
+                    m_netlist[p->c2].c1c2s.append(p);
+                    count++;
                 }
                 else
-                    qWarning() << "Invalid line" << list;
+                    pull_ups++;
             }
             else
-                qDebug() << "Skipping" << line;
+                qWarning() << "Invalid line" << (row ? *row : JS::Array());
         }
         // In the legacy netlist we expect exactly 32 pull-ups
         if (pull_ups != 32)
@@ -263,12 +264,14 @@ bool ClassNetlist::loadTransdefs(const QString dir)
         }
         qInfo() << "Loaded" << count << "transistor definitions";
         qInfo() << "Index of the last connected net" << max;
-        count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net &net)
-            { return !!(net.gates.count() || net.c1c2s.count()); });
+        count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net &net) {
+            return !!(net.gates.count() || net.c1c2s.count());
+        });
         qInfo() << "Total number of nets" << count;
 
-        count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net &net)
-            { return (net.gates.count() == 0) && (net.c1c2s.count() == 0); });
+        count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net &net) {
+            return (net.gates.count() == 0) && (net.c1c2s.count() == 0);
+        });
         qInfo() << "Number of bogus (disconnected) nets" << (count - 1); // Ignore net #0
 
         count = std::count_if(m_transdefs.begin(), m_transdefs.end(), [](Trans &t) { return t.id; });
@@ -293,35 +296,40 @@ bool ClassNetlist::loadPullups(const QString dir)
 {
     QString segdefs_file = dir + "/segdefs.js";
     qInfo() << "Loading" << segdefs_file;
-    QFile file(segdefs_file);
-    if (file.open(QFile::ReadOnly | QFile::Text))
+
+    ClassJSLoader loader;
+    if (loader.load(segdefs_file))
     {
-        QTextStream in(&file);
-        QString line;
-        QStringList list;
-        while (!in.atEnd())
+        using JS = ClassJSLoader;
+        const JS::Array *rows = loader.rootArray();
+        if (!rows)
         {
-            line = in.readLine();
-            if (line.startsWith('['))
+            qCritical() << "The root object is not an array";
+            return false;
+        }
+        for (const JS::Value &arow : *rows)
+        {
+            // example:
+            // [ 48,'-',0,4613,4961,4644,4961,4644,4951,4613,4951],
+            const JS::Array *row = std::get_if<JS::Array>(&arow);
+            if (row && row->length() > 4)
             {
-                line = line.mid(2, line.length() - 4);
-                list = line.split(',');
-                if (list.length() > 4)
-                {
-                    uint i = list[0].toUInt();
-                    Q_ASSERT(i < MAX_NETS);
-                    // Net has a (permanent) pull-up resistor and it is high on a power-up
-                    m_netlist[i].hasPullup = list[1].contains('+');
-                    m_netlist[i].isHigh = list[1].contains('+');
-                }
-                else
-                    qWarning() << "Invalid line" << line;
+                const JS::Array &list = *row;
+                uint i = uint(std::get<double>(list[0]));
+                Q_ASSERT(i < MAX_NETS);
+                // Net has a (permanent) pull-up resistor and it is high on a power-up
+                const JS::String &list_1 = std::get<JS::String>(list[1]);
+                m_netlist[i].hasPullup = list_1.contains('+');
+                m_netlist[i].isHigh = list_1.contains('+');
             }
+            else
+                qWarning() << "Invalid line" << (row ? *row : JS::Array());
         }
         uint count = std::count_if(m_netlist.begin(), m_netlist.end(), [](Net &net) { return net.hasPullup; });
         qInfo() << "Number of pullups" << count;
         return true;
     }
+
     qCritical() << "Error opening segdefs.js";
     return false;
 }
