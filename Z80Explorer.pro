@@ -14,6 +14,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 win32 {
 DEFINES += WINDOWS
 DEFINES += _CRT_SECURE_NO_WARNINGS
+# AVX2 support for optimized simulation (widely supported on CPUs from 2013+)
+QMAKE_CXXFLAGS += /arch:AVX2
 }
 
 # You can also make your code fail to compile if it uses deprecated APIs.
@@ -31,6 +33,7 @@ SOURCES += \
     src/ClassScript.cpp \
     src/ClassServer.cpp \
     src/ClassSimZ80.cpp \
+    src/ClassSimZ80_AVX2.cpp \
     src/ClassTip.cpp \
     src/ClassTrickbox.cpp \
     src/ClassVisual.cpp \
@@ -70,6 +73,7 @@ HEADERS += \
     src/ClassScript.h \
     src/ClassServer.h \
     src/ClassSimZ80.h \
+    src/ClassSimZ80_AVX2.h \
     src/ClassSingleton.h \
     src/ClassTip.h \
     src/ClassTrickbox.h \

@@ -3,6 +3,7 @@
 
 #define APP_VERSION 108 // Application version (minor % 100)
 #define USE_PERFORMANCE_SIM 1 // Use faster and optimized (but more obfuscated) simulation code
+#define USE_AVX2_SIM 1 // Use optimized simulation with AVX2/x64 intrinsics
 #define HAVE_PREBUILT_LAYERMAP 1 // We have extracted a fully prebuilt layermap.bin and can use it
 #define FIX_Z80_LAYERMAP_TO_VISUAL_ENUM 1 // Fix to prebuilt layermap incorrectly counting nets between 1559 and 1710
 #define SOCKET_SERVER 0 // Enable command socket server on port 12345

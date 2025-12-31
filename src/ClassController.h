@@ -1,12 +1,16 @@
 #ifndef CLASSCONTROLLER_H
 #define CLASSCONTROLLER_H
 
+#include "AppTypes.h"
 #include "ClassAnnotate.h"
 #include "ClassVisual.h"
 #include "ClassColors.h"
 #include "ClassScript.h"
 #include "ClassServer.h"
 #include "ClassSimZ80.h"
+#if USE_AVX2_SIM
+#include "ClassSimZ80_AVX2.h"
+#endif
 #include "ClassTip.h"
 #include "ClassTrickbox.h"
 #include "ClassWatch.h"
@@ -27,9 +31,13 @@ public: // API
     inline ClassColors   &getColors()     { return m_colors; }    // Returns a reference to the colors class
     inline ClassScript   &getScript()     { return m_script; }    // Returns a reference to the script class
     inline ClassServer   &getServer()     { return m_server; }    // Returns a reference to the server class
+#if USE_AVX2_SIM
+    inline ClassSimZ80_AVX2 &getSimZ80()  { return m_simz80avx2; } // Returns a reference to the AVX2 optimized Z80 simulator
+#else
     inline ClassSimZ80   &getSimZ80()     { return m_simz80; }    // Returns a reference to the Z80 simulator class
+#endif
     inline ClassWatch    &getWatch()      { return m_watch; }     // Returns a reference to the watch class
-    inline ClassNetlist  &getNetlist()    { return m_simz80; }    // Returns a reference to the netlist class (a subclass)
+    inline ClassNetlist  &getNetlist()    { return m_simz80; }    // Returns a reference to the netlist class (always original for compatibility)
     inline ClassTip      &getTip()        { return m_tips; }      // Returns a reference to the tips class
     inline ClassTrickbox &getTrickbox()   { return m_trick; }     // Returns a reference to the Trickbox class
 
@@ -46,9 +54,17 @@ public: // API
     bool patchHex(QString fileName)               // Merges file into simulated RAM memory; empty name for last loaded
         { return m_trick.patchHex(fileName); }
     void readState(z80state &state)               // Reads chip state structure
+#if USE_AVX2_SIM
+        { m_simz80avx2.readState(state); }
+#else
         { m_simz80.readState(state); }
+#endif
     bool isSimRunning()                           // Returns true is the simulation is currently running
+#if USE_AVX2_SIM
+        { return m_simz80avx2.isRunning(); }
+#else
         { return m_simz80.isRunning(); }
+#endif
 
     const QStringList getFormats(QString name); // Returns a list of formats applicable to the signal name (a net or a bus)
     enum FormatNet { Logic, Logic0Filled, Logic1Filled, TransUp, TransDown, TransAny };
@@ -87,7 +103,10 @@ private:
     ClassColors   m_colors;     // Global application colors
     ClassScript   m_script;     // Global scripting support
     ClassServer   m_server;     // Global socket server class
-    ClassSimZ80   m_simz80;     // Global Z80 simulator class
+    ClassSimZ80   m_simz80;     // Global Z80 simulator class (always needed for netlist)
+#if USE_AVX2_SIM
+    ClassSimZ80_AVX2 m_simz80avx2; // AVX2 optimized Z80 simulator class
+#endif
     ClassWatch    m_watch;      // Global watchlist
     ClassTip      m_tips;       // Global tips
     ClassTrickbox m_trick;      // Global trickbox supporting environment

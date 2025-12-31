@@ -24,6 +24,9 @@ bool ClassController::init(QJSEngine *sc)
     connect(this, &ClassController::shutdown, &m_colors, &ClassColors::onShutdown);
     connect(this, &ClassController::shutdown, &m_script, &ClassScript::stop);
     connect(this, &ClassController::shutdown, &m_simz80, &ClassSimZ80::onShutdown);
+#if USE_AVX2_SIM
+    connect(this, &ClassController::shutdown, &m_simz80avx2, &ClassSimZ80_AVX2::onShutdown);
+#endif
     connect(this, &ClassController::shutdown, &m_tips, &ClassTip::onShutdown);
     connect(this, &ClassController::shutdown, &m_watch, &ClassWatch::onShutdown);
 
@@ -59,6 +62,16 @@ bool ClassController::init(QJSEngine *sc)
         qCritical() << "Unable to load chip resources from" << resDir;
         return false;
     }
+#if USE_AVX2_SIM
+    // Initialize the AVX2 optimized simulator
+    qInfo() << "Initializing AVX2 optimized simulator...";
+    if (!m_simz80avx2.loadResources(resDir) || !m_simz80avx2.initChip())
+    {
+        qCritical() << "Unable to initialize AVX2 optimized simulator from" << resDir;
+        return false;
+    }
+    qInfo() << "AVX2 optimized simulator initialized successfully";
+#endif
 
     m_watch.load(resDir + "/watchlist.json");
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
@@ -104,7 +117,11 @@ uint ClassController::doReset()
     qDebug() << "Chip reset";
     m_watch.clear(); // Clear watch signal history
     m_trick.reset(); // Reset the control counters etc.
+#if USE_AVX2_SIM
+    uint hcycle = m_simz80avx2.doReset();
+#else
     uint hcycle = m_simz80.doReset();
+#endif
     emit onRunStopped(hcycle);
     return hcycle;
 }
@@ -114,7 +131,11 @@ uint ClassController::doReset()
  */
 void ClassController::doRunsim(uint ticks)
 {
+#if USE_AVX2_SIM
+    m_simz80avx2.doRunsim(ticks);
+#else
     m_simz80.doRunsim(ticks);
+#endif
 
     if (ticks == INT_MAX)
         qInfo() << "Starting simulation";
