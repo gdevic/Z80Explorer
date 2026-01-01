@@ -2,6 +2,7 @@
 #include "ClassLogic.h"
 #include "ClassNetlist.h"
 #include <algorithm>
+#include <QSet>
 #include <QSettings>
 
 /*
@@ -12,8 +13,8 @@
  * clk, t1..t6, m1..m6, flops and all PLA (instruction decode) signals. This list is customizable.
  */
 // XXX Maybe we don't need to track visitedNets?
-static QVector<net_t> visitedNets; // Avoid loops by keeping nets that are already visited
-static QVector<tran_t> visitedTrans; // Avoid path duplication by keeping transistors that are already visited
+static QSet<net_t> visitedNets; // Avoid loops by keeping nets that are already visited
+static QSet<tran_t> visitedTrans; // Avoid path duplication by keeping transistors that are already visited
 
 Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets, bool first) : op(op), outnet(n)
 {
@@ -29,7 +30,7 @@ Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets, bool first) : op(op), o
     if (checkVisitedNets && visitedNets.contains(n))
         leaf = true;
     else
-        visitedNets.append(n);
+        visitedNets.insert(n);
 }
 
 Logic::~Logic() {}
@@ -299,7 +300,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
     if ((node->trans.count() == 1) && (node->trans[0].gate == nclk))
     {
         qDebug() << "Clock gate t=" << node->trans[0].id;
-        visitedTrans.append(node->trans[0].id);
+        visitedTrans.insert(node->trans[0].id);
         net_t net_other = node->trans[0].c2; // The net on the other side of the transistor
         Logic *next = new Logic(net_other, LogicOp::ClkGate, false);
         node->inputs.append(next);
@@ -311,7 +312,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
     if ((node->trans.count() == 1) && (node->trans[0].c2 == ngnd))
     {
         qDebug() << "Inverter t=" << node->trans[0].id;
-        visitedTrans.append(node->trans[0].id);
+        visitedTrans.insert(node->trans[0].id);
         net_t net_other = node->trans[0].gate; // The net being inverted
         Logic *inv = new Logic(net_other, LogicOp::Inverter, false);
         node->inputs.append(inv);
@@ -329,10 +330,10 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
         if (netaux.hasPullup && (netaux.c1c2s.count() == 2) && (netaux.c1c2s[0]->c2 == ngnd) && (netaux.c1c2s[1]->c2 == ngnd))
         {
             qDebug() << "Clocked push/pull inverter driver t=" << node->trans[0].id;
-            visitedTrans.append(netaux.c1c2s[0]->id);
-            visitedTrans.append(netaux.c1c2s[1]->id);
-            visitedTrans.append(node->trans[0].id);
-            visitedTrans.append(node->trans[1].id);
+            visitedTrans.insert(netaux.c1c2s[0]->id);
+            visitedTrans.insert(netaux.c1c2s[1]->id);
+            visitedTrans.insert(node->trans[0].id);
+            visitedTrans.insert(node->trans[1].id);
             net_t net_other = (node->trans[0].gate == nclk) ? node->trans[1].gate : node->trans[0].gate;
             Logic *aux = new Logic(aux_net, LogicOp::Inverter, false);
             node->inputs.append(aux);
@@ -350,7 +351,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
         qDebug() << "Push/pull inverter driver t=" << node->trans[0].id;
         // A driving net is the one connecting one of the transistors to the ground
         net_t net_other = (node->trans[0].c2 == ngnd) ? node->trans[0].gate : node->trans[1].gate;
-        visitedTrans.append(node->trans[0].id);
+        visitedTrans.insert(node->trans[0].id);
         Logic *next = new Logic(net_other, LogicOp::Inverter, false);
         next->name = "P/P";
         node->inputs.append(next);
@@ -397,7 +398,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
                 // Contributing nets form a NOR gate
                 for (auto i : shared)
                 {
-                    visitedTrans.append(root->trans[i].id);
+                    visitedTrans.insert(root->trans[i].id);
 
                     net_t net_gate = root->trans[i].gate;
                     Logic *next = new Logic(net_gate);
@@ -413,7 +414,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
                 // Contributing nets form an OR gate
                 for (auto i : shared)
                 {
-                    visitedTrans.append(root->trans[i].id);
+                    visitedTrans.insert(root->trans[i].id);
 
                     net_t net_gate = root->trans[i].gate;
                     Logic *next = new Logic(net_gate);
@@ -442,8 +443,8 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
             latchdef *latch = ::controller.getChip().getLatch(t1.id);
             if (latch != nullptr)
             {
-                visitedTrans.append(latch->t1);
-                visitedTrans.append(latch->t2);
+                visitedTrans.insert(latch->t1);
+                visitedTrans.insert(latch->t2);
 
                 Logic *next = new Logic(net0id, LogicOp::Latch, false);
                 next->leaf = true;
@@ -478,12 +479,12 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
 
                     Logic *next_and1 = new Logic(net1gt);
                     next->inputs.append(next_and1);
-                    visitedTrans.append(root->trans[0].id);
+                    visitedTrans.insert(root->trans[0].id);
                     parse(next_and1, depth);
 
                     Logic *next_and2 = new Logic(net2gt);
                     next->inputs.append(next_and2);
-                    visitedTrans.append(t2->id);
+                    visitedTrans.insert(t2->id);
                     parse(next_and2, depth);
 
                     // Remove first transistor
@@ -507,17 +508,17 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
 
                         Logic *next_and1 = new Logic(net1gt);
                         next->inputs.append(next_and1);
-                        visitedTrans.append(root->trans[0].id);
+                        visitedTrans.insert(root->trans[0].id);
                         parse(next_and1, depth);
 
                         Logic *next_and2 = new Logic(net2gt);
                         next->inputs.append(next_and2);
-                        visitedTrans.append(t2->id);
+                        visitedTrans.insert(t2->id);
                         parse(next_and2, depth);
 
                         Logic *next_and3 = new Logic(net3gt);
                         next->inputs.append(next_and3);
-                        visitedTrans.append(t3->id);
+                        visitedTrans.insert(t3->id);
                         parse(next_and3, depth);
 
                         // Remove first transistor
@@ -530,7 +531,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
             if (root->trans[0].c2 == ngnd)
             {
                 qDebug() << "Inverter t=" << root->trans[0].id;
-                visitedTrans.append(root->trans[0].id);
+                visitedTrans.insert(root->trans[0].id);
                 net_t net_other = root->trans[0].gate; // The net being inverted
                 Logic *inv = new Logic(net_other, LogicOp::Inverter, false);
                 root->inputs.append(inv);
@@ -545,7 +546,7 @@ Logic *ClassNetlist::parse(Logic *node, int depth)
             // Detect and handle single transistor pass gate: AND with an inverter on the source (but not on the gate) net
             {
                 qDebug() << "Single transistor pass gate t=" << root->trans[0].id;
-                visitedTrans.append(root->trans[0].id);
+                visitedTrans.insert(root->trans[0].id);
                 net_t net_other = root->trans[0].c2; // The net on the other side of that transistor
                 net_t net_gate = root->trans[0].gate; // The net connected to the gate
 

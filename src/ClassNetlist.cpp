@@ -2,6 +2,7 @@
 #include "ClassNetlist.h"
 #include <QCollator>
 #include <QFile>
+#include <QSet>
 #include <QSettings>
 
 ClassNetlist::ClassNetlist() :
@@ -406,16 +407,17 @@ const QStringList ClassNetlist::get(const QVector<net_t> &nets)
  */
 const QVector<net_t> ClassNetlist::netsDriving(net_t n)
 {
-    QVector<net_t> nets;
+    QSet<net_t> netSet;
     const QVector<Trans*> &gates = m_netlist[n].gates;
 
     for (Trans *t : gates)
     {
-        if ((t->c1 > 2) && !nets.contains(t->c1)) // c1 is the source
-            nets.append(t->c1);
-        if ((t->c2 > 2) && !nets.contains(t->c2)) // c2 is the drain
-            nets.append(t->c2);
+        if (t->c1 > 2) // c1 is the source
+            netSet.insert(t->c1);
+        if (t->c2 > 2) // c2 is the drain
+            netSet.insert(t->c2);
     }
+    QVector<net_t> nets(netSet.begin(), netSet.end());
     std::sort(nets.begin(), nets.end()); // Sorting numbers only
     return nets;
 }
@@ -425,12 +427,10 @@ const QVector<net_t> ClassNetlist::netsDriving(net_t n)
  */
 const QVector<net_t> ClassNetlist::netsDriven(net_t n)
 {
-    QVector<net_t> nets;
+    QSet<net_t> netSet;
     for (Trans *t : m_netlist[n].c1c2s)
-    {
-        if (!nets.contains(t->gate))
-            nets.append(t->gate);
-    }
+        netSet.insert(t->gate);
+    QVector<net_t> nets(netSet.begin(), netSet.end());
     std::sort(nets.begin(), nets.end()); // Sorting numbers only
     return nets;
 }
