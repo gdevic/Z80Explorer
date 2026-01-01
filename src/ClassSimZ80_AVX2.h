@@ -74,6 +74,7 @@ private:
 
     void setDB(uint8_t db);
     void set(bool on, const QString &name);
+    __forceinline void set(bool on, net_t n);  // Fast version using cached net_t
 
     //==================== AVX2 OPTIMIZED SIMULATOR ====================
 
@@ -132,8 +133,9 @@ private:
     alignas(CACHE_LINE_SIZE) uint64_t m_groupBitset[64];
     alignas(CACHE_LINE_SIZE) uint64_t m_recalcBitset[64];
 
-    // Special net numbers
+    // Special net numbers (cached for performance - avoid QString lookups in hot path)
     net_t ngnd, npwr, nclk;
+    net_t n_rfsh, n_m1, n_mreq, n_rd, n_wr, n_iorq, n_t2, n_t3;
 
     // Net name lookup
     QString m_netnames[MAX_NETS];

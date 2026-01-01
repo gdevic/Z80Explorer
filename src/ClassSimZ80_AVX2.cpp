@@ -100,6 +100,16 @@ bool ClassSimZ80_AVX2::loadResources(const QString dir)
         npwr = get("vcc");
         nclk = get("clk");
 
+        // Cache frequently-accessed net numbers for halfCycle performance
+        n_rfsh = get("_rfsh");
+        n_m1   = get("_m1");
+        n_mreq = get("_mreq");
+        n_rd   = get("_rd");
+        n_wr   = get("_wr");
+        n_iorq = get("_iorq");
+        n_t2   = get("t2");
+        n_t3   = get("t3");
+
         qInfo() << "Checking that vss,vcc,clk nets are numbered 1,2,3";
         if (ngnd == 1 && npwr == 2 && nclk == 3)
         {
@@ -485,17 +495,18 @@ uint ClassSimZ80_AVX2::doReset()
 
 __forceinline void ClassSimZ80_AVX2::halfCycle()
 {
-    const pin_t clk = readBit("clk");
-    if (!clk && readBit("_rfsh"))
+    // Use cached net_t values instead of QString lookups - major perf win
+    const pin_t clk = readBit(nclk);
+    if (!clk && readBit(n_rfsh))
     {
-        const bool m1   = readBit("_m1");
+        const bool m1   = readBit(n_m1);
         const bool rfsh = 1;
-        const bool mreq = readBit("_mreq");
-        const bool rd   = readBit("_rd");
-        const bool wr   = readBit("_wr");
-        const bool iorq = readBit("_iorq");
-        const bool t2   = readBit("t2");
-        const bool t3   = readBit("t3");
+        const bool mreq = readBit(n_mreq);
+        const bool rd   = readBit(n_rd);
+        const bool wr   = readBit(n_wr);
+        const bool iorq = readBit(n_iorq);
+        const bool t2   = readBit(n_t2);
+        const bool t3   = readBit(n_t3);
 
         if (!m1 && rfsh && !mreq && !rd &&  wr &&  iorq && t2)
             handleMemRead(readAB());
@@ -511,7 +522,7 @@ __forceinline void ClassSimZ80_AVX2::halfCycle()
             handleIrq();
     }
 
-    set(!clk, "clk");
+    set(!clk, nclk);  // Use cached net_t
 
     if (::controller.getWatch().getWatchlistLen())
     {
@@ -519,7 +530,8 @@ __forceinline void ClassSimZ80_AVX2::halfCycle()
         watch *w = ::controller.getWatch().getFirst(it);
         while (w != nullptr)
         {
-            pin_t bit = readBit(w->name);
+            // Use cached net_t (w->n) instead of QString lookup - major perf win
+            pin_t bit = (w->n) ? readBit(w->n) : 3;  // Skip buses (n==0)
             ::controller.getWatch().append(w, m_hcycletotal, bit);
             w = ::controller.getWatch().getNext(it);
         }
@@ -754,6 +766,19 @@ void ClassSimZ80_AVX2::allNets()
 __forceinline void ClassSimZ80_AVX2::set(bool on, const QString &name)
 {
     net_t n = get(name);
+    if (m_netlist[n].isHigh == on)
+        return;
+    m_netlist[n].isHigh = on;
+    m_netlist[n].isLow = !on;
+
+    m_list[0] = n;
+    m_listIndex = 1;
+    recalcNetlist();
+}
+
+// Fast version using pre-cached net_t - avoids QString hash lookup
+__forceinline void ClassSimZ80_AVX2::set(bool on, net_t n)
+{
     if (m_netlist[n].isHigh == on)
         return;
     m_netlist[n].isHigh = on;
