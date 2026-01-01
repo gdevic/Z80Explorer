@@ -98,6 +98,7 @@ private:
 
     // Read operations
     uint8_t readByte(const QString &name);
+    uint8_t readDB();   // Fast version using cached n_db[]
     pin_t readBit(const QString &name);
     pin_t readBit(net_t n);
     uint16_t readAB();

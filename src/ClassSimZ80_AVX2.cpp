@@ -812,7 +812,7 @@ void ClassSimZ80_AVX2::handleMemRead(uint16_t ab)
 
 void ClassSimZ80_AVX2::handleMemWrite(uint16_t ab)
 {
-    uint8_t db = readByte("db");
+    uint8_t db = readDB();
     ::controller.writeMem(ab, db);
 }
 
@@ -824,7 +824,7 @@ void ClassSimZ80_AVX2::handleIORead(uint16_t ab)
 
 void ClassSimZ80_AVX2::handleIOWrite(uint16_t ab)
 {
-    uint8_t db = readByte("db");
+    uint8_t db = readDB();
     ::controller.writeIO(ab, db);
 }
 
@@ -846,6 +846,18 @@ uint16_t ClassSimZ80_AVX2::readAB()
     {
         value <<= 1;
         value |= !!readBit(n_ab[i]);
+    }
+    return value;
+}
+
+uint8_t ClassSimZ80_AVX2::readDB()
+{
+    // Use cached net_t array instead of QString construction
+    uint8_t value = 0;
+    for (int i = 7; i >= 0; --i)
+    {
+        value <<= 1;
+        value |= !!readBit(n_db[i]);
     }
     return value;
 }
