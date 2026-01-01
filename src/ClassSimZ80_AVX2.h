@@ -136,6 +136,8 @@ private:
     // Special net numbers (cached for performance - avoid QString lookups in hot path)
     net_t ngnd, npwr, nclk;
     net_t n_rfsh, n_m1, n_mreq, n_rd, n_wr, n_iorq, n_t2, n_t3;
+    net_t n_db[8];   // db0-db7 cached for setDB performance
+    net_t n_ab[16];  // ab0-ab15 cached for readAB performance
 
     // Net name lookup
     QString m_netnames[MAX_NETS];

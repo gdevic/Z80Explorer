@@ -110,6 +110,14 @@ bool ClassSimZ80_AVX2::loadResources(const QString dir)
         n_t2   = get("t2");
         n_t3   = get("t3");
 
+        // Cache data bus nets for setDB performance
+        for (int i = 0; i < 8; i++)
+            n_db[i] = get(QString("db%1").arg(i));
+
+        // Cache address bus nets for readAB performance
+        for (int i = 0; i < 16; i++)
+            n_ab[i] = get(QString("ab%1").arg(i));
+
         qInfo() << "Checking that vss,vcc,clk nets are numbered 1,2,3";
         if (ngnd == 1 && npwr == 2 && nclk == 3)
         {
@@ -791,14 +799,9 @@ __forceinline void ClassSimZ80_AVX2::set(bool on, net_t n)
 
 void ClassSimZ80_AVX2::setDB(uint8_t db)
 {
-    set(db &   1, "db0");
-    set(db &   2, "db1");
-    set(db &   4, "db2");
-    set(db &   8, "db3");
-    set(db &  16, "db4");
-    set(db &  32, "db5");
-    set(db &  64, "db6");
-    set(db & 128, "db7");
+    // Use cached net_t array instead of QString lookups
+    for (int i = 0; i < 8; i++)
+        set(db & (1 << i), n_db[i]);
 }
 
 void ClassSimZ80_AVX2::handleMemRead(uint16_t ab)
@@ -837,11 +840,12 @@ void ClassSimZ80_AVX2::handleIrq()
 
 uint16_t ClassSimZ80_AVX2::readAB()
 {
+    // Use cached net_t array instead of QString construction
     uint16_t value = 0;
     for (int i = 15; i >= 0; --i)
     {
         value <<= 1;
-        value |= !!readBit(QString("ab" % QString::number(i)));
+        value |= !!readBit(n_ab[i]);
     }
     return value;
 }
