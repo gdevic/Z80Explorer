@@ -51,11 +51,17 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
     font.setPixelSize(m_fontheight);
     painter.setFont(font);
 
-    // Draw a faint gray background grid
+    // Calculate visible sample range from the dirty/visible rectangle
+    // Sample index i maps to screen X via: x = i * m_hscale
+    int iStart = qMax(0, int(r.left() / m_hscale) - 1);
+    int iEnd = qMin(MAX_WATCH_HISTORY, int(r.right() / m_hscale) + 2);
+
+    // Draw a faint gray background grid (only in visible range)
     painter.setPen(QPen(Qt::gray));
     const uint min_dist = 50;
     uint delta = 1 + qreal(min_dist) / m_hscale;
-    for (int i = 0; i <= MAX_WATCH_HISTORY; i += delta)
+    int gridStart = (iStart / delta) * delta; // Align to grid step
+    for (int i = gridStart; i <= iEnd; i += delta)
     {
         uint x = i * m_hscale;
         painter.drawLine(x, 0, x, r.bottom());
@@ -71,9 +77,9 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
         if (w) // Check that the view item is actually being watched
         {
             if (w->n)
-                drawOneSignal_Net(painter, y, hstart, w, vi);
+                drawOneSignal_Net(painter, y, hstart, w, vi, iStart, iEnd);
             else
-                drawOneSignal_Bus(painter, y, hstart, w, vi);
+                drawOneSignal_Bus(painter, y, hstart, w, vi, iStart, iEnd);
         }
         y += m_dY; // Advance to the next Y coordinate, this is the height of each net
         vi = m_dock->getNext(it);
@@ -81,7 +87,7 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
     drawCursors(painter, r, hstart);
 }
 
-void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
+void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem, int iStart, int iEnd)
 {
     const uint wh[4]{ 0, m_waveheight, m_waveheight / 2, 0 };
     static const QPen penHiZ = QPen(QColor(Qt::white), 1, Qt::DotLine);
@@ -89,8 +95,9 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
     fillColor.setAlphaF(0.5); // 50% intensity for fills
     QBrush stripeBrush(fillColor, Qt::Dense4Pattern); // Create striped brush pattern
     painter.setPen(viewitem->color);
-    net_t data_cur, data_prev = ::controller.getWatch().at(w, hstart);
-    for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
+    // Get the previous sample value for drawing transitions at iStart
+    net_t data_cur, data_prev = ::controller.getWatch().at(w, hstart + qMax(0, iStart - 1));
+    for (int i = iStart; i < iEnd; i++, data_prev = data_cur)
     {
         data_cur = ::controller.getWatch().at(w, hstart + i);
         if (data_cur > 2) // If the data is undef at this cycle, do not draw it
@@ -149,17 +156,18 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
     }
 }
 
-void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem)
+void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem, int iStart, int iEnd)
 {
     static const QPen penHiZ = QPen(QColor(Qt::white), 1, Qt::DotLine);
     static const QPen penText = QPen(Qt::white);
     painter.setPen(viewitem->color);
-    uint width, data_cur, data_prev = ::controller.getWatch().at(w, hstart, width);
-    uint last_data_x = 0; // X coordinate of the last bus data change
+    // Get the previous sample value for drawing transitions at iStart
+    uint width, data_cur, data_prev = ::controller.getWatch().at(w, hstart + qMax(0, iStart - 1), width);
+    uint last_data_x = iStart * m_hscale; // X coordinate of the last bus data change
     bool width0text = true; // Not too elegant way to ensure we print only once on a stream of undef values
     // Get the text of the initial bus data value
     QString text = ::controller.formatBus(viewitem->format, data_prev, width, m_decorated);
-    for (int i = 0; i < MAX_WATCH_HISTORY; i++, data_prev = data_cur)
+    for (int i = iStart; i < iEnd; i++, data_prev = data_cur)
     {
         uint x1 = i * m_hscale;
         uint x2 = (i + 1) * m_hscale;
@@ -211,14 +219,14 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
         }
         if (Q_UNLIKELY(data_cur == UINT_MAX))
             painter.setPen(viewitem->color);
+    }
 
-        // At the end of the graph, write out last bus values
-        if (i == (MAX_WATCH_HISTORY - 1))
-        {
-            last_data_x = m_hscale * (MAX_WATCH_HISTORY + 1);
-            painter.setPen(penText);
-            painter.drawText(last_data_x, y1 - 2, text);
-        }
+    // At the end of the visible range, write out last bus values
+    if (width > 0)
+    {
+        uint x_end = iEnd * m_hscale;
+        painter.setPen(penText);
+        painter.drawText(x_end, y - 2, text);
     }
 }
 
