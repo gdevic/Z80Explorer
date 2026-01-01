@@ -628,12 +628,14 @@ __forceinline void ClassSimZ80_AVX2::getNetGroup(net_t n)
 // CRITICAL HOT FUNCTION - This is 45% of CPU time
 __forceinline void ClassSimZ80_AVX2::addNetToGroup(net_t n)
 {
-    // O(1) duplicate check using x64 BT instruction
-    if (testBit(m_groupBitset, n))
+    // O(1) duplicate check - inlined for zero call overhead
+    const uint64_t mask = 1ULL << (n & 63);
+    uint64_t& word = m_groupBitset[n >> 6];
+    if (word & mask)
         return;
 
-    // Mark as visited using x64 BTS instruction
-    setBit(m_groupBitset, n);
+    // Mark as visited
+    word |= mask;
 
     // Power nets go at position 0 for fast detection
     if (n <= npwr)
@@ -722,11 +724,13 @@ __forceinline void ClassSimZ80_AVX2::addRecalcNet(net_t n)
 {
     if (n <= npwr) return;
 
-    // O(1) duplicate check
-    if (testBit(m_recalcBitset, n))
+    // O(1) duplicate check - inlined for zero call overhead
+    const uint64_t mask = 1ULL << (n & 63);
+    uint64_t& word = m_recalcBitset[n >> 6];
+    if (word & mask)
         return;
 
-    setBit(m_recalcBitset, n);
+    word |= mask;
     m_recalcList[m_recalcListIndex++] = n;
 }
 
