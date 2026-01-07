@@ -1,7 +1,7 @@
 #ifndef APPTYPES_H
 #define APPTYPES_H
 
-#define APP_VERSION 108 // Application version (minor % 100)
+#define APP_VERSION 109 // Application version (minor % 100)
 #define USE_PERFORMANCE_SIM 1 // Use faster and optimized (but more obfuscated) simulation code
 #define USE_AVX2_SIM 1 // Use optimized simulation with AVX2/x64 intrinsics
 #define HAVE_PREBUILT_LAYERMAP 1 // We have extracted a fully prebuilt layermap.bin and can use it

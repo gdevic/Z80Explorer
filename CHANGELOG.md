@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.09] - 2026-01-06
+### Added
+- CMake build system and Qt IFW installer
+- AVX2-optimized netlist simulator
+
+### Improved
+- ***The code is now using AVX-2 instructions for the additional 30% perf gain!***
+- Requires CPU with AVX2 support (Intel Haswell 2013+, AMD Excavator 2015+)
+- More performance optimizations (cached net lookups, QSet duplicate detection)
+- Faster startup (concurrent image loading, segment merging)
+- Waveform rendering
+
+### Fixed
+- Build compatibility with gcc 15 and clang
+
 ## [1.08] - 2025-11-18
 ### Improved
 - Massive performance boost of ~2x
@@ -46,5 +61,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - More robust loading of nets and buses
 - Make ZX window single, not closable
 
-[unreleased] https://github.com/gdevic/Z80Explorer/compare/v.107...HEAD \
+[unreleased] https://github.com/gdevic/Z80Explorer/compare/v.109...HEAD
+[1.09] https://github.com/gdevic/Z80Explorer/compare/v.108...v.109
+[1.08] https://github.com/gdevic/Z80Explorer/compare/v.107...v.108
 [1.07] https://github.com/gdevic/Z80Explorer/compare/v.106...v.107
