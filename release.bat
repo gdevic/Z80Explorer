@@ -1,10 +1,22 @@
-@REM Relase script specific to Visual Studio 2022 (Community Edition) and Qt 6.9.3
+@REM Release script for Visual Studio 2022 (Community Edition) and Qt 6
 @REM Z80Explorer.exe must be precompiled and stored in the root project folder
-@REM Run within the "Developer command prompt for VS 2022" (CMD)
-if not exist "Z80Explorer.exe" Goto end
-
-@REM Set these paths as needed for your setup
-set path=C:\Qt\6.9.3\msvc2022_64\bin;%VCINSTALLDIR%;%path%
+@REM Run from "Developer command prompt for VS 2022"
+@REM Usage: release.bat <Qt-path>
+@REM Example: release.bat C:\Qt\6.10.1\msvc2022_64
+if "%~1"=="" (
+    echo Usage: release.bat ^<Qt-path^>
+    echo Example: release.bat C:\Qt\6.10.1\msvc2022_64
+    goto end
+)
+if not exist "%~1\bin\windeployqt.exe" (
+    echo ERROR: windeployqt.exe not found in %~1\bin
+    goto end
+)
+if not exist "Z80Explorer.exe" (
+    echo ERROR: Z80Explorer.exe not found. Build it first.
+    goto end
+)
+set PATH=%~1\bin;%PATH%
 
 mkdir release
 cd release
@@ -34,6 +46,7 @@ rmdir /S /Q bearer iconengines imageformats translations platforminputcontexts q
 rm -f Qt6Pdf.dll Qt6VirtualKeyboard.dll Qt6Quick3DUtils.dll Qt6Quick.dll Qt6QmlModels.dll Qt6Svg.dll
 rm -f Qt6OpenGL.dll opengl32sw.dll dxcompiler.dll d3dcompiler_47.dll dxil.dll
 rm -f Qt6QmlWorkerScript.dll Qt6QmlMeta.dll
+rm -f Qt6Lottie.dll Qt6LottieVectorImageGenerator.dll Qt6QuickVectorImageGenerator.dll
 rm -f vc_redist.x64.exe
 rm -f resource\layermap.bin
 @echo It is OK if The system cannot find the file specified.
