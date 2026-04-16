@@ -623,19 +623,26 @@ __forceinline bool ClassSimZ80_AVX2::getNetValue()
     if (m_group[0] <= npwr)
         return m_group[0] == npwr;
 
-    // Check for pullup/pulldown and resolve floating nodes
-    bool floatingHigh = false;
+    // Single pass: pullups/pulldowns get immediate early exit (highest priority);
+    // simultaneously track the strongest floating net by gate-connection count.
+    // isHigh/isLow are rare — most nets are floating — so the common path is
+    // the max_conn comparison, which the compiler can lower to CMOV.
     net_t* groupEnd = m_group + m_groupIndex;
+    bool max_state = false;
+    uint16_t max_conn = 0;
 
     for (net_t* p = m_group; p < groupEnd; p++)
     {
         NetAVX2& net = m_netlist[*p];
-        if (net.isHigh) return true;
-        if (net.isLow) return false;
-        if (net.state) floatingHigh = true;
+        if (Q_UNLIKELY(net.isHigh)) return true;
+        if (Q_UNLIKELY(net.isLow)) return false;
+        if (net.gatesCount > max_conn)
+        {
+            max_conn = net.gatesCount;
+            max_state = net.state;
+        }
     }
-
-    return floatingHigh;
+    return max_state;
 }
 
 __forceinline void ClassSimZ80_AVX2::getNetGroup(net_t n)

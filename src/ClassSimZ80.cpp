@@ -292,22 +292,38 @@ inline void ClassSimZ80::set(bool on, QString name)
 #if USE_PERFORMANCE_SIM
 inline bool ClassSimZ80::getNetValue()
 {
-    // 1. Deal with power connections first - check first element for fast path
-    //if (m_groupIndex > 0)
+    // Fast path: power connections
+    if (m_group[0] <= npwr) return m_group[0] == npwr;
+
+    // Fast path: single-net group (the most common case — avoids loop overhead entirely)
+    if (Q_LIKELY(m_groupIndex == 1))
     {
-        if (m_group[0] <= npwr) return bool(m_group[0] == npwr); // ngnd || npwr => false || true
+        Net &net = m_netlist[m_group[0]];
+        if (Q_UNLIKELY(net.isHigh)) return true;
+        if (Q_UNLIKELY(net.isLow)) return false;
+        return net.state;
     }
-    // 2. Deal with pullup/pulldowns next
-    // 3. Resolve connected set of floating nodes
-    auto state = false; // We simply pick the first node which state is high
-    for (net_t *p = m_group; p < (m_group + m_groupIndex); p++)
+
+    // General case: single pass — pullups/pulldowns get immediate exit (rare);
+    // floating nets resolved by picking the one with the most gate connections.
+    // One cache-line touch per net instead of two (the old two-loop version).
+    net_t *groupEnd = m_group + m_groupIndex;
+    bool max_state = false;
+    int max_conn = 0;
+
+    for (net_t *p = m_group; p < groupEnd; p++)
     {
         Net &net = m_netlist[*p];
-        if (net.isHigh) return true;
-        if (net.isLow) return false;
-        if (net.state) state = true; // Last priority is the state, after we have checked for isHigh/isLow
+        if (Q_UNLIKELY(net.isHigh)) return true;
+        if (Q_UNLIKELY(net.isLow)) return false;
+        int conn = net.gates.count();
+        if (conn > max_conn)
+        {
+            max_conn = conn;
+            max_state = net.state;
+        }
     }
-    return state;
+    return max_state;
 }
 #else
 inline bool ClassSimZ80::getNetValue()
@@ -327,29 +343,21 @@ inline bool ClassSimZ80::getNetValue()
         if (net.isLow) return false;
     }
     // 3. Resolve connected set of floating nodes
-    // Several approaches work:
+    // Few approaches work:
     // - based on state of largest (by #connections) node
     // - that, either by the number of connected gates, or by the number of connected pins
-    // - any node for which state is true
     auto max_state = false;
     auto max_conn = 0;
     for (auto i : group)
     {
         auto net = m_netlist[i];
-#if 0
         // We just want to pick the larger, or "stronger" net, assuming that one would have more transistor connections
-        //auto conn = net.gates.count() + net.c1c2s.count();
-        //auto conn = net.c1c2s.count();
         auto conn = net.gates.count();
         if (conn > max_conn)
         {
             max_conn = conn;
             max_state = net.state;
         }
-#endif
-        // Or we simply pick the first node which state is high
-        if (net.state == true)
-            return true;
     }
     return max_state;
 }
