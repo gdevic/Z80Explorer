@@ -62,7 +62,6 @@ m2: 173,
 m3: 163,
 m4: 159,
 m5: 209,
-m6: 210,
 // EXX latches
 ex_af: 631,
 ex_bcdehl: 1770,

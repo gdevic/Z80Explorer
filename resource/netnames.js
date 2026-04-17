@@ -98,18 +98,31 @@ ctl_tri_ab: 627,
 db_precharge: 1507,
 en_ir: 1800,
 en_pc: 1799,
-flag_cf: 754, // Carry Flag state
+flag_cf: 754, // Carry Flag state (existing label — pending re-verification)
+work_cf_n: 1809, // Working CF input latch (active-low); sampled from UBUS[0] via gate 684; read by ADC/SBC/RLA/RRA/DAA
+work_hf_n: 1864, // Working HF input latch (active-low); sampled from UBUS[4] via gate 684; read by DAA
 iff1: 1210,
 iff2: 1239,
 imfa: 1215,
 imfb: 1268,
 int_reset: 95,
+ixy_d_phase: 210, // Selects (ix+d) addressing
 last_m: 101,
 last_t: 215,
 latch_cb: 1255,
 latch_ed: 1259,
 latch_ixiy: 1254,
+m_cycle_start: 122, // Pulse that clocks the NMI_ACCEPT latch at the start of each M cycle
+nmi_accept_q: 1171, // NMI_ACCEPT commit latch Q (HIGH = NMI acknowledged, drives nmi_ack)
+nmi_accept_qbar: 148, // NMI_ACCEPT commit latch Qbar (complement of nmi_accept_q)
 nmi_ack: 135, // NMI Acknowledge
+nmi_asserted: 59, // Final combinational /NMI after 3 input inverters (HIGH = /NMI active)
+nmi_d: 116, // D input of the NMI_Q1 clk-gated D-flop
+nmi_in: 60, // Buffered /NMI after second input inverter
+nmi_in_n: 52, // Inverted /NMI after first input inverter
+nmi_pending_q: 68, // NMI_PENDING SR-latch Q (captures NMI edge until committed)
+nmi_pending_qbar: 56, // NMI_PENDING SR-latch Qbar (complement of nmi_pending_q)
+nmi_q1: 1101, // NMI_Q1 clk-gated D-flop dynamic storage node
 pla_cb: 263,
 pla_ed: 265,
 pla_ed_cb: 267,
@@ -224,7 +237,7 @@ DB: [32,33,34,35,36,37,38,39],
 DBUS: [138,196,412,480,485,486,380,370],
 IM: [1215,1268],
 INSTR: [1348,1359,1365,1379,1387,1394,1369,1374],
-M: [155,173,163,159,209,210],
+M: [155,173,163,159,209],
 PCBUS: [703,731,739,774,777,806,810,863,871,901,907,933,936,969,974,998],
 REGBIT: [702,732,738,775,776,807,809,864,870,902,906,934,935,970,973,999],
 REG_A: [2245,2319,2357,2442,2463,2552,2586,2656],
