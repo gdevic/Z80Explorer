@@ -83,14 +83,18 @@ public:
     void optimizeLogicTree(Logic **ppl);        // Optimizes, in place, logic tree by coalescing suitable nodes
     QString equation(net_t net);                // Returns a string describing the logic connections of a net
 
+    // Net value reads exposed for scripting and instrumentation
+    uint8_t readByte(const QString &name);      // Returns a byte value read from the netlist for a particular net bus
+    pin_t readBit(const QString &name);         // Returns a bit value read from the netlist for a particular net, by net name
+    pin_t readBit(const net_t n);               // Returns a bit value read from the netlist for a particular net, by net number
+
+    bool saveCustomNames();                     // Persists netnames.js to the configured resource dir
+
 protected:
     QVector<Trans> m_transdefs;                 // Array of transistors, indexed by the transistor number
     QVector<Net> m_netlist;                     // Array of nets, indexed by the net number
     net_t ngnd {}, npwr {}, nclk {};            // 'vss', 'vcc' and 'clk' nets (expected values: 1, 2 and 3)
 
-    uint8_t readByte(const QString &name);      // Returns a byte value read from the netlist for a particular net bus
-    pin_t readBit(const QString &name);         // Returns a bit value read from the netlist for a particular net, by net name
-    pin_t readBit(const net_t n);               // Returns a bit value read from the netlist for a particular net, by net number
     uint16_t readAB();                          // Returns the value on the address bus
 
 private:

@@ -47,9 +47,15 @@ public:
     uint getCurrentHCycle() { return m_hcycletotal; }
     uint getEstHz() { return m_estHz; }
 
+    // Net value reads exposed for scripting and instrumentation
+    uint8_t readByte(const QString &name);
+    pin_t readBit(const QString &name);
+    pin_t readBit(net_t n);
+
     // Net name lookup (delegated interface)
     net_t get(const QString &name) { return m_netnums.contains(name) ? m_netnums[name] : 0; }
     const QString &get(net_t n) { return m_netnames[n]; }
+    void eventNetName(Netop op, const QString name, const net_t net);
 
     // Netlist query methods (compatible with ClassNetlist interface)
     uint getNetlistCount() { return MAX_NETS; }
@@ -96,11 +102,8 @@ private:
     // Bulk operations
     void allNets();
 
-    // Read operations
-    uint8_t readByte(const QString &name);
+    // Private read helpers still used only inside the sim
     uint8_t readDB();   // Fast version using cached n_db[]
-    pin_t readBit(const QString &name);
-    pin_t readBit(net_t n);
     uint16_t readAB();
     pin_t getNetStateEx(net_t n);
 

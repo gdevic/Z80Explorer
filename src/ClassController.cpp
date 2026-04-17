@@ -93,8 +93,23 @@ bool ClassController::init(QJSEngine *sc)
         connect(&m_server, &ClassServer::commandReceived, this, [=](const QString &command, QTcpSocket *sock)
         {
             qDebug() << "Processing command:" << command;
-            ::controller.getScript().exec(command);
-            sock->write("OK\n");
+            // Capture any text the script emits via ClassScript::print during this command so we can
+            // forward it back to the socket client. DockCommand and the log still receive the same signal
+            // in parallel, so on-screen output is unaffected
+            QStringList captured;
+            auto conn = connect(&m_script, &ClassScript::print, this,
+                [&captured](QString msg) { captured.append(msg); });
+            m_script.exec(command, /*echo=*/false);
+            disconnect(conn);
+            QByteArray reply;
+            for (const QString &m : captured)
+            {
+                reply.append(m.toUtf8());
+                if (!m.endsWith('\n'))
+                    reply.append('\n');
+            }
+            reply.append("OK\n");
+            sock->write(reply);
         });
     }
     else
@@ -195,31 +210,43 @@ const QString ClassController::formatBus(uint fmt, uint value, uint width, bool 
 }
 
 /*
- * Sets the name (alias) for a net
+ * Sets the name (alias) for a net.
+ * In AVX2 mode the sim keeps its own name hash, so we update both.
  */
 void ClassController::setNetName(const QString name, const net_t net)
 {
     m_simz80.eventNetName(Netop::SetName, name, net);
+#if USE_AVX2_SIM
+    m_simz80avx2.eventNetName(Netop::SetName, name, net);
+#endif
     emit eventNetName(Netop::SetName, name, net);
     emit eventNetName(Netop::Changed, QString(), net);
 }
 
 /*
  * Renames a net using the new name
+ * In AVX2 mode the sim keeps its own name hash, so we update both.
  */
 void ClassController::renameNet(const QString name, const net_t net)
 {
     m_simz80.eventNetName(Netop::Rename, name, net);
+#if USE_AVX2_SIM
+    m_simz80avx2.eventNetName(Netop::Rename, name, net);
+#endif
     emit eventNetName(Netop::Rename, name, net);
     emit eventNetName(Netop::Changed, QString(), net);
 }
 
 /*
  * Deletes the current name of a specified net
+ * In AVX2 mode the sim keeps its own name hash, so we update both.
  */
 void ClassController::deleteNetName(const net_t net)
 {
     m_simz80.eventNetName(Netop::DeleteName, QString(), net);
+#if USE_AVX2_SIM
+    m_simz80avx2.eventNetName(Netop::DeleteName, QString(), net);
+#endif
     emit eventNetName(Netop::DeleteName, QString(), net);
     emit eventNetName(Netop::Changed, QString(), net);
 }

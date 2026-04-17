@@ -12,9 +12,19 @@ ClassNetlist::ClassNetlist() :
 
 void ClassNetlist::onShutdown()
 {
+    saveCustomNames();
+}
+
+/*
+ * Persists the custom net name overrides (netnames.js). Callable both from the
+ * shutdown path and from scripts that want to checkpoint an in-progress probe
+ * without quitting the app.
+ */
+bool ClassNetlist::saveCustomNames()
+{
     QSettings settings;
     QString resDir = settings.value("ResourceDir").toString();
-    saveNetNames(resDir + "/netnames.js");
+    return saveNetNames(resDir + "/netnames.js");
 }
 
 bool ClassNetlist::loadResources(const QString dir)
@@ -348,24 +358,58 @@ bool ClassNetlist::verifyNetBus(const QString &name, net_t n)
 }
 
 /*
- * Handles requests to manage net names (called only by the controller class)
+ * Handles requests to manage net names (called only by the controller class).
+ * Refuses to silently clobber existing assignments; callers that legitimately
+ * need to replace a name must issue an explicit DeleteName first (the custom
+ * netnames.js loader at loadNetNames() already follows this pattern).
  */
 void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
 {
     if (op == Netop::SetName)
     {
+        if ((net == 0) || (net >= MAX_NETS))
+        {
+            qWarning() << "setNetName: net index" << net << "out of range, refusing to set name" << name;
+            return;
+        }
+        if (m_netnums.contains(name) && m_netnums[name] == net) // Already set to this exact mapping
+            return;
+        if (m_netnums.contains(name))
+        {
+            qWarning() << "setNetName: name" << name << "is already assigned to net" << m_netnums[name]
+                       << "- refusing to steal it for net" << net;
+            return;
+        }
+        if (!m_netnames[net].isEmpty())
+        {
+            qWarning() << "setNetName: net" << net << "already has name" << m_netnames[net]
+                       << "- refusing to overwrite with" << name;
+            return;
+        }
         qDebug() << "Setting net name" << name << "for net" << net;
-        Q_ASSERT(!m_netnums.contains(name)); // New name should not be already in use
-        Q_ASSERT(m_netnames[net].isEmpty()); // The net we are naming should not already have a name
         m_netnames[net] = name;
         m_netnums[name] = net;
         m_netoverrides[net] = true;
     }
     else if (op == Netop::Rename)
     {
+        if ((net == 0) || (net >= MAX_NETS))
+        {
+            qWarning() << "renameNet: net index" << net << "out of range, refusing to rename to" << name;
+            return;
+        }
+        if (m_netnames[net].isEmpty())
+        {
+            qWarning() << "renameNet: net" << net << "has no existing name - use SetName instead";
+            return;
+        }
+        if (m_netnums.contains(name) && m_netnums[name] != net)
+        {
+            qWarning() << "renameNet: name" << name << "is already assigned to net" << m_netnums[name]
+                       << "- refusing to steal it for net" << net;
+            return;
+        }
         qDebug() << "Renaming net" << net << "to" << name;
-        Q_ASSERT(!m_netnums.contains(name)); // New name should not be already in use
-        Q_ASSERT(!m_netnames[net].isEmpty()); // The net we are naming should have a name
         QString oldName = m_netnames[net];
         m_netnums.remove(oldName);
         m_netnames[net] = name;
@@ -374,8 +418,17 @@ void ClassNetlist::eventNetName(Netop op, const QString name, const net_t net)
     }
     else if (op == Netop::DeleteName)
     {
+        if ((net == 0) || (net >= MAX_NETS))
+        {
+            qWarning() << "deleteNetName: net index" << net << "out of range";
+            return;
+        }
+        if (m_netnames[net].isEmpty())
+        {
+            qWarning() << "deleteNetName: net" << net << "has no name to delete";
+            return;
+        }
         qDebug() << "Deleting name for net" << net;
-        Q_ASSERT(!m_netnames[net].isEmpty()); // The net which name we are deleting should already have a name
         QString oldName = m_netnames[net];
         m_netnums.remove(oldName);
         m_netnames[net] = QString();

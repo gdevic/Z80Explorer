@@ -200,6 +200,75 @@ bool ClassSimZ80_AVX2::loadNetNames(const QString fileName, bool loadCustom)
     return false;
 }
 
+/*
+ * Keeps this sim's private name hash in sync with rename operations issued through ClassController
+ */
+void ClassSimZ80_AVX2::eventNetName(Netop op, const QString name, const net_t net)
+{
+    if (op == Netop::SetName)
+    {
+        if ((net == 0) || (net >= MAX_NETS))
+        {
+            qWarning() << "AVX2 setNetName: net index" << net << "out of range, refusing to set name" << name;
+            return;
+        }
+        if (m_netnums.contains(name) && (m_netnums[name] == net))
+            return;
+        if (m_netnums.contains(name))
+        {
+            qWarning() << "AVX2 setNetName: name" << name << "is already assigned to net" << m_netnums[name]
+                       << "- refusing to steal it for net" << net;
+            return;
+        }
+        if (!m_netnames[net].isEmpty())
+        {
+            qWarning() << "AVX2 setNetName: net" << net << "already has name" << m_netnames[net]
+                       << "- refusing to overwrite with" << name;
+            return;
+        }
+        m_netnames[net] = name;
+        m_netnums[name] = net;
+    }
+    else if (op == Netop::Rename)
+    {
+        if ((net == 0) || (net >= MAX_NETS))
+        {
+            qWarning() << "AVX2 renameNet: net index" << net << "out of range";
+            return;
+        }
+        if (m_netnames[net].isEmpty())
+        {
+            qWarning() << "AVX2 renameNet: net" << net << "has no existing name - use SetName instead";
+            return;
+        }
+        if (m_netnums.contains(name) && (m_netnums[name] != net))
+        {
+            qWarning() << "AVX2 renameNet: name" << name << "is already assigned to net" << m_netnums[name];
+            return;
+        }
+        QString oldName = m_netnames[net];
+        m_netnums.remove(oldName);
+        m_netnames[net] = name;
+        m_netnums[name] = net;
+    }
+    else if (op == Netop::DeleteName)
+    {
+        if ((net == 0) || (net >= MAX_NETS))
+        {
+            qWarning() << "AVX2 deleteNetName: net index" << net << "out of range";
+            return;
+        }
+        if (m_netnames[net].isEmpty())
+        {
+            qWarning() << "AVX2 deleteNetName: net" << net << "has no name to delete";
+            return;
+        }
+        QString oldName = m_netnames[net];
+        m_netnums.remove(oldName);
+        m_netnames[net] = QString();
+    }
+}
+
 bool ClassSimZ80_AVX2::loadTransdefs(const QString dir)
 {
     QString transdefs_file = dir + "/transdefs.js";
