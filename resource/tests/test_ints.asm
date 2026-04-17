@@ -56,6 +56,7 @@ trigger_0:
     ; Set up for interrupt in mode 1
     ; This mode simply jumps to the address 0x38
     im 1
+    ei ; Enable interrupts that were disabled during the previous service
     ld a, 0 ; In this mode, the value of data bus is ignored; we will present 0
     out (IO_INT), a
     ld hl, trigger_1
