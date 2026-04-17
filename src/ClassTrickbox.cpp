@@ -4,8 +4,9 @@
 #include <QFile>
 #include <QFileInfo>
 
-#define TRICKBOX_START 0xD000
-#define TRICKBOX_END   (TRICKBOX_START + sizeof(trick) - 1)
+#define TRICKBOX_START    0xD000
+#define TRICKBOX_END      (TRICKBOX_START + sizeof(trick) - 1)
+#define TRICKBOX_PIN_HOLD 20
 
 const static QStringList pins = { "int", "nmi", "busrq", "wait", "reset" };
 
@@ -22,7 +23,7 @@ void ClassTrickbox::reset()
 {
     memset(m_trick, 0, sizeof(trick));
     for (uint i = 0; i < MAX_PIN_CTRL; i++)
-        m_trick->pinCtrl[i].hold = 6;
+        m_trick->pinCtrl[i].hold = TRICKBOX_PIN_HOLD;
 }
 
 /*
@@ -190,13 +191,17 @@ void ClassTrickbox::onTick(uint ticks)
             ::controller.getSimZ80().setPin(i, 0); // and assert its pin if the cycle is reached
         else
         {
+            // hold == 0 means "hold indefinitely", skip decrement and release.
+            // The pin stays asserted until explicitly released via mon.set(pin, 1).
             if (m_trick->pinCtrl[i].hold > 0)
-                m_trick->pinCtrl[i].hold--;
-            if (m_trick->pinCtrl[i].hold == 0)
             {
-                ::controller.getSimZ80().setPin(i, 1); // Release the pin
-                m_trick->pinCtrl[i].atCycle = 0; // Disarm the trigger
-                m_trick->pinCtrl[i].hold = 6; // Reset hold to its default
+                m_trick->pinCtrl[i].hold--;
+                if (m_trick->pinCtrl[i].hold == 0)
+                {
+                    ::controller.getSimZ80().setPin(i, 1); // Release the pin
+                    m_trick->pinCtrl[i].atCycle = 0; // Disarm the trigger
+                    m_trick->pinCtrl[i].hold = TRICKBOX_PIN_HOLD; // Reset hold to its default
+                }
             }
         }
     }
@@ -249,7 +254,7 @@ void ClassTrickbox::setAt(QString pin, quint16 hcycle, quint16 hold)
     {
         m_trick->pinCtrl[i].atCycle = hcycle;
         m_trick->pinCtrl[i].atPC = 0;
-        m_trick->pinCtrl[i].hold = hold;
+        m_trick->pinCtrl[i].hold = hold; // hold == 0 means "hold indefinitely"
         emit refresh();
     }
     else
@@ -266,7 +271,7 @@ void ClassTrickbox::setAtPC(QString pin, quint16 addr, quint16 hold)
     {
         m_trick->pinCtrl[i].atCycle = 0;
         m_trick->pinCtrl[i].atPC = addr;
-        m_trick->pinCtrl[i].hold = hold;
+        m_trick->pinCtrl[i].hold = hold; // hold == 0 means "hold indefinitely"
         emit refresh();
     }
     else
@@ -297,6 +302,9 @@ bool ClassTrickbox::loadHex(const QString fileName, bool clearMem)
         // Clear the RAM memory and IO space before loading any programs
         memset(m_mem, 0, sizeof(m_mem));
         memset(m_mio, 0xFF, sizeof(m_mio));
+        // The trick struct is overlaid on m_mem[TRICKBOX_START]; the memset
+        // above wiped its default hold values. Restore them.
+        reset();
         qInfo() << "Clearing simulator RAM and setting IO space to FF";
     }
 
