@@ -98,9 +98,7 @@ ctl_tri_ab: 627,
 db_precharge: 1507,
 en_ir: 1800,
 en_pc: 1799,
-flag_cf: 754, // Carry Flag state (existing label — pending re-verification)
-work_cf_n: 1809, // Working CF input latch (active-low); sampled from UBUS[0] via gate 684; read by ADC/SBC/RLA/RRA/DAA
-work_hf_n: 1864, // Working HF input latch (active-low); sampled from UBUS[4] via gate 684; read by DAA
+flag_cf: 754, // Carry Flag state
 iff1: 1210,
 iff2: 1239,
 imfa: 1215,
@@ -227,6 +225,8 @@ reg_sel_iy: 658,
 reg_sel_sp: 657,
 reg_sel_wz: 654,
 set_t1: 162,
+work_cf_n: 1809, // Working CF input latch (active-low); sampled from UBUS[0] via gate 684; read by ADC/SBC/RLA/RRA/DAA
+work_hf_n: 1864, // Working HF input latch (active-low); sampled from UBUS[4] via gate 684; read by DAA
 wr_ab: 393,
 // Buses:
 AB: [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],

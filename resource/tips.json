@@ -5,8 +5,40 @@
             "tip": "Clock tree"
         },
         {
+            "net": 52,
+            "tip": "Inverted /NMI after first input inverter"
+        },
+        {
+            "net": 56,
+            "tip": "NMI_PENDING SR-latch Qbar (complement of nmi_pending_q)"
+        },
+        {
+            "net": 59,
+            "tip": "Final combinational /NMI after 3 input inverters (HIGH = /NMI active)"
+        },
+        {
+            "net": 60,
+            "tip": "Buffered /NMI after second input inverter"
+        },
+        {
+            "net": 68,
+            "tip": "NMI_PENDING SR-latch Q (captures NMI edge until committed)"
+        },
+        {
+            "net": 116,
+            "tip": "D input of the NMI_Q1 clk-gated D-flop"
+        },
+        {
+            "net": 122,
+            "tip": "Pulse that clocks the NMI_ACCEPT latch at the start of each M cycle"
+        },
+        {
             "net": 135,
             "tip": "NMI Acknowledge"
+        },
+        {
+            "net": 148,
+            "tip": "NMI_ACCEPT commit latch Qbar (complement of nmi_accept_q)"
         },
         {
             "net": 167,
@@ -15,6 +47,10 @@
         {
             "net": 193,
             "tip": "IX/IY+CB"
+        },
+        {
+            "net": 210,
+            "tip": "Selects (ix+d) addressing"
         },
         {
             "net": 227,
@@ -429,6 +465,10 @@
             "tip": "Carry Flag state"
         },
         {
+            "net": 1101,
+            "tip": "NMI_Q1 clk-gated D-flop dynamic storage node"
+        },
+        {
             "net": 1106,
             "tip": "Sets T6 on the next CLK low"
         },
@@ -441,12 +481,24 @@
             "tip": "Sets T3 on the next CLK low"
         },
         {
+            "net": 1171,
+            "tip": "NMI_ACCEPT commit latch Q (HIGH = NMI acknowledged, drives nmi_ack)"
+        },
+        {
             "net": 1190,
             "tip": "Sets T5 on the next CLK low"
         },
         {
             "net": 1315,
             "tip": "Sets T4 on the next CLK low"
+        },
+        {
+            "net": 1809,
+            "tip": "Working CF input latch (active-low); sampled from UBUS[0] via gate 684; read by ADC/SBC/RLA/RRA/DAA"
+        },
+        {
+            "net": 1864,
+            "tip": "Working HF input latch (active-low); sampled from UBUS[4] via gate 684; read by DAA"
         }
     ]
 }
