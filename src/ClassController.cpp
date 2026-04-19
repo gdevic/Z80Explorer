@@ -56,6 +56,10 @@ bool ClassController::init(QJSEngine *sc)
 #endif
     QDir::setCurrent(resDir);
 
+    // Load tips before netnames.js so that custom-net comments in netnames.js
+    // can augment or override entries already present in tips.json
+    m_tips.load(resDir + "/tips.json");
+
     // Initialize all global classes using the given path to resource
     if (!m_simz80.loadResources(resDir) || !m_colors.load(resDir + "/colors.json") || !m_chip.loadChipResources(resDir) || !m_simz80.initChip())
     {
@@ -77,7 +81,6 @@ bool ClassController::init(QJSEngine *sc)
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
     m_annotate.load(resDir + "/annotations.json");
-    m_tips.load(resDir + "/tips.json");
 
     // Initialize the schematic generation properties
     DialogEditSchematic::init();

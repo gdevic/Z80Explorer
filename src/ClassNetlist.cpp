@@ -146,9 +146,13 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
         while (!in.atEnd())
         {
             line = in.readLine();
-            int comment = line.indexOf('/'); // Strip comments
+            QString tip; // Trailing "// ..." is captured as the tip for this line's net
+            int comment = line.indexOf("//");
             if (comment != -1)
+            {
+                tip = line.mid(comment + 2).trimmed();
                 line = line.left(comment).trimmed();
+            }
             if (line.indexOf(':') != -1)
             {
                 line.chop(1); // Remove comma at the end of each line
@@ -176,6 +180,8 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
                             if (m_netnums.contains(name)) // Deletes the name if it's already in use
                                 eventNetName(Netop::DeleteName, QString(), m_netnums[name]);
                             eventNetName(Netop::SetName, name, n);
+                            // A trailing "// ..." on a named-net line is authored by the user as that net's tip
+                            if (n && !tip.isEmpty()) ::controller.getTip().set(tip, n);
                         }
                     }
                     else // Load base nodename.js
