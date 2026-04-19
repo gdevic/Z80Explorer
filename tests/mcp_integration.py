@@ -307,6 +307,44 @@ def test_eval_js(client: McpClient):
     assert "hello from js" in data["stdout"]
 
 
+def test_fanout(client: McpClient):
+    # clk is gate of many transistors — should return a non-trivial list
+    data = client.tool_text("z80_fanout", {"net": "clk"})
+    assert data["id"] != 0
+    assert data["gate_count"] > 50, f"clk should gate dozens of transistors, got {data['gate_count']}"
+    # Each entry should have the expected keys
+    for e in data["gates"][:3]:
+        assert "id" in e and "c1" in e and "c2" in e and "on" in e
+
+
+def test_fanout_unknown(client: McpClient):
+    resp = client.call("tools/call", {"name": "z80_fanout", "arguments": {"net": "bogus_xyzzy"}})
+    r = resp.get("result", {})
+    assert r.get("isError") is True
+
+
+def test_watchlist_add(client: McpClient):
+    data = client.tool_text("z80_watchlist_add", {"nets": ["reg_f0", "reg_f7"]})
+    assert data["total"] >= 2
+    # Adding the same nets again should go to 'skipped'
+    data2 = client.tool_text("z80_watchlist_add", {"nets": ["reg_f0"]})
+    assert "reg_f0" in data2["skipped"]
+
+
+def test_sample_window(client: McpClient):
+    data = client.tool_text("z80_sample_window", {
+        "nets": ["clk", "reg_f0", "reg_f7"],
+        "halfcycles": 20,
+        "reset": True,
+    }, timeout=30)
+    assert "samples" in data
+    for name in ("clk", "reg_f0", "reg_f7"):
+        assert name in data["samples"], f"missing {name} in samples"
+        # clk must have toggled across 20 halfcycles
+    clk_samples = data["samples"]["clk"]
+    assert len(set(clk_samples)) >= 2, f"clk should toggle, got {clk_samples[:5]}..."
+
+
 def test_invalid_args(client: McpClient):
     # Missing required arg should produce an isError tool response, not RPC error
     resp = client.call("tools/call", {"name": "z80_load_hex", "arguments": {}})
@@ -450,6 +488,10 @@ def main():
     suite.run("z80_render_region",     lambda: test_render_region(client))
     suite.run("z80_render_full_die",   lambda: test_render_full_die(client))
     suite.run("z80_eval_js",           lambda: test_eval_js(client))
+    suite.run("z80_fanout",            lambda: test_fanout(client))
+    suite.run("z80_fanout (unknown)",  lambda: test_fanout_unknown(client))
+    suite.run("z80_watchlist_add",     lambda: test_watchlist_add(client))
+    suite.run("z80_sample_window",     lambda: test_sample_window(client))
     suite.run("invalid args",          lambda: test_invalid_args(client))
 
     if not args.quick:

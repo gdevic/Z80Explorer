@@ -112,6 +112,11 @@ private:
 
     QJsonValue hndEvalJs      (const QJsonObject &a, QString &err);
 
+    // Topology + waveform helpers added for the ALU-flag investigation.
+    QJsonValue hndFanout        (const QJsonObject &a, QString &err);
+    QJsonValue hndWatchlistAdd  (const QJsonObject &a, QString &err);
+    QJsonValue hndSampleWindow  (const QJsonObject &a, QString &err);
+
     // Resolve a "net" argument that may be either a string name or an integer id.
     net_t resolveNet(const QJsonValue &v) const;
     // Resolve the appropriate "current" sim for bit reads (respects USE_AVX2_SIM).

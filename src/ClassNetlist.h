@@ -54,6 +54,29 @@ public:
     const QVector<net_t> netsDriving(net_t n);  // Returns a sorted list of nets that the given net is driving
     const QVector<net_t> netsDriven(net_t n);   // Returns a sorted list of nets that the given net is being driven by
 
+    // Returns the list of transistor ids for which this net is the GATE.
+    // Useful for fanout traces (e.g. PLA signal -> which transistor gates does it control).
+    QVector<tran_t> getGatedTransistors(net_t n)
+    {
+        QVector<tran_t> out;
+        if (n && n < MAX_NETS)
+            for (Trans *t : m_netlist[n].gates) out.append(t->id);
+        return out;
+    }
+    // Returns the list of transistor ids for which this net is connected as source or drain.
+    QVector<tran_t> getConnectedTransistors(net_t n)
+    {
+        QVector<tran_t> out;
+        if (n && n < MAX_NETS)
+            for (Trans *t : m_netlist[n].c1c2s) out.append(t->id);
+        return out;
+    }
+    // Returns the gate net of the given transistor, or 0 if out of range.
+    net_t getTransGate(tran_t t)
+    {
+        return (t < MAX_TRANS && m_transdefs[t].id) ? m_transdefs[t].gate : 0;
+    }
+
     uint getNetlistCount()                      // Returns the number of nets in the netlist
         { return m_netlist.count(); }
     bool getNetState(net_t i)                   // Returns the net logic state

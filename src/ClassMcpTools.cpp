@@ -566,6 +566,44 @@ void ClassMcpTools::registerDefaults()
         schemaObject({{"snippet", schemaString()}}, {"snippet"}),
         [this](const QJsonObject &a, QString &err) { return hndEvalJs(a, err); }
     });
+
+    // --- Topology / waveform helpers -----------------------------------------
+
+    registerTool({
+        "z80_fanout",
+        "Given a net, return every transistor for which this net is the GATE, "
+        "with the transistor's source/drain (c1/c2). Use this to trace a PLA "
+        "signal to the transistor gates it controls, then to the nets those "
+        "transistors switch.",
+        schemaObject({
+            {"net", schemaString("Net name or numeric id")},
+        }, {"net"}),
+        [this](const QJsonObject &a, QString &err) { return hndFanout(a, err); }
+    });
+
+    registerTool({
+        "z80_watchlist_add",
+        "Append the given net names to the waveform watchlist so future "
+        "z80_waveform_window calls return full sampled history for them. "
+        "Duplicates are ignored. Does NOT clear existing entries.",
+        schemaObject({
+            {"nets", schemaArray(schemaString(), "Names to append")},
+        }, {"nets"}),
+        [this](const QJsonObject &a, QString &err) { return hndWatchlistAdd(a, err); }
+    });
+
+    registerTool({
+        "z80_sample_window",
+        "Convenience: add the requested nets to the watchlist, reset the sim, "
+        "run N half-cycles, return the sampled table, then restore the prior "
+        "watchlist. Use for single-shot captures without touching config.",
+        schemaObject({
+            {"nets",       schemaArray(schemaString(), "Net names to capture")},
+            {"halfcycles", schemaInt("Number of half-cycles to run from reset")},
+            {"reset",      schemaBool("Reset before running (default true)")},
+        }, {"nets", "halfcycles"}),
+        [this](const QJsonObject &a, QString &err) { return hndSampleWindow(a, err); }
+    });
 }
 
 // ===========================================================================
@@ -1419,6 +1457,164 @@ QJsonValue ClassMcpTools::hndEvalJs(const QJsonObject &a, QString &err)
         QJsonObject r;
         r["ok"]     = true;
         r["stdout"] = captured.join("\n");
+        return textResult(r);
+    });
+}
+
+// ===========================================================================
+// Topology + waveform helpers
+// ===========================================================================
+
+QJsonValue ClassMcpTools::hndFanout(const QJsonObject &a, QString &err)
+{
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        ClassNetlist &nl = ::controller.getNetlist();
+        net_t id = resolveNet(a.value("net"));
+        if (id == 0) { err = "unknown net"; return QJsonValue{}; }
+
+        QVector<tran_t> gated = nl.getGatedTransistors(id);
+        QVector<tran_t> connected = nl.getConnectedTransistors(id);
+
+        QJsonArray gArr;
+        for (tran_t t : gated)
+        {
+            net_t c1 = 0, c2 = 0;
+            nl.getTnet(t, c1, c2);
+            QJsonObject e;
+            e["id"]     = int(t);
+            e["c1"]     = int(c1);
+            e["c2"]     = int(c2);
+            e["on"]     = nl.isTransOn(t);
+            gArr.append(e);
+        }
+
+        QJsonArray cArr;
+        for (tran_t t : connected)
+        {
+            net_t c1 = 0, c2 = 0;
+            nl.getTnet(t, c1, c2);
+            QJsonObject e;
+            e["id"]     = int(t);
+            e["gate"]   = int(nl.getTransGate(t));
+            e["c1"]     = int(c1);
+            e["c2"]     = int(c2);
+            e["on"]     = nl.isTransOn(t);
+            cArr.append(e);
+        }
+
+        QJsonObject r;
+        r["id"]        = int(id);
+        r["name"]      = nl.get(id);
+        r["gates"]     = gArr;           // transistors this net controls (it is their gate)
+        r["connects"]  = cArr;           // transistors where this net is source or drain
+        r["gate_count"]      = gArr.size();
+        r["connect_count"]   = cArr.size();
+        return textResult(r);
+    });
+}
+
+QJsonValue ClassMcpTools::hndWatchlistAdd(const QJsonObject &a, QString &err)
+{
+    QJsonArray names = a.value("nets").toArray();
+    if (names.isEmpty()) { err = "Empty 'nets'"; return {}; }
+
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        ClassWatch &w = ::controller.getWatch();
+        QStringList current = w.getWatchlist();
+        QStringList added;
+        QStringList skipped;
+        for (const QJsonValue &v : names)
+        {
+            const QString n = v.toString();
+            if (n.isEmpty()) continue;
+            if (current.contains(n)) { skipped.append(n); continue; }
+            // The watch stores the name and resolves it at sample time, so we
+            // accept any non-empty string. Callers can grep the returned list
+            // afterwards to confirm it stuck.
+            current.append(n);
+            added.append(n);
+        }
+        w.updateWatchlist(current);
+        QJsonObject r;
+        r["added"]    = QJsonArray::fromStringList(added);
+        r["skipped"]  = QJsonArray::fromStringList(skipped);
+        r["total"]    = int(w.getWatchlistLen());
+        return textResult(r);
+    });
+}
+
+QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
+{
+    QJsonArray names = a.value("nets").toArray();
+    const int halfcycles = intArg(a, "halfcycles", 0);
+    const bool doReset   = boolArg(a, "reset", true);
+    if (names.isEmpty() || halfcycles <= 0) { err = "Missing 'nets' or 'halfcycles'"; return {}; }
+
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        ClassWatch &w = ::controller.getWatch();
+        // Save prior watchlist
+        QStringList prior = w.getWatchlist();
+        QStringList merged = prior;
+        for (const QJsonValue &v : names)
+        {
+            const QString n = v.toString();
+            if (!n.isEmpty() && !merged.contains(n))
+                merged.append(n);
+        }
+        w.updateWatchlist(merged);
+
+        uint hcStart = 0;
+        if (doReset)
+        {
+            ::controller.doReset();
+            hcStart = 0;
+        }
+        else
+        {
+            hcStart = ::controller.getSimZ80().getCurrentHCycle();
+        }
+
+        // Run the window and wait for completion
+        ::controller.doRunsim(uint(halfcycles));
+        QEventLoop loop;
+        QTimer timeoutTimer;
+        timeoutTimer.setSingleShot(true);
+        QObject::connect(&::controller, &ClassController::onRunStopped, &loop, &QEventLoop::quit);
+        QObject::connect(&timeoutTimer, &QTimer::timeout, &loop, &QEventLoop::quit);
+        timeoutTimer.start(30000);
+        loop.exec();
+
+        uint hcEnd = ::controller.getSimZ80().getCurrentHCycle();
+        uint ringStart = w.gethstart();
+        uint fromHc = qMax(hcStart, ringStart);
+        uint toHc   = hcEnd;
+
+        QJsonObject samples;
+        for (const QJsonValue &nv : names)
+        {
+            const QString name = nv.toString();
+            if (name.isEmpty()) continue;
+            watch *wp = w.find(name);
+            QJsonArray arr;
+            if (!wp)
+            {
+                arr.append(int(readBitByName(name)));
+            }
+            else
+            {
+                for (uint hc = fromHc; hc <= toHc; hc++)
+                    arr.append(int(w.at(wp, hc)));
+            }
+            samples[name] = arr;
+        }
+
+        // Restore prior watchlist
+        w.updateWatchlist(prior);
+
+        QJsonObject r;
+        r["hc_start"] = qint64(fromHc);
+        r["hc_end"]   = qint64(toHc);
+        r["samples"]  = samples;
         return textResult(r);
     });
 }
