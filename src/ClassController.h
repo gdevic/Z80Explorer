@@ -5,15 +5,20 @@
 #include "ClassAnnotate.h"
 #include "ClassVisual.h"
 #include "ClassColors.h"
+#include "ClassRenderer.h"
 #include "ClassScript.h"
 #include "ClassServer.h"
 #include "ClassSimZ80.h"
 #if USE_AVX2_SIM
 #include "ClassSimZ80_AVX2.h"
 #endif
+#include "ClassSpatial.h"
 #include "ClassTip.h"
 #include "ClassTrickbox.h"
 #include "ClassWatch.h"
+
+class ClassMcpServer;
+class ClassMcpTools;
 
 /*
  * Controller class implements the controller pattern, handling all requests
@@ -40,6 +45,10 @@ public: // API
     inline ClassNetlist  &getNetlist()    { return m_simz80; }    // Returns a reference to the netlist class (always original for compatibility)
     inline ClassTip      &getTip()        { return m_tips; }      // Returns a reference to the tips class
     inline ClassTrickbox &getTrickbox()   { return m_trick; }     // Returns a reference to the Trickbox class
+    inline ClassSpatial  &getSpatial()    { return m_spatial; }   // Returns a reference to the spatial index class
+    inline ClassRenderer &getRenderer()   { return m_renderer; }  // Returns a reference to the offscreen renderer
+    inline ClassMcpTools *getMcpTools()   { return m_mcpTools; }  // Returns the MCP tool registry (nullptr if MCP disabled)
+    inline ClassMcpServer*getMcpServer()  { return m_mcpServer; } // Returns the MCP server (nullptr if MCP disabled)
 
     inline uint8_t readMem(uint16_t ab)           // Reads from simulated RAM
         { return m_trick.readMem(ab); }
@@ -98,18 +107,22 @@ signals:
     void shutdown();                        // Application is shutting down; save all modified app data
 
 private:
-    ClassAnnotate m_annotate;   // Global annotations
-    ClassVisual   m_chip;       // Global visual chip resource class
-    ClassColors   m_colors;     // Global application colors
-    ClassScript   m_script;     // Global scripting support
-    ClassServer   m_server;     // Global socket server class
-    ClassSimZ80   m_simz80;     // Global Z80 simulator class (always needed for netlist)
+    ClassAnnotate m_annotate;               // Global annotations
+    ClassVisual   m_chip;                   // Global visual chip resource class
+    ClassColors   m_colors;                 // Global application colors
+    ClassScript   m_script;                 // Global scripting support
+    ClassServer   m_server;                 // Global socket server class
+    ClassSimZ80   m_simz80;                 // Global Z80 simulator class (always needed for netlist)
 #if USE_AVX2_SIM
-    ClassSimZ80_AVX2 m_simz80avx2; // AVX2 optimized Z80 simulator class
+    ClassSimZ80_AVX2 m_simz80avx2;          // AVX2 optimized Z80 simulator class
 #endif
-    ClassWatch    m_watch;      // Global watchlist
-    ClassTip      m_tips;       // Global tips
-    ClassTrickbox m_trick;      // Global trickbox supporting environment
+    ClassWatch    m_watch;                  // Global watchlist
+    ClassTip      m_tips;                   // Global tips
+    ClassTrickbox m_trick;                  // Global trickbox supporting environment
+    ClassSpatial  m_spatial;                // Transistor / net spatial index + functional-block map
+    ClassRenderer m_renderer;               // Offscreen die renderer for MCP image tools
+    ClassMcpTools  *m_mcpTools  {};         // MCP tool registry (created in init() if MCP_SERVER)
+    ClassMcpServer *m_mcpServer {};         // MCP HTTP+JSON-RPC transport (created in init() if MCP_SERVER)
 };
 
 extern ClassController controller;

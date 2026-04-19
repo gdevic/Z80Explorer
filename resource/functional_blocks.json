@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "die": [4700, 5000],
+  "note": "Rectangles are approximate starter values in die-pixel space (master 4700x5000). Refine by running z80_view_set + z80_render_region in the app and updating this file. Blocks are matched smallest-first, so nested sub-blocks win over parents.",
+  "blocks": [
+    {
+      "name": "PLA",
+      "description": "Programmable logic array (decoder) — 99 rows that classify the current opcode into control signals.",
+      "rect": [200, 1200, 2100, 1400],
+      "tags": ["decoder", "instruction", "control"]
+    },
+    {
+      "name": "ALU",
+      "description": "Arithmetic/Logic Unit — four slices, nibble-at-a-time operations on UBUS and VBUS.",
+      "rect": [2900, 3400, 1600, 1400],
+      "tags": ["alu", "arithmetic", "flags"]
+    },
+    {
+      "name": "Register File",
+      "description": "General-purpose and index registers: PC, SP, HL, BC, DE, WZ, IX, IY.",
+      "rect": [2900, 900, 1600, 2400],
+      "tags": ["registers", "pc", "sp", "hl", "ix", "iy"]
+    },
+    {
+      "name": "Instruction Register",
+      "description": "Instruction register (IR) + CB/ED/DD/FD prefix latches and primary decode logic.",
+      "rect": [250, 200, 1600, 900],
+      "tags": ["ir", "prefix", "decode"]
+    },
+    {
+      "name": "I/R Register",
+      "description": "Interrupt-vector register (I) and DRAM refresh register (R).",
+      "rect": [2000, 200, 900, 900],
+      "tags": ["interrupt", "refresh", "registers"]
+    },
+    {
+      "name": "Timing",
+      "description": "M-cycle and T-state latches (m1..m5, t1..t6) plus ixy_d_phase modifier.",
+      "rect": [1900, 2800, 900, 600],
+      "tags": ["timing", "mcycle", "tstate", "latches"]
+    }
+  ]
+}

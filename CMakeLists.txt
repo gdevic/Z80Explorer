@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 project(Z80Explorer LANGUAGES CXX)
 
-find_package(Qt6 6.9 REQUIRED COMPONENTS Widgets Xml Concurrent Qml Network)
+find_package(Qt6 6.9 REQUIRED COMPONENTS Widgets Xml Concurrent Qml Network HttpServer)
 
 set(CXX_STANDARD C++17)
 
@@ -14,10 +14,16 @@ qt_add_executable(Z80Explorer
     src/ClassColors.cpp
     src/ClassController.cpp
     src/ClassLogic.cpp
+    src/ClassMcpServer.cpp
+    src/ClassMcpThreading.cpp
+    src/ClassMcpTools.cpp
     src/ClassNetlist.cpp
+    src/ClassRenderer.cpp
     src/ClassScript.cpp
     src/ClassServer.cpp
     src/ClassSimZ80.cpp
+    src/ClassSimZ80_AVX2.cpp
+    src/ClassSpatial.cpp
     src/ClassTip.cpp
     src/ClassTrickbox.cpp
     src/ClassVisual.cpp
@@ -52,11 +58,17 @@ qt_add_executable(Z80Explorer
     src/ClassController.h
     src/ClassException.h
     src/ClassLogic.h
+    src/ClassMcpServer.h
+    src/ClassMcpThreading.h
+    src/ClassMcpTools.h
     src/ClassNetlist.h
+    src/ClassRenderer.h
     src/ClassScript.h
     src/ClassServer.h
     src/ClassSimZ80.h
+    src/ClassSimZ80_AVX2.h
     src/ClassSingleton.h
+    src/ClassSpatial.h
     src/ClassTip.h
     src/ClassTrickbox.h
     src/ClassVisual.h
@@ -102,8 +114,6 @@ qt_add_executable(Z80Explorer
     src/WidgetImageOverlay.ui
     src/WidgetToolbar.ui
 	
-    src/Z80Explorer.rc
-
     installer/config.xml
     installer/z80explorer.package.xml
 
@@ -118,11 +128,12 @@ qt_add_executable(Z80Explorer
 
 target_link_libraries(Z80Explorer
     PRIVATE
-        Qt::Concurrent 
-        Qt::Network		
+        Qt::Concurrent
+        Qt::HttpServer
+        Qt::Network
         Qt::Qml
         Qt::Widgets
-        Qt::Xml 
+        Qt::Xml
 )
 
 target_include_directories(Z80Explorer
@@ -141,6 +152,13 @@ if (WIN32)
             WINDOWS
             _CRT_SECURE_NO_WARNINGS
     )
+    # AVX2 support for the optimized simulator (USE_AVX2_SIM in AppTypes.h).
+    # Matches the qmake build's QMAKE_CXXFLAGS += /arch:AVX2 on win32.
+    if (MSVC)
+        target_compile_options(Z80Explorer PRIVATE /arch:AVX2)
+    else()
+        target_compile_options(Z80Explorer PRIVATE -mavx2)
+    endif()
     set(CMAKE_INSTALL_PREFIX
         "${CMAKE_CURRENT_BINARY_DIR}/installer/packages/com.baltazarstudios.z80explorer/data"
     )

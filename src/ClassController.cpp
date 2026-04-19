@@ -1,4 +1,6 @@
 #include "ClassController.h"
+#include "ClassMcpServer.h"
+#include "ClassMcpTools.h"
 #include "DialogEditSchematic.h"
 #include <QDebug>
 #include <QFileDialog>
@@ -121,6 +123,20 @@ bool ClassController::init(QJSEngine *sc)
         return false;
     }
 #endif
+#if MCP_SERVER
+    // Build the spatial index (uses m_chip's transvdefs/segvdefs), seed blocks,
+    // create the MCP tool registry, and start the HTTP transport. Listens only
+    // on localhost; uses the existing Qt event loop (no dedicated thread).
+    m_spatial.build(resDir);
+    m_mcpTools = new ClassMcpTools(&m_spatial, &m_renderer, this);
+    m_mcpTools->registerDefaults();
+    m_mcpServer = new ClassMcpServer(m_mcpTools, this);
+    if (m_mcpServer->start(MCP_PORT))
+        qInfo() << "MCP server ready with" << m_mcpTools->toolCount() << "tools";
+    else
+        qWarning() << "MCP server failed to start on port" << MCP_PORT;
+#endif
+
     // Execute init.js initialization script
     QTimer::singleShot(1000, [=]() { m_script.exec(R"(load("init.js"))"); });
 

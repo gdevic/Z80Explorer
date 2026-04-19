@@ -1,4 +1,4 @@
-QT += core gui widgets xml concurrent qml network
+QT += core gui widgets xml concurrent qml network httpserver
 
 CONFIG += c++17
 
@@ -29,9 +29,14 @@ SOURCES += \
     src/ClassColors.cpp \
     src/ClassController.cpp \
     src/ClassLogic.cpp \
+    src/ClassMcpServer.cpp \
+    src/ClassMcpThreading.cpp \
+    src/ClassMcpTools.cpp \
     src/ClassNetlist.cpp \
+    src/ClassRenderer.cpp \
     src/ClassScript.cpp \
     src/ClassServer.cpp \
+    src/ClassSpatial.cpp \
     src/ClassSimZ80.cpp \
     src/ClassSimZ80_AVX2.cpp \
     src/ClassTip.cpp \
@@ -69,9 +74,14 @@ HEADERS += \
     src/ClassController.h \
     src/ClassException.h \
     src/ClassLogic.h \
+    src/ClassMcpServer.h \
+    src/ClassMcpThreading.h \
+    src/ClassMcpTools.h \
     src/ClassNetlist.h \
+    src/ClassRenderer.h \
     src/ClassScript.h \
     src/ClassServer.h \
+    src/ClassSpatial.h \
     src/ClassSimZ80.h \
     src/ClassSimZ80_AVX2.h \
     src/ClassSingleton.h \
