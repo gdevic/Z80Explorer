@@ -6,10 +6,13 @@
 #include "WidgetImageOverlay.h"
 #include "WidgetImageView.h"
 #include <QDebug>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QInputDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
@@ -1107,6 +1110,29 @@ void WidgetImageView::dragEnterEvent(QDragEnterEvent *event)
 
 void WidgetImageView::dropEvent(QDropEvent *)
 {
-    ::controller.getAnnotation().load(m_dropppedFile);
+    // Peek at the top-level key to dispatch to the matching loader.
+    // Each customization JSON is identified by its root object key:
+    //   "annotations" → ClassAnnotate, "colors" → ClassColors,
+    //   "watchlist"   → ClassWatch,    "tips"   → ClassTip.
+    QFile f(m_dropppedFile);
+    if (!f.open(QIODevice::ReadOnly))
+    {
+        qWarning() << "Unable to open" << m_dropppedFile;
+        return;
+    }
+    const QJsonObject json = QJsonDocument::fromJson(f.readAll()).object();
+    f.close();
+
+    if (json.contains("annotations"))
+        ::controller.getAnnotation().load(m_dropppedFile);
+    else if (json.contains("colors"))
+        ::controller.getColors().load(m_dropppedFile);
+    else if (json.contains("watchlist"))
+        ::controller.getWatch().load(m_dropppedFile);
+    else if (json.contains("tips"))
+        ::controller.getTip().load(m_dropppedFile);
+    else
+        qWarning() << "Unrecognized JSON (no annotations/colors/watchlist/tips key):" << m_dropppedFile;
+
     update();
 }
