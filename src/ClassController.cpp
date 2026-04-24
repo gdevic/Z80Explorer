@@ -2,6 +2,7 @@
 #include "ClassMcpServer.h"
 #include "ClassMcpTools.h"
 #include "DialogEditSchematic.h"
+#include <QCoreApplication>
 #include <QDebug>
 #include <QFileDialog>
 #include <QSettings>
@@ -124,23 +125,45 @@ bool ClassController::init(QJSEngine *sc)
     }
 #endif
 #if MCP_SERVER
-    // Build the spatial index (uses m_chip's transvdefs/segvdefs), seed blocks,
-    // create the MCP tool registry, and start the HTTP transport. Listens only
-    // on localhost; uses the existing Qt event loop (no dedicated thread).
+    // Initialize and start the MCP socket server
     m_spatial.build(resDir);
     m_mcpTools = new ClassMcpTools(&m_spatial, &m_renderer, this);
     m_mcpTools->registerDefaults();
     m_mcpServer = new ClassMcpServer(m_mcpTools, this);
     if (m_mcpServer->start(MCP_PORT))
+    {
         qInfo() << "MCP server ready with" << m_mcpTools->toolCount() << "tools";
+        QObject::connect(qApp, &QCoreApplication::aboutToQuit, m_mcpServer, &ClassMcpServer::stop);
+    }
     else
-        qWarning() << "MCP server failed to start on port" << MCP_PORT;
+    {
+        qCritical() << "MCP server failed to start on port" << MCP_PORT;
+        return false;
+    }
 #endif
 
     // Execute init.js initialization script
     QTimer::singleShot(1000, [=]() { m_script.exec(R"(load("init.js"))"); });
 
     return true;
+}
+
+/*
+ * Shut down long-running background services while qApp is still alive.
+ * Called explicitly from main() after a.exec() returns; safe to call multiple
+ * times. ClassController is a global, so its QObject children would otherwise
+ * be destroyed after QApplication is gone — tearing down QHttpServer /
+ * QTcpServer at that point trips "Must construct a QApplication before a
+ * QWidget" on exit.
+ */
+void ClassController::stopServers()
+{
+#if MCP_SERVER
+    if (m_mcpServer) m_mcpServer->stop();
+#endif
+#if SOCKET_SERVER
+    m_server.stopListening();
+#endif
 }
 
 /*

@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
             mainWindow = new MainWindow(nullptr, logWindow, &scriptEngine);
             mainWindow->show();
             retCode = a.exec();
-
+            ::controller.stopServers();
             delete mainWindow;
         }
         else

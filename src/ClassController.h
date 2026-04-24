@@ -29,6 +29,7 @@ class ClassController : public QObject
 public:
     explicit ClassController() {};
     bool init(QJSEngine *);                     // Initialize controller classes and variables
+    void stopServers();                         // Tear down long-running background servers (MCP, SOCKET)
 
 public: // API
     inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
