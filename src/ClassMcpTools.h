@@ -117,6 +117,10 @@ private:
     QJsonValue hndWatchlistAdd  (const QJsonObject &a, QString &err);
     QJsonValue hndSampleWindow  (const QJsonObject &a, QString &err);
 
+    // Structured-equation + direct-driver helpers.
+    QJsonValue hndEquationTree  (const QJsonObject &a, QString &err);
+    QJsonValue hndNetDrivers    (const QJsonObject &a, QString &err);
+
     // Resolve a "net" argument that may be either a string name or an integer id.
     net_t resolveNet(const QJsonValue &v) const;
     // Resolve the appropriate "current" sim for bit reads (respects USE_AVX2_SIM).

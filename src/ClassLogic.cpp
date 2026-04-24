@@ -2,6 +2,9 @@
 #include "ClassLogic.h"
 #include "ClassNetlist.h"
 #include <algorithm>
+#include <functional>
+#include <QHash>
+#include <QJsonArray>
 #include <QSet>
 #include <QSettings>
 
@@ -216,6 +219,146 @@ QString ClassNetlist::equation(net_t net)
     Logic::purge(lr);
     qDebug() << equation;
     return equation;
+}
+
+/*
+ * Walk a logic tree and produce its DAG-form JSON representation.
+ * See the declaration in ClassLogic.h for the output shape.
+ *
+ * The existing parser already caps recursion depth (see parse() / the DotDot
+ * op) and breaks cycles by marking nets leaf on re-entry (see the Logic ctor's
+ * visitedNets check). As a result the input Logic tree is already acyclic, and
+ * pointer-identity is the right dedup key for arg references here.
+ */
+QJsonObject Logic::toJson(Logic *root)
+{
+    QJsonObject nodes;
+    QHash<Logic *, int> idOf;
+    bool truncated = false;
+
+    std::function<QString(Logic *)> visit = [&](Logic *p) -> QString
+    {
+        if (!p) return QString{};
+        auto it = idOf.find(p);
+        if (it != idOf.end())
+            return QString("n") % QString::number(it.value());
+
+        const int id = idOf.size();
+        idOf[p] = id;
+        const QString key = QString("n") % QString::number(id);
+
+        if (p->op == LogicOp::DotDot)
+            truncated = true;
+
+        // Build child refs first so cycles (none currently, but future-proofed)
+        // resolve via the idOf map rather than re-entering visit().
+        QJsonArray args;
+        for (Logic *c : p->inputs)
+        {
+            const QString ref = visit(c);
+            if (!ref.isEmpty())
+                args.append(ref);
+        }
+
+        QString opStr = Logic::toString(p->op);
+        if (opStr.isEmpty())
+            opStr = QStringLiteral("Net"); // LogicOp::Net serializes as the empty string in toString()
+
+        QJsonObject entry;
+        entry["op"]     = opStr;
+        entry["name"]   = p->name;
+        entry["net_id"] = int(p->outnet);
+        entry["leaf"]   = p->leaf;
+        entry["root"]   = p->root;
+        entry["args"]   = args;
+        nodes[key] = entry;
+
+        return key;
+    };
+
+    const QString rootKey = visit(root);
+
+    QJsonObject out;
+    out["root"]      = rootKey;
+    out["nodes"]     = nodes;
+    out["truncated"] = truncated;
+    out["node_count"]= nodes.size();
+    return out;
+}
+
+/*
+ * Returns the logic tree driving a net as DAG-form JSON.
+ * Companion to equation(); equation() returns a flat string that elides deep
+ * sub-expressions with "...", while this preserves every node so callers can
+ * walk the tree without re-parsing or losing sub-expression boundaries.
+ */
+QJsonObject ClassNetlist::equationTreeJson(net_t net)
+{
+    QJsonObject result;
+    if (!net || net >= MAX_NETS)
+    {
+        result["error"] = "unknown net";
+        return result;
+    }
+
+    Logic *lr = getLogicTree(net);
+    result = Logic::toJson(lr);
+    result["id"]   = int(net);
+    result["name"] = get(net);
+    Logic::purge(lr);
+    return result;
+}
+
+/*
+ * Returns the direct transistor-level drivers of a net.
+ * Walks the net's source/drain transistor list; for each transistor we report
+ *   { id, gate_net, gate_name, other_end, other_name, kind, on }
+ * where kind is "pulldown" (other end == GND), "pullup" (other end == VCC),
+ * or "pass" (other end is a different net). This is the lowest-level fanin
+ * query — to know what can change a net's value, call this.
+ */
+QJsonObject ClassNetlist::netDriversJson(net_t net)
+{
+    QJsonObject result;
+    if (!net || net >= MAX_NETS)
+    {
+        result["error"] = "unknown net";
+        return result;
+    }
+
+    result["id"]         = int(net);
+    result["name"]       = get(net);
+    result["has_pullup"] = isNetPulledUp(net);
+    result["is_orphan"]  = isNetOrphan(net);
+    result["is_gateless"]= isNetGateless(net);
+
+    QJsonArray drivers;
+    QVector<tran_t> connected = getConnectedTransistors(net);
+    for (tran_t t : connected)
+    {
+        net_t c1 = 0, c2 = 0;
+        getTnet(t, c1, c2);
+        const net_t gate = getTransGate(t);
+        const net_t other = (c1 == net) ? c2 : c1;
+
+        QString kind;
+        if      (other == ngnd) kind = QStringLiteral("pulldown");
+        else if (other == npwr) kind = QStringLiteral("pullup");
+        else                    kind = QStringLiteral("pass");
+
+        QJsonObject e;
+        e["id"]         = int(t);
+        e["gate_net"]   = int(gate);
+        e["gate_name"]  = get(gate);
+        e["other_net"]  = int(other);
+        e["other_name"] = get(other);
+        e["kind"]       = kind;
+        e["on"]         = isTransOn(t);
+        drivers.append(e);
+    }
+    result["drivers"]       = drivers;
+    result["driver_count"]  = drivers.size();
+    return result;
 }
 
 // Returns indices of transistors that share the same c2 value (2 or more occurrences)

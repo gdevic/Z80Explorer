@@ -2,6 +2,7 @@
 #define CLASSLOGIC_H
 
 #include "AppTypes.h"
+#include <QJsonObject>
 #include <QObject>
 
 struct Trans;
@@ -85,6 +86,17 @@ public:
         }
         return false;
     }
+
+    // Serialize the logic tree to DAG-form JSON.
+    // Each distinct Logic* pointer becomes one node in the "nodes" map, keyed
+    // "n0", "n1", ... Arguments are references by id (so shared subtrees and
+    // cycles collapse to refs rather than unfolding). The top-level "truncated"
+    // flag is set when any DotDot node is present (parser hit its depth budget).
+    // Structure:
+    //   { "root": "n0",
+    //     "nodes": { "n0": {"op":"NOR","name":"px400","net_id":400,"leaf":false,"args":["n1","n2",...]}, ... },
+    //     "truncated": bool }
+    static QJsonObject toJson(Logic *root);
 
     // Calculate a unique signature of the logic tree
     static uint32_t getLogicTreeSignature(Logic *node)

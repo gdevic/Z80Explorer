@@ -32,6 +32,8 @@ public:
     Q_INVOKABLE void relatch();
     Q_INVOKABLE void ex(uint n);
     Q_INVOKABLE QJSValue execApp(const QString &path, const QStringList &args, bool synchronous = true);
+    Q_INVOKABLE QJSValue eqTree(QVariant n);
+    Q_INVOKABLE QJSValue netDrivers(QVariant n);
 
     // Net value reads for instrumentation scripts
     Q_INVOKABLE int     readBit(const QString &name);            // Returns 0, 1, or 2 (hi-Z); -1 if net not found

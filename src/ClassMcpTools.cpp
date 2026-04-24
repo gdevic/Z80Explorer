@@ -604,6 +604,37 @@ void ClassMcpTools::registerDefaults()
         }, {"nets", "halfcycles"}),
         [this](const QJsonObject &a, QString &err) { return hndSampleWindow(a, err); }
     });
+
+    registerTool({
+        "z80_equation_tree",
+        "Return the logic equation driving a net as a DAG-form JSON tree "
+        "instead of the flat string produced by z80_equation. Preserves every "
+        "sub-expression (no '...' elisions) and gives each node a stable id so "
+        "shared subtrees and cycles collapse to refs. Nodes: "
+        "{op, name, net_id, leaf, root, args:[\"nN\", ...]}. Top-level: "
+        "{root, nodes, truncated, node_count, id, name}. 'truncated' is true "
+        "whenever any DotDot node is present (parser hit its depth budget).",
+        schemaObject({
+            {"net", schemaString("Net name or numeric id")},
+        }, {"net"}),
+        [this](const QJsonObject &a, QString &err) { return hndEquationTree(a, err); }
+    });
+
+    registerTool({
+        "z80_net_drivers",
+        "Return the direct transistor-level drivers of a net: for each "
+        "transistor where this net appears as source or drain, report its "
+        "gate net (the direct driver), the 'other end' net (whichever of "
+        "c1/c2 is not this net), and a 'kind' classification: "
+        "'pulldown' (other end is GND), 'pullup' (other end is VCC), or "
+        "'pass' (other end is another net). No recursion — one hop only. "
+        "Use this instead of z80_fanout when you want to answer 'what can "
+        "drive this net low/high', not 'what does this net gate'.",
+        schemaObject({
+            {"net", schemaString("Net name or numeric id")},
+        }, {"net"}),
+        [this](const QJsonObject &a, QString &err) { return hndNetDrivers(a, err); }
+    });
 }
 
 // ===========================================================================
@@ -912,7 +943,7 @@ QJsonValue ClassMcpTools::hndNetFind(const QJsonObject &a, QString &err)
     });
 }
 
-QJsonValue ClassMcpTools::hndNetInfo(const QJsonObject &a, QString &err)
+QJsonValue ClassMcpTools::hndNetInfo(const QJsonObject &a, QString &)
 {
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
         ClassNetlist &nl = ::controller.getNetlist();
@@ -1615,6 +1646,26 @@ QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
         r["hc_start"] = qint64(fromHc);
         r["hc_end"]   = qint64(toHc);
         r["samples"]  = samples;
+        return textResult(r);
+    });
+}
+
+QJsonValue ClassMcpTools::hndEquationTree(const QJsonObject &a, QString &)
+{
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        net_t id = resolveNet(a.value("net"));
+        if (id == 0) { QJsonObject r; r["error"] = "unknown net"; return textResult(r); }
+        QJsonObject r = ::controller.getNetlist().equationTreeJson(id);
+        return textResult(r);
+    });
+}
+
+QJsonValue ClassMcpTools::hndNetDrivers(const QJsonObject &a, QString &)
+{
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        net_t id = resolveNet(a.value("net"));
+        if (id == 0) { QJsonObject r; r["error"] = "unknown net"; return textResult(r); }
+        QJsonObject r = ::controller.getNetlist().netDriversJson(id);
         return textResult(r);
     });
 }

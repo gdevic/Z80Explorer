@@ -3,6 +3,9 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QProcess>
 
 ClassScript::ClassScript(QObject *parent) : QObject(parent)
@@ -22,6 +25,8 @@ void ClassScript::init(QJSEngine *sc)
     m_engine->globalObject().setProperty("t", ext.property("t"));
     m_engine->globalObject().setProperty("n", ext.property("n"));
     m_engine->globalObject().setProperty("eq", ext.property("eq"));
+    m_engine->globalObject().setProperty("eqTree", ext.property("eqTree"));
+    m_engine->globalObject().setProperty("netDrivers", ext.property("netDrivers"));
     m_engine->globalObject().setProperty("print", ext.property("print"));
     m_engine->globalObject().setProperty("relatch", ext.property("relatch"));
     m_engine->globalObject().setProperty("save", ext.property("save"));
@@ -127,6 +132,75 @@ void ClassScript::eq(QVariant n)
     }
     QString s = ::controller.getNetlist().equation(net);
     emit ::controller.getScript().print(s);
+}
+
+/*
+ * Resolves a JS-passed net argument (uint id or name string) to a net_t,
+ * or 0 if the name is unknown. Mirrors the pattern used by eq() / n().
+ */
+static net_t resolveNetArg(const QVariant &n)
+{
+    bool ok = false;
+    net_t net = n.toUInt(&ok);
+    if (!ok)
+    {
+        QString name = n.toString();
+        net = ::controller.getNetlist().get(name);
+    }
+    return net;
+}
+
+/*
+ * Recursively converts QJsonValue trees to native QJSValues.
+ *
+ * We can't use m_engine->toScriptValue(QVariantMap) here: that path produces
+ * array-like objects for nested QVariantList values, with Array.prototype but
+ * NOT created via newArray(), so Array.isArray() returns false. Manual
+ * construction with newArray()/newObject() yields true native JS arrays/objects
+ * that pass Array.isArray() and behave like JSON.parse output.
+ */
+static QJSValue jsonToJSValue(QJSEngine *eng, const QJsonValue &v)
+{
+    switch (v.type())
+    {
+    case QJsonValue::Null:   return QJSValue(QJSValue::NullValue);
+    case QJsonValue::Bool:   return QJSValue(v.toBool());
+    case QJsonValue::Double: return QJSValue(v.toDouble());
+    case QJsonValue::String: return QJSValue(v.toString());
+    case QJsonValue::Array:
+    {
+        const QJsonArray arr = v.toArray();
+        QJSValue out = eng->newArray(quint32(arr.size()));
+        for (int i = 0; i < arr.size(); ++i)
+            out.setProperty(quint32(i), jsonToJSValue(eng, arr.at(i)));
+        return out;
+    }
+    case QJsonValue::Object:
+    {
+        const QJsonObject obj = v.toObject();
+        QJSValue out = eng->newObject();
+        for (auto it = obj.begin(); it != obj.end(); ++it)
+            out.setProperty(it.key(), jsonToJSValue(eng, it.value()));
+        return out;
+    }
+    case QJsonValue::Undefined:
+    default:
+        return QJSValue(QJSValue::UndefinedValue);
+    }
+}
+
+QJSValue ClassScript::eqTree(QVariant n)
+{
+    net_t net = resolveNetArg(n);
+    QJsonObject r = ::controller.getNetlist().equationTreeJson(net);
+    return jsonToJSValue(m_engine, QJsonValue(r));
+}
+
+QJSValue ClassScript::netDrivers(QVariant n)
+{
+    net_t net = resolveNetArg(n);
+    QJsonObject r = ::controller.getNetlist().netDriversJson(net);
+    return jsonToJSValue(m_engine, QJsonValue(r));
 }
 
 /*

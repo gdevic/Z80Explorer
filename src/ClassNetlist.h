@@ -4,6 +4,7 @@
 #include "AppTypes.h"
 #include "ClassLogic.h"
 #include <QHash>
+#include <QJsonObject>
 
 // Contains individual transistor definition
 // Fields are organized for cache efficiency: hot data (frequently accessed) first
@@ -105,6 +106,14 @@ public:
     Logic* getLogicTree(net_t net);             // Returns a tree describing the logic connections of a net
     void optimizeLogicTree(Logic **ppl);        // Optimizes, in place, logic tree by coalescing suitable nodes
     QString equation(net_t net);                // Returns a string describing the logic connections of a net
+
+    // Returns the logic tree driving a net as DAG-form JSON (see Logic::toJson).
+    // Preserves every node instead of flattening to a string with "..." elisions.
+    QJsonObject equationTreeJson(net_t net);
+
+    // Returns the direct transistor-level drivers of a net, classified as pulldown (other end = GND), pullup
+    // (other end = VCC), or pass (other end = another net). This is one-hop fanin — no recursion.
+    QJsonObject netDriversJson(net_t net);
 
     // Net value reads exposed for scripting and instrumentation
     uint8_t readByte(const QString &name);      // Returns a byte value read from the netlist for a particular net bus
