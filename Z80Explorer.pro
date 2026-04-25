@@ -35,7 +35,6 @@ SOURCES += \
     src/ClassNetlist.cpp \
     src/ClassScript.cpp \
     src/ClassServer.cpp \
-    src/ClassSpatial.cpp \
     src/ClassSimZ80.cpp \
     src/ClassSimZ80_AVX2.cpp \
     src/ClassTip.cpp \
@@ -79,7 +78,6 @@ HEADERS += \
     src/ClassNetlist.h \
     src/ClassScript.h \
     src/ClassServer.h \
-    src/ClassSpatial.h \
     src/ClassSimZ80.h \
     src/ClassSimZ80_AVX2.h \
     src/ClassSingleton.h \

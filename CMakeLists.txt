@@ -22,7 +22,6 @@ qt_add_executable(Z80Explorer
     src/ClassServer.cpp
     src/ClassSimZ80.cpp
     src/ClassSimZ80_AVX2.cpp
-    src/ClassSpatial.cpp
     src/ClassTip.cpp
     src/ClassTrickbox.cpp
     src/ClassVisual.cpp
@@ -66,7 +65,6 @@ qt_add_executable(Z80Explorer
     src/ClassSimZ80.h
     src/ClassSimZ80_AVX2.h
     src/ClassSingleton.h
-    src/ClassSpatial.h
     src/ClassTip.h
     src/ClassTrickbox.h
     src/ClassVisual.h

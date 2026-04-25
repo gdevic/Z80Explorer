@@ -10,8 +10,6 @@
 #include <QVector>
 #include <functional>
 
-class ClassSpatial;
-
 /*
  * ClassMcpTools — MCP tool registry and dispatcher.
  *
@@ -46,7 +44,7 @@ public:
         Handler handler;
     };
 
-    explicit ClassMcpTools(ClassSpatial *spatial, QObject *parent = nullptr);
+    explicit ClassMcpTools(QObject *parent = nullptr);
 
     void registerDefaults();            // Populate the 26 built-in tools
     void registerTool(const ToolDef &t);// Add a custom tool (for tests)
@@ -97,11 +95,6 @@ private:
     QJsonValue hndBreakAdd    (const QJsonObject &a, QString &err);
     QJsonValue hndBreakClear  (const QJsonObject &a, QString &err);
 
-    QJsonValue hndRegionOf    (const QJsonObject &a, QString &err);
-    QJsonValue hndNetsNear    (const QJsonObject &a, QString &err);
-    QJsonValue hndTransNear   (const QJsonObject &a, QString &err);
-    QJsonValue hndBoundingBox (const QJsonObject &a, QString &err);
-
     QJsonValue hndViewSet     (const QJsonObject &a, QString &err);
     QJsonValue hndViewGrab    (const QJsonObject &a, QString &err);
 
@@ -122,7 +115,6 @@ private:
     pin_t readBitByName(const QString &name) const;
     pin_t readBitByNum(net_t n) const;
 
-    ClassSpatial  *m_spatial  {nullptr};
     QVector<ToolDef> m_tools;
 
     // Breakpoint registry (simple id → description map for break_clear bookkeeping)

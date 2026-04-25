@@ -51,7 +51,6 @@ Options:
 - Memory/IO: `mem_read/write`, `io_read/write`
 - Pin control: `pin_set`, `pin_set_at`, `pin_set_at_pc`
 - Breakpoints: `break_add`, `break_clear`
-- Spatial: `region_of`, `nets_near`, `trans_near`, `bounding_box`
 - Image view: `view_set`, `view_grab`
 - Escape hatch: `eval_js`
 

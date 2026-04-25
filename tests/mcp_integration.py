@@ -136,7 +136,6 @@ def test_tools_list(client: McpClient):
         "z80_mem_read", "z80_mem_write",
         "z80_pin_set",
         "z80_net_find", "z80_net_info", "z80_trans_info", "z80_equation",
-        "z80_region_of", "z80_nets_near", "z80_trans_near", "z80_bounding_box",
         "z80_eval_js",
     }
     missing = required - names
@@ -249,26 +248,6 @@ def test_break_add_clear(client: McpClient):
     bid = r["id"]
     r2 = client.tool_text("z80_break_clear", {"id": bid})
     assert bid in r2["cleared"]
-
-
-def test_region_of(client: McpClient):
-    data = client.tool_text("z80_region_of", {"net": "clk"})
-    assert data["valid"] in (True, False)  # just exercise it
-
-
-def test_nets_near(client: McpClient):
-    data = client.tool_text("z80_nets_near", {"x": 2350, "y": 2500, "radius": 200})
-    assert "hits" in data
-
-
-def test_trans_near(client: McpClient):
-    data = client.tool_text("z80_trans_near", {"x": 2350, "y": 2500, "radius": 200})
-    assert "hits" in data
-
-
-def test_bounding_box(client: McpClient):
-    data = client.tool_text("z80_bounding_box", {"ids": [1, 2, 3], "type": "trans"})
-    assert "bbox" in data
 
 
 def test_eval_js(client: McpClient):
@@ -424,10 +403,6 @@ def main():
     suite.run("z80_run (short)",       lambda: test_run_short(client))
     suite.run("z80_run (until cycle)", lambda: test_run_until_cycle(client))
     suite.run("z80_break add+clear",   lambda: test_break_add_clear(client))
-    suite.run("z80_region_of",         lambda: test_region_of(client))
-    suite.run("z80_nets_near",         lambda: test_nets_near(client))
-    suite.run("z80_trans_near",        lambda: test_trans_near(client))
-    suite.run("z80_bounding_box",      lambda: test_bounding_box(client))
     suite.run("z80_eval_js",           lambda: test_eval_js(client))
     suite.run("z80_fanout",            lambda: test_fanout(client))
     suite.run("z80_fanout (unknown)",  lambda: test_fanout_unknown(client))

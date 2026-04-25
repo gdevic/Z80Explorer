@@ -4,7 +4,6 @@
 #include "ClassMcpThreading.h"
 #include "ClassNetlist.h"
 #include "ClassScript.h"
-#include "ClassSpatial.h"
 #include "ClassTrickbox.h"
 #include "ClassVisual.h"
 #include "ClassWatch.h"
@@ -22,8 +21,8 @@
 #include <QWidget>
 #include <climits>
 
-ClassMcpTools::ClassMcpTools(ClassSpatial *spatial, QObject *parent)
-    : QObject(parent), m_spatial(spatial)
+ClassMcpTools::ClassMcpTools(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -414,50 +413,6 @@ void ClassMcpTools::registerDefaults()
         "Clear a single breakpoint by id, or all if id is omitted.",
         schemaObject({{"id", schemaInt()}}, {}),
         [this](const QJsonObject &a, QString &err) { return hndBreakClear(a, err); }
-    });
-
-    // --- Spatial queries -----------------------------------------------------
-
-    registerTool({
-        "z80_region_of",
-        "Return the functional block (if any) containing a net or transistor, plus nearby annotations.",
-        schemaObject({
-            {"net",   schemaString()},
-            {"trans", schemaInt()},
-        }, {}),
-        [this](const QJsonObject &a, QString &err) { return hndRegionOf(a, err); }
-    });
-
-    registerTool({
-        "z80_nets_near",
-        "Return nets whose bounding-box centre lies within `radius` pixels of (x, y) on the 4700x5000 die.",
-        schemaObject({
-            {"x",      schemaInt()},
-            {"y",      schemaInt()},
-            {"radius", schemaInt()},
-        }, {"x", "y", "radius"}),
-        [this](const QJsonObject &a, QString &err) { return hndNetsNear(a, err); }
-    });
-
-    registerTool({
-        "z80_trans_near",
-        "Return transistors whose box centre lies within `radius` pixels of (x, y).",
-        schemaObject({
-            {"x",      schemaInt()},
-            {"y",      schemaInt()},
-            {"radius", schemaInt()},
-        }, {"x", "y", "radius"}),
-        [this](const QJsonObject &a, QString &err) { return hndTransNear(a, err); }
-    });
-
-    registerTool({
-        "z80_bounding_box",
-        "Return the minimum bounding rectangle of a set of nets or transistors plus a compactness score (area sum / bbox area).",
-        schemaObject({
-            {"ids",  schemaArray(schemaInt())},
-            {"type", schemaString("'net' or 'trans'")},
-        }, {"ids", "type"}),
-        [this](const QJsonObject &a, QString &err) { return hndBoundingBox(a, err); }
     });
 
     // --- Interactive image view ---------------------------------------------
@@ -890,9 +845,11 @@ QJsonValue ClassMcpTools::hndNetInfo(const QJsonObject &a, QString &)
         r["nets_driving"] = drivers;
         r["nets_driven"]  = driven;
 
-        if (m_spatial)
+        ClassVisual &cv = ::controller.getChip();
+        const segvdef *sv = cv.getSegment(id);
+        if (sv && !sv->path.isEmpty())
         {
-            QRect b = m_spatial->netBBox(id);
+            QRect b = sv->path.boundingRect().toAlignedRect();
             if (!b.isEmpty())
             {
                 QJsonArray bb;
@@ -1125,132 +1082,7 @@ QJsonValue ClassMcpTools::hndBreakClear(const QJsonObject &a, QString &)
 }
 
 // ===========================================================================
-// Spatial queries
-// ===========================================================================
-
-static QJsonArray rectToJson(const QRect &r)
-{
-    QJsonArray a;
-    a.append(r.left()); a.append(r.top()); a.append(r.width()); a.append(r.height());
-    return a;
-}
-
-QJsonValue ClassMcpTools::hndRegionOf(const QJsonObject &a, QString &err)
-{
-    if (!m_spatial) { err = "Spatial index not available"; return {}; }
-
-    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        RegionInfo info;
-        if (a.contains("net"))
-        {
-            net_t n = resolveNet(a.value("net"));
-            if (n == 0) { err = "unknown net"; return QJsonValue{}; }
-            info = m_spatial->regionOfNet(n);
-        }
-        else if (a.contains("trans"))
-        {
-            tran_t t = tran_t(intArg(a, "trans", 0));
-            info = m_spatial->regionOfTrans(t);
-        }
-        else
-        {
-            err = "Provide 'net' or 'trans'";
-            return QJsonValue{};
-        }
-        QJsonObject r;
-        r["block"] = info.blockName;
-        r["bbox"]  = rectToJson(info.bbox);
-        QJsonArray ann;
-        for (const QString &s : info.nearbyAnnotations) ann.append(s);
-        r["nearby_annotations"] = ann;
-        r["valid"] = info.valid;
-        return textResult(r);
-    });
-}
-
-QJsonValue ClassMcpTools::hndNetsNear(const QJsonObject &a, QString &err)
-{
-    if (!m_spatial) { err = "Spatial index not available"; return {}; }
-    const qreal x = intArg(a, "x", -1);
-    const qreal y = intArg(a, "y", -1);
-    const qreal r = intArg(a, "radius", 0);
-    if (x < 0 || y < 0 || r <= 0) { err = "x/y/radius required and positive"; return {}; }
-
-    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        ClassNetlist &nl = ::controller.getNetlist();
-        auto hits = m_spatial->netsNear(x, y, r);
-        QJsonArray out;
-        for (const SpatialHit &h : hits)
-        {
-            QJsonObject e;
-            e["id"]   = int(h.id);
-            e["name"] = nl.get(net_t(h.id));
-            e["dist"] = h.dist;
-            e["bbox"] = rectToJson(h.bbox);
-            out.append(e);
-            if (out.size() >= 200) break;
-        }
-        QJsonObject ro; ro["hits"] = out; ro["total"] = hits.size();
-        return textResult(ro);
-    });
-}
-
-QJsonValue ClassMcpTools::hndTransNear(const QJsonObject &a, QString &err)
-{
-    if (!m_spatial) { err = "Spatial index not available"; return {}; }
-    const qreal x = intArg(a, "x", -1);
-    const qreal y = intArg(a, "y", -1);
-    const qreal r = intArg(a, "radius", 0);
-    if (x < 0 || y < 0 || r <= 0) { err = "x/y/radius required and positive"; return {}; }
-
-    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        auto hits = m_spatial->transNear(x, y, r);
-        QJsonArray out;
-        for (const SpatialHit &h : hits)
-        {
-            QJsonObject e;
-            e["id"]   = int(h.id);
-            e["dist"] = h.dist;
-            e["box"]  = rectToJson(h.bbox);
-            out.append(e);
-            if (out.size() >= 200) break;
-        }
-        QJsonObject ro; ro["hits"] = out; ro["total"] = hits.size();
-        return textResult(ro);
-    });
-}
-
-QJsonValue ClassMcpTools::hndBoundingBox(const QJsonObject &a, QString &err)
-{
-    if (!m_spatial) { err = "Spatial index not available"; return {}; }
-    const QString type = strArg(a, "type");
-    const QJsonArray ids = a.value("ids").toArray();
-    if (type != "net" && type != "trans") { err = "type must be 'net' or 'trans'"; return {}; }
-
-    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        BBoxInfo info;
-        if (type == "net")
-        {
-            QVector<net_t> ns;
-            for (const QJsonValue &v : ids) ns.append(net_t(v.toInt()));
-            info = m_spatial->boundingBoxOfNets(ns);
-        }
-        else
-        {
-            QVector<tran_t> ts;
-            for (const QJsonValue &v : ids) ts.append(tran_t(v.toInt()));
-            info = m_spatial->boundingBoxOfTrans(ts);
-        }
-        QJsonObject r;
-        r["valid"]       = info.valid;
-        r["bbox"]        = rectToJson(info.bbox);
-        r["compactness"] = info.compactness;
-        return textResult(r);
-    });
-}
-
-// ===========================================================================
-// Visual / rendering
+// Interactive image view
 // ===========================================================================
 
 QJsonValue ClassMcpTools::hndViewSet(const QJsonObject &a, QString &)
