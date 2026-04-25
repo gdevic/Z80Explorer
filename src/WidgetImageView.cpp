@@ -49,6 +49,7 @@ WidgetImageView::~WidgetImageView()
     settings.setValue("imageViewDrawAnnotations-" + whatsThis(), m_drawAnnotations);
     settings.setValue("imageViewDrawTransistors-" + whatsThis(), m_drawTransistors);
     settings.setValue("imageViewDrawLatches-" + whatsThis(), m_drawLatches);
+    settings.setValue("imageViewDrawPullups-" + whatsThis(), m_drawPullups);
 
     QString layers = m_ov->getLayers();
     settings.setValue("imageViewLayers-" + whatsThis(), layers);
@@ -72,6 +73,7 @@ void WidgetImageView::init(QString sid)
     m_drawAnnotations = settings.value("imageViewDrawAnnotations-" + whatsThis(), true).toBool();
     m_drawTransistors = settings.value("imageViewDrawTransistors-" + whatsThis(), true).toBool();
     m_drawLatches = settings.value("imageViewDrawLatches-" + whatsThis(), false).toBool();
+    m_drawPullups = settings.value("imageViewDrawPullups-" + whatsThis(), false).toBool();
 
     m_ov->setButton(0, m_drawNets);
     m_ov->setButton(1, m_drawAnnotations);
@@ -311,6 +313,15 @@ void WidgetImageView::paintEvent(QPaintEvent *)
     {
         painter.save();
         ::controller.getChip().drawTransistors(painter, viewportTex, m_drawTransistorMode);
+        painter.restore();
+    }
+    //------------------------------------------------------------------------
+    // Draw pull-up transistor symbols (red circle + up-arrow)
+    //------------------------------------------------------------------------
+    if (m_drawPullups)
+    {
+        painter.save();
+        ::controller.getChip().drawPullups(painter, viewportTex);
         painter.restore();
     }
     //------------------------------------------------------------------------
@@ -726,6 +737,10 @@ void WidgetImageView::keyPressEvent(QKeyEvent *event)
         case Qt::Key_L:
             m_drawLatches = !m_drawLatches;
             m_ov->setButton(3, m_drawLatches);
+            break;
+        case Qt::Key_P:
+            m_drawPullups = !m_drawPullups;
+            qInfo() << "Draw pull-ups:" << m_drawPullups << "(" << ::controller.getChip().getPullupCount() << "detected)";
             break;
         case Qt::Key_N: m_drawNetNames = !m_drawNetNames; break;
         case Qt::Key_Left: moveBy(QPointF(dx, 0)); break;

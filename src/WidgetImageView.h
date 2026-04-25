@@ -98,6 +98,7 @@ private:
     bool m_drawTransistors;             // Draw transistors
     uint m_drawTransistorMode {};       // Draw transistors mode
     bool m_drawLatches;                 // Draw latches
+    bool m_drawPullups {false};         // Draw pull-up transistor symbols
     bool m_drawNetNames {true};         // Dynamically write nearby net names (experimental)
     QString m_dropppedFile;             // File name of the file being dropped by a drag-and-drop operation
 

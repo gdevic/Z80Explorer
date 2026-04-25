@@ -3,6 +3,10 @@
 #include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSettings>
 #include <QtConcurrent>
 
@@ -70,6 +74,7 @@ void ClassVisual::armTransFlipCount()
 bool ClassVisual::loadChipResources(QString dir)
 {
     qInfo() << "Loading chip resources from" << dir;
+    m_resourceDir = dir;
     // Step 1: Load images and resources sourced from the Visual 6502 project
     if (loadImages(dir) && loadSegdefs(dir) && loadTransdefs(dir) && addTransistorsLayer() && convertToGrayscale())
     {
@@ -1478,6 +1483,186 @@ void ClassVisual::experimental_3()
 
     img.setText("name", "bw.transistors4");
     m_img.append(img);
+
+    // Pull-up detection: prefer the on-disk cache, fall back to the bitmap scan.
+    if (!loadPullups())
+    {
+        detectPullups(paths);
+        savePullups();
+    }
+    qInfo() << "Pull-ups:" << m_pullups.size();
+}
+
+/*
+ * Classifies transistor regions not matched by m_transvdefs as pull-ups. A
+ * region qualifies when the unique set of nets reported by getNetsAt() at its
+ * centre is exactly {VCC, pulled_net} and the pulled net has isNetPulledUp()
+ * true. W and L are taken from the region's bounding rectangle.
+ */
+void ClassVisual::detectPullups(const QVector<QPainterPath> &paths)
+{
+    m_pullups.clear();
+    // Pack a QRect into a 64-bit key (x, y, w, h fit in 16 bits each on this die).
+    auto keyOf = [](const QRect &r) -> quint64 {
+        return (quint64(r.x() & 0xFFFF) << 48)
+             | (quint64(r.y() & 0xFFFF) << 32)
+             | (quint64(r.width()  & 0xFFFF) << 16)
+             | (quint64(r.height() & 0xFFFF));
+    };
+    QSet<quint64> functional;
+    for (const auto &t : m_transvdefs)
+        if (!t.box.isEmpty())
+            functional.insert(keyOf(t.box));
+
+    int nUnmatched = 0, nNoNet = 0;
+    for (const auto &path : paths)
+    {
+        QRect bb = path.boundingRect().toAlignedRect();
+        if (functional.contains(keyOf(bb)))
+            continue; // functional transistor, not a pull-up
+        nUnmatched++;
+
+        // The unmatched transistor region IS the pull-up (matches the
+        // getFeaturesAt "(Pull-up)" classification: TRANSISTOR bit set,
+        // getTransistorAt() == 0). We only need to identify the pulled net.
+        // For a Z80 depletion-load pull-up the gate poly is tied to the
+        // source (= pulled net), so sampling the poly layer inside the
+        // region yields the pulled-up net directly. Use getNetsAt() at a
+        // grid of interior points and pick the first non-VSS/VCC net.
+        net_t pulled = 0;
+        for (int fx = 1; fx <= 3 && !pulled; fx++)
+        {
+            for (int fy = 1; fy <= 3 && !pulled; fy++)
+            {
+                const int x = bb.left() + bb.width() * fx / 4;
+                const int y = bb.top()  + bb.height() * fy / 4;
+                if (x < 0 || y < 0 || uint(x) >= m_sx || uint(y) >= m_sy) continue;
+                for (net_t n : getNetsAt<true>(x, y))
+                {
+                    if (n > 2) { pulled = n; break; }
+                }
+            }
+        }
+        if (!pulled) { nNoNet++; continue; }
+
+        pullupdef pu;
+        pu.net = pulled;
+        pu.box = bb;
+        pu.w = qMax(bb.width(), bb.height());
+        pu.l = qMin(bb.width(), bb.height());
+        m_pullups.append(pu);
+    }
+    qInfo() << "detectPullups: paths=" << paths.size()
+            << "functional=" << functional.size()
+            << "unmatched=" << nUnmatched
+            << "noNet=" << nNoNet
+            << "accepted=" << m_pullups.size();
+
+    // Cache a typical minor dimension (mean of min(w,l)) for the zoom gate.
+    if (!m_pullups.isEmpty())
+    {
+        qint64 sum = 0;
+        for (const pullupdef &p : m_pullups) sum += qMin(p.w, p.l);
+        m_typicalPullupSide = int(sum / m_pullups.size());
+    }
+}
+
+bool ClassVisual::savePullups()
+{
+    QJsonArray arr;
+    for (const pullupdef &p : m_pullups)
+    {
+        QJsonObject o;
+        o["net"] = int(p.net);
+        o["box"] = QJsonArray{ p.box.x(), p.box.y(), p.box.width(), p.box.height() };
+        o["w"]   = p.w;
+        o["l"]   = p.l;
+        arr.append(o);
+    }
+    QJsonObject root;
+    root["pullups"] = arr;
+    QFile f(m_resourceDir + "/pullups.json");
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    {
+        qWarning() << "savePullups: cannot open" << f.fileName();
+        return false;
+    }
+    f.write(QJsonDocument(root).toJson(QJsonDocument::Indented));
+    return true;
+}
+
+bool ClassVisual::loadPullups()
+{
+    QFile f(m_resourceDir + "/pullups.json");
+    if (!f.open(QIODevice::ReadOnly))
+        return false;
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(f.readAll(), &err);
+    if (err.error != QJsonParseError::NoError)
+    {
+        qWarning() << "loadPullups: parse error:" << err.errorString();
+        return false;
+    }
+    QJsonArray arr = doc.object().value("pullups").toArray();
+    if (arr.isEmpty())
+        return false; // treat empty cache as miss and redetect
+    m_pullups.clear();
+    m_pullups.reserve(arr.size());
+    qint64 sum = 0;
+    for (const QJsonValue &v : arr)
+    {
+        QJsonObject o = v.toObject();
+        QJsonArray b = o.value("box").toArray();
+        if (b.size() != 4) continue;
+        pullupdef p;
+        p.net = net_t(o.value("net").toInt());
+        p.box = QRect(b[0].toInt(), b[1].toInt(), b[2].toInt(), b[3].toInt());
+        p.w = o.value("w").toInt();
+        p.l = o.value("l").toInt();
+        sum += qMin(p.w, p.l);
+        m_pullups.append(p);
+    }
+    if (!m_pullups.isEmpty())
+        m_typicalPullupSide = int(sum / m_pullups.size());
+    return true;
+}
+
+/*
+ * Draws a red circle with an upward arrow over each pull-up transistor.
+ */
+void ClassVisual::drawPullups(QPainter &painter, const QRect &viewport)
+{
+    // Zoom gate: skip the symbol pass entirely when a typical pull-up would
+    // render smaller than 5 device pixels on screen. The painter's world
+    // transform scale is m11() for uniform scaling (no rotation).
+    const qreal scale = painter.worldTransform().m11();
+    if (m_typicalPullupSide <= 0 || m_typicalPullupSide * scale < 5.0)
+        return;
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setBrush(Qt::NoBrush);
+    QPen pen(QColor(255, 240, 0));
+    pen.setCapStyle(Qt::RoundCap);
+    pen.setJoinStyle(Qt::RoundJoin);
+    for (const pullupdef &p : m_pullups)
+    {
+        if (!p.box.intersects(viewport)) continue;
+        const QPoint c = p.box.center();
+        const int r = qMax(4, qMin(p.box.width(), p.box.height()) / 2);
+        // Pen and arrow chevron scale with the symbol radius
+        const qreal thickness = qMax(qreal(1.0), qreal(r) / 5.0);
+        const int chevron = qMax(2, r / 3);
+        pen.setWidthF(thickness);
+        painter.setPen(pen);
+        painter.drawEllipse(c, r, r);
+        // Up-arrow: shaft + two chevrons at the tip
+        const QPoint base(c.x(), c.y() + r - 2);
+        const QPoint tip (c.x(), c.y() - r + 2);
+        painter.drawLine(base, tip);
+        painter.drawLine(tip, tip + QPoint(-chevron, chevron));
+        painter.drawLine(tip, tip + QPoint( chevron, chevron));
+    }
+    painter.restore();
 }
 
 /******************************************************************************
