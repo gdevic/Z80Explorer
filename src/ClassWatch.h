@@ -4,8 +4,6 @@
 #include "AppTypes.h"
 #include <QObject>
 
-#define MAX_WATCH_HISTORY  1000
-
 /*
  * Watch structure defines a net or a bus to watch. A net is a single object identified by a net number "n".
  * A bus is a collection of nets, each of which needs to be listed and watched, the bus simply aggregates their data.

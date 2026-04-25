@@ -6,10 +6,11 @@
 #define USE_AVX2_SIM 1              // Use optimized simulation with AVX2/x64 intrinsics
 #define HAVE_PREBUILT_LAYERMAP 1    // We have extracted a fully prebuilt layermap.bin and can use it
 #define FIX_Z80_LAYERMAP_TO_VISUAL_ENUM 1 // Fix to prebuilt layermap incorrectly counting nets between 1559 and 1710
-#define SOCKET_SERVER 1             // Enable command socket server
-#define SOCKET_PORT   12345         // Default port the command socket server listens on (localhost only)
-#define MCP_SERVER    1             // Enable built-in MCP (Model Context Protocol) HTTP server
-#define MCP_PORT      8765          // Default port the MCP server listens on (localhost only)
+#define MAX_WATCH_HISTORY 1000      // Half-cycles of waveform history retained per watched net (circular buffer)
+#define SOCKET_SERVER     1         // Enable command socket server
+#define SOCKET_PORT       12345     // Default port the command socket server listens on (localhost only)
+#define MCP_SERVER        1         // Enable built-in MCP (Model Context Protocol) HTTP server
+#define MCP_PORT          8765      // Default port the MCP server listens on (localhost only)
 
 #include <stdint.h>
 
