@@ -187,6 +187,7 @@ bool ClassVisual::loadSegdefs(QString dir)
         QtConcurrent::map(m_segvdefs, [this](const segvdef &s) {
             qsizetype i = &s - m_segvdefs.data();
             m_segvdefs2[i].path = s.path.simplified();
+            m_segvdefs2[i].path.setFillRule(Qt::WindingFill);
         }).then([this, timer = std::move(timer), &e]() {
             qInfo() << "Merging took" << "took" << timer.elapsed() / 1000.0 << "s";
             e.exit(true);
@@ -248,6 +249,11 @@ bool ClassVisual::loadSegdefsJs(QString dir)
             else
                 qDebug() << "Skipping" << line;
         }
+        // Segments are stored as multiple sub-paths; with the default OddEvenFill
+        // rule, overlapping sub-paths punch holes in the fill. WindingFill sums
+        // winding numbers so overlaps fill solid.
+        for (segvdef &s : m_segvdefs)
+            s.path.setFillRule(Qt::WindingFill);
         qInfo() << "Loaded" << count << "segment visual definitions";
         return true;
     }
@@ -755,14 +761,22 @@ void ClassVisual::drawAllNetsAsInactive(QString source, QString dest)
     Q_ASSERT(ok);
 
     QPainter painter(&img);
-    painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
-    painter.setBrush(::controller.getColors().getInactive());
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
+    // Two-pass: fill intra-net solid using the raw (WindingFill) path with
+    // no pen so internal sub-path edges don't get strokes, then stroke the
+    // union outline using the simplified path so adjacent nets still have a
+    // black border between them.
+    const QColor inactive = ::controller.getColors().getInactive();
     for (uint i = 3; i < ::controller.getSimZ80().getNetlistCount(); i++)
     {
-        const auto &path = ::controller.getChip().getSegment(i)->path;
-        painter.drawPath(path);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(inactive);
+        painter.drawPath(m_segvdefs[i].path);
+
+        painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawPath(m_segvdefs2[i].path);
     }
 
     img.setText("name", dest);
@@ -781,14 +795,20 @@ void ClassVisual::redrawNetsColorize(QString source, QString dest)
     Q_ASSERT(ok);
 
     QPainter painter(&img);
-    painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
+    // Two-pass: fill intra-net solid from the raw (WindingFill) path with no
+    // pen, then stroke the union outline from the simplified path so
+    // adjacent nets remain visually distinct.
     for (uint i = 2; i < ::controller.getSimZ80().getNetlistCount(); i++)
     {
-        const auto &path = ::controller.getChip().getSegment(i)->path;
+        painter.setPen(Qt::NoPen);
         painter.setBrush(::controller.getColors().get(i));
-        painter.drawPath(path);
+        painter.drawPath(m_segvdefs[i].path);
+
+        painter.setPen(QPen(Qt::black, 1, Qt::SolidLine));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawPath(m_segvdefs2[i].path);
     }
 
     img.setText("name", dest);
