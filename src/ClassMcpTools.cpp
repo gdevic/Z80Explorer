@@ -3,7 +3,6 @@
 #include "ClassController.h"
 #include "ClassMcpThreading.h"
 #include "ClassNetlist.h"
-#include "ClassRenderer.h"
 #include "ClassScript.h"
 #include "ClassSpatial.h"
 #include "ClassTrickbox.h"
@@ -18,14 +17,13 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QMetaObject>
-#include <QPixmap>
 #include <QRegularExpression>
 #include <QTimer>
 #include <QWidget>
 #include <climits>
 
-ClassMcpTools::ClassMcpTools(ClassSpatial *spatial, ClassRenderer *renderer, QObject *parent)
-    : QObject(parent), m_spatial(spatial), m_renderer(renderer)
+ClassMcpTools::ClassMcpTools(ClassSpatial *spatial, QObject *parent)
+    : QObject(parent), m_spatial(spatial)
 {
 }
 
@@ -75,48 +73,6 @@ QJsonValue ClassMcpTools::textResult(const QJsonValue &jsonPayload)
     // Serialize the JSON payload as text content for clients that render plain text.
     QJsonDocument doc(jsonPayload.isObject() ? jsonPayload.toObject() : QJsonObject{{"value", jsonPayload}});
     return textResult(QString::fromUtf8(doc.toJson(QJsonDocument::Compact)));
-}
-
-QJsonValue ClassMcpTools::imageResult(const QByteArray &pngBytes, const QString &caption)
-{
-    QJsonArray content;
-    QJsonObject img;
-    img["type"]     = "image";
-    img["data"]     = QString::fromLatin1(pngBytes.toBase64());
-    img["mimeType"] = "image/png";
-    content.append(img);
-    if (!caption.isEmpty())
-    {
-        QJsonObject text;
-        text["type"] = "text";
-        text["text"] = caption;
-        content.append(text);
-    }
-    QJsonObject r;
-    r["content"] = content;
-    r["isError"] = false;
-    return r;
-}
-
-QJsonValue ClassMcpTools::mixedResult(const QByteArray &pngBytes, const QJsonValue &jsonPayload)
-{
-    QJsonArray content;
-    QJsonObject img;
-    img["type"]     = "image";
-    img["data"]     = QString::fromLatin1(pngBytes.toBase64());
-    img["mimeType"] = "image/png";
-    content.append(img);
-
-    QJsonObject text;
-    text["type"] = "text";
-    QJsonDocument doc(jsonPayload.isObject() ? jsonPayload.toObject() : QJsonObject{});
-    text["text"] = QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
-    content.append(text);
-
-    QJsonObject r;
-    r["content"] = content;
-    r["isError"] = false;
-    return r;
 }
 
 net_t ClassMcpTools::resolveNet(const QJsonValue &v) const
@@ -504,39 +460,7 @@ void ClassMcpTools::registerDefaults()
         [this](const QJsonObject &a, QString &err) { return hndBoundingBox(a, err); }
     });
 
-    // --- Visual / rendering --------------------------------------------------
-
-    registerTool({
-        "z80_render_region",
-        "Render an arbitrary region of the die to a PNG that the caller (LLM) can SEE. "
-        "center can be {x,y}, {net}, or {trans}. zoom is relative (1.0 = default). "
-        "layers lists chip layers to composite (diffusion/polysilicon/metal/vias/buried/ions). "
-        "highlight_nets / highlight_trans paint extra overlays. Returns image + metadata.",
-        schemaObject({
-            {"center",          schemaObject({{"x", schemaInt()}, {"y", schemaInt()},
-                                              {"net", schemaString()}, {"trans", schemaInt()}})},
-            {"zoom",            schemaInt()},
-            {"size",            schemaArray(schemaInt())},
-            {"layers",          schemaArray(schemaString())},
-            {"overlay",         schemaObject({{"nets", schemaBool()}, {"transistors", schemaBool()},
-                                              {"latches", schemaBool()}, {"annotations", schemaBool()}})},
-            {"highlight_nets",  schemaArray(schemaString())},
-            {"highlight_trans", schemaArray(schemaInt())},
-            {"highlight_blocks",schemaArray(schemaString(), "Functional block names to outline")},
-            {"net_mode",        schemaInt()},
-        }, {}),
-        [this](const QJsonObject &a, QString &err) { return hndRenderRegion(a, err); }
-    });
-
-    registerTool({
-        "z80_render_full_die",
-        "Render the entire 4700x5000 die to the requested output size, with the chosen layers composited.",
-        schemaObject({
-            {"size",   schemaArray(schemaInt())},
-            {"layers", schemaArray(schemaString())},
-        }, {}),
-        [this](const QJsonObject &a, QString &err) { return hndRenderFullDie(a, err); }
-    });
+    // --- Interactive image view ---------------------------------------------
 
     registerTool({
         "z80_view_set",
@@ -551,7 +475,9 @@ void ClassMcpTools::registerDefaults()
 
     registerTool({
         "z80_view_grab",
-        "Capture the current interactive image view as a PNG (requires a visible DockImageView).",
+        "Trigger the host-side 'Export PNG' file save dialog on a visible image view "
+        "(WidgetImageView::onPng). The user picks the destination file. Requires a "
+        "visible DockImageView. Returns ok status; no inline image.",
         schemaObject({}, {}),
         [this](const QJsonObject &a, QString &err) { return hndViewGrab(a, err); }
     });
@@ -1327,108 +1253,6 @@ QJsonValue ClassMcpTools::hndBoundingBox(const QJsonObject &a, QString &err)
 // Visual / rendering
 // ===========================================================================
 
-QJsonValue ClassMcpTools::hndRenderRegion(const QJsonObject &a, QString &err)
-{
-    if (!m_renderer) { err = "Renderer not available"; return {}; }
-
-    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        RenderSpec spec;
-
-        // Output size
-        QJsonArray size = a.value("size").toArray();
-        if (size.size() == 2)
-            spec.outputSize = QSize(size[0].toInt(), size[1].toInt());
-        spec.outputSize = spec.outputSize.boundedTo(QSize(4096, 4096));
-        if (spec.outputSize.width() < 64 || spec.outputSize.height() < 64)
-            spec.outputSize = QSize(qMax(64, spec.outputSize.width()), qMax(64, spec.outputSize.height()));
-
-        // Layers
-        QJsonArray layers = a.value("layers").toArray();
-        for (const QJsonValue &v : layers) spec.layerNames.append(v.toString());
-
-        // Overlays
-        QJsonObject overlay = a.value("overlay").toObject();
-        spec.drawNets         = overlay.value("nets").toBool(true);
-        spec.drawTransistors  = overlay.value("transistors").toBool(false);
-        spec.drawLatches      = overlay.value("latches").toBool(false);
-        spec.drawAnnotations  = overlay.value("annotations").toBool(true);
-        spec.netMode          = uintArg(a, "net_mode", 0);
-
-        // Center + zoom → worldRect
-        QJsonObject center = a.value("center").toObject();
-        qreal cx = 2350, cy = 2500; // die centre default
-        if (center.contains("x") && center.contains("y"))
-        {
-            cx = center.value("x").toDouble();
-            cy = center.value("y").toDouble();
-        }
-        else if (center.contains("net"))
-        {
-            net_t n = resolveNet(center.value("net"));
-            QRect b = m_spatial ? m_spatial->netBBox(n) : QRect();
-            if (!b.isEmpty()) { cx = b.center().x(); cy = b.center().y(); }
-        }
-        else if (center.contains("trans"))
-        {
-            tran_t t = tran_t(center.value("trans").toInt());
-            QRect b = m_spatial ? m_spatial->transBox(t) : QRect();
-            if (!b.isEmpty()) { cx = b.center().x(); cy = b.center().y(); }
-        }
-        qreal zoom = a.value("zoom").toDouble(1.0);
-        if (zoom <= 0) zoom = 1.0;
-        // At zoom 1.0 show 1000x1000 of the die; at zoom 2 show 500x500, etc.
-        qreal span = 1000.0 / zoom;
-        spec.worldRect = QRectF(cx - span * 0.5, cy - span * 0.5, span, span);
-
-        // Highlights
-        QJsonArray hn = a.value("highlight_nets").toArray();
-        for (const QJsonValue &v : hn) spec.highlightNets.append(resolveNet(v));
-        QJsonArray ht = a.value("highlight_trans").toArray();
-        for (const QJsonValue &v : ht) spec.highlightTrans.append(tran_t(v.toInt()));
-        QJsonArray hb = a.value("highlight_blocks").toArray();
-        if (m_spatial && !hb.isEmpty())
-        {
-            QSet<QString> wanted;
-            for (const QJsonValue &v : hb) wanted.insert(v.toString());
-            for (const FunctionalBlock &b : m_spatial->blocks())
-                if (wanted.contains(b.name))
-                    spec.highlightRects.append(b.rect);
-        }
-
-        RenderResult result = m_renderer->renderRegion(spec);
-        QByteArray png = ClassRenderer::encodePng(result.image);
-
-        QJsonObject meta;
-        meta["width"]  = result.image.width();
-        meta["height"] = result.image.height();
-        meta["world"]  = rectToJson(result.worldRect.toAlignedRect());
-        meta["zoom"]   = zoom;
-        return mixedResult(png, meta);
-    });
-}
-
-QJsonValue ClassMcpTools::hndRenderFullDie(const QJsonObject &a, QString &err)
-{
-    if (!m_renderer) { err = "Renderer not available"; return {}; }
-
-    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        QJsonArray size = a.value("size").toArray();
-        QSize out(1024, 1024);
-        if (size.size() == 2) out = QSize(size[0].toInt(), size[1].toInt());
-        out = out.boundedTo(QSize(4096, 4096));
-        QStringList layers;
-        for (const QJsonValue &v : a.value("layers").toArray()) layers.append(v.toString());
-
-        RenderResult r = m_renderer->renderFullDie(out, layers);
-        QByteArray png = ClassRenderer::encodePng(r.image);
-        QJsonObject meta;
-        meta["width"]  = r.image.width();
-        meta["height"] = r.image.height();
-        meta["world"]  = rectToJson(r.worldRect.toAlignedRect());
-        return mixedResult(png, meta);
-    });
-}
-
 QJsonValue ClassMcpTools::hndViewSet(const QJsonObject &a, QString &)
 {
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
@@ -1449,10 +1273,10 @@ QJsonValue ClassMcpTools::hndViewSet(const QJsonObject &a, QString &)
 
 QJsonValue ClassMcpTools::hndViewGrab(const QJsonObject &, QString &err)
 {
-    // Grabbing the interactive view requires a visible DockImageView; not all
-    // sessions have one mapped. Prefer render_region / render_full_die which
-    // always work. We attempt a grab of the first top-level widget whose
-    // object name begins with "DockImageView" if one exists.
+    // Triggers the host-side "Export PNG..." save dialog by invoking
+    // WidgetImageView::onPng() on a visible image view. The dialog runs on
+    // the user's machine; the user picks the destination. No PNG bytes are
+    // returned over MCP.
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
         QWidgetList widgets = QApplication::topLevelWidgets();
         QWidget *found = nullptr;
@@ -1461,11 +1285,12 @@ QJsonValue ClassMcpTools::hndViewGrab(const QJsonObject &, QString &err)
             QWidget *child = w->findChild<QWidget*>("widgetImageView");
             if (child) { found = child; break; }
         }
-        if (!found) { err = "No DockImageView found; use render_region instead"; return QJsonValue{}; }
-        QPixmap p = found->grab();
-        QImage img = p.toImage();
-        QByteArray png = ClassRenderer::encodePng(img);
-        return imageResult(png, "Interactive view grab");
+        if (!found) { err = "No DockImageView found"; return QJsonValue{}; }
+        QMetaObject::invokeMethod(found, "onPng", Qt::QueuedConnection);
+        QJsonObject r;
+        r["ok"] = true;
+        r["note"] = "Triggered the image-view 'Export PNG' dialog on the host.";
+        return textResult(r);
     });
 }
 

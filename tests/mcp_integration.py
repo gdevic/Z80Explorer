@@ -20,7 +20,6 @@ Requires: Python 3.9+, the `requests` package.
 """
 
 import argparse
-import base64
 import concurrent.futures
 import json
 import os
@@ -137,7 +136,6 @@ def test_tools_list(client: McpClient):
         "z80_mem_read", "z80_mem_write",
         "z80_pin_set",
         "z80_net_find", "z80_net_info", "z80_trans_info", "z80_equation",
-        "z80_render_region", "z80_render_full_die",
         "z80_region_of", "z80_nets_near", "z80_trans_near", "z80_bounding_box",
         "z80_eval_js",
     }
@@ -273,34 +271,6 @@ def test_bounding_box(client: McpClient):
     assert "bbox" in data
 
 
-def test_render_region(client: McpClient):
-    result = client.tool("z80_render_region", {
-        "center": {"x": 2350, "y": 2500},
-        "zoom": 2.0,
-        "size": [512, 512],
-        "layers": ["metal", "polysilicon"],
-        "overlay": {"nets": True, "annotations": True},
-    }, timeout=30)
-    assert not result.get("isError"), result
-    # First content block should be an image
-    content = result["content"]
-    img_blocks = [c for c in content if c.get("type") == "image"]
-    assert len(img_blocks) == 1
-    png_bytes = base64.b64decode(img_blocks[0]["data"])
-    assert png_bytes[:8] == b"\x89PNG\r\n\x1a\n", "result is not a PNG"
-    assert len(png_bytes) > 1000, "PNG suspiciously small"
-
-
-def test_render_full_die(client: McpClient):
-    result = client.tool("z80_render_full_die", {
-        "size": [400, 400],
-        "layers": ["metal"],
-    }, timeout=30)
-    assert not result.get("isError"), result
-    img_blocks = [c for c in result["content"] if c.get("type") == "image"]
-    assert img_blocks, "no image block"
-
-
 def test_eval_js(client: McpClient):
     data = client.tool_text("z80_eval_js", {"snippet": "print('hello from js'); 1+1"})
     assert data["ok"] is True
@@ -411,33 +381,6 @@ def test_stop_while_running(client: McpClient):
     assert r["stopped_by"] in ("stop", "count"), r  # allow "count" if the sim finished first
 
 
-def test_render_during_run(client: McpClient):
-    """Start a sim run, render 3 regions during it. Asserts the renderer and handler don't fight."""
-    client.tool_text("z80_reset")
-    # Start a run in a separate thread with a reasonable length
-    done = threading.Event()
-    def runner():
-        try:
-            client.tool_text("z80_run", {"halfcycles": 50_000, "timeout_ms": 30000})
-        finally:
-            done.set()
-    t = threading.Thread(target=runner)
-    t.start()
-    time.sleep(0.1)
-
-    try:
-        for _ in range(3):
-            r = client.tool("z80_render_region", {
-                "center": {"x": 2350, "y": 2500},
-                "zoom": 2.0,
-                "size": [256, 256],
-            }, timeout=30)
-            assert not r.get("isError"), r
-    finally:
-        client.tool_text("z80_stop")
-        t.join(timeout=10)
-
-
 # --------------------------------------------------------------------------
 # Main
 # --------------------------------------------------------------------------
@@ -485,8 +428,6 @@ def main():
     suite.run("z80_nets_near",         lambda: test_nets_near(client))
     suite.run("z80_trans_near",        lambda: test_trans_near(client))
     suite.run("z80_bounding_box",      lambda: test_bounding_box(client))
-    suite.run("z80_render_region",     lambda: test_render_region(client))
-    suite.run("z80_render_full_die",   lambda: test_render_full_die(client))
     suite.run("z80_eval_js",           lambda: test_eval_js(client))
     suite.run("z80_fanout",            lambda: test_fanout(client))
     suite.run("z80_fanout (unknown)",  lambda: test_fanout_unknown(client))
@@ -500,7 +441,6 @@ def main():
         suite.run("concurrent net reads",   lambda: test_concurrent_net_reads(client, 200))
         suite.run("concurrent mixed calls", lambda: test_concurrent_mixed(client, 100))
         suite.run("stop while running",     lambda: test_stop_while_running(client))
-        suite.run("render during run",      lambda: test_render_during_run(client))
 
     return suite.summary()
 

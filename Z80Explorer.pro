@@ -33,7 +33,6 @@ SOURCES += \
     src/ClassMcpThreading.cpp \
     src/ClassMcpTools.cpp \
     src/ClassNetlist.cpp \
-    src/ClassRenderer.cpp \
     src/ClassScript.cpp \
     src/ClassServer.cpp \
     src/ClassSpatial.cpp \
@@ -78,7 +77,6 @@ HEADERS += \
     src/ClassMcpThreading.h \
     src/ClassMcpTools.h \
     src/ClassNetlist.h \
-    src/ClassRenderer.h \
     src/ClassScript.h \
     src/ClassServer.h \
     src/ClassSpatial.h \

@@ -52,7 +52,7 @@ Options:
 - Pin control: `pin_set`, `pin_set_at`, `pin_set_at_pc`
 - Breakpoints: `break_add`, `break_clear`
 - Spatial: `region_of`, `nets_near`, `trans_near`, `bounding_box`
-- Rendering: `render_region`, `render_full_die`, `view_set`, `view_grab`
+- Image view: `view_set`, `view_grab`
 - Escape hatch: `eval_js`
 
 Each tool is invoked with representative arguments; return shapes and

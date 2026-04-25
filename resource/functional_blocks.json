@@ -1,7 +1,7 @@
 {
   "version": 1,
   "die": [4700, 5000],
-  "note": "Rectangles are approximate starter values in die-pixel space (master 4700x5000). Refine by running z80_view_set + z80_render_region in the app and updating this file. Blocks are matched smallest-first, so nested sub-blocks win over parents.",
+  "note": "Rectangles are approximate starter values in die-pixel space (master 4700x5000). Refine by inspecting bboxes of known nets/transistors in the app and updating this file. Blocks are matched smallest-first, so nested sub-blocks win over parents.",
   "blocks": [
     {
       "name": "PLA",

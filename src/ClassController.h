@@ -5,7 +5,6 @@
 #include "ClassAnnotate.h"
 #include "ClassVisual.h"
 #include "ClassColors.h"
-#include "ClassRenderer.h"
 #include "ClassScript.h"
 #include "ClassServer.h"
 #include "ClassSimZ80.h"
@@ -47,7 +46,6 @@ public: // API
     inline ClassTip      &getTip()        { return m_tips; }      // Returns a reference to the tips class
     inline ClassTrickbox &getTrickbox()   { return m_trick; }     // Returns a reference to the Trickbox class
     inline ClassSpatial  &getSpatial()    { return m_spatial; }   // Returns a reference to the spatial index class
-    inline ClassRenderer &getRenderer()   { return m_renderer; }  // Returns a reference to the offscreen renderer
     inline ClassMcpTools *getMcpTools()   { return m_mcpTools; }  // Returns the MCP tool registry (nullptr if MCP disabled)
     inline ClassMcpServer*getMcpServer()  { return m_mcpServer; } // Returns the MCP server (nullptr if MCP disabled)
 
@@ -121,7 +119,6 @@ private:
     ClassTip      m_tips;                   // Global tips
     ClassTrickbox m_trick;                  // Global trickbox supporting environment
     ClassSpatial  m_spatial;                // Transistor / net spatial index + functional-block map
-    ClassRenderer m_renderer;               // Offscreen die renderer for MCP image tools
     ClassMcpTools  *m_mcpTools  {};         // MCP tool registry (created in init() if MCP_SERVER)
     ClassMcpServer *m_mcpServer {};         // MCP HTTP+JSON-RPC transport (created in init() if MCP_SERVER)
 };

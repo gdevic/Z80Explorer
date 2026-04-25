@@ -11,7 +11,6 @@
 #include <functional>
 
 class ClassSpatial;
-class ClassRenderer;
 
 /*
  * ClassMcpTools — MCP tool registry and dispatcher.
@@ -47,7 +46,7 @@ public:
         Handler handler;
     };
 
-    explicit ClassMcpTools(ClassSpatial *spatial, ClassRenderer *renderer, QObject *parent = nullptr);
+    explicit ClassMcpTools(ClassSpatial *spatial, QObject *parent = nullptr);
 
     void registerDefaults();            // Populate the 26 built-in tools
     void registerTool(const ToolDef &t);// Add a custom tool (for tests)
@@ -60,8 +59,6 @@ public:
     // Result builders (public so tests and custom tools can use them)
     static QJsonValue textResult(const QString &text, bool isError = false);
     static QJsonValue textResult(const QJsonValue &jsonPayload);
-    static QJsonValue imageResult(const QByteArray &pngBytes, const QString &caption = {});
-    static QJsonValue mixedResult(const QByteArray &pngBytes, const QJsonValue &jsonPayload);
 
 private:
     // Common argument-parsing helpers
@@ -105,8 +102,6 @@ private:
     QJsonValue hndTransNear   (const QJsonObject &a, QString &err);
     QJsonValue hndBoundingBox (const QJsonObject &a, QString &err);
 
-    QJsonValue hndRenderRegion(const QJsonObject &a, QString &err);
-    QJsonValue hndRenderFullDie(const QJsonObject &a, QString &err);
     QJsonValue hndViewSet     (const QJsonObject &a, QString &err);
     QJsonValue hndViewGrab    (const QJsonObject &a, QString &err);
 
@@ -128,7 +123,6 @@ private:
     pin_t readBitByNum(net_t n) const;
 
     ClassSpatial  *m_spatial  {nullptr};
-    ClassRenderer *m_renderer {nullptr};
     QVector<ToolDef> m_tools;
 
     // Breakpoint registry (simple id → description map for break_clear bookkeeping)

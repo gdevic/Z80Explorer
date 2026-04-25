@@ -18,7 +18,6 @@ qt_add_executable(Z80Explorer
     src/ClassMcpThreading.cpp
     src/ClassMcpTools.cpp
     src/ClassNetlist.cpp
-    src/ClassRenderer.cpp
     src/ClassScript.cpp
     src/ClassServer.cpp
     src/ClassSimZ80.cpp
@@ -62,7 +61,6 @@ qt_add_executable(Z80Explorer
     src/ClassMcpThreading.h
     src/ClassMcpTools.h
     src/ClassNetlist.h
-    src/ClassRenderer.h
     src/ClassScript.h
     src/ClassServer.h
     src/ClassSimZ80.h

@@ -127,7 +127,7 @@ bool ClassController::init(QJSEngine *sc)
 #if MCP_SERVER
     // Initialize and start the MCP socket server
     m_spatial.build(resDir);
-    m_mcpTools = new ClassMcpTools(&m_spatial, &m_renderer, this);
+    m_mcpTools = new ClassMcpTools(&m_spatial, this);
     m_mcpTools->registerDefaults();
     m_mcpServer = new ClassMcpServer(m_mcpTools, this);
     if (m_mcpServer->start(MCP_PORT))
