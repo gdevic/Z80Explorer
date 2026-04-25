@@ -3,8 +3,10 @@
 #include "DialogEditColors.h"
 #include "WidgetEditColor.h"
 #include "ui_DialogEditColors.h"
+#include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QSet>
 #include <QSettings>
 
 DialogEditColors::DialogEditColors(QWidget *parent) :
@@ -25,6 +27,8 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
 
     for (const auto &cdef : ::controller.getColors().getColordefs())
         addItem(cdef);
+
+    connect(ui->table, &QTableWidget::itemChanged, this, &DialogEditColors::onItemChanged);
 
     connect(ui->btAdd, &QPushButton::clicked, this, &DialogEditColors::onAdd);
     connect(ui->btUp, &QPushButton::clicked, this, &DialogEditColors::onUp);
@@ -242,6 +246,47 @@ void DialogEditColors::onDoubleClicked(int row, int)
 }
 
 /*
+ * Reacts to a change in any cell. Used for the Enabled column to broadcast a
+ * checkbox toggle to other rows: CTRL+click sets every row to the new value;
+ * a plain click on a row that is part of a multi-row selection sets every
+ * selected row to the new value.
+ */
+void DialogEditColors::onItemChanged(QTableWidgetItem *item)
+{
+    if (m_ignoreItemChanged || !item || item->column() != 2)
+        return;
+
+    const Qt::CheckState state = item->checkState();
+    const int clickedRow = item->row();
+    const bool ctrl = QApplication::keyboardModifiers() & Qt::ControlModifier;
+
+    QSet<int> targets;
+    if (ctrl)
+    {
+        for (int r = 0; r < ui->table->rowCount(); r++)
+            targets.insert(r);
+    }
+    else
+    {
+        QSet<int> selectedRows;
+        for (auto *it : ui->table->selectedItems())
+            selectedRows.insert(it->row());
+        if (!selectedRows.contains(clickedRow))
+            return;
+        targets = selectedRows;
+    }
+
+    m_ignoreItemChanged = true;
+    for (int r : targets)
+    {
+        if (r == clickedRow)
+            continue;
+        ui->table->item(r, 2)->setCheckState(state);
+    }
+    m_ignoreItemChanged = false;
+}
+
+/*
  * Loads custom color definition from a file
  */
 void DialogEditColors::onLoad(bool merge)
@@ -257,8 +302,10 @@ void DialogEditColors::onLoad(bool merge)
             // Rebuild the color table
             ui->table->selectAll();
             onRemove();
+            m_ignoreItemChanged = true;
             for (const auto &cdef : ::controller.getColors().getColordefs())
                 addItem(cdef);
+            m_ignoreItemChanged = false;
             showFileName();
         }
     }

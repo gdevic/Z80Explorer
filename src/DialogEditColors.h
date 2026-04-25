@@ -4,6 +4,8 @@
 #include "ClassColors.h"
 #include <QDialog>
 
+class QTableWidgetItem;
+
 namespace Ui { class DialogEditColors; }
 
 /*
@@ -25,6 +27,7 @@ private slots:
     void onRemove();
     void onSelectionChanged();
     void onDoubleClicked(int row, int);
+    void onItemChanged(QTableWidgetItem *item);
     void onSave();
     void onSaveAs();
     void accept() override;
@@ -32,6 +35,7 @@ private slots:
 private:
     Ui::DialogEditColors *ui;
     QStringList m_methods;
+    bool m_ignoreItemChanged {false};
 
     void showFileName();
     void onLoad(bool merge);
