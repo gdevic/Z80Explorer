@@ -1142,7 +1142,9 @@ void WidgetImageView::dropEvent(QDropEvent *)
         ::controller.getAnnotation().load(m_dropppedFile);
     else if (json.contains("colors"))
     {
-        ::controller.getColors().load(m_dropppedFile);
+        // Hold Ctrl while dropping to merge the file's colordefs into the current set; otherwise replace.
+        const bool merge = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
+        ::controller.getColors().load(m_dropppedFile, merge);
         emit ::controller.eventNetName(Netop::Changed, QString(), 0);
         setImage(2, false); // Identical to MainWindow::onEditColors()
     }
