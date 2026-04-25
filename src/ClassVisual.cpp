@@ -1168,8 +1168,15 @@ bool ClassVisual::loadLatches()
 
                                 if (it != m_latches.end())
                                 {
-                                    qInfo() << "Duplicate latch" << t1 << t2 << "overriding.";
+                                    const QString prevName = it->name;
+                                    const tran_t prevT1 = it->t1, prevT2 = it->t2;
                                     m_latches.erase(it);
+                                    if (name == "-")
+                                        qInfo().noquote() << QString("Removing latch (t%1, t%2, '%3') per ini")
+                                                             .arg(prevT1).arg(prevT2).arg(prevName);
+                                    else
+                                        qInfo().noquote() << QString("Replacing latch (t%1, t%2, '%3') with (t%4, t%5, '%6')")
+                                                             .arg(prevT1).arg(prevT2).arg(prevName).arg(t1).arg(t2).arg(name);
                                 }
 
                                 if (name != "-") // Append new latch if the option was not to remove it
