@@ -79,7 +79,7 @@ private:
     uchar m_transFlipCount[MAX_TRANS];  // Number of times each transistor changed its state
     QVector<segvdef> m_segvdefs;        // List of segment visual definitions, index is the segment net number
     QVector<segvdef> m_segvdefs2;       // Alternate segment visual definitions
-    bool use_alt_segdef {false};        // Use alternate segment definitions
+    bool use_alt_segdef {true};         // Use alternate segment definitions
     QVector<latchdef> m_latches;        // Array of latches
     QVector<QImage> m_img;              // Chip layer images
     uint m_sx {};                       // X size of all images and maps
