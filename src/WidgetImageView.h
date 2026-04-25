@@ -3,6 +3,7 @@
 
 #include "AppTypes.h"
 #include <QQueue>
+#include <QStringList>
 #include <QTimer>
 #include <QWidget>
 
@@ -44,7 +45,7 @@ public slots:
         { m_r = QRect(x,y,w,h); m_highlight_trans = &m_r; m_timer_tick = 10; }
     void state();                       //* Prints the img view state
     void annot(QString fileName)        //* Loads custom annotation file
-        { m_dropppedFile = fileName; dropEvent(nullptr); }
+        { m_dropppedFiles = QStringList{fileName}; dropEvent(nullptr); }
 
 private slots:
     void onFind(QString text);          // Search for the named feature
@@ -100,7 +101,7 @@ private:
     bool m_drawLatches;                 // Draw latches
     bool m_drawPullups {false};         // Draw pull-up transistor symbols
     bool m_drawNetNames {true};         // Dynamically write nearby net names (experimental)
-    QString m_dropppedFile;             // File name of the file being dropped by a drag-and-drop operation
+    QStringList m_dropppedFiles;        // File names of the file(s) being dropped by a drag-and-drop operation
 
     QVector<net_t> m_drivingNets;       // List of nets expanded by the driving/driven heuristic
 

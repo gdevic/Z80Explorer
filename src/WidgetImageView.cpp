@@ -1104,20 +1104,22 @@ void WidgetImageView::state()
 }
 
 /*
- * Supporting drag-and-drop of json files
+ * Supporting drag-and-drop of one or more json files
  */
 void WidgetImageView::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasUrls())
     {
-        QList<QUrl> urls = event->mimeData()->urls();
-        if (urls.count() != 1)
+        m_dropppedFiles.clear();
+        for (const QUrl &url : event->mimeData()->urls())
+        {
+            QFileInfo fi(url.toLocalFile());
+            if (fi.suffix().toLower() == "json")
+                m_dropppedFiles.append(fi.absoluteFilePath());
+        }
+        if (m_dropppedFiles.isEmpty())
             return;
-        QFileInfo fi(urls.first().toLocalFile());
-        if (fi.suffix().toLower() != "json")
-            return;
-        m_dropppedFile = fi.absoluteFilePath();
-        qDebug() << m_dropppedFile;
+        qDebug() << m_dropppedFiles;
         event->setDropAction(Qt::LinkAction);
         event->accept();
     }
@@ -1125,35 +1127,40 @@ void WidgetImageView::dragEnterEvent(QDragEnterEvent *event)
 
 void WidgetImageView::dropEvent(QDropEvent *)
 {
-    // Peek at the top-level key to dispatch to the matching loader.
-    // Each customization JSON is identified by its root object key:
+    // Loop over every accepted file; peek at its top-level key to dispatch
+    // to the matching loader. Each customization JSON is identified by its
+    // root object key:
     //   "annotations" → ClassAnnotate, "colors" → ClassColors,
     //   "watchlist"   → ClassWatch,    "tips"   → ClassTip.
-    QFile f(m_dropppedFile);
-    if (!f.open(QIODevice::ReadOnly))
-    {
-        qWarning() << "Unable to open" << m_dropppedFile;
-        return;
-    }
-    const QJsonObject json = QJsonDocument::fromJson(f.readAll()).object();
-    f.close();
+    // Hold Ctrl while dropping to merge a "colors" file's colordefs into the
+    // current set; otherwise it replaces.
+    const bool merge = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
 
-    if (json.contains("annotations"))
-        ::controller.getAnnotation().load(m_dropppedFile);
-    else if (json.contains("colors"))
+    for (const QString &path : m_dropppedFiles)
     {
-        // Hold Ctrl while dropping to merge the file's colordefs into the current set; otherwise replace.
-        const bool merge = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
-        ::controller.getColors().load(m_dropppedFile, merge);
-        emit ::controller.eventNetName(Netop::Changed, QString(), 0);
-        setImage(2, false); // Identical to MainWindow::onEditColors()
-    }
-    else if (json.contains("watchlist"))
-        ::controller.getWatch().load(m_dropppedFile);
-    else if (json.contains("tips"))
-        ::controller.getTip().load(m_dropppedFile);
-    else
-        qWarning() << "Unrecognized JSON (no annotations/colors/watchlist/tips key):" << m_dropppedFile;
+        QFile f(path);
+        if (!f.open(QIODevice::ReadOnly))
+        {
+            qWarning() << "Unable to open" << path;
+            continue;
+        }
+        const QJsonObject json = QJsonDocument::fromJson(f.readAll()).object();
+        f.close();
 
+        if (json.contains("annotations"))
+            ::controller.getAnnotation().load(path);
+        else if (json.contains("colors"))
+        {
+            ::controller.getColors().load(path, merge);
+            emit ::controller.eventNetName(Netop::Changed, QString(), 0);
+            setImage(2, false); // Identical to MainWindow::onEditColors()
+        }
+        else if (json.contains("watchlist"))
+            ::controller.getWatch().load(path);
+        else if (json.contains("tips"))
+            ::controller.getTip().load(path);
+        else
+            qWarning() << "Unrecognized JSON (no annotations/colors/watchlist/tips key):" << path;
+    }
     update();
 }
