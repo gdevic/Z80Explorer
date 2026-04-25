@@ -90,7 +90,7 @@ bool ClassController::init(QJSEngine *sc)
 
 #if SOCKET_SERVER
     // Initialize and start the socket command server
-    quint16 port = 12345;
+    quint16 port = SOCKET_PORT;
     if (m_server.startListening(port))
     {
         qInfo() << "Command server is listening on port" << m_server.serverPort();
