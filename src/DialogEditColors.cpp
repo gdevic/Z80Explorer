@@ -34,6 +34,7 @@ DialogEditColors::DialogEditColors(QWidget *parent) :
     connect(ui->table, &QTableWidget::cellDoubleClicked, this, &DialogEditColors::onDoubleClicked);
     connect(ui->btLoad, &QPushButton::clicked, this, [=]() { onLoad(false); });
     connect(ui->btMerge, &QPushButton::clicked, this, [=]() { onLoad(true); });
+    connect(ui->btSave, &QPushButton::clicked, this, &DialogEditColors::onSave);
     connect(ui->btSaveAs, &QPushButton::clicked, this, &DialogEditColors::onSaveAs);
 }
 
@@ -46,11 +47,14 @@ DialogEditColors::~DialogEditColors()
 }
 
 /*
- * Show the current colors file name
+ * Show the current colors file name.
+ * Prepends '*' to the name when the in-memory set has been merged but not saved.
  */
 void DialogEditColors::showFileName()
 {
-    setWindowTitle(QString("Edit Colors: %1").arg(::controller.getColors().getFileName()));
+    ClassColors &colors = ::controller.getColors();
+    const QString prefix = colors.inhibitAutoSave() ? "*" : "";
+    setWindowTitle(QString("Edit Colors: %1%2").arg(prefix, colors.getFileName()));
 }
 
 /*
@@ -258,6 +262,24 @@ void DialogEditColors::onLoad(bool merge)
             showFileName();
         }
     }
+}
+
+/*
+ * Saves color definitions to the currently-loaded file. Used after a Merge
+ * to commit the merged set in place; clears the inhibit-auto-save flag.
+ */
+void DialogEditColors::onSave()
+{
+    const QString fileName = ::controller.getColors().getFileName();
+    if (fileName.isEmpty())
+    {
+        // No file backing the current colors yet — fall through to Save As.
+        onSaveAs();
+        return;
+    }
+    if (!::controller.getColors().save(fileName))
+        QMessageBox::critical(this, "Error", "Unable to save color definition to " + fileName);
+    showFileName();
 }
 
 /*

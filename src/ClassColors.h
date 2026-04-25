@@ -40,6 +40,8 @@ public:
     bool save(QString fileName);        // Saves color definitions
     QString getFileName()               // Returns the current colors file name
         { return m_jsonFile; }
+    bool inhibitAutoSave() const        // True after a merge until the user explicitly saves
+        { return m_inhibitAutoSave; }
 
     const QStringList getMatchingMethods()
         { return {"Exact match", "Starts with", "Regex", "Net number"}; };
@@ -54,6 +56,7 @@ private:
     QHash<net_t, QColor> m_colors;      // Hash of net numbers to their custom colors
     QVector<colordef> m_colordefs;      // Coloring definitions
     QString m_jsonFile;                 // File name used to load colors
+    bool m_inhibitAutoSave {false};     // Set by a merge; cleared by an explicit save; suppresses shutdown auto-save
 };
 
 #endif // CLASSCOLORS_H

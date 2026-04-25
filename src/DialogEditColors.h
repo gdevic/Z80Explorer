@@ -25,6 +25,7 @@ private slots:
     void onRemove();
     void onSelectionChanged();
     void onDoubleClicked(int row, int);
+    void onSave();
     void onSaveAs();
     void accept() override;
 

@@ -166,6 +166,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btSave">
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btSaveAs">
         <property name="text">
          <string>Save As...</string>
@@ -196,6 +203,7 @@
   <tabstop>btRemove</tabstop>
   <tabstop>btLoad</tabstop>
   <tabstop>btMerge</tabstop>
+  <tabstop>btSave</tabstop>
   <tabstop>btSaveAs</tabstop>
  </tabstops>
  <resources/>

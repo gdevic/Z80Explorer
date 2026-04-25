@@ -16,7 +16,10 @@ void ClassColors::onShutdown()
     QSettings settings;
     settings.setValue("colorsFile", m_jsonFile);
 
-    save(m_jsonFile);
+    // A merge that wasn't explicitly saved is treated as a transient experiment;
+    // skip the auto-save so the on-disk file stays as the user last committed it.
+    if (!m_inhibitAutoSave)
+        save(m_jsonFile);
 }
 
 /*
@@ -157,6 +160,8 @@ bool ClassColors::load(QString fileName, bool merge)
             rebuild();
             if (!merge) // Do not update file name if merging
                 m_jsonFile = fileName;
+            else
+                m_inhibitAutoSave = true; // Merge marks the in-memory set as dirty until explicit save
             return true;
         }
         else
@@ -192,6 +197,7 @@ bool ClassColors::save(QString fileName)
         QJsonDocument saveDoc(json);
         saveFile.write(saveDoc.toJson());
         m_jsonFile = fileName;
+        m_inhibitAutoSave = false; // The in-memory set is now committed to disk
         return true;
     }
     else
