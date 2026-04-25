@@ -109,6 +109,10 @@ private:
     QJsonValue hndEquationTree  (const QJsonObject &a, QString &err);
     QJsonValue hndNetDrivers    (const QJsonObject &a, QString &err);
 
+    // Net-name management (rename / delete; first-time naming goes through z80_eval_js setNetName).
+    QJsonValue hndRenameNet     (const QJsonObject &a, QString &err);
+    QJsonValue hndDeleteNetName (const QJsonObject &a, QString &err);
+
     // Resolve a "net" argument that may be either a string name or an integer id.
     net_t resolveNet(const QJsonValue &v) const;
     // Resolve the appropriate "current" sim for bit reads (respects USE_AVX2_SIM).

@@ -38,6 +38,8 @@ void ClassScript::init(QJSEngine *sc)
     m_engine->globalObject().setProperty("getMTState", ext.property("getMTState"));
     m_engine->globalObject().setProperty("saveText", ext.property("saveText"));
     m_engine->globalObject().setProperty("setNetName", ext.property("setNetName"));
+    m_engine->globalObject().setProperty("renameNet", ext.property("renameNet"));
+    m_engine->globalObject().setProperty("deleteNetName", ext.property("deleteNetName"));
     m_engine->globalObject().setProperty("saveNetnames", ext.property("saveNetnames"));
 }
 
@@ -436,6 +438,23 @@ bool ClassScript::saveText(const QString &path, const QString &content)
 void ClassScript::setNetName(const QString &name, uint net)
 {
     ::controller.setNetName(name, static_cast<net_t>(net));
+}
+
+/*
+ * Renames a net that already has a name. Refuses (with a qWarning) if the
+ * net is currently nameless — use setNetName for first-time naming.
+ */
+void ClassScript::renameNet(const QString &name, uint net)
+{
+    ::controller.renameNet(name, static_cast<net_t>(net));
+}
+
+/*
+ * Clears the name of a named net. Refuses if the net has no name.
+ */
+void ClassScript::deleteNetName(uint net)
+{
+    ::controller.deleteNetName(static_cast<net_t>(net));
 }
 
 /*

@@ -42,6 +42,8 @@ public:
     Q_INVOKABLE QString getMTState();                            // Returns e.g. "M1T2" by scanning m1..m6 / t1..t6 latches
     Q_INVOKABLE bool    saveText(const QString &path, const QString &content); // Writes content to a text file
     Q_INVOKABLE void    setNetName(const QString &name, uint net); // Assigns a name to a net number (persists via save())
+    Q_INVOKABLE void    renameNet(const QString &name, uint net);  // Renames an already-named net; refuses if net has no existing name
+    Q_INVOKABLE void    deleteNetName(uint net);                   // Clears the name of a named net
     Q_INVOKABLE bool    saveNetnames();                            // Persists netnames.js without a full shutdown save
 
 private:

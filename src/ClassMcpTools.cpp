@@ -516,6 +516,30 @@ void ClassMcpTools::registerDefaults()
         }, {"net"}),
         [this](const QJsonObject &a, QString &err) { return hndNetDrivers(a, err); }
     });
+
+    registerTool({
+        "z80_rename_net",
+        "Rename a net that already has a name. The existing name is removed "
+        "and replaced with the new one. Errors if the net has no existing "
+        "name (use z80_eval_js setNetName(...) for first-time naming) or if "
+        "the new name is already taken by another net. Persists on app "
+        "shutdown or via z80_eval_js saveNetnames().",
+        schemaObject({
+            {"net",  schemaString("Existing net name or numeric id")},
+            {"name", schemaString("New name to assign")},
+        }, {"net", "name"}),
+        [this](const QJsonObject &a, QString &err) { return hndRenameNet(a, err); }
+    });
+
+    registerTool({
+        "z80_delete_net_name",
+        "Clear the name of a named net. Errors if the net has no name. "
+        "Persists on app shutdown or via z80_eval_js saveNetnames().",
+        schemaObject({
+            {"net", schemaString("Net name or numeric id")},
+        }, {"net"}),
+        [this](const QJsonObject &a, QString &err) { return hndDeleteNetName(a, err); }
+    });
 }
 
 // ===========================================================================
@@ -1323,6 +1347,41 @@ QJsonValue ClassMcpTools::hndNetDrivers(const QJsonObject &a, QString &)
         net_t id = resolveNet(a.value("net"));
         if (id == 0) { QJsonObject r; r["error"] = "unknown net"; return textResult(r); }
         QJsonObject r = ::controller.getNetlist().netDriversJson(id);
+        return textResult(r);
+    });
+}
+
+QJsonValue ClassMcpTools::hndRenameNet(const QJsonObject &a, QString &)
+{
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        net_t id = resolveNet(a.value("net"));
+        if (id == 0) { QJsonObject r; r["error"] = "unknown net"; return textResult(r); }
+        QString name = a.value("name").toString().trimmed();
+        if (name.isEmpty()) { QJsonObject r; r["error"] = "name is empty (use z80_delete_net_name to clear)"; return textResult(r); }
+        QString oldName = ::controller.getNetlist().get(id);
+        if (oldName.isEmpty()) { QJsonObject r; r["error"] = "net has no existing name (use z80_eval_js setNetName to assign)"; return textResult(r); }
+        net_t taken = ::controller.getNetlist().get(name);
+        if (taken != 0 && taken != id) { QJsonObject r; r["error"] = "name is already assigned to another net"; r["taken_by_net"] = int(taken); return textResult(r); }
+        ::controller.renameNet(name, id);
+        QJsonObject r;
+        r["id"] = int(id);
+        r["old_name"] = oldName;
+        r["new_name"] = ::controller.getNetlist().get(id);
+        return textResult(r);
+    });
+}
+
+QJsonValue ClassMcpTools::hndDeleteNetName(const QJsonObject &a, QString &)
+{
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        net_t id = resolveNet(a.value("net"));
+        if (id == 0) { QJsonObject r; r["error"] = "unknown net"; return textResult(r); }
+        QString oldName = ::controller.getNetlist().get(id);
+        if (oldName.isEmpty()) { QJsonObject r; r["error"] = "net has no name to delete"; return textResult(r); }
+        ::controller.deleteNetName(id);
+        QJsonObject r;
+        r["id"] = int(id);
+        r["deleted_name"] = oldName;
         return textResult(r);
     });
 }
