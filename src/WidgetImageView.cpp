@@ -1053,6 +1053,9 @@ void WidgetImageView::onFind(QString text)
             m_highlight_trans = &trans->box;
             qInfo() << "Found transistor" << text;
             m_timer_tick = 10;
+            // Center the view on the transistor's bbox without changing zoom
+            QPoint c = trans->box.center();
+            moveTo(QPointF(qreal(c.x()) / m_image.width(), qreal(c.y()) / m_image.height()));
         }
         else // Search the nets, next...
         {
@@ -1077,6 +1080,9 @@ void WidgetImageView::onFind(QString text)
                     m_highlight_segment = seg;
                     qInfo() << "Found net" << netnum << text;
                     m_timer_tick = 10;
+                    // Center the view on the segment's bbox without changing zoom
+                    QPointF c = seg->path.boundingRect().center();
+                    moveTo(QPointF(c.x() / m_image.width(), c.y() / m_image.height()));
                 }
                 else
                     qInfo() << text << "not found!";
