@@ -118,6 +118,7 @@ private:
 
     void moveTo(QPointF);               // Moved the image in the pane to normalized coordinate
     void moveBy(QPointF);               // Moves the image in the pane by specified normalized delta
+    void animateTo(QPointF);            // Eased animated pan to normalized coordinate (zoom unchanged)
     void setZoomMode(ZoomType);         // Sets the view mode
 
     void updateInfoArea(QPoint pt);

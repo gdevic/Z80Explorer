@@ -21,6 +21,7 @@
 #include <QResizeEvent>
 #include <QSettings>
 #include <QToolTip>
+#include <QVariantAnimation>
 
 WidgetImageView::WidgetImageView(QWidget *parent) :
     QWidget(parent),
@@ -174,6 +175,21 @@ void WidgetImageView::moveTo(QPointF pos)
 }
 
 /*
+ * Eased animated pan from the current view position to a target normalized coordinate.
+ * Drives moveTo() each frame via a QVariantAnimation; zoom is untouched.
+ */
+void WidgetImageView::animateTo(QPointF target)
+{
+    auto *a = new QVariantAnimation(this);
+    a->setDuration(500);
+    a->setEasingCurve(QEasingCurve::InOutQuart);
+    a->setStartValue(m_tex);
+    a->setEndValue(target);
+    connect(a, &QVariantAnimation::valueChanged, this, [this](const QVariant &v){ moveTo(v.toPointF()); });
+    a->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+/*
  * Open coordinate dialog and center image on user input coordinates
  */
 void WidgetImageView::onCoords()
@@ -189,7 +205,7 @@ void WidgetImageView::onCoords()
         {
             int x = match.captured(1).toInt();
             int y = match.captured(2).toInt();
-            moveTo(QPointF(qreal(x) / m_image.width(), qreal(y) / m_image.height()));
+            animateTo(QPointF(qreal(x) / m_image.width(), qreal(y) / m_image.height()));
         }
     }
 }
@@ -1055,7 +1071,7 @@ void WidgetImageView::onFind(QString text)
             m_timer_tick = 10;
             // Center the view on the transistor's bbox without changing zoom
             QPoint c = trans->box.center();
-            moveTo(QPointF(qreal(c.x()) / m_image.width(), qreal(c.y()) / m_image.height()));
+            animateTo(QPointF(qreal(c.x()) / m_image.width(), qreal(c.y()) / m_image.height()));
         }
         else // Search the nets, next...
         {
@@ -1082,7 +1098,7 @@ void WidgetImageView::onFind(QString text)
                     m_timer_tick = 10;
                     // Center the view on the segment's bbox without changing zoom
                     QPointF c = seg->path.boundingRect().center();
-                    moveTo(QPointF(c.x() / m_image.width(), c.y() / m_image.height()));
+                    animateTo(QPointF(c.x() / m_image.width(), c.y() / m_image.height()));
                 }
                 else
                     qInfo() << text << "not found!";
