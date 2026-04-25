@@ -1141,7 +1141,11 @@ void WidgetImageView::dropEvent(QDropEvent *)
     if (json.contains("annotations"))
         ::controller.getAnnotation().load(m_dropppedFile);
     else if (json.contains("colors"))
+    {
         ::controller.getColors().load(m_dropppedFile);
+        emit ::controller.eventNetName(Netop::Changed, QString(), 0);
+        setImage(2, false); // Identical to MainWindow::onEditColors()
+    }
     else if (json.contains("watchlist"))
         ::controller.getWatch().load(m_dropppedFile);
     else if (json.contains("tips"))

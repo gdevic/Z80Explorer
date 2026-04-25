@@ -6,12 +6,16 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QSettings>
 
 ClassColors::ClassColors(QObject *parent) : QObject(parent)
 {}
 
 void ClassColors::onShutdown()
 {
+    QSettings settings;
+    settings.setValue("colorsFile", m_jsonFile);
+
     save(m_jsonFile);
 }
 
@@ -187,6 +191,7 @@ bool ClassColors::save(QString fileName)
 
         QJsonDocument saveDoc(json);
         saveFile.write(saveDoc.toJson());
+        m_jsonFile = fileName;
         return true;
     }
     else

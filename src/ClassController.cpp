@@ -63,8 +63,14 @@ bool ClassController::init(QJSEngine *sc)
     // can augment or override entries already present in tips.json
     m_tips.load(resDir + "/tips.json");
 
+    // Pick the colors file: persisted choice from the previous session if it
+    // still exists, otherwise the bundled default in the resource directory.
+    QString colorsFile = settings.value("colorsFile").toString();
+    if (colorsFile.isEmpty() || !QFile::exists(colorsFile))
+        colorsFile = resDir + "/colors.json";
+
     // Initialize all global classes using the given path to resource
-    if (!m_simz80.loadResources(resDir) || !m_colors.load(resDir + "/colors.json") || !m_chip.loadChipResources(resDir) || !m_simz80.initChip())
+    if (!m_simz80.loadResources(resDir) || !m_colors.load(colorsFile) || !m_chip.loadChipResources(resDir) || !m_simz80.initChip())
     {
         qCritical() << "Unable to load chip resources from" << resDir;
         return false;
