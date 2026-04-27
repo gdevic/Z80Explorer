@@ -9,6 +9,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QMutableVectorIterator>
+#include <QResizeEvent>
 #include <QScrollBar>
 #include <QSettings>
 #include <QStringBuilder>
@@ -22,9 +23,41 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent), 
     ui->btLink->setMinimumSize(ui->btEdit->sizeHint().width(), 0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     ui->btDecorated->setMinimumSize(ui->btEdit->sizeHint().width(), 0); // Tie the toolbutton width to btEdit's width so it's not too narrow
     QSettings settings;
-    restoreGeometry(settings.value("dockWaveformGeometry-" + sid).toByteArray());
+    restoreGeometry(settings.value("dockWaveGeometry-" + sid).toByteArray());
     m_sectionSize = settings.value("dockWaveHeight-" + sid, 20).toInt();
     onEnlarge(0);
+
+    // The list pane keeps its width on dock resize; the waveform pane absorbs any extra width. The user can still drag
+    // the divider freely. The initial list-pane width (saved value, or 150 px default) is applied in showEvent.
+    ui->splitter->setStretchFactor(0, 0);
+    ui->splitter->setStretchFactor(1, 1);
+    m_listWidth = settings.value("dockWaveSplit-" + sid, 150).toInt();
+
+    // Wire the always-visible bottom h-scrollbars to the hidden h-scrollbars owned by the list (QTableWidget)
+    // and the waveform scrollArea. Bidirectional sync of value, plus mirror of range/page/single-step from inner -> outer.
+    auto setupScrollbarLink = [this](QScrollBar *outer, QScrollBar *inner) {
+        auto pull = [outer, inner]() {
+            outer->setRange(inner->minimum(), inner->maximum());
+            outer->setPageStep(inner->pageStep());
+            outer->setSingleStep(inner->singleStep());
+            outer->setValue(inner->value());
+        };
+        connect(inner, &QAbstractSlider::rangeChanged, this, [pull](int,int){ pull(); });
+        connect(inner, &QAbstractSlider::valueChanged, outer, &QAbstractSlider::setValue);
+        connect(outer, &QAbstractSlider::valueChanged, inner, &QAbstractSlider::setValue);
+        pull();
+    };
+    setupScrollbarLink(ui->hScrollList, ui->list->horizontalScrollBar());
+    setupScrollbarLink(ui->hScrollWave, ui->scrollArea->horizontalScrollBar());
+
+    // The relative-position tracking (m_rel, used to preserve scroll across zoom) also needs to fire when the user drags
+    // the outer waveform h-scrollbar, since the inner one is hidden and only receives setValue programmatically.
+    connect(ui->hScrollWave, &QAbstractSlider::actionTriggered, this, &DockWaveform::onScrollBarActionTriggered);
+
+    // Bottom scrollbar widths must mirror the splitter pane widths so each outer scrollbar sits directly under its
+    // corresponding pane. Update on splitter drag, on dock resize (resizeEvent), and on first show.
+    connect(ui->splitter, &QSplitter::splitterMoved, this,
+        [this](int,int){ syncBottomScrollbarWidths(); });
 
     // Build the menus for this widget
     QMenu *menu = new QMenu(this);
@@ -67,8 +100,9 @@ DockWaveform::~DockWaveform()
         save(m_fileViewlist);
 
     QSettings settings;
-    settings.setValue("dockWaveformGeometry-" + whatsThis(), saveGeometry());
+    settings.setValue("dockWaveGeometry-" + whatsThis(), saveGeometry());
     settings.setValue("dockWaveHeight-" + whatsThis(), m_sectionSize);
+    settings.setValue("dockWaveSplit-" + whatsThis(), ui->splitter->sizes().value(0));
 
     delete ui;
 }
@@ -200,8 +234,8 @@ void DockWaveform::rebuildList()
         tv->setItem(row, 1, tvi);
     }
 
-    // Update frame and scroll areas after content changes
-    ui->frame->updateGeometry();
+    // Update splitter and scroll areas after content changes
+    ui->splitter->updateGeometry();
     ui->containerScroll->updateGeometry();
 }
 
@@ -277,14 +311,16 @@ void DockWaveform::onScrollBarRangeChanged(int, int max)
 }
 
 /*
- * User moved the horizontal scroll bar on the waveform pane
+ * User moved the horizontal scroll bar on the waveform pane (either the outer hScrollWave or the inner scrollArea
+ * bar via wheel). Read from the sender because at actionTriggered time the bars have not yet been synced.
  */
 void DockWaveform::onScrollBarActionTriggered(int)
 {
-    QScrollBar *sb = ui->scrollArea->horizontalScrollBar();
+    QScrollBar *sb = qobject_cast<QScrollBar *>(sender());
+    if (!sb) sb = ui->scrollArea->horizontalScrollBar();
     uint range = sb->maximum();
     uint pos = sb->sliderPosition();
-    m_rel = qreal(pos) / range;
+    m_rel = range ? qreal(pos) / range : 0;
 }
 
 /*
@@ -295,6 +331,50 @@ void DockWaveform::wheelEvent(QWheelEvent *event)
     bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
     if (ctrl)
         emit ui->scrollArea->enlarge(event->angleDelta().y() > 0 ? 1 : -1);
+}
+
+/*
+ * On dock resize, the splitter redistributes its panes; mirror the new pane
+ * widths onto the bottom h-scrollbars so each one sits under its pane.
+ */
+void DockWaveform::resizeEvent(QResizeEvent *event)
+{
+    QDockWidget::resizeEvent(event);
+    syncBottomScrollbarWidths();
+}
+
+/*
+ * First-show hook: apply the saved list-pane width onto the splitter. The splitter has no real width during the
+ * constructor, so setSizes() there gets rescaled proportionally. By showEvent the layout is settled and
+ * splitter->width() is the actual on-screen width. The .ui file's geometry hint (list width=150) handles
+ * only the very first run with no saved value; any saved override needs this restore.
+ */
+void DockWaveform::showEvent(QShowEvent *event)
+{
+    QDockWidget::showEvent(event);
+    if (m_listWidth > 0)
+    {
+        int total = ui->splitter->width();
+        int handle = ui->splitter->handleWidth();
+        if (total > m_listWidth + handle + 40)
+        {
+            ui->splitter->setSizes(QList<int>({ m_listWidth, total - m_listWidth - handle }));
+            m_listWidth = 0; // Apply only once
+        }
+    }
+    syncBottomScrollbarWidths();
+}
+
+/*
+ * Make the two bottom h-scrollbars track the splitter pane widths via layout stretch factors. Stretch factors
+ * (vs. setFixedWidth) keep the dock shrinkable, fixed widths would lock the dock's minimum width to the sum of the bars.
+ */
+void DockWaveform::syncBottomScrollbarWidths()
+{
+    QList<int> sizes = ui->splitter->sizes();
+    if (sizes.size() != 2) return;
+    ui->hScrollBarRow->setStretch(0, qMax(1, sizes[0]));
+    ui->hScrollBarRow->setStretch(1, qMax(1, sizes[1]));
 }
 
 /*
@@ -309,7 +389,7 @@ void DockWaveform::onEnlarge(int delta)
     ui->list->setFont(font);
 
     // Update scroll area size hint and container scroll area to reflect new content height
-    ui->frame->updateGeometry();
+    ui->splitter->updateGeometry();
     ui->containerScroll->updateGeometry();
 }
 

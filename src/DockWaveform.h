@@ -98,7 +98,10 @@ private:
     bool save(QString fileName);        // Saves waveform items
 
     void syncScroll(uint index, uint pos);
+    void syncBottomScrollbarWidths();  // Make bottom h-scrollbars match the splitter pane widths
     void wheelEvent(QWheelEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void showEvent(QShowEvent* event) override;
     bool eventFilter(QObject *, QEvent *event) override
     {
         if (event->type() == QEvent::Wheel) // If the user pressed Ctrl key, we handle the wheel event
@@ -115,6 +118,7 @@ private:
     QString m_fileViewlist;             // This window's default waveform view configuration file name
     qreal m_rel {};                     // Relative waveform scroll slider position
     int m_sectionSize;                  // Table vertical section size in pixels
+    int m_listWidth {};                 // Restored splitter list-pane width to apply on first showEvent (0 = use .ui default)
 
     QStringList getNames();             // Returns a list of all view item names
     viewitem *find(QString name);       // Find a view item with the given name or nullptr
