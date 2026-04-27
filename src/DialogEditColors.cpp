@@ -247,9 +247,15 @@ void DialogEditColors::onDoubleClicked(int row, int)
 
 /*
  * Reacts to a change in any cell. Used for the Enabled column to broadcast a
- * checkbox toggle to other rows: CTRL+click sets every row to the new value;
- * a plain click on a row that is part of a multi-row selection sets every
- * selected row to the new value.
+ * checkbox toggle to other rows:
+ *   SHIFT+CTRL+click   reverts the clicked row to its pre-click state and
+ *                      sets every row of a different color to the inverse,
+ *                      i.e. solo when the row was enabled and invert when
+ *                      it was disabled.
+ *   CTRL+click         sets every row that shares the clicked row's color
+ *                      to the new value.
+ *   plain click on a row that is part of a multi-row selection sets every
+ *                      selected row to the new value.
  */
 void DialogEditColors::onItemChanged(QTableWidgetItem *item)
 {
@@ -258,13 +264,37 @@ void DialogEditColors::onItemChanged(QTableWidgetItem *item)
 
     const Qt::CheckState state = item->checkState();
     const int clickedRow = item->row();
-    const bool ctrl = QApplication::keyboardModifiers() & Qt::ControlModifier;
+    const Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+    const bool ctrl  = mods & Qt::ControlModifier;
+    const bool shift = mods & Qt::ShiftModifier;
+
+    if (ctrl && shift)
+    {
+        const Qt::CheckState restored = (state == Qt::Checked) ? Qt::Unchecked : Qt::Checked;
+        const QColor clickedColor = ui->table->item(clickedRow, 3)->data(Qt::UserRole).value<QColor>();
+
+        m_ignoreItemChanged = true;
+        ui->table->item(clickedRow, 2)->setCheckState(restored);
+        for (int r = 0; r < ui->table->rowCount(); r++)
+        {
+            if (r == clickedRow)
+                continue;
+            if (ui->table->item(r, 3)->data(Qt::UserRole).value<QColor>() != clickedColor)
+                ui->table->item(r, 2)->setCheckState(state);
+        }
+        m_ignoreItemChanged = false;
+        return;
+    }
 
     QSet<int> targets;
     if (ctrl)
     {
+        const QColor clickedColor = ui->table->item(clickedRow, 3)->data(Qt::UserRole).value<QColor>();
         for (int r = 0; r < ui->table->rowCount(); r++)
-            targets.insert(r);
+        {
+            if (ui->table->item(r, 3)->data(Qt::UserRole).value<QColor>() == clickedColor)
+                targets.insert(r);
+        }
     }
     else
     {
