@@ -193,7 +193,7 @@ bool ClassVisual::loadSegdefs(QString dir)
             qsizetype i = &s - m_segvdefs.data();
             m_segvdefs2[i].path = s.path.simplified();
             m_segvdefs2[i].path.setFillRule(Qt::WindingFill);
-        }).then([this, timer = std::move(timer), &e]() {
+        }).then([ timer = std::move(timer), &e]() {
             qInfo() << "Merging took" << "took" << timer.elapsed() / 1000.0 << "s";
             e.exit(true);
         });
