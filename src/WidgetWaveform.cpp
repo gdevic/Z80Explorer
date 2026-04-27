@@ -12,6 +12,14 @@ WidgetWaveform::WidgetWaveform(QWidget *parent) : QWidget(parent)
     connect(&::controller, &ClassController::onRunHeartbeat, this, [this]() { update(); });
     connect(&::controller, &ClassController::onRunStopped, this, &WidgetWaveform::onRunStopped);
 
+    // sizeHint() depends on the watch history depth; when the user changes it via Settings... the
+    // change takes effect on the next chip reset (in ClassWatch::clear). Refresh our geometry so the
+    // enclosing scrollArea recomputes the h-scrollbar range to the new total width.
+    connect(&::controller.getWatch(), &ClassWatch::historyDepthChanged, this, [this]() {
+        updateGeometry();
+        update();
+    });
+
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     setMouseTracking(true);
 }
@@ -54,7 +62,7 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
     // Calculate visible sample range from the dirty/visible rectangle
     // Sample index i maps to screen X via: x = i * m_hscale
     int iStart = qMax(0, int(r.left() / m_hscale) - 1);
-    int iEnd = qMin(MAX_WATCH_HISTORY, int(r.right() / m_hscale) + 2);
+    int iEnd = qMin(::controller.getWatch().historyDepth(), int(r.right() / m_hscale) + 2);
 
     // Draw a faint gray background grid (only in visible range)
     painter.setPen(QPen(Qt::gray));
@@ -292,8 +300,9 @@ void WidgetWaveform::onRunStopped()
             // If the first two cursors are linked together, move them both
             if (m_linked && (m_cursors2x.count() >= 2))
             {
-                if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
-                if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
+                const int hmax2 = ::controller.getWatch().historyDepth() * 2;
+                if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), hmax2);
+                if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), hmax2);
             }
             emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2)));
         }
@@ -319,8 +328,9 @@ void WidgetWaveform::onDecorated(bool isDecorated)
 QSize WidgetWaveform::sizeHint() const
 {
     // The total data size plus some, to give some extra space on the right end
-    uint extra = MAX_WATCH_HISTORY >> 4;
-    QSize size((MAX_WATCH_HISTORY + extra) * m_hscale, 0);
+    const int depth = ::controller.getWatch().historyDepth();
+    uint extra = depth >> 4;
+    QSize size((depth + extra) * m_hscale, 0);
     return size;
 }
 
@@ -381,7 +391,7 @@ void WidgetWaveform::mousePressEvent(QMouseEvent *event)
         {
             // If we identified a cursor, set it's new X coordiate
             int mouse_in_dataX = m_mousePos.x() / (m_hscale / 2);
-            m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, MAX_WATCH_HISTORY * 2);
+            m_cursors2x[m_cursor] = qBound(0, mouse_in_dataX, ::controller.getWatch().historyDepth() * 2);
         }
     }
     setCursor(m_cursormoving ? Qt::SizeHorCursor : Qt::OpenHandCursor);
@@ -415,13 +425,14 @@ qreal WidgetWaveform::setCursorsPos(uint index, uint pos)
     if (index < m_cursors2x.count())
     {
         m_cursor = index;
-        m_cursors2x[index] = qBound(0, int(pos), MAX_WATCH_HISTORY * 2);
+        const int hmax2 = ::controller.getWatch().historyDepth() * 2;
+        m_cursors2x[index] = qBound(0, int(pos), hmax2);
 
         // Handle linked cursors
         if (m_linked && (m_cursors2x.count() >= 2))
         {
-            if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), MAX_WATCH_HISTORY * 2);
-            if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), MAX_WATCH_HISTORY * 2);
+            if (m_cursor == 0) m_cursors2x[1] = qBound(0, int(m_cursors2x[0] + m_linked), hmax2);
+            if (m_cursor == 1) m_cursors2x[0] = qBound(0, int(m_cursors2x[1] - m_linked), hmax2);
         }
         emit setLink(abs(int(m_cursors2x[0] / 2) - int(m_cursors2x[1] / 2))); // Emit link delta value
         update();

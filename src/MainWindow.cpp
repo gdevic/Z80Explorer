@@ -5,6 +5,7 @@
 #include "DialogEditNets.h"
 #include "DialogEditSchematic.h"
 #include "DialogEditWatchlist.h"
+#include "DialogSettings.h"
 #include "DockCommand.h"
 #include "DockImageView.h"
 #include "DockLog.h"
@@ -76,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QJSEngine *sc) :
     connect(ui->actionEditColors, SIGNAL(triggered()), this, SLOT(onEditColors()));
     connect(ui->actionEditSchematic, SIGNAL(triggered()), this, SLOT(onEditSchematic()));
     connect(ui->actionEditWatchlist, SIGNAL(triggered()), this, SLOT(onEditWatchlist()));
+    connect(ui->actionEditSettings, SIGNAL(triggered()), this, SLOT(onEditSettings()));
     connect(ui->actionNewImageView, SIGNAL(triggered()), this, SLOT(onNewImageView()));
     connect(ui->actionNewWaveformView, SIGNAL(triggered()), this, SLOT(onNewWaveformView()));
     connect(ui->actionOnlineManual, SIGNAL(triggered()), this, SLOT(onOnlineRef()));
@@ -183,6 +185,15 @@ void MainWindow::onEditWatchlist()
 void MainWindow::onEditSchematic()
 {
     DialogEditSchematic dlg(this);
+    dlg.exec();
+}
+
+/*
+ * Handle menu item to edit app-wide runtime settings (waveform history depth, server ports)
+ */
+void MainWindow::onEditSettings()
+{
+    DialogSettings dlg(this);
     dlg.exec();
 }
 

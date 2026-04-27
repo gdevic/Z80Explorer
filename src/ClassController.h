@@ -28,6 +28,7 @@ public:
     explicit ClassController() {};
     bool init(QJSEngine *);                     // Initialize controller classes and variables
     void stopServers();                         // Tear down long-running background servers (MCP, SOCKET)
+    void applyServerSettings();                 // Runtime reconciliation of server enable/port
 
 public: // API
     inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
@@ -116,8 +117,9 @@ private:
     ClassWatch    m_watch;                  // Global watchlist
     ClassTip      m_tips;                   // Global tips
     ClassTrickbox m_trick;                  // Global trickbox supporting environment
-    ClassMcpTools  *m_mcpTools  {};         // MCP tool registry (created in init() if MCP_SERVER)
-    ClassMcpServer *m_mcpServer {};         // MCP HTTP+JSON-RPC transport (created in init() if MCP_SERVER)
+    ClassMcpTools  *m_mcpTools  {};         // MCP tool registry (lazily created on first MCP-server enable)
+    ClassMcpServer *m_mcpServer {};         // MCP HTTP+JSON-RPC transport (lazily created; kept around once allocated)
+    void startSocketServer(quint16 port);   // Start the socket server and wire its commandReceived handler
 };
 
 extern ClassController controller;

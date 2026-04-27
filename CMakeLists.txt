@@ -35,6 +35,7 @@ qt_add_executable(Z80Explorer
     src/DialogEditWatchlist.cpp
     src/DialogEditWaveform.cpp
     src/DialogSchematic.cpp
+    src/DialogSettings.cpp
     src/DockCommand.cpp
     src/DockImageView.cpp
     src/DockLog.cpp
@@ -79,6 +80,7 @@ qt_add_executable(Z80Explorer
     src/DialogEditWatchlist.h
     src/DialogEditWaveform.h
     src/DialogSchematic.h
+    src/DialogSettings.h
     src/DockCommand.h
     src/DockImageView.h
     src/DockLog.h
@@ -102,6 +104,7 @@ qt_add_executable(Z80Explorer
     src/DialogEditWatchlist.ui
     src/DialogEditWaveform.ui
     src/DialogSchematic.ui
+    src/DialogSettings.ui
     src/DockCommand.ui
     src/DockImageView.ui
     src/DockLog.ui

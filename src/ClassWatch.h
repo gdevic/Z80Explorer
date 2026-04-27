@@ -3,6 +3,7 @@
 
 #include "AppTypes.h"
 #include <QObject>
+#include <QVector>
 
 /*
  * Watch structure defines a net or a bus to watch. A net is a single object identified by a net number "n".
@@ -13,10 +14,10 @@ struct watch
 {
     QString name;                       // The name of the net to watch
     net_t n;                            // Net number (if nonzero), if zero, it is a bus
-    pin_t d[MAX_WATCH_HISTORY];         // Circular buffer of watch data (not serialized out)
+    QVector<pin_t> d;                   // Circular buffer of watch data, sized to ClassWatch::historyDepth() (not serialized out)
 
-    watch(QString _name, net_t net): name(_name), n(net) { clear(); }
-    void clear() { memset(d, 3, sizeof(d)); }
+    watch(QString _name, net_t net, int depth): name(_name), n(net), d(depth) { clear(); }
+    void clear() { d.fill(3); }
 };
 
 /*
@@ -46,8 +47,14 @@ public:
     uint at(watch *w, uint hcycle, uint &ok); // Returns bus watch data at the specified cycle position
     uint gethstart() { return m_hring_start; } // Returns the absolute hcycle of the start of our buffers
 
+    int historyDepth() const { return m_historyDepth; } // Current per-net circular-buffer depth (in half-cycles)
+    void setHistoryDepth(int depth);    // Stores a new depth; takes effect on the next clear() (= chip reset)
+
     bool load(QString fileName);        // Loads a watchlist
     bool save(QString fileName);        // Saves a watchlist
+
+signals:
+    void historyDepthChanged();         // Emitted from clear() when a pending setHistoryDepth() takes effect
 
 public slots:
     void onShutdown();                  // Called when the app is closing
@@ -60,6 +67,8 @@ private:
     QString m_jsonFile;                 // File name used to load watchlist
     uint m_hcycle_last {};              // Last cycle number for which we got data stored
     uint m_hring_start {};              // Buffer start maps to this absolute cycle
+    int  m_historyDepth;                // Current circular-buffer depth; used as modulus and as new-watch buffer size
+    int  m_pendingDepth;                // New depth requested via setHistoryDepth(); applied at next clear()
 };
 
 #endif // CLASSWATCH_H

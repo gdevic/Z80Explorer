@@ -2,14 +2,18 @@
 #define APPTYPES_H
 
 #define APP_VERSION 109             // Application version (minor % 100)
+
 #define USE_PERFORMANCE_SIM 1       // Use faster and optimized (but more obfuscated) simulation code
 #define USE_AVX2_SIM 1              // Use optimized simulation with AVX2/x64 intrinsics
 #define HAVE_PREBUILT_LAYERMAP 1    // We have extracted a fully prebuilt layermap.bin and can use it
 #define FIX_Z80_LAYERMAP_TO_VISUAL_ENUM 1 // Fix to prebuilt layermap incorrectly counting nets between 1559 and 1710
-#define MAX_WATCH_HISTORY 1000      // Half-cycles of waveform history retained per watched net (circular buffer)
-#define SOCKET_SERVER     1         // Enable command socket server
+
+// The five values below are runtime-configurable through the Edit > Settings... dialog;
+// these defines are only their factory defaults, used when QSettings has no stored value.
+#define HISTORY_DEPTH     1000      // Default half-cycles of waveform history retained per watched net (circular buffer)
+#define SOCKET_SERVER     0         // Default for the command socket server (1 = enabled, 0 = disabled)
 #define SOCKET_PORT       12345     // Default port the command socket server listens on (localhost only)
-#define MCP_SERVER        1         // Enable built-in MCP (Model Context Protocol) HTTP server
+#define MCP_SERVER        0         // Default for the built-in MCP (Model Context Protocol) HTTP server
 #define MCP_PORT          8765      // Default port the MCP server listens on (localhost only)
 
 #include <stdint.h>

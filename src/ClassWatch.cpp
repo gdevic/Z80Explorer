@@ -5,9 +5,14 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSettings>
 
 ClassWatch::ClassWatch()
 {
+    QSettings settings;
+    m_historyDepth = settings.value("historyDepth", HISTORY_DEPTH).toInt();
+    m_historyDepth = qBound(100, m_historyDepth, 10000);
+    m_pendingDepth = m_historyDepth;
     clear();
 }
 
@@ -24,7 +29,7 @@ void ClassWatch::onNetName(Netop op, const QString name, const net_t net)
     if (op == Netop::SetName) // All newly named nets are automatically added to the watchlist
     {
         Q_ASSERT(find(name) == nullptr);
-        m_watchlist.append(watch(name, net));
+        m_watchlist.append(watch(name, net, m_historyDepth));
     }
     else if (op == Netop::Rename)
     {
@@ -47,11 +52,11 @@ void ClassWatch::onNetName(Netop op, const QString name, const net_t net)
 void ClassWatch::append(watch *w, uint hcycle, pin_t value)
 {
     m_hcycle_last = hcycle + 1;
-    uint i = hcycle % MAX_WATCH_HISTORY;
+    uint i = hcycle % uint(m_historyDepth);
     w->d[i] = value;
 
-    if (hcycle >= MAX_WATCH_HISTORY)
-        m_hring_start = hcycle - MAX_WATCH_HISTORY + 1;
+    if (hcycle >= uint(m_historyDepth))
+        m_hring_start = hcycle - uint(m_historyDepth) + 1;
     else
         m_hring_start = 0;
 }
@@ -68,7 +73,7 @@ pin_t ClassWatch::at(watch *w, uint hcycle)
     if (!w || !m_hcycle_last || (hcycle < m_hring_start) || (hcycle >= m_hcycle_last))
         return 3; // Invalid
     if (w->n) // n is non-zero: it is a net
-        return w->d[hcycle % MAX_WATCH_HISTORY];
+        return w->d[hcycle % uint(m_historyDepth)];
     return 4; // The watch is a bus error
 }
 
@@ -99,7 +104,7 @@ uint ClassWatch::at(watch *w, uint hcycle, uint &ok)
         watch *wb = find(n);
         if (wb == nullptr)
             return 0;
-        pin_t pin = wb->d[hcycle % MAX_WATCH_HISTORY];
+        pin_t pin = wb->d[hcycle % uint(m_historyDepth)];
         if (pin == 2) // Any contributing net that is at hi-Z makes the complete bus being hi-Z
         {
             value = UINT_MAX;
@@ -136,14 +141,33 @@ watch *ClassWatch::find(net_t net)
 }
 
 /*
- * Clears all watch data
+ * Clears all watch data. Called from the chip-reset path; this is also where any pending
+ * depth change requested via setHistoryDepth() takes effect — every per-net buffer is
+ * resized to the new depth and re-initialised to the unknown sentinel (3).
  */
 void ClassWatch::clear()
 {
     m_hring_start = 0;
     m_hcycle_last = 0;
+    bool depthChanged = (m_pendingDepth != m_historyDepth);
+    if (depthChanged)
+        m_historyDepth = m_pendingDepth;
     for (auto &watch : m_watchlist)
+    {
+        watch.d.resize(m_historyDepth);
         watch.clear();
+    }
+    if (depthChanged)
+        emit historyDepthChanged();
+}
+
+/*
+ * Stores a new history depth; the actual reallocation happens on the next clear() call (chip reset),
+ * so the running waveform remains intact until the user resets.
+ */
+void ClassWatch::setHistoryDepth(int depth)
+{
+    m_pendingDepth = qBound(100, depth, 10000);
 }
 
 /*
@@ -179,7 +203,7 @@ void ClassWatch::updateWatchlist(QStringList list)
                 newlist.append(*w);
             else // It does not exist, create it
             {
-                watch w(name, net);
+                watch w(name, net, m_historyDepth);
                 newlist.append(w);
             }
             if (!net) // Check and add all nets that comprise this bus
@@ -196,7 +220,7 @@ void ClassWatch::updateWatchlist(QStringList list)
         {
             if (!find(net)) // If this net is not already part of our m_watchlist...
             {
-                watch w(Net.get(net), net);
+                watch w(Net.get(net), net, m_historyDepth);
                 m_watchlist.append(w);
             }
         }
@@ -238,7 +262,7 @@ bool ClassWatch::load(QString fileName)
                     qWarning() << "Unmatched net/bus name" << name << "(" << net << ") in the watchlist .. Skipping.";
                     continue;
                 }
-                m_watchlist.append({ name, net });
+                m_watchlist.append(watch(name, net, m_historyDepth));
             }
             m_jsonFile = fileName;
             return true;

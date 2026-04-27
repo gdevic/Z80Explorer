@@ -94,58 +94,9 @@ bool ClassController::init(QJSEngine *sc)
     // Initialize the schematic generation properties
     DialogEditSchematic::init();
 
-#if SOCKET_SERVER
-    // Initialize and start the socket command server
-    quint16 port = SOCKET_PORT;
-    if (m_server.startListening(port))
-    {
-        qInfo() << "Command server is listening on port" << m_server.serverPort();
-        qInfo() << "Send text commands (one per line) to this port.";
-
-        connect(&m_server, &ClassServer::commandReceived, this, [=](const QString &command, QTcpSocket *sock)
-        {
-            qDebug() << "Processing command:" << command;
-            // Capture any text the script emits via ClassScript::print during this command so we can
-            // forward it back to the socket client. DockCommand and the log still receive the same signal
-            // in parallel, so on-screen output is unaffected
-            QStringList captured;
-            auto conn = connect(&m_script, &ClassScript::print, this,
-                [&captured](QString msg) { captured.append(msg); });
-            m_script.exec(command, /*echo=*/false);
-            disconnect(conn);
-            QByteArray reply;
-            for (const QString &m : captured)
-            {
-                reply.append(m.toUtf8());
-                if (!m.endsWith('\n'))
-                    reply.append('\n');
-            }
-            reply.append("OK\n");
-            sock->write(reply);
-        });
-    }
-    else
-    {
-        qCritical() << "Failed to start command server.";
-        return false;
-    }
-#endif
-#if MCP_SERVER
-    // Initialize and start the MCP socket server
-    m_mcpTools = new ClassMcpTools(this);
-    m_mcpTools->registerDefaults();
-    m_mcpServer = new ClassMcpServer(m_mcpTools, this);
-    if (m_mcpServer->start(MCP_PORT))
-    {
-        qInfo() << "MCP server ready with" << m_mcpTools->toolCount() << "tools";
-        QObject::connect(qApp, &QCoreApplication::aboutToQuit, m_mcpServer, &ClassMcpServer::stop);
-    }
-    else
-    {
-        qCritical() << "MCP server failed to start on port" << MCP_PORT;
-        return false;
-    }
-#endif
+    // Both background servers are runtime-configurable through Edit > Settings...
+    // The defaults below come from AppTypes.h; QSettings overrides win once the user has made a choice.
+    applyServerSettings();
 
     // Execute init.js initialization script
     QTimer::singleShot(1000, [=]() { m_script.exec(R"(load("init.js"))"); });
@@ -163,12 +114,101 @@ bool ClassController::init(QJSEngine *sc)
  */
 void ClassController::stopServers()
 {
-#if MCP_SERVER
     if (m_mcpServer) m_mcpServer->stop();
-#endif
-#if SOCKET_SERVER
     m_server.stopListening();
-#endif
+}
+
+/*
+ * Reads the four server-related QSettings keys and reconciles the running state of each server. Called
+ * once from init() to bring the servers up at startup, and again from DialogSettings::accept() whenever
+ * the user changes a value. Each server is stopped if it was running on the wrong port or is now
+ * disabled, and (re)started on the configured port if currently enabled.
+ */
+void ClassController::applyServerSettings()
+{
+    QSettings settings;
+    bool socketEnable = settings.value("socketServer", SOCKET_SERVER).toBool();
+    quint16 socketPort = quint16(settings.value("socketPort", SOCKET_PORT).toInt());
+    bool mcpEnable = settings.value("mcpServer", MCP_SERVER).toBool();
+    quint16 mcpPort = quint16(settings.value("mcpPort", MCP_PORT).toInt());
+
+    // Reconcile the command socket server
+    bool socketRunning = m_server.isListening();
+    quint16 socketCurPort = socketRunning ? m_server.serverPort() : 0;
+    if (socketRunning && (!socketEnable || (socketCurPort != socketPort)))
+    {
+        qInfo() << "Stopping command server on port" << socketCurPort;
+        m_server.stopListening();
+        socketRunning = false;
+    }
+    if (socketEnable && !socketRunning)
+        startSocketServer(socketPort);
+
+    // Reconcile the MCP server. The ClassMcpServer object is allocated lazily on first enable and kept
+    // around afterwards (Qt parents own it); subsequent enable/disable just toggles its listener.
+    bool mcpRunning = m_mcpServer && m_mcpServer->isListening();
+    quint16 mcpCurPort = (m_mcpServer && mcpRunning) ? m_mcpServer->port() : 0;
+    if (mcpRunning && (!mcpEnable || (mcpCurPort != mcpPort)))
+    {
+        qInfo() << "Stopping MCP server on port" << mcpCurPort;
+        m_mcpServer->stop();
+        mcpRunning = false;
+    }
+    if (mcpEnable && !mcpRunning)
+    {
+        if (!m_mcpTools)
+        {
+            m_mcpTools = new ClassMcpTools(this);
+            m_mcpTools->registerDefaults();
+        }
+        if (!m_mcpServer)
+        {
+            m_mcpServer = new ClassMcpServer(m_mcpTools, this);
+            QObject::connect(qApp, &QCoreApplication::aboutToQuit, m_mcpServer, &ClassMcpServer::stop);
+        }
+        if (m_mcpServer->start(mcpPort))
+            qInfo() << "MCP server ready with" << m_mcpTools->toolCount() << "tools on port" << mcpPort;
+        else
+            qCritical() << "MCP server failed to start on port" << mcpPort;
+    }
+}
+
+/*
+ * Starts the command socket server and wires its commandReceived handler. The handler is connected
+ * once per server-start (it is owned by the QTcpServer's child socket lifecycle), so re-entering this
+ * function on a port change cleanly re-creates the connection.
+ */
+void ClassController::startSocketServer(quint16 port)
+{
+    if (!m_server.startListening(port))
+    {
+        qCritical() << "Failed to start command server on port" << port;
+        return;
+    }
+    qInfo() << "Command server is listening on port" << m_server.serverPort();
+    qInfo() << "Send text commands (one per line) to this port.";
+
+    connect(&m_server, &ClassServer::commandReceived, this, [this](const QString &command, QTcpSocket *sock)
+    {
+        qDebug() << "Processing command:" << command;
+        // Capture any text the script emits via ClassScript::print during this command so we can
+        // forward it back to the socket client. DockCommand and the log still receive the same signal
+        // in parallel, so on-screen output is unaffected
+        QStringList captured;
+        auto conn = connect(&m_script, &ClassScript::print, this,
+            [&captured](QString msg) { captured.append(msg); });
+        m_script.exec(command, /*echo=*/false);
+        disconnect(conn);
+        QByteArray reply;
+        for (const QString &m : captured)
+        {
+            reply.append(m.toUtf8());
+            if (!m.endsWith('\n'))
+                reply.append('\n');
+        }
+        reply.append("OK\n");
+        sock->write(reply);
+    });
 }
 
 /*

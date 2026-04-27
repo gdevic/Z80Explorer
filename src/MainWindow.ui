@@ -91,6 +91,8 @@
     <addaction name="actionEditAnnotations"/>
     <addaction name="actionEditColors"/>
     <addaction name="actionEditSchematic"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditSettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -234,6 +236,14 @@
    </property>
    <property name="statusTip">
     <string>Edit schematic properties</string>
+   </property>
+  </action>
+  <action name="actionEditSettings">
+   <property name="text">
+    <string>Settings...</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit application settings (waveform history, server ports)</string>
    </property>
   </action>
  </widget>
