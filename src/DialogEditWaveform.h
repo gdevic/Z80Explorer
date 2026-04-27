@@ -20,6 +20,7 @@ public:
     ~DialogEditWaveform();
 
     void getList(QVector<viewitem> &list); // Returns the edited list of view items
+    void selectByRow(int row);             // Highlights and scrolls the right-side view list to the given row
 
 private slots:
     void onAdd();

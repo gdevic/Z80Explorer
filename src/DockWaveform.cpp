@@ -67,7 +67,8 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent), 
     menu->addAction("Export PNG...", this, SLOT(onPng()));
     ui->btFile->setMenu(menu);
 
-    connect(ui->btEdit, &QToolButton::clicked, this, &DockWaveform::onEdit);
+    connect(ui->btEdit, &QToolButton::clicked, this, [this]() { onEdit(); });
+    connect(ui->list, &QTableWidget::cellDoubleClicked, this, [this](int row, int) { onEdit(row); });
     connect(ui->btLink, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onLinked);
     connect(ui->btDecorated, &QToolButton::toggled, ui->widgetWaveform, &WidgetWaveform::onDecorated);
     connect(ui->scrollArea->horizontalScrollBar(), &QAbstractSlider::rangeChanged, this, &DockWaveform::onScrollBarRangeChanged);
@@ -140,11 +141,14 @@ void DockWaveform::onPng()
 }
 
 /*
- * Edits a collection of view items
+ * Edits a collection of view items. If focusRow >= 0, the dialog opens with that row pre-selected in its right-side
+ * list (used when invoked by a double-click on the dock's watchlist).
  */
-void DockWaveform::onEdit()
+void DockWaveform::onEdit(int focusRow)
 {
     DialogEditWaveform dlg(this, m_view);
+    if (focusRow >= 0)
+        dlg.selectByRow(focusRow);
     if (dlg.exec() == QDialog::Accepted)
     {
         dlg.getList(m_view);

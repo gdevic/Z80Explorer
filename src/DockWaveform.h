@@ -84,7 +84,7 @@ private slots:
     void onLoad(bool merge);            // Load view items from a file
     void onSaveAs();                    // Save current set of view items with a new file name
     void onPng();                       // Exports window view as a PNG image file
-    void onEdit();                      // Edit current set of view items
+    void onEdit(int focusRow = -1);     // Edit current set of view items; optional row to focus on open
     void scroll(int deltaX);            // User moved the view, scroll it
     void cursorChanged(uint hcycle);    // Cursor moved, need to update values that are shown
     void onScrollBarActionTriggered(int);

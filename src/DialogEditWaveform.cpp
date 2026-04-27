@@ -49,6 +49,18 @@ DialogEditWaveform::~DialogEditWaveform()
 }
 
 /*
+ * Highlights and scrolls the right-side view list to the given row. Called when the dialog is opened by
+ * double-clicking a row in the dock's watchlist, so the user lands directly on the item they clicked.
+ */
+void DialogEditWaveform::selectByRow(int row)
+{
+    if ((row < 0) || (row >= ui->listView->count())) return;
+    ui->listView->setCurrentRow(row);
+    ui->listView->scrollToItem(ui->listView->item(row), QAbstractItemView::PositionAtCenter);
+    ui->listView->setFocus();
+}
+
+/*
  * Returns (by setting "list") the edited list of view items
  */
 void DialogEditWaveform::getList(QVector<viewitem> &list)
