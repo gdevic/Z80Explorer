@@ -87,7 +87,7 @@ void WidgetWaveform::paintEvent(QPaintEvent *pe)
             if (w->n)
                 drawOneSignal_Net(painter, y, hstart, w, vi, iStart, iEnd);
             else
-                drawOneSignal_Bus(painter, y, hstart, w, vi, iStart, iEnd);
+                drawOneSignal_Bus(painter, y, hstart, w, vi, iStart, iEnd, r.left());
         }
         y += m_dY; // Advance to the next Y coordinate, this is the height of each net
         vi = m_dock->getNext(it);
@@ -164,14 +164,14 @@ void WidgetWaveform::drawOneSignal_Net(QPainter &painter, uint y, uint hstart, w
     }
 }
 
-void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem, int iStart, int iEnd)
+void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *w, viewitem *viewitem, int iStart, int iEnd, int rect_left)
 {
     static const QPen penHiZ = QPen(QColor(Qt::white), 1, Qt::DotLine);
     static const QPen penText = QPen(Qt::white);
     painter.setPen(viewitem->color);
     // Get the previous sample value for drawing transitions at iStart
     uint width, data_cur, data_prev = ::controller.getWatch().at(w, hstart + qMax(0, iStart - 1), width);
-    uint last_data_x = iStart * m_hscale; // X coordinate of the last bus data change
+    uint last_data_x = qMax<int>(iStart * m_hscale, rect_left);
     bool width0text = true; // Not too elegant way to ensure we print only once on a stream of undef values
     // Get the text of the initial bus data value
     QString text = ::controller.formatBus(viewitem->format, data_prev, width, m_decorated);
@@ -190,7 +190,7 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
                 painter.setPen(penText);
                 painter.drawText(last_data_x + 3, y1 - 2, text);
                 painter.setPen(viewitem->color);
-                last_data_x = x1;
+                last_data_x = qMax<int>(x1, rect_left);
                 width0text = false; // Do not print text next time in the undef case
             }
             continue;
@@ -210,7 +210,9 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
                 painter.drawText(last_data_x + 3, y1 - 2, text);
                 painter.restore();
             }
-            last_data_x = x1;
+            // Clamp to rect_left so a transition that lands just off the visible
+            // left edge does not pull the next text anchor off-screen with it.
+            last_data_x = qMax<int>(x1, rect_left);
 
             painter.drawLine(x1, y1, x1 + 3, y2);
             painter.drawLine(x1, y2, x1 + 3, y1);
@@ -228,13 +230,11 @@ void WidgetWaveform::drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, w
         if (Q_UNLIKELY(data_cur == UINT_MAX))
             painter.setPen(viewitem->color);
     }
-
-    // At the end of the visible range, write out last bus values
+    // At the end of the visible range, write out the last bus value's text
     if (width > 0)
     {
-        uint x_end = iEnd * m_hscale;
         painter.setPen(penText);
-        painter.drawText(x_end, y - 2, text);
+        painter.drawText(last_data_x + 3, y - 2, text);
     }
 }
 

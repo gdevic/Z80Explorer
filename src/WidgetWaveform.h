@@ -30,7 +30,7 @@ public slots:
 private:
     DockWaveform *m_dock {};
     void drawOneSignal_Net(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem, int iStart, int iEnd);
-    void drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem, int iStart, int iEnd);
+    void drawOneSignal_Bus(QPainter &painter, uint y, uint hstart, watch *watch, viewitem *viewitem, int iStart, int iEnd, int rect_left);
     qreal m_hscale {10};                // Horizontal scale factor
     bool m_decorated {true};            // Bus value decorations
 
