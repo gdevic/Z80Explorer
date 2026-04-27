@@ -51,14 +51,28 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QListWidget" name="listNets">
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
-       </property>
-       <property name="sortingEnabled">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayoutNets">
+       <item>
+        <widget class="QLineEdit" name="searchNets">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="placeholderText">
+          <string>Search...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listNets">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_1">
@@ -111,14 +125,28 @@
       </layout>
      </item>
      <item>
-      <widget class="QListWidget" name="listBuses">
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
-       </property>
-       <property name="sortingEnabled">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayoutBuses">
+       <item>
+        <widget class="QLineEdit" name="searchBuses">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="placeholderText">
+          <string>Search...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listBuses">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

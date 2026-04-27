@@ -1,4 +1,5 @@
 #include "ClassController.h"
+#include "ClassListSearch.h"
 #include "DialogEditBuses.h"
 #include "ui_DialogEditBuses.h"
 #include <QInputDialog>
@@ -35,6 +36,9 @@ DialogEditBuses::DialogEditBuses(QWidget *parent) :
     connect(ui->btDelete, &QPushButton::clicked, this, &DialogEditBuses::onDelete);
     connect(ui->listBuses, &QListWidget::itemSelectionChanged, this, &DialogEditBuses::busSelChanged);
     connect(ui->listNets, &QListWidget::itemSelectionChanged, this, &DialogEditBuses::netSelChanged);
+
+    ClassListSearch::install(ui->searchNets,  ui->listNets);
+    ClassListSearch::install(ui->searchBuses, ui->listBuses);
 }
 
 DialogEditBuses::~DialogEditBuses()

@@ -28,6 +28,7 @@ SOURCES += \
     src/ClassApplog.cpp \
     src/ClassColors.cpp \
     src/ClassController.cpp \
+    src/ClassListSearch.cpp \
     src/ClassLogic.cpp \
     src/ClassMcpServer.cpp \
     src/ClassMcpThreading.cpp \
@@ -71,6 +72,7 @@ HEADERS += \
     src/ClassColors.h \
     src/ClassController.h \
     src/ClassException.h \
+    src/ClassListSearch.h \
     src/ClassLogic.h \
     src/ClassMcpServer.h \
     src/ClassMcpThreading.h \

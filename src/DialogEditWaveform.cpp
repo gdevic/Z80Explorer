@@ -1,4 +1,5 @@
 #include "ClassController.h"
+#include "ClassListSearch.h"
 #include "DialogEditWaveform.h"
 #include "ui_DialogEditWaveform.h"
 #include <QColorDialog>
@@ -34,6 +35,9 @@ DialogEditWaveform::DialogEditWaveform(QWidget *parent, QVector<viewitem> list) 
     // Populate the view list widget with the given list of view items
     for (auto &i : list)
         append(i);
+
+    ClassListSearch::install(ui->searchAll,  ui->listAll);
+    ClassListSearch::install(ui->searchView, ui->listView);
 }
 
 DialogEditWaveform::~DialogEditWaveform()

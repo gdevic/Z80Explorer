@@ -13,6 +13,7 @@ qt_add_executable(Z80Explorer
     src/ClassApplog.cpp
     src/ClassColors.cpp
     src/ClassController.cpp
+    src/ClassListSearch.cpp
     src/ClassLogic.cpp
     src/ClassMcpServer.cpp
     src/ClassMcpThreading.cpp
@@ -55,6 +56,7 @@ qt_add_executable(Z80Explorer
     src/ClassColors.h
     src/ClassController.h
     src/ClassException.h
+    src/ClassListSearch.h
     src/ClassLogic.h
     src/ClassMcpServer.h
     src/ClassMcpThreading.h

@@ -1,4 +1,5 @@
 #include "ClassController.h"
+#include "ClassListSearch.h"
 #include "DialogEditWatchlist.h"
 #include "ui_DialogEditWatchlist.h"
 #include <QSettings>
@@ -18,6 +19,9 @@ DialogEditWatchlist::DialogEditWatchlist(QWidget *parent) :
     connect(ui->btAddAll, &QPushButton::clicked, this, &DialogEditWatchlist::onAddAll);
     connect(ui->btRemove, &QPushButton::clicked, this, &DialogEditWatchlist::onRemove);
     connect(ui->btRemoveAll, &QPushButton::clicked, this, &DialogEditWatchlist::onRemoveAll);
+
+    ClassListSearch::install(ui->searchAll,      ui->listAll);
+    ClassListSearch::install(ui->searchSelected, ui->listSelected);
 }
 
 DialogEditWatchlist::~DialogEditWatchlist()

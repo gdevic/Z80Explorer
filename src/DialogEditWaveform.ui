@@ -51,11 +51,25 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QListWidget" name="listAll">
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayoutAll">
+       <item>
+        <widget class="QLineEdit" name="searchAll">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="placeholderText">
+          <string>Search...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listAll">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_1">
@@ -128,11 +142,25 @@
       </layout>
      </item>
      <item>
-      <widget class="QListWidget" name="listView">
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayoutView">
+       <item>
+        <widget class="QLineEdit" name="searchView">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="placeholderText">
+          <string>Search...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listView">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

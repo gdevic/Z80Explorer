@@ -1,4 +1,5 @@
 #include "ClassController.h"
+#include "ClassListSearch.h"
 #include "DialogEditNets.h"
 #include "ui_DialogEditNets.h"
 #include <QInputDialog>
@@ -25,6 +26,8 @@ DialogEditNets::DialogEditNets(QWidget *parent) :
     connect(ui->btDelete, &QPushButton::clicked, this, &DialogEditNets::onDelete);
     connect(ui->btRename, &QPushButton::clicked, this, &DialogEditNets::onRename);
     connect(ui->listNets, &QListWidget::itemSelectionChanged, this, &DialogEditNets::netSelChanged);
+
+    ClassListSearch::install(ui->searchNets, ui->listNets);
 }
 
 DialogEditNets::~DialogEditNets()
