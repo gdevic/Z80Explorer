@@ -172,7 +172,6 @@ if (WIN32)
     set(INDEX_HTML DESTINATION .)
     set(MORE_DEPLOY_TOOL_OPTIONS
         --libdir .
-        --no-compiler-runtime     # vc_redist.[x64.]exe
         --no-system-d3d-compiler  # d3dcompiler_47.dll
         --no-system-dxc-compiler  # dxcompiler.dll dxil.dll
         --no-opengl-sw            # opengl32sw.dll
