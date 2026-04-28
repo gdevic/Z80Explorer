@@ -22,7 +22,6 @@ qt_add_executable(Z80Explorer
     src/ClassScript.cpp
     src/ClassServer.cpp
     src/ClassSimZ80.cpp
-    src/ClassSimZ80_AVX2.cpp
     src/ClassTip.cpp
     src/ClassTrickbox.cpp
     src/ClassVisual.cpp
@@ -66,7 +65,6 @@ qt_add_executable(Z80Explorer
     src/ClassScript.h
     src/ClassServer.h
     src/ClassSimZ80.h
-    src/ClassSimZ80_AVX2.h
     src/ClassSingleton.h
     src/ClassTip.h
     src/ClassTrickbox.h
@@ -153,13 +151,21 @@ if (WIN32)
             WINDOWS
             _CRT_SECURE_NO_WARNINGS
     )
-    # AVX2 support for the optimized simulator (USE_AVX2_SIM in AppTypes.h).
-    # Matches the qmake build's QMAKE_CXXFLAGS += /arch:AVX2 on win32.
+    # AVX2 support for the optimized simulator (USE_AVX2_SIM in AppTypes.h). Matches the qmake build's
+    # QMAKE_CXXFLAGS += /arch:AVX2 on win32. ClassSimZ80_AVX2.{h,cpp} use MSVC-only constructs
+    # (__forceinline, _aligned_malloc/_free) and AVX2 intrinsics (_mm256_*), and the header carries
+    # Q_OBJECT so MOC also processes it. Compiling on macOS/Linux fails on all three. We add the files
+    # only here. AppTypes.h auto-sets USE_AVX2_SIM=0 when __AVX2__ is undefined, so consumers
+    # (ClassController, ClassMcpTools, ClassScript) drop their AVX2 branches at preprocessing time.
     if (MSVC)
         target_compile_options(Z80Explorer PRIVATE /arch:AVX2)
     else()
         target_compile_options(Z80Explorer PRIVATE -mavx2)
     endif()
+    target_sources(Z80Explorer PRIVATE
+        src/ClassSimZ80_AVX2.cpp
+        src/ClassSimZ80_AVX2.h
+    )
     set(CMAKE_INSTALL_PREFIX
         "${CMAKE_CURRENT_BINARY_DIR}/installer/packages/com.baltazarstudios.z80explorer/data"
     )
