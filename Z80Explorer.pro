@@ -26,6 +26,7 @@ QMAKE_CXXFLAGS += /arch:AVX2
 SOURCES += \
     src/ClassAnnotate.cpp \
     src/ClassApplog.cpp \
+    src/ClassAssembler.cpp \
     src/ClassColors.cpp \
     src/ClassController.cpp \
     src/ClassListSearch.cpp \
@@ -70,6 +71,7 @@ HEADERS += \
     src/AppTypes.h \
     src/ClassAnnotate.h \
     src/ClassApplog.h \
+    src/ClassAssembler.h \
     src/ClassColors.h \
     src/ClassController.h \
     src/ClassException.h \

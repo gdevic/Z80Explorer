@@ -1,6 +1,7 @@
 #ifndef DOCKMONITOR_H
 #define DOCKMONITOR_H
 
+#include "ClassAssembler.h"
 #include <QDockWidget>
 #include <QTimer>
 
@@ -32,6 +33,7 @@ protected:
 private:
     Ui::DockMonitor *ui;
     QString m_dropppedFile;             // File name of the file being dropped by a drag-and-drop operation
+    ClassAssembler m_assembler;         // Assembles .asm drops via the bundled zmac binary
     QTimer  m_timer;                    // Text refresh timer updates text every 1/2 seconds to show new data
 };
 

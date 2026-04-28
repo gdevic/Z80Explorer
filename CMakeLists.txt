@@ -11,6 +11,7 @@ qt_add_executable(Z80Explorer
     WIN32 MACOSX_BUNDLE
     src/ClassAnnotate.cpp
     src/ClassApplog.cpp
+    src/ClassAssembler.cpp
     src/ClassColors.cpp
     src/ClassController.cpp
     src/ClassListSearch.cpp
@@ -53,6 +54,7 @@ qt_add_executable(Z80Explorer
     src/AppTypes.h
     src/ClassAnnotate.h
     src/ClassApplog.h
+    src/ClassAssembler.h
     src/ClassColors.h
     src/ClassController.h
     src/ClassException.h

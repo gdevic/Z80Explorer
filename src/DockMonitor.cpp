@@ -78,7 +78,9 @@ void DockMonitor::refresh()
 }
 
 /*
- * Supporting drag-and-drop of hex files
+ * Supporting drag-and-drop of hex and asm files. .hex is loaded directly via the existing
+ * ClassController::loadHex path. .asm is first assembled via ClassAssembler (which spawns the
+ * bundled zmac binary), and the resulting .hex is then loaded the same way.
  */
 void DockMonitor::dragEnterEvent(QDragEnterEvent *event)
 {
@@ -88,7 +90,8 @@ void DockMonitor::dragEnterEvent(QDragEnterEvent *event)
         if (urls.count() != 1)
             return;
         QFileInfo fi(urls.first().toLocalFile());
-        if (fi.suffix().toLower() != "hex")
+        const QString suffix = fi.suffix().toLower();
+        if ((suffix != "hex") && (suffix != "asm"))
             return;
         m_dropppedFile = fi.absoluteFilePath();
         qDebug() << m_dropppedFile;
@@ -99,6 +102,18 @@ void DockMonitor::dragEnterEvent(QDragEnterEvent *event)
 
 void DockMonitor::dropEvent(QDropEvent *)
 {
-    if (!::controller.loadHex(m_dropppedFile))
-        QMessageBox::critical(this, "Error", "Error loading " + m_dropppedFile);
+    QString hexPath = m_dropppedFile;
+    if (QFileInfo(m_dropppedFile).suffix().toLower() == "asm")
+    {
+        QString error;
+        if (!m_assembler.assemble(m_dropppedFile, hexPath, error))
+        {
+            qWarning().noquote() << "Assembly failed:" << error;
+            QMessageBox::critical(this, "Assembly error", error);
+            return;
+        }
+        qInfo().noquote() << "Assembled" << m_dropppedFile << "->" << hexPath;
+    }
+    if (!::controller.loadHex(hexPath))
+        QMessageBox::critical(this, "Error", "Error loading " + hexPath);
 }
