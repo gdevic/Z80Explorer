@@ -1,9 +1,23 @@
 This directory contains various test files.
 
 Assemble and generate Intel-HEX files by running:
-make_test <test-name.asm>
 
-Alternatively, you can simply drag and drop an ASM file onto make_test.bat
+  Windows:        make_test <test-name.asm>
+  macOS / Linux:  ./make_test.sh <test-name.asm>
+
+Alternatively, you can simply drag and drop an ASM file onto make_test.bat (Windows).
+
+The macOS / Linux script auto-detects the host OS and uses the matching zmac binary
+(zmac.macos or zmac.linux) sitting next to it. Build those binaries from the zmac source
+at http://48k.ca/zmac.html and place them in this directory.
+
+Build commands (single C source, no dependencies):
+
+  macOS (universal binary):  cc -O2 -arch arm64 -arch x86_64 zmac.c -o zmac.macos
+  macOS (host arch only):    cc -O2 zmac.c -o zmac.macos
+  Linux x86_64:              cc -O2 zmac.c -o zmac.linux
+
+Then mark them executable with: chmod +x zmac.macos zmac.linux
 
 Test files:
 

@@ -1,0 +1,3 @@
+# Keep shell scripts with LF line endings on every platform. Without this, the repo's core.autocrlf=true
+# would normalize *.sh files to CRLF on commit, breaking `#!/bin/sh` on macOS / Linux.
+*.sh text eol=lf

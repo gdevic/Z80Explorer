@@ -72,12 +72,6 @@ Register it with the Claude Code CLI once (stored in `~/.claude.json`, available
 
 List the available tools with `claude mcp list`, or run `/mcp` inside a Claude Code session to see the live connection state.
 
-## Compiling zmac assember on Linux
-
-If you are going to compile and run Z80 test programs, you need zmac assembler. Download it from here: http://48k.ca/zmac.html<br>
-I am not aware of a prebuilt binary for Linux, but it is fairly easy to build since the source is available at that site. You may also need:
-* sudo apt-get install bison
-
 ## Credits
 
 The transistor and segment definitions originate with the [Visual 6502 team's Z80 reverse-engineering project](http://www.visual6502.org/JSSim/expert-z80.html). This simulator builds on their netlist data with a Qt 6 UI, performance optimizations, scriptable controls, and an MCP surface. Test programs are assembled with [zmac](http://48k.ca/zmac.html).
