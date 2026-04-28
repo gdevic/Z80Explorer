@@ -5,6 +5,7 @@
 #include "DialogSchematic.h"
 #include "WidgetImageOverlay.h"
 #include "WidgetImageView.h"
+#include <cmath>
 #include <QDebug>
 #include <QFile>
 #include <QFileDialog>
@@ -660,11 +661,27 @@ void WidgetImageView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void WidgetImageView::wheelEvent(QWheelEvent *event)
 {
-    if (event->angleDelta().y() > 0)
-        m_scale = m_scale * 1.2;
+    // Two device classes send different event shapes and we need both to feel similar:
+    //   - Traditional notched mouse wheel (Windows): NoScrollPhase, one event per detent, exactly
+    //     one ±1.2x step per click. That's the original behaviour and we preserve it bit-for-bit.
+    //   - Phased / high-resolution scroll (macOS trackpad, Magic Mouse, free-spinning wheels): many
+    //     small-delta events per physical gesture plus inertial decay. Treating each event as a full
+    //     ±1.2x step caused runaway zoom on Mac (1.2^30 in one flick). Dividing the angle delta by
+    //     120 turns each event into a fractional step that accumulates to ~one detent per gesture.
+    if (event->phase() == Qt::NoScrollPhase)
+    {
+        if (event->angleDelta().y() > 0)
+            m_scale = m_scale * 1.2;
+        else
+            m_scale = m_scale / 1.2;
+    }
     else
-        m_scale = m_scale / 1.2;
+    {
+        const qreal steps = event->angleDelta().y() / 120.0;
+        m_scale *= std::pow(1.2, steps);
+    }
     setZoom(m_scale);
+    event->accept();
 }
 
 void WidgetImageView::leaveEvent(QEvent *)

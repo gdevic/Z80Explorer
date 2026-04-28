@@ -333,8 +333,23 @@ void DockWaveform::onScrollBarActionTriggered(int)
 void DockWaveform::wheelEvent(QWheelEvent *event)
 {
     bool ctrl = QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
-    if (ctrl)
+    if (!ctrl)
+        return;
+    // Same device-class split as the zoom paths: notched mouse wheel emits ±1 per detent;
+    // phased / high-resolution scroll (macOS trackpad, Magic Mouse) emits many small events,
+    // so quantise to whole detents via qRound and skip events whose accumulated delta rounds
+    // to zero. Otherwise a single Ctrl+flick on Mac would resize the rows by dozens of pixels.
+    if (event->phase() == Qt::NoScrollPhase)
+    {
         emit ui->scrollArea->enlarge(event->angleDelta().y() > 0 ? 1 : -1);
+    }
+    else
+    {
+        const int steps = qRound(event->angleDelta().y() / 120.0);
+        if (steps != 0)
+            emit ui->scrollArea->enlarge(steps);
+    }
+    event->accept();
 }
 
 /*

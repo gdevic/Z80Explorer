@@ -1,5 +1,6 @@
 #include "ClassController.h"
 #include "WidgetGraphicsView.h"
+#include <cmath>
 #include <QDebug>
 #include <QGraphicsSceneContextMenuEvent>
 #include <QGuiApplication>
@@ -17,12 +18,26 @@ WidgetGraphicsView::WidgetGraphicsView(QWidget *parent) : QGraphicsView(parent)
  */
 void WidgetGraphicsView::wheelEvent(QWheelEvent *event)
 {
-    if (event->angleDelta().y() > 0)
-        m_scale = m_scale * 1.1;
+    // Two device classes need to feel the same — see WidgetImageView::wheelEvent for the full
+    // explanation. Traditional notched mouse wheel (Windows): one event per detent, exactly one
+    // ±1.1x step. Phased / high-resolution scroll (macOS trackpad, Magic Mouse, smooth-scroll
+    // wheels): many small-delta events per gesture plus inertial decay; treat angleDelta as
+    // a fractional step so a flick adds up to roughly one detent of zoom.
+    if (event->phase() == Qt::NoScrollPhase)
+    {
+        if (event->angleDelta().y() > 0)
+            m_scale = m_scale * 1.1;
+        else
+            m_scale = m_scale / 1.1;
+    }
     else
-        m_scale = m_scale / 1.1;
+    {
+        const qreal steps = event->angleDelta().y() / 120.0;
+        m_scale *= std::pow(1.1, steps);
+    }
     m_scale = qBound(0.2, m_scale, 3.0);
     setTransform(QTransform::fromScale(m_scale, m_scale));
+    event->accept();
 }
 
 /*

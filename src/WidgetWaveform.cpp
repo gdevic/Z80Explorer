@@ -1,5 +1,6 @@
 #include "ClassController.h"
 #include "WidgetWaveform.h"
+#include <cmath>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QSettings>
@@ -442,12 +443,27 @@ qreal WidgetWaveform::setCursorsPos(uint index, uint pos)
 
 void WidgetWaveform::onZoom(bool isUp)
 {
-    if (isUp)
-        m_hscale *= 1.2;
-    else
-        m_hscale /= 1.2;
-    m_hscale = qBound(1.0, m_hscale, 100.0);
+    onZoomBy(isUp ? 1.2 : (1.0 / 1.2));
+}
+
+void WidgetWaveform::onZoomBy(qreal factor)
+{
+    m_hscale = qBound(1.0, m_hscale * factor, 100.0);
     updateGeometry();
+}
+
+void WidgetWaveform::wheelEvent(QWheelEvent *event)
+{
+    // Two device classes need to feel the same — see WidgetImageView::wheelEvent for the full
+    // explanation. Traditional notched mouse wheel (Windows): one event per detent, exactly one
+    // ±1.2x step. Phased / high-resolution scroll (macOS trackpad, Magic Mouse, smooth-scroll
+    // wheels): many small-delta events per gesture plus inertial decay; treat angleDelta as
+    // a fractional step so a flick adds up to roughly one detent of zoom.
+    if (event->phase() == Qt::NoScrollPhase)
+        onZoom(event->angleDelta().y() > 0);
+    else
+        onZoomBy(std::pow(1.2, event->angleDelta().y() / 120.0));
+    event->accept();
 }
 
 void WidgetWaveform::onEnlarge(int delta)

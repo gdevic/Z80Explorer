@@ -24,6 +24,7 @@ public slots:
     void onLinked(bool isLinked);       // Links and unlinks the first two cursors
     void onDecorated(bool isDecorated); // Toggles bus value decorations
     void onZoom(bool isUp);             // Zooms in and out by a predefined step
+    void onZoomBy(qreal factor);        // Zooms by an arbitrary multiplicative factor (for high-res wheels)
     void onEnlarge(int delta);          // Vertically enlarge the view
     void onRunStopped();                // Simulation run stopped
 
@@ -45,7 +46,7 @@ private:
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
     void mouseDoubleClickEvent(QMouseEvent *) override;
-    void wheelEvent(QWheelEvent *event) override { onZoom(event->angleDelta().y() > 0); }
+    void wheelEvent(QWheelEvent *event) override;
     void leaveEvent(QEvent *) override;
     QSize sizeHint() const override;
 
