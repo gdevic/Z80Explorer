@@ -232,23 +232,26 @@ if (WIN32)
     ]=])
 endif()
 
-add_custom_command(
-    OUTPUT installer/Z80ExplorerInstaller.exe
-    MAIN_DEPENDENCY "${CMAKE_INSTALL_PREFIX}/Z80Explorer.exe"
-    DEPENDS "installer/config.xml" "installer/z80explorer.package.xml"
-    COMMENT "Creating the installer"
-    COMMAND "C:/Qt/Tools/QtInstallerFramework/4.10/bin/binarycreator.exe"
-    ARGS
-        #--verbose
-        -c installer/config/config.xml
-        -p installer/packages
-        installer/Z80ExplorerInstaller.exe
-)
+set(BINARYCREATOR "C:/Qt/Tools/QtInstallerFramework/4.10/bin/binarycreator.exe")
+if(WIN32 AND EXISTS "${BINARYCREATOR}")
+    add_custom_command(
+        OUTPUT installer/Z80ExplorerInstaller.exe
+        MAIN_DEPENDENCY "${CMAKE_INSTALL_PREFIX}/Z80Explorer.exe"
+        DEPENDS "installer/config.xml" "installer/z80explorer.package.xml"
+        COMMENT "Creating the installer"
+        COMMAND "${BINARYCREATOR}"
+        ARGS
+            #--verbose
+            -c installer/config/config.xml
+            -p installer/packages
+            installer/Z80ExplorerInstaller.exe
+    )
 
-add_custom_target(installer
-    DEPENDS installer/Z80ExplorerInstaller.exe
-)
+    add_custom_target(installer
+        DEPENDS installer/Z80ExplorerInstaller.exe
+    )
 
-add_dependencies(installer install)
+    add_dependencies(installer install)
+endif()
 
 
