@@ -190,7 +190,9 @@ else()
     # concentions, no need to change that as our documentation files have unique names.
 endif()
 
-install(TARGETS Z80Explorer)
+install(TARGETS Z80Explorer
+    BUNDLE DESTINATION .
+)
 
 qt_generate_deploy_app_script(
     TARGET Z80Explorer
