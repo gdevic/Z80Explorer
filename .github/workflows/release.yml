@@ -40,13 +40,13 @@ jobs:
 
       - name: Install (deploy Qt libs)
         shell: cmd
-        run: cmake --install build --config Release --prefix dist-windows
+        run: cmake --install build --config Release --prefix ${{ github.workspace }}/dist-windows
 
       - name: Archive Windows build
         shell: cmd
         run: |
-          cd dist-windows
-          7z a ../Z80Explorer-windows-x64.zip .
+          cd ${{ github.workspace }}\dist-windows
+          7z a ${{ github.workspace }}\Z80Explorer-windows-x64.zip .
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -80,11 +80,11 @@ jobs:
         run: cmake --build build --config Release --parallel
 
       - name: Install (deploy Qt libs)
-        run: cmake --install build --config Release --prefix dist-macos
+        run: cmake --install build --config Release --prefix ${{ github.workspace }}/dist-macos
 
       - name: Create DMG
         run: |
-          APP=$(find dist-macos -name '*.app' | head -1)
+          APP=$(find ${{ github.workspace }}/dist-macos -name '*.app' | head -1)
           echo "Found app bundle: $APP"
           hdiutil create -volname Z80Explorer -srcfolder "$APP" \
             -ov -format UDZO Z80Explorer-macos.dmg
