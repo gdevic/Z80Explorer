@@ -182,6 +182,10 @@ if (WIN32)
         --no-system-dxc-compiler  # dxcompiler.dll dxil.dll
         --no-opengl-sw            # opengl32sw.dll
     )
+    set(DEPLOY_TOOL_OPTIONS
+        --skip-plugin-types bearer,iconengines,imageformats,platforminputcontexts,qmltooling,tls,networkinformation,generic
+        --no-translations
+    )
 elseif (APPLE)
     set(CMAKE_INSTALL_DOCDIR docs)
     set(INDEX_HTML DESTINATION .)
@@ -204,8 +208,7 @@ qt_generate_deploy_app_script(
     OUTPUT_SCRIPT deploy_script
     NO_UNSUPPORTED_PLATFORM_ERROR
     DEPLOY_TOOL_OPTIONS
-        --skip-plugin-types bearer,iconengines,imageformats,platforminputcontexts,qmltooling,tls,networkinformation,generic
-        --no-translations
+        ${DEPLOY_TOOL_OPTIONS}
         ${MORE_DEPLOY_TOOL_OPTIONS}
 )
 
