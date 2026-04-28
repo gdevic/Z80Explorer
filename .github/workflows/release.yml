@@ -27,6 +27,7 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2022_64'
+          modules: 'qthttpserver'
           cache: true
 
       - name: Configure (CMake)
@@ -69,6 +70,7 @@ jobs:
           host: 'mac'
           target: 'desktop'
           arch: 'clang_64'
+          modules: 'qthttpserver'
           cache: true
 
       - name: Configure (CMake)
