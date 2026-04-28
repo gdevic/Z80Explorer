@@ -1,0 +1,136 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.10)'
+        required: true
+        default: 'v1.10'
+
+jobs:
+  build-windows:
+    name: Build - Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.*'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          cache: true
+
+      - name: Configure (CMake)
+        shell: cmd
+        run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        shell: cmd
+        run: cmake --build build --config Release --parallel
+
+      - name: Install (deploy Qt libs)
+        shell: cmd
+        run: cmake --install build --config Release --prefix dist-windows
+
+      - name: Archive Windows build
+        shell: cmd
+        run: |
+          cd dist-windows
+          7z a ../Z80Explorer-windows-x64.zip .
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Z80Explorer-windows-x64
+          path: Z80Explorer-windows-x64.zip
+          retention-days: 5
+
+  build-macos:
+    name: Build - macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.*'
+          host: 'mac'
+          target: 'desktop'
+          arch: 'clang_64'
+          cache: true
+
+      - name: Configure (CMake)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Install (deploy Qt libs)
+        run: cmake --install build --config Release --prefix dist-macos
+
+      - name: Create DMG
+        run: |
+          APP=$(find dist-macos -name '*.app' | head -1)
+          echo "Found app bundle: $APP"
+          hdiutil create -volname Z80Explorer -srcfolder "$APP" \
+            -ov -format UDZO Z80Explorer-macos.dmg
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Z80Explorer-macos
+          path: Z80Explorer-macos.dmg
+          retention-days: 5
+
+  release:
+    name: Publish GitHub Release
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Z80Explorer-windows-x64
+          path: artifacts/
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Z80Explorer-macos
+          path: artifacts/
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Z80Explorer ${{ steps.tag.outputs.tag }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/Z80Explorer-windows-x64.zip
+            artifacts/Z80Explorer-macos.dmg
