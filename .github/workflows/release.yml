@@ -96,9 +96,54 @@ jobs:
           path: Z80Explorer-macos.dmg
           retention-days: 5
 
+  build-linux:
+    name: Build - Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-dev libxcb-xinerama0 libxcb-icccm4 libxcb-image0 \
+            libxcb-keysyms1 libxcb-render-util0 libxcb-shape0 libxcb-xkb1 \
+            libxkbcommon-x11-0 libdbus-1-3 libxcb-cursor0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.*'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'linux_gcc_64'
+          modules: 'qthttpserver qtwebsockets'
+          cache: true
+
+      - name: Configure (CMake)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Install (deploy Qt libs)
+        run: cmake --install build --config Release --prefix ${{ github.workspace }}/dist-linux
+
+      - name: Archive Linux build
+        run: tar -czf Z80Explorer-linux-x64.tar.gz -C ${{ github.workspace }}/dist-linux .
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Z80Explorer-linux-x64
+          path: Z80Explorer-linux-x64.tar.gz
+          retention-days: 5
+
   release:
     name: Publish GitHub Release
-    needs: [build-windows, build-macos]
+    needs: [build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -114,6 +159,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Z80Explorer-macos
+          path: artifacts/
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Z80Explorer-linux-x64
           path: artifacts/
 
       - name: Determine release tag
@@ -136,3 +187,4 @@ jobs:
           files: |
             artifacts/Z80Explorer-windows-x64.zip
             artifacts/Z80Explorer-macos.dmg
+            artifacts/Z80Explorer-linux-x64.tar.gz
