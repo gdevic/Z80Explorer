@@ -581,8 +581,100 @@
             "net": 816
         },
         {
+            "name": "bus_551",
+            "net": 551
+        },
+        {
+            "name": "bus_575",
+            "net": 575
+        },
+        {
+            "name": "bus_650",
+            "net": 650
+        },
+        {
+            "name": "bus_795",
+            "net": 795
+        },
+        {
+            "name": "cell_f0",
+            "net": 1854
+        },
+        {
+            "name": "cf_isolate_n",
+            "net": 711
+        },
+        {
+            "name": "cf_master_n",
+            "net": 2011
+        },
+        {
+            "name": "cf_pass_gate",
+            "net": 766
+        },
+        {
+            "name": "cf_release",
+            "net": 697
+        },
+        {
+            "name": "cf_sel_1763",
+            "net": 1763
+        },
+        {
+            "name": "cf_sel_1794",
+            "net": 1794
+        },
+        {
+            "name": "cf_sel_1930",
+            "net": 1930
+        },
+        {
+            "name": "cf_sel_736",
+            "net": 736
+        },
+        {
+            "name": "cf_set_n",
+            "net": 682
+        },
+        {
+            "name": "cf_src_1943",
+            "net": 1943
+        },
+        {
+            "name": "cf_src_727",
+            "net": 727
+        },
+        {
+            "name": "cf_src_765",
+            "net": 765
+        },
+        {
+            "name": "clear_cf_path",
+            "net": 2066
+        },
+        {
             "name": "clk",
             "net": 3
+        },
+        {
+            "name": "clr_hf_path",
+            "net": 2062
+        },
+        {
+            "name": "clr_nf_path",
+            "net": 823
+        },
+        {
+            "name": "clr_pv_path",
+            "net": 829
+        },
+        {
+            "name": "clr_sf_path",
+            "net": 2063
+        },
+        {
+            "name": "clr_zf_path",
+            "net": 2061
         },
         {
             "name": "ctl_edx",
@@ -841,6 +933,50 @@
             "net": 754
         },
         {
+            "name": "force_ubus0_hi",
+            "net": 1838
+        },
+        {
+            "name": "force_ubus0_lo",
+            "net": 1855
+        },
+        {
+            "name": "hf_carrier_1858",
+            "net": 1858
+        },
+        {
+            "name": "hf_inA",
+            "net": 767
+        },
+        {
+            "name": "hf_inB",
+            "net": 827
+        },
+        {
+            "name": "hf_mid",
+            "net": 683
+        },
+        {
+            "name": "hf_slaveA",
+            "net": 1811
+        },
+        {
+            "name": "hf_slaveB",
+            "net": 699
+        },
+        {
+            "name": "iff1",
+            "net": 1210
+        },
+        {
+            "name": "iff2",
+            "net": 1239
+        },
+        {
+            "name": "IM",
+            "net": 0
+        },
+        {
             "name": "imfa",
             "net": 1215
         },
@@ -889,6 +1025,10 @@
             "net": 95
         },
         {
+            "name": "ixy_d_phase",
+            "net": 210
+        },
+        {
             "name": "last_m",
             "net": 101
         },
@@ -917,6 +1057,10 @@
             "net": 0
         },
         {
+            "name": "m_cycle_start",
+            "net": 122
+        },
+        {
             "name": "m1",
             "net": 155
         },
@@ -935,6 +1079,82 @@
         {
             "name": "m5",
             "net": 209
+        },
+        {
+            "name": "n_carrier_1789",
+            "net": 1789
+        },
+        {
+            "name": "n1942",
+            "net": 1942
+        },
+        {
+            "name": "n3352",
+            "net": 3352
+        },
+        {
+            "name": "n3405",
+            "net": 3405
+        },
+        {
+            "name": "n3406",
+            "net": 3406
+        },
+        {
+            "name": "n3410",
+            "net": 3410
+        },
+        {
+            "name": "n3414",
+            "net": 3414
+        },
+        {
+            "name": "n726",
+            "net": 726
+        },
+        {
+            "name": "n794",
+            "net": 794
+        },
+        {
+            "name": "nmi_accept_q",
+            "net": 1171
+        },
+        {
+            "name": "nmi_accept_qbar",
+            "net": 148
+        },
+        {
+            "name": "nmi_ack",
+            "net": 135
+        },
+        {
+            "name": "nmi_asserted",
+            "net": 59
+        },
+        {
+            "name": "nmi_d",
+            "net": 116
+        },
+        {
+            "name": "nmi_in",
+            "net": 60
+        },
+        {
+            "name": "nmi_in_n",
+            "net": 52
+        },
+        {
+            "name": "nmi_pending_q",
+            "net": 68
+        },
+        {
+            "name": "nmi_pending_qbar",
+            "net": 56
+        },
+        {
+            "name": "nmi_q1",
+            "net": 1101
         },
         {
             "name": "pcbit0",
@@ -1003,6 +1223,10 @@
         {
             "name": "PCBUS",
             "net": 0
+        },
+        {
+            "name": "pla_ab",
+            "net": 192
         },
         {
             "name": "pla_cb",
@@ -1473,6 +1697,18 @@
             "net": 3049
         },
         {
+            "name": "pv_carrier_647",
+            "net": 647
+        },
+        {
+            "name": "px10n",
+            "net": 1355
+        },
+        {
+            "name": "px1325",
+            "net": 1325
+        },
+        {
             "name": "px1399",
             "net": 1399
         },
@@ -1485,56 +1721,36 @@
             "net": 1429
         },
         {
+            "name": "px1429n",
+            "net": 1488
+        },
+        {
             "name": "px1444",
             "net": 1444
         },
         {
-            "name": "px1447",
-            "net": 1447
+            "name": "px1444n",
+            "net": 391
         },
         {
-            "name": "px1456",
-            "net": 1456
+            "name": "px1454",
+            "net": 1454
         },
         {
-            "name": "px1457",
-            "net": 1457
-        },
-        {
-            "name": "px1459",
-            "net": 1459
-        },
-        {
-            "name": "px1461",
-            "net": 1461
-        },
-        {
-            "name": "px1463",
-            "net": 1463
-        },
-        {
-            "name": "px1464",
-            "net": 1464
+            "name": "px1454n",
+            "net": 463
         },
         {
             "name": "px1467",
             "net": 1467
         },
         {
-            "name": "px1483",
-            "net": 1483
+            "name": "px1467n",
+            "net": 1497
         },
         {
-            "name": "px1486",
-            "net": 1486
-        },
-        {
-            "name": "px1488",
-            "net": 1488
-        },
-        {
-            "name": "px1489",
-            "net": 1489
+            "name": "px1474",
+            "net": 1474
         },
         {
             "name": "px1490",
@@ -1549,8 +1765,12 @@
             "net": 202
         },
         {
-            "name": "px213",
-            "net": 213
+            "name": "px202bn",
+            "net": 1464
+        },
+        {
+            "name": "px202n",
+            "net": 203
         },
         {
             "name": "px232",
@@ -1559,6 +1779,10 @@
         {
             "name": "px238",
             "net": 238
+        },
+        {
+            "name": "px238n",
+            "net": 160
         },
         {
             "name": "px239",
@@ -1577,6 +1801,14 @@
             "net": 251
         },
         {
+            "name": "px253",
+            "net": 253
+        },
+        {
+            "name": "px253n",
+            "net": 217
+        },
+        {
             "name": "px3039",
             "net": 3039
         },
@@ -1593,12 +1825,12 @@
             "net": 377
         },
         {
-            "name": "px387",
-            "net": 387
+            "name": "px377n",
+            "net": 213
         },
         {
-            "name": "px391",
-            "net": 391
+            "name": "px387",
+            "net": 387
         },
         {
             "name": "px395",
@@ -1621,8 +1853,16 @@
             "net": 403
         },
         {
+            "name": "px403n",
+            "net": 1456
+        },
+        {
             "name": "px404",
             "net": 404
+        },
+        {
+            "name": "px404n",
+            "net": 1485
         },
         {
             "name": "px405",
@@ -1631,6 +1871,10 @@
         {
             "name": "px409",
             "net": 409
+        },
+        {
+            "name": "px409n",
+            "net": 1457
         },
         {
             "name": "px411",
@@ -1645,12 +1889,20 @@
             "net": 415
         },
         {
+            "name": "px415n",
+            "net": 1486
+        },
+        {
             "name": "px416",
             "net": 416
         },
         {
             "name": "px417",
             "net": 417
+        },
+        {
+            "name": "px417n",
+            "net": 1463
         },
         {
             "name": "px420",
@@ -1661,12 +1913,24 @@
             "net": 421
         },
         {
+            "name": "px421n",
+            "net": 1461
+        },
+        {
             "name": "px422",
             "net": 422
         },
         {
+            "name": "px422n",
+            "net": 401
+        },
+        {
             "name": "px423",
             "net": 423
+        },
+        {
+            "name": "px423n",
+            "net": 1459
         },
         {
             "name": "px424",
@@ -1677,6 +1941,10 @@
             "net": 425
         },
         {
+            "name": "px425n",
+            "net": 1473
+        },
+        {
             "name": "px426",
             "net": 426
         },
@@ -1685,8 +1953,16 @@
             "net": 427
         },
         {
+            "name": "px427n",
+            "net": 468
+        },
+        {
             "name": "px428",
             "net": 428
+        },
+        {
+            "name": "px428n",
+            "net": 1447
         },
         {
             "name": "px429",
@@ -1697,6 +1973,10 @@
             "net": 430
         },
         {
+            "name": "px430n",
+            "net": 459
+        },
+        {
             "name": "px431",
             "net": 431
         },
@@ -1705,12 +1985,24 @@
             "net": 432
         },
         {
+            "name": "px432n",
+            "net": 262
+        },
+        {
             "name": "px433",
             "net": 433
         },
         {
+            "name": "px433n",
+            "net": 455
+        },
+        {
             "name": "px435",
             "net": 435
+        },
+        {
+            "name": "px435n",
+            "net": 1489
         },
         {
             "name": "px437",
@@ -1733,6 +2025,10 @@
             "net": 442
         },
         {
+            "name": "px442n",
+            "net": 464
+        },
+        {
             "name": "px443",
             "net": 443
         },
@@ -1741,8 +2037,16 @@
             "net": 444
         },
         {
+            "name": "px444n",
+            "net": 1483
+        },
+        {
             "name": "px445",
             "net": 445
+        },
+        {
+            "name": "px445n",
+            "net": 478
         },
         {
             "name": "px446",
@@ -1753,32 +2057,40 @@
             "net": 448
         },
         {
-            "name": "px455",
-            "net": 455
-        },
-        {
-            "name": "px459",
-            "net": 459
-        },
-        {
-            "name": "px464",
-            "net": 464
-        },
-        {
             "name": "px467",
             "net": 467
         },
         {
-            "name": "px468",
-            "net": 468
+            "name": "px467n",
+            "net": 1421
         },
         {
             "name": "px470",
             "net": 470
         },
         {
-            "name": "px478",
-            "net": 478
+            "name": "px61n",
+            "net": 1424
+        },
+        {
+            "name": "px62n",
+            "net": 1623
+        },
+        {
+            "name": "px63n",
+            "net": 156
+        },
+        {
+            "name": "px63nn",
+            "net": 164
+        },
+        {
+            "name": "px77n",
+            "net": 1496
+        },
+        {
+            "name": "px95n",
+            "net": 1099
         },
         {
             "name": "r_p",
@@ -2953,8 +3265,32 @@
             "net": 678
         },
         {
+            "name": "set_cf_path",
+            "net": 764
+        },
+        {
+            "name": "set_nf_path",
+            "net": 757
+        },
+        {
+            "name": "set_pv_path",
+            "net": 686
+        },
+        {
+            "name": "set_sf_path",
+            "net": 768
+        },
+        {
             "name": "set_t1",
             "net": 162
+        },
+        {
+            "name": "set_zf_path",
+            "net": 515
+        },
+        {
+            "name": "sf_carrier_729",
+            "net": 729
         },
         {
             "name": "T",
@@ -3069,20 +3405,40 @@
             "net": 1
         },
         {
+            "name": "work_cf_n",
+            "net": 1809
+        },
+        {
+            "name": "work_hf_n",
+            "net": 1864
+        },
+        {
             "name": "wr_ab",
             "net": 393
         },
         {
-            "name": "px1474",
-            "net": 1474
+            "name": "wsrc0_inv_pre",
+            "net": 3412
         },
         {
-            "name": "px401",
-            "net": 401
+            "name": "x_force_hi_2010",
+            "net": 2010
         },
         {
-            "name": "nmi_ack",
-            "net": 135
+            "name": "x_force_lo_1987",
+            "net": 1987
+        },
+        {
+            "name": "y_force_hi_2108",
+            "net": 2108
+        },
+        {
+            "name": "y_force_lo_2083",
+            "net": 2083
+        },
+        {
+            "name": "zf_carrier_737",
+            "net": 737
         }
     ]
 }

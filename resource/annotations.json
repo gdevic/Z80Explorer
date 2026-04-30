@@ -647,6 +647,66 @@
             "text": "AF'",
             "x": 2249,
             "y": 3190
+        },
+        {
+            "bar": false,
+            "pix": 95,
+            "rect": true,
+            "rh": 197,
+            "rw": 1236,
+            "rx": 2948,
+            "ry": 3465,
+            "text": "UBUS",
+            "x": 3389,
+            "y": 3476
+        },
+        {
+            "bar": false,
+            "pix": 95,
+            "rect": true,
+            "rh": 868,
+            "rw": 213,
+            "rx": 2704,
+            "ry": 3609,
+            "text": "VBUS",
+            "x": 2704,
+            "y": 3995
+        },
+        {
+            "bar": false,
+            "pix": 94,
+            "rect": true,
+            "rh": 1686,
+            "rw": 211,
+            "rx": 4240,
+            "ry": 1197,
+            "text": "DBUS",
+            "x": 4240,
+            "y": 1992
+        },
+        {
+            "bar": false,
+            "pix": 78,
+            "rect": true,
+            "rh": 1160,
+            "rw": 397,
+            "rx": 684,
+            "ry": 3214,
+            "text": "AINCDEC",
+            "x": 759,
+            "y": 3742
+        },
+        {
+            "bar": false,
+            "pix": 84,
+            "rect": false,
+            "rh": 163,
+            "rw": 281,
+            "rx": 3287,
+            "ry": 3707,
+            "text": "<p style=\"color: yellow;\">ALUBUS",
+            "x": 3287,
+            "y": 3746
         }
     ]
 }

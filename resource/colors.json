@@ -2,7 +2,7 @@
     "colors": [
         {
             "color": "192,192,192,255",
-            "enabled": true,
+            "enabled": false,
             "expr": "clk",
             "method": 0
         },
@@ -56,13 +56,13 @@
         },
         {
             "color": "100,0,100,255",
-            "enabled": true,
+            "enabled": false,
             "expr": "0",
             "method": 3
         },
         {
             "color": "145,0,0,255",
-            "enabled": true,
+            "enabled": false,
             "expr": "2",
             "method": 3
         },
@@ -74,9 +74,21 @@
         },
         {
             "color": "0,255,0,255",
-            "enabled": true,
+            "enabled": false,
             "expr": "^pla([0-9]|[0-9][0-9])",
             "method": 2
+        },
+        {
+            "color": "255,255,0,255",
+            "enabled": false,
+            "expr": "ALUBUS",
+            "method": 1
+        },
+        {
+            "color": "85,255,0,255",
+            "enabled": true,
+            "expr": "pla",
+            "method": 1
         }
     ]
 }
