@@ -39,6 +39,9 @@ zout
 # cmake generated files
 CMakeLists.txt.user*
 
+# local-only project notes (see CLAUDE.md "Local notes directory")
+CLAUDE.md
+
 # qtcreator generated build folder
 /build
 
