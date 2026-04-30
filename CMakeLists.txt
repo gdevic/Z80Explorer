@@ -114,9 +114,6 @@ qt_add_executable(Z80Explorer
     src/WidgetEditColor.ui
     src/WidgetImageOverlay.ui
     src/WidgetToolbar.ui
-	
-    installer/config.xml
-    installer/z80explorer.package.xml
 
     resource/init.js
 
@@ -168,8 +165,11 @@ if (WIN32)
         src/ClassSimZ80_AVX2.cpp
         src/ClassSimZ80_AVX2.h
     )
-    set(CMAKE_INSTALL_PREFIX
-        "${CMAKE_CURRENT_BINARY_DIR}/installer/packages/com.baltazarstudios.z80explorer/data"
+endif()
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set_property(CACHE
+        CMAKE_INSTALL_PREFIX PROPERTY VALUE "${CMAKE_CURRENT_BINARY_DIR}/installation"
     )
 endif()
 
@@ -235,35 +235,8 @@ install(DIRECTORY
 
 if (WIN32)
     install(FILES cleanup.reg TYPE DATA)
-    install(FILES installer/config.xml DESTINATION ../../../config)
-    install(FILES installer/z80explorer.package.xml DESTINATION ../meta RENAME package.xml)
-    install(FILES LICENSE DESTINATION ../meta)
     install(CODE [=[
         file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}/qml")
         file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}/bin")
     ]=])
 endif()
-
-set(BINARYCREATOR "C:/Qt/Tools/QtInstallerFramework/4.10/bin/binarycreator.exe")
-if(WIN32 AND EXISTS "${BINARYCREATOR}")
-    add_custom_command(
-        OUTPUT installer/Z80ExplorerInstaller.exe
-        MAIN_DEPENDENCY "${CMAKE_INSTALL_PREFIX}/Z80Explorer.exe"
-        DEPENDS "installer/config.xml" "installer/z80explorer.package.xml"
-        COMMENT "Creating the installer"
-        COMMAND "${BINARYCREATOR}"
-        ARGS
-            #--verbose
-            -c installer/config/config.xml
-            -p installer/packages
-            installer/Z80ExplorerInstaller.exe
-    )
-
-    add_custom_target(installer
-        DEPENDS installer/Z80ExplorerInstaller.exe
-    )
-
-    add_dependencies(installer install)
-endif()
-
-
