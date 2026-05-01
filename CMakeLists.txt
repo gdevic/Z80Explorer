@@ -76,7 +76,7 @@ if (DEFINED INDEX_HTML)
     install(FILES index.html ${INDEX_HTML})
 endif()
 
-install(DIRECTORY resource TYPE DATA PATTERN "layermap.bin" EXCLUDE)
+install(DIRECTORY resource USE_SOURCE_PERMISSIONS TYPE DATA PATTERN "layermap.bin" EXCLUDE)
 
 if (WIN32)
     install(FILES cleanup.reg TYPE DATA)
