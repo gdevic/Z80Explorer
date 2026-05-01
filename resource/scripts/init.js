@@ -107,7 +107,7 @@ function help()
     print("n(net|\"name\")      - Shows a net state by net number or net \"name\"");
     print("eq(net|\"name\")     - Computes and shows the logic equation that drives a given net");
     print("print(\"msg\")       - Prints a string message");
-    print("relatch()          - Reloads all custom latches from 'latches.ini' file");
+    print("relatch()          - Reloads all custom latches from 'user/latches.ini' file");
     print("save()             - Saves all changes to all custom and config files");
     print("exec(\"path\",\"args\")- Runs external executable");
     print("-- Object 'monitor' methods:");
@@ -144,5 +144,5 @@ function help()
 // Load "Hello, World" program into the simulated memory
 
 print("Loading 'Hello, World' Z80 program\n");
-loadHex("hello_world.hex");
+loadHex("tests/hello_world.hex");
 print("Read the Online Manual, type help() or run(0) to start...");

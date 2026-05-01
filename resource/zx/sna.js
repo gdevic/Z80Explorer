@@ -2,18 +2,18 @@
 // If you have the FUSE emulator, save a game in the SNA format and then load it into the sim.
 //
 // To use, type the following command in the the Command window:
-//    load("sna.js")
+//    load("zx/sna.js")
 //
 // After it has been loaded once, you can simply invoke the script function from the Command window
-// with another SNA file:
-//    ZXSpectrumSNA("cookie.sna")
+// with another SNA file (path is relative to the resource directory):
+//    ZXSpectrumSNA("zx/cookie.sna")
 //
 function ZXSpectrumSNA(filename)
 {
     reset();
-    if (mon.loadBin("48.rom", 0))
+    if (mon.loadBin("zx/48.rom", 0))
     {
-        if (mon.patchHex("sna_patch.hex"))
+        if (mon.patchHex("zx/sna_patch.hex"))
         {
             if (mon.loadBin(filename, 16384-27))
             {
@@ -40,4 +40,4 @@ function ZXSpectrumSNA(filename)
     }
 }
 
-ZXSpectrumSNA("mm.sna");
+ZXSpectrumSNA("zx/mm.sna");

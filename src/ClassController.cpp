@@ -38,36 +38,57 @@ bool ClassController::init(QJSEngine *sc)
 
 #if HAVE_PREBUILT_LAYERMAP
     // Check if the current resource path contains required resource(s)
-    qInfo() << "Checking for resource/layermap.bin";
-    while (!QFile::exists(resDir + "/layermap.bin") && !QFile::exists(resDir + "/layermap.qz"))
+    qInfo() << "Checking for resource/chip/layermap.bin";
+    while (!QFile::exists(resDir + "/chip/layermap.bin") && !QFile::exists(resDir + "/chip/layermap.qz"))
     {
-        // Prompts the user to select the chip resource folder
+        // Prompts the user to select the chip resource folder. The picker accepts the layermap file inside
+        // resource/chip/; the chosen file's grandparent is taken as the resource root.
         QString fileName = QFileDialog::getOpenFileName(nullptr,
-        "Select the application resource folder with layermap.bin or layermap.qz file", "layermap.*", "Any file (*.*)");
+        "Select chip/layermap.bin or chip/layermap.qz inside the application resource folder", "layermap.*", "Any file (*.*)");
         if (!fileName.isEmpty())
-            resDir = QFileInfo(fileName).path();
+            resDir = QFileInfo(QFileInfo(fileName).path()).path();
         else
             return false;
     }
-    if (!QFile::exists(resDir + "/layermap.bin"))
+    if (!QFile::exists(resDir + "/chip/layermap.bin"))
     {
         // Attempt to uncompress it proceeding to load it
-        if (!::controller.uncompressFile(resDir + "/layermap.qz", resDir + "/layermap.bin"))
+        if (!::controller.uncompressFile(resDir + "/chip/layermap.qz", resDir + "/chip/layermap.bin"))
             return false;
     }
     settings.setValue("ResourceDir", resDir);
 #endif
     QDir::setCurrent(resDir);
 
+    // QSettings migration: stale absolute paths from before the resource/ subfolder split. If the stored
+    // value still points at the old default-shaped location and no file is there, but the matching file
+    // does exist under the new user/ subfolder, rewrite the entry. Leave non-default paths alone (the
+    // user explicitly customised them).
+    auto migrateUserKey = [&settings, &resDir](const QString &key, const QString &basename)
+    {
+        QString stored = settings.value(key).toString();
+        if (stored.isEmpty()) return;
+        QString oldDefault = resDir + "/" + basename;
+        QString newDefault = resDir + "/user/" + basename;
+        if ((stored == oldDefault) && !QFile::exists(stored) && QFile::exists(newDefault))
+            settings.setValue(key, newDefault);
+    };
+    migrateUserKey("colorsFile", "colors.json");
+    for (const QString &key : settings.allKeys())
+    {
+        if (key.startsWith("waveform-"))
+            migrateUserKey(key, key + ".json");
+    }
+
     // Load tips before netnames.js so that custom-net comments in netnames.js
     // can augment or override entries already present in tips.json
-    m_tips.load(resDir + "/tips.json");
+    m_tips.load(resDir + "/user/tips.json");
 
     // Pick the colors file: persisted choice from the previous session if it
     // still exists, otherwise the bundled default in the resource directory.
     QString colorsFile = settings.value("colorsFile").toString();
     if (colorsFile.isEmpty() || !QFile::exists(colorsFile))
-        colorsFile = resDir + "/colors.json";
+        colorsFile = resDir + "/user/colors.json";
 
     // Initialize all global classes using the given path to resource
     if (!m_simz80.loadResources(resDir) || !m_colors.load(colorsFile) || !m_chip.loadChipResources(resDir) || !m_simz80.initChip())
@@ -86,10 +107,10 @@ bool ClassController::init(QJSEngine *sc)
     qInfo() << "AVX2 optimized simulator initialized successfully";
 #endif
 
-    m_watch.load(resDir + "/watchlist.json");
+    m_watch.load(resDir + "/user/watchlist.json");
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
-    m_annotate.load(resDir + "/annotations.json");
+    m_annotate.load(resDir + "/user/annotations.json");
 
     // Initialize the schematic generation properties
     DialogEditSchematic::init();
@@ -99,7 +120,7 @@ bool ClassController::init(QJSEngine *sc)
     applyServerSettings();
 
     // Execute init.js initialization script
-    QTimer::singleShot(1000, [=]() { m_script.exec(R"(load("init.js"))"); });
+    QTimer::singleShot(1000, [=]() { m_script.exec(R"(load("scripts/init.js"))"); });
 
     return true;
 }

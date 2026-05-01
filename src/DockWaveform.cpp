@@ -88,7 +88,7 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent), 
 
     // Load default viewlist for this window id
     QString resDir = settings.value("ResourceDir").toString();
-    m_fileViewlist = settings.value("waveform-" + sid, resDir + "/waveform-" + sid + ".json").toString();
+    m_fileViewlist = settings.value("waveform-" + sid, resDir + "/user/waveform-" + sid + ".json").toString();
     load(m_fileViewlist, false);
 
     rebuildList();

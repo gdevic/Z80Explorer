@@ -48,6 +48,9 @@ CLAUDE.md
 # installation folder
 /installation
 
+# release.bat output folder
+/release
+
 # xemacs temporary files
 *.flc
 

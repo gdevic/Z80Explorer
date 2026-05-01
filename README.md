@@ -28,7 +28,7 @@ The annotated overview is on Vimeo: https://vimeo.com/439468449
 
 ## Quick start
 
-Launch the app, drag-and-drop `resource/tests/hello_world.hex` onto the main window (or run `loadHex("hello_world.hex")` in the *Command* dock), then `reset()` followed by `run(0)`. The waveform dock shows live signal traces; clicking any feature on the die identifies its net and current logic state.
+Launch the app, drag-and-drop `resource/tests/hello_world.hex` onto the main window (or run `loadHex("tests/hello_world.hex")` in the *Command* dock), then `reset()` followed by `run(0)`. The waveform dock shows live signal traces; clicking any feature on the die identifies its net and current logic state.
 
 Read the [User's Guide](https://gdevic.github.io/Z80Explorer).<br>
 
@@ -56,7 +56,7 @@ Requires Qt 6.9+ and a C++17 compiler. Either build system works: `Z80Explorer.p
 
 ## Running test programs
 
-Pre-assembled HEX files live in `resource/tests/`. Drag any of them onto the running app, or load via JS: `loadHex("zexall.hex"); reset(); run(0)`. 
+Pre-assembled HEX files live in `resource/tests/`. Drag any of them onto the running app, or load via JS: `loadHex("tests/zexall.hex"); reset(); run(0)`. 
 
 ## MCP server (drive the simulator from Claude Code)
 

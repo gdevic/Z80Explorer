@@ -5,7 +5,7 @@
 //
 function ZXSpectrum()
 {
-   if (mon.loadBin("48.rom", 0))
+   if (mon.loadBin("zx/48.rom", 0))
    {
       mon.rom = 16384;
       mon.enabled = 0;

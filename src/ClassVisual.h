@@ -131,8 +131,8 @@ private:
     void redrawNetsColorize(QString source, QString dest);
     bool loadLatches();                 // Helper to load custom latch definitions
     void detectPullups(const QVector<QPainterPath> &paths); // Classifies unmatched transistor regions as pull-ups
-    bool savePullups();                 // Persists m_pullups to resource/pullups.json
-    bool loadPullups();                 // Loads pull-ups from resource/pullups.json
+    bool savePullups();                 // Persists m_pullups to resource/user/pullups.json
+    bool loadPullups();                 // Loads pull-ups from resource/user/pullups.json
     bool scanForTransistor(uchar const *p, QRect t, uint &x, uint &y);
     void edgeWalk(uchar const *p, QPainterPath &path, uint x, uint y);
     uint edgeWalkFindDir(uchar const *p, uint x, uint y, uint startDir);

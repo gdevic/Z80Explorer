@@ -92,9 +92,9 @@ bool ClassSimZ80_AVX2::loadResources(const QString dir)
 {
     qInfo() << "Loading AVX2-optimized netlist resources from" << dir;
 
-    if (loadNetNames(dir + "/nodenames.js", false))
+    if (loadNetNames(dir + "/chip/nodenames.js", false))
     {
-        loadNetNames(dir + "/netnames.js", true);
+        loadNetNames(dir + "/chip/netnames.js", true);
 
         ngnd = get("vss");
         npwr = get("vcc");
@@ -271,7 +271,7 @@ void ClassSimZ80_AVX2::eventNetName(Netop op, const QString name, const net_t ne
 
 bool ClassSimZ80_AVX2::loadTransdefs(const QString dir)
 {
-    QString transdefs_file = dir + "/transdefs.js";
+    QString transdefs_file = dir + "/chip/transdefs.js";
     qInfo() << "Loading" << transdefs_file;
     QFile file(transdefs_file);
 
@@ -394,7 +394,7 @@ bool ClassSimZ80_AVX2::loadTransdefs(const QString dir)
 
 bool ClassSimZ80_AVX2::loadPullups(const QString dir)
 {
-    QString segdefs_file = dir + "/segdefs.js";
+    QString segdefs_file = dir + "/chip/segdefs.js";
     qInfo() << "Loading" << segdefs_file;
     QFile file(segdefs_file);
     if (file.open(QFile::ReadOnly | QFile::Text))

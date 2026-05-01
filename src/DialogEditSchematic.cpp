@@ -26,7 +26,7 @@ DialogEditSchematic::DialogEditSchematic(QWidget *parent)
     // Clicking on the Reload button reloads the list of terminating nodes from the ini file
     connect(ui->btReload, &QPushButton::clicked, this, [=]()
     {
-        if (load("schem.ini", termNodes))
+        if (load("user/schem.ini", termNodes))
             ui->editTermNodes->setPlainText(termNodes);
     });
 }
@@ -65,7 +65,7 @@ void DialogEditSchematic::init()
         settings.setValue("schematicOptSingleInput", true);
 
     // Load the list of terminating nodes but apply it only if the settings does not have it
-    load("schem.ini", termNodes);
+    load("user/schem.ini", termNodes);
 
     if (!settings.contains("schematicTermNodes"))
         settings.setValue("schematicTermNodes", termNodes);

@@ -24,16 +24,16 @@ bool ClassNetlist::saveCustomNames()
 {
     QSettings settings;
     QString resDir = settings.value("ResourceDir").toString();
-    return saveNetNames(resDir + "/netnames.js");
+    return saveNetNames(resDir + "/chip/netnames.js");
 }
 
 bool ClassNetlist::loadResources(const QString dir)
 {
     qInfo() << "Loading netlist resources from" << dir;
-    if (loadNetNames(dir + "/nodenames.js", false))
+    if (loadNetNames(dir + "/chip/nodenames.js", false))
     {
         // Load (optional) custom net names file
-        loadNetNames(dir + "/netnames.js", true);
+        loadNetNames(dir + "/chip/netnames.js", true);
 
         // Check for net names / net numbers consistency
         int strings = 0;
@@ -214,7 +214,7 @@ bool ClassNetlist::loadNetNames(const QString fileName, bool loadCustom)
  */
 bool ClassNetlist::loadTransdefs(const QString dir)
 {
-    QString transdefs_file = dir + "/transdefs.js";
+    QString transdefs_file = dir + "/chip/transdefs.js";
     qInfo() << "Loading" << transdefs_file;
     QFile file(transdefs_file);
     net_t max = 0;
@@ -308,7 +308,7 @@ bool ClassNetlist::loadTransdefs(const QString dir)
  */
 bool ClassNetlist::loadPullups(const QString dir)
 {
-    QString segdefs_file = dir + "/segdefs.js";
+    QString segdefs_file = dir + "/chip/segdefs.js";
     qInfo() << "Loading" << segdefs_file;
     QFile file(segdefs_file);
     if (file.open(QFile::ReadOnly | QFile::Text))
