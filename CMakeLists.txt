@@ -50,11 +50,10 @@ elseif (APPLE)
     set(CMAKE_INSTALL_DOCDIR  Z80Explorer.app/Contents/Resources/docs)
     set(INDEX_HTML DESTINATION Z80Explorer.app/Contents/Resources)
 else()
-    # Linux: flat portable bundle. The user is expected to extract the tarball and run the binary
-    # from the bundle root, so resource/ must sit next to the executable. Qt libs still go under lib/
-    # (CMAKE_INSTALL_LIBDIR default); qt_generate_deploy_app_script computes the right RPATH.
-    set(CMAKE_INSTALL_BINDIR .)
-    set(CMAKE_INSTALL_DATADIR .)
+    # Linux: portable bundle. Keep the conventional bin/+lib/ pair (Qt's deploy script bakes
+    # $ORIGIN/../lib into the RPATH and writes bin/qt.conf assuming this layout — flattening BINDIR
+    # breaks both). Place resource/ next to the binary so applicationDirPath()/resource resolves.
+    set(CMAKE_INSTALL_DATADIR bin)
     set(CMAKE_INSTALL_DOCDIR docs)
 endif()
 
