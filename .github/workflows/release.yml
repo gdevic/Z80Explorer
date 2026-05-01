@@ -131,7 +131,9 @@ jobs:
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --config Release --parallel
+        # Cap parallelism: bare `--parallel` maps to `make -j` with no limit on Make generators,
+        # which can OOM on the ~7 GB Ubuntu runner during AUTOMOC's mocs_compilation_Release.cpp.
+        run: cmake --build build --config Release --parallel 2
 
       - name: Install (deploy Qt libs)
         run: cmake --install build --config Release --prefix ${{ github.workspace }}/dist-linux
