@@ -34,7 +34,15 @@ bool ClassController::init(QJSEngine *sc)
     connect(this, &ClassController::shutdown, &m_watch, &ClassWatch::onShutdown);
 
     QSettings settings;
-    QString resDir = settings.value("ResourceDir", QDir::currentPath() + "/resource").toString();
+    // Anchor the default resource directory on the executable's location, not the user's cwd. On macOS
+    // applicationDirPath() is .../Z80Explorer.app/Contents/MacOS, so step up to the bundle's Resources
+    // dir; on Windows and Linux the binary and the resource folder live side by side at the install root.
+#ifdef Q_OS_MACOS
+    QString defaultResDir = QCoreApplication::applicationDirPath() + "/../Resources/resource";
+#else
+    QString defaultResDir = QCoreApplication::applicationDirPath() + "/resource";
+#endif
+    QString resDir = settings.value("ResourceDir", QDir::cleanPath(defaultResDir)).toString();
 
 #if HAVE_PREBUILT_LAYERMAP
     // Check if the current resource path contains required resource(s)

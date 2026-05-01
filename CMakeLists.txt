@@ -45,11 +45,17 @@ if (WIN32)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     include(InstallRequiredSystemLibraries)
 elseif (APPLE)
-    set(CMAKE_INSTALL_DOCDIR docs)
-    set(INDEX_HTML DESTINATION .)
+    # Install everything inside the .app bundle so the DMG (built from just the .app) is self-contained.
+    set(CMAKE_INSTALL_DATADIR Z80Explorer.app/Contents/Resources)
+    set(CMAKE_INSTALL_DOCDIR  Z80Explorer.app/Contents/Resources/docs)
+    set(INDEX_HTML DESTINATION Z80Explorer.app/Contents/Resources)
 else()
-    # Install our stuff in share/Z80Explorer, not in the base folder.
-    set(CMAKE_INSTALL_DATADIR "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+    # Linux: flat portable bundle. The user is expected to extract the tarball and run the binary
+    # from the bundle root, so resource/ must sit next to the executable. Qt libs still go under lib/
+    # (CMAKE_INSTALL_LIBDIR default); qt_generate_deploy_app_script computes the right RPATH.
+    set(CMAKE_INSTALL_BINDIR .)
+    set(CMAKE_INSTALL_DATADIR .)
+    set(CMAKE_INSTALL_DOCDIR docs)
 endif()
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
