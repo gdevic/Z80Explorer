@@ -50,8 +50,9 @@ jobs:
       - name: Archive Windows build
         shell: cmd
         run: |
-          cd ${{ github.workspace }}\dist-windows
-          7z a ${{ github.workspace }}\Z80Explorer-windows-x64.zip .
+          rename ${{ github.workspace }}\dist-windows Z80Explorer-windows-x64
+          cd ${{ github.workspace }}
+          7z a Z80Explorer-windows-x64.zip Z80Explorer-windows-x64
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -139,7 +140,9 @@ jobs:
         run: cmake --install build --config Release --prefix ${{ github.workspace }}/dist-linux
 
       - name: Archive Linux build
-        run: tar -czf Z80Explorer-linux-x64.tar.gz -C ${{ github.workspace }}/dist-linux .
+        run: |
+          mv ${{ github.workspace }}/dist-linux ${{ github.workspace }}/Z80Explorer-linux-x64
+          tar -czf Z80Explorer-linux-x64.tar.gz -C ${{ github.workspace }} Z80Explorer-linux-x64
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
