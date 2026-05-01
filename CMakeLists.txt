@@ -32,7 +32,6 @@ if (WIN32)
     set(INDEX_HTML DESTINATION .)
     set(DEPLOY_TOOL_OPTIONS
         --skip-plugin-types bearer,iconengines,imageformats,platforminputcontexts,qmltooling,tls,networkinformation,generic
-        --no-translations
         --libdir .
         --no-compiler-runtime     # don't bundle the 25 MB vc_redist.x64.exe; we ship the DLLs ourselves below
         --no-system-d3d-compiler  # d3dcompiler_47.dll
@@ -67,6 +66,7 @@ qt_generate_deploy_app_script(
     TARGET Z80Explorer
     OUTPUT_SCRIPT deploy_script
     NO_UNSUPPORTED_PLATFORM_ERROR
+    NO_TRANSLATIONS
     DEPLOY_TOOL_OPTIONS ${DEPLOY_TOOL_OPTIONS})
 install(SCRIPT ${deploy_script})
 
