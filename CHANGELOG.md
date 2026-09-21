@@ -5,6 +5,31 @@ All notable changes to Z80 Explorer are documented in this file. For details, al
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
+### Added
+- Built-in MCP server so LLM clients can drive the simulator: load HEX, run cycles, read nets, sample waveform windows, walk equation trees, trace fanout, control the watchlist, and rename or delete net names
+- Settings dialog with runtime-configurable waveform history depth and server enable/port options
+- Filter search box above the net lists in the edit dialogs
+- Drag-and-drop of any customization JSON, several files at once, with CTRL to merge dropped colors
+- Drag-and-drop of .asm sources onto the Sim Monitor, assembled by the bundled zmac
+- Pull-up transistor symbol detection and overlay in the image view
+- test_every_op and test_every_pla_bucket diagnostic programs
+- GitHub Actions release workflow building Windows, macOS and Linux artifacts
+
+### Improved
+- resource/ reorganized into purpose-named subfolders: chip/, user/, scripts/, zx/, tests/
+- Waveform: movable divider, persistent horizontal scrollbars, bus value text that follows the visible left edge, and double-click on a watchlist row to edit it
+- Edit Colors: explicit Save button, persistent file path, and refined Enabled toggle behaviour across selected rows
+- Find centers the image view on the located feature and pans to it along an easing curve
+- Wheel zoom behaves the same on Windows and macOS
+- zmac is bundled for macOS and Linux as well as Windows
+
+### Fixed
+- Black-square holes and per-segment stroke seams in net rendering
+- QWidget warning on clean exit; the servers now stop while qApp is still alive
+
+### Removed
+- Qt IFW-based installer
+- Offscreen renderer; z80_view_grab routes through the Export PNG dialog instead
 
 ## [1.09] - 2026-01-06
 ### Added
