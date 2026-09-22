@@ -19,8 +19,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Pull-up transistor symbol detection and overlay in the image view
 - test_every_op and test_every_pla_bucket diagnostic programs
 - GitHub Actions release workflow building Windows, macOS and Linux artifacts
+- File > Save User Data... (Ctrl+S) writes the user data files at any point in a session instead of only when the application closes. Any subset or all of them, from one dialog listing each item with its target path. Saving does not interrupt a running simulation.
+- The same registry from scripts, the command socket and MCP: `save()`, `save("id")` and `saveList()` in JavaScript, and the `z80_save` tool over MCP
+- An item may refuse to write and say why, rather than destroy what is on disk: an empty waveform view keeps its saved configuration, and colors merged but not committed keep theirs across an exit. Results separate what was written from what was skipped and what failed.
+- A save that fails on the way out now interrupts the exit instead of losing the session silently
 
 ### Changed
+- `save()` in the Command dock used to save by emitting the application shutdown signal, which also stopped the simulation and the script engine. It now writes the files and leaves the session alone. `shutdown()` means only that the application is quitting.
+- `saveNetnames()` now writes the per-net comments (tips.json) along with netnames.js, so the two files can no longer drift apart
+- Waveform *Save As...* and *Load...* now adopt the file you pick, and the choice survives a restart. Previously the window went on writing `waveform-N.json` regardless, so work done in a loaded file landed somewhere else on close. *Merge...* still keeps the current file, since a merge is a blend of sources rather than a move. This matches what Edit Colors already did.
 - MCP server now speaks protocol revision 2026-07-28 and only that revision. The revision is stateless: there is no initialize handshake, every request carries its own protocol version and client capabilities, and a client discovers the server with `server/discover`. A client that opens with the old handshake is told which revision to use instead of being left guessing.
 
 ### Improved

@@ -187,6 +187,9 @@ private:
     QJsonValue hndRenameNet   (const QJsonObject &a, QString &err);
     QJsonValue hndDeleteNetName(const QJsonObject &a, QString &err);
 
+    // Writes the user data files without closing the app.
+    QJsonValue hndSave        (const QJsonObject &a, QString &err);
+
     // Resolve a "net" argument that may be either a string name or an integer id.
     net_t resolveNet(const QJsonValue &v) const;
     // Same, but range-checked, and on failure fills `err` with a message naming the rejected value

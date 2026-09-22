@@ -108,7 +108,10 @@ function help()
     print("eq(net|\"name\")     - Computes and shows the logic equation that drives a given net");
     print("print(\"msg\")       - Prints a string message");
     print("relatch()          - Reloads all custom latches from 'user/latches.ini' file");
-    print("save()             - Saves all changes to all custom and config files");
+    print("save()             - Saves all user data files; does not disturb a running simulation");
+    print("save(\"id\")         - Saves one item, for example save(\"netnames\") or save(\"annotations\")");
+    print("saveList()         - Lists what save() can write: id, name, files and availability");
+    print("                     Both return arrays; use print(JSON.stringify(saveList())) to read them");
     print("exec(\"path\",\"args\")- Runs external executable");
     print("-- Object 'monitor' methods:");
     print("mon.loadHex(\"file\") - Loads a HEX file into simulated memory");

@@ -1,5 +1,6 @@
 // This file contains custom net names, overrides of the names defined in nodenames.js
-// and definitions of buses (collections of nets). Modify by hand only when the app is not running.
+// and definitions of buses (collections of nets). The app rewrites this file in full whenever
+// the net names are saved, so hand edits made while it is running will be overwritten.
 var nodenames_override = {
 _abus0: 3370,
 _abus1: 3381,

@@ -49,14 +49,11 @@ public:
         { return m_colordefs; }         // Used by the colors editor dialog
     void setColordefs(QVector<colordef>); // Sets a new colordefs array
 
-public slots:
-    void onShutdown();                  // Called when the app is closing
-
 private:
     QHash<net_t, QColor> m_colors;      // Hash of net numbers to their custom colors
     QVector<colordef> m_colordefs;      // Coloring definitions
     QString m_jsonFile;                 // File name used to load colors
-    bool m_inhibitAutoSave {false};     // Set by a merge; cleared by an explicit save; suppresses shutdown auto-save
+    bool m_inhibitAutoSave {false};     // Set by a merge; cleared by an explicit save; suppresses the registry save
 };
 
 #endif // CLASSCOLORS_H

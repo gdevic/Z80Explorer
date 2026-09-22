@@ -10,15 +10,9 @@ ClassNetlist::ClassNetlist() :
     m_netlist(MAX_NETS)
 {}
 
-void ClassNetlist::onShutdown()
-{
-    saveCustomNames();
-}
-
 /*
- * Persists the custom net name overrides (netnames.js). Callable both from the
- * shutdown path and from scripts that want to checkpoint an in-progress probe
- * without quitting the app.
+ * Persists the custom net name overrides (netnames.js). Driven by the controller's save registry,
+ * so it can be called at any point in a session as well as when the application closes.
  */
 bool ClassNetlist::saveCustomNames()
 {
@@ -89,7 +83,8 @@ bool ClassNetlist::saveNetNames(const QString fileName)
     {
         QTextStream out(&file);
         out << "// This file contains custom net names, overrides of the names defined in nodenames.js\n";
-        out << "// and definitions of buses (collections of nets). Modify by hand only when the app is not running.\n";
+        out << "// and definitions of buses (collections of nets). The app rewrites this file in full whenever\n";
+        out << "// the net names are saved, so hand edits made while it is running will be overwritten.\n";
         out << "var nodenames_override = {\n";
 
         QStringList names; // Write out custom names, sorted alphabetically

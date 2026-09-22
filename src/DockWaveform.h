@@ -115,7 +115,9 @@ private:
     QVector<viewitem> m_view;           // A collection of view items
 
     uint m_lastcursor;                  // Last cursor cycle value
-    QString m_fileViewlist;             // This window's default waveform view configuration file name
+    QString m_fileViewlist;             // The configuration file this window loads from and saves to
+    QString m_sid;                      // This window's id string, "1".."4"
+    void adoptFile(const QString &fileName); // Makes fileName this window's configuration file, across restarts
     qreal m_rel {};                     // Relative waveform scroll slider position
     int m_sectionSize;                  // Table vertical section size in pixels
     int m_listWidth {};                 // Restored splitter list-pane width to apply on first showEvent (0 = use .ui default)

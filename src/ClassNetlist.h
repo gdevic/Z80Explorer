@@ -95,7 +95,6 @@ public:
 
     // Do not call these functions directly; call the ::controller functional counterparts
     void eventNetName(Netop op, const QString name, const net_t);
-    void onShutdown();                          // Called when the app is closing
     void dumpNetlist();                         // Dumps netlist data
 
     const QString netInfo(net_t net);           // Returns basic net information as string

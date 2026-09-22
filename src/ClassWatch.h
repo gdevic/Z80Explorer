@@ -55,12 +55,13 @@ public:
 
     bool load(QString fileName);        // Loads a watchlist
     bool save(QString fileName);        // Saves a watchlist
+    QString getFileName()               // Returns the current watchlist file name
+        { return m_jsonFile; }
 
 signals:
     void historyDepthChanged();         // Emitted from clear() when a pending setHistoryDepth() takes effect
 
 public slots:
-    void onShutdown();                  // Called when the app is closing
     void onNetName(Netop op, const QString name, const net_t); // Handles events related to managing the net names
 
 private:

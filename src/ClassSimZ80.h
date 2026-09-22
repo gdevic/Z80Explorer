@@ -28,7 +28,7 @@ public:
 
 public slots:
     void onShutdown()                   // Called when the app is closing
-        { doRunsim(0); ClassNetlist::onShutdown(); } // Stop the running sim and pass on the signal
+        { doRunsim(0); }                // Stop the running sim
 
 private slots:
     void onTimeout();                   // Dump z80 state every 500ms when running the simulation

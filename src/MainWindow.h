@@ -23,6 +23,7 @@ public:
     void versionCheck(const QUrl &url);
 
 private slots:
+    void onSaveUserData();              // Saves user data files without closing the application
     void onEditAnnotations();           // Edits custom annotations
     void onEditNets();                  // Edits net names
     void onEditBuses();                 // Edits buses

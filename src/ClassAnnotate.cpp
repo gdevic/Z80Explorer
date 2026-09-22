@@ -12,11 +12,6 @@ ClassAnnotate::ClassAnnotate(QObject *parent) : QObject(parent)
     m_fixedFont = QFont("Consolas");
 }
 
-void ClassAnnotate::onShutdown()
-{
-    save(m_jsonFile);
-}
-
 /*
  * Adds annotation to the list
  */

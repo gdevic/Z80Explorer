@@ -21,17 +21,14 @@ bool ClassController::init(QJSEngine *sc)
 
     m_script.init(sc);
 
-    connect(&::controller.getScript(), &ClassScript::save, this, &ClassController::save);
-
-    connect(this, &ClassController::shutdown, &m_annotate, &ClassAnnotate::onShutdown);
-    connect(this, &ClassController::shutdown, &m_colors, &ClassColors::onShutdown);
+    // shutdown() means only "the application is quitting": it stops the simulation and the script
+    // engine. Persisting user data is a separate concern, driven by save(), so that it can also be
+    // done at any point in a session without tearing the session down.
     connect(this, &ClassController::shutdown, &m_script, &ClassScript::stop);
     connect(this, &ClassController::shutdown, &m_simz80, &ClassSimZ80::onShutdown);
 #if USE_AVX2_SIM
     connect(this, &ClassController::shutdown, &m_simz80avx2, &ClassSimZ80_AVX2::onShutdown);
 #endif
-    connect(this, &ClassController::shutdown, &m_tips, &ClassTip::onShutdown);
-    connect(this, &ClassController::shutdown, &m_watch, &ClassWatch::onShutdown);
 
     QSettings settings;
     // Anchor the default resource directory on the executable's location, not the user's cwd. On macOS
@@ -119,6 +116,57 @@ bool ClassController::init(QJSEngine *sc)
     connect(this, &ClassController::eventNetName, &m_watch, &ClassWatch::onNetName);
 
     m_annotate.load(resDir + "/user/annotations.json");
+
+    // Build the save registry. Each item reports its target paths through a function rather than a
+    // fixed string because the paths are not fixed: most classes cache the name of the file they
+    // were last loaded from, which a file dropped onto the application changes.
+    m_saveItems.append({ "annotations", "Annotations",
+        [this]() { return QStringList { m_annotate.getFileName() }; },
+        [this](bool, QString &) { return m_annotate.save(m_annotate.getFileName()) ? SaveWritten : SaveFailed; } });
+
+    // Net names, the buses and the per-net comments are one thing to the user but two files on
+    // disk: saveCustomNames() writes each comment into netnames.js as a trailing "// tip" and emits
+    // the bus definitions, while tips.json is the standalone comment store. Saving one without the
+    // other leaves the two disagreeing, so this item always writes both.
+    m_saveItems.append({ "netnames", "Net names, buses & comments",
+        [this]() { QSettings s; return QStringList { s.value("ResourceDir").toString() + "/chip/netnames.js", m_tips.getFileName() }; },
+        [this](bool, QString &reason) -> SaveOutcome
+        {
+            bool names = m_simz80.saveCustomNames();
+            bool tips = m_tips.save(m_tips.getFileName());
+            if (names && tips)
+                return SaveWritten;
+            // Name the half that failed: one of these two files may well be writable when the other is not
+            reason = QString("unable to write %1").arg(!names && !tips ? QString("netnames.js and tips.json")
+                                                                      : (names ? QString("tips.json") : QString("netnames.js")));
+            return SaveFailed;
+        } });
+
+    m_saveItems.append({ "colors", "Colors",
+        [this]() { return QStringList { m_colors.getFileName() }; },
+        [this](bool automatic, QString &reason) -> SaveOutcome
+        {
+            QSettings s;
+            s.setValue("colorsFile", m_colors.getFileName());
+            // The inhibit flag guards a merge the user has not committed against the unattended
+            // save on the way out. An explicit request is the user committing it, so it writes,
+            // and ClassColors::save() clears the flag.
+            if (automatic && m_colors.inhibitAutoSave())
+            {
+                reason = "merged colors were not committed, so the file on disk is left as it was";
+                return SaveSkipped;
+            }
+            return m_colors.save(m_colors.getFileName()) ? SaveWritten : SaveFailed;
+        } });
+
+    m_saveItems.append({ "watchlist", "Watchlist",
+        [this]() { return QStringList { m_watch.getFileName() }; },
+        [this](bool, QString &) { return m_watch.save(m_watch.getFileName()) ? SaveWritten : SaveFailed; } });
+
+    // Waveform views are created on demand from the Window menu, up to four. Their rows exist from
+    // the start so the dialog can show every slot, but stay unavailable until a dock attaches.
+    for (uint i = 1; i <= 4; i++)
+        m_saveItems.append({ QString("waveform-%1").arg(i), QString("Waveform %1").arg(i), {}, {} });
 
     // Initialize the schematic generation properties
     DialogEditSchematic::init();
@@ -365,6 +413,93 @@ void ClassController::deleteNetName(const net_t net)
 #endif
     emit eventNetName(Netop::DeleteName, QString(), net);
     emit eventNetName(Netop::Changed, QString(), net);
+}
+
+/*
+ * Saves the named registry items, or every currently available one when the list is empty. Returns
+ * one result per item asked for, so a caller can report exactly which files were written and which
+ * were not. Safe to call while the simulation is running: the sim thread writes only into the
+ * per-net sample buffers, never into the containers or the name and bus tables serialized here.
+ */
+QVector<ClassController::SaveResult> ClassController::save(const QStringList &ids, bool automatic)
+{
+    QStringList wanted = ids;
+    if (wanted.isEmpty())
+    {
+        for (const SaveItem &item : std::as_const(m_saveItems))
+        {
+            if (item.save)
+                wanted.append(item.id);
+        }
+    }
+
+    QVector<SaveResult> results;
+    for (const QString &id : std::as_const(wanted))
+    {
+        SaveResult r;
+        r.id = id;
+        bool known = false;
+        std::function<QStringList()> files;      // Taken by value: the registry must not be read
+        std::function<SaveOutcome(bool, QString &)> write; // across the call that writes the files
+        for (const SaveItem &item : std::as_const(m_saveItems))
+        {
+            if (item.id != id)
+                continue;
+            known = true;
+            files = item.files;
+            write = item.save;
+            break;
+        }
+        if (!known)
+            r.reason = QString("'%1' is not a known save item").arg(id);
+        else if (!write)
+            r.reason = QString("'%1' has nothing to save yet").arg(id);
+        else
+        {
+            const QStringList targets = files ? files() : QStringList();
+            r.outcome = write(automatic, r.reason);
+            // Only a write reports files, so nothing downstream can name a path it did not touch
+            if (r.outcome == SaveWritten)
+                r.files = targets;
+            else if (r.reason.isEmpty())
+                r.reason = QString("unable to write %1").arg(targets.join(", "));
+        }
+        results.append(r);
+    }
+    return results;
+}
+
+/*
+ * Backs a registry item that was pre-registered without one, making it available to save. Used by
+ * the waveform docks, which come into existence only when the user opens them.
+ */
+void ClassController::attachSaveItem(const QString &id, std::function<QStringList()> files,
+                                     std::function<SaveOutcome(bool automatic, QString &reason)> save)
+{
+    for (SaveItem &item : m_saveItems)
+    {
+        if (item.id != id)
+            continue;
+        item.files = files;
+        item.save = save;
+        return;
+    }
+    qWarning() << "attachSaveItem: no save item with id" << id;
+}
+
+void ClassController::detachSaveItem(const QString &id)
+{
+    for (SaveItem &item : m_saveItems)
+    {
+        if (item.id != id)
+            continue;
+        item.files = {};
+        item.save = {};
+        return;
+    }
+    // A miss leaves callbacks in the registry bound to an object that is going away, so it must be
+    // loud rather than silent: the next save would call into freed memory
+    qWarning() << "detachSaveItem: no save item with id" << id;
 }
 
 /*

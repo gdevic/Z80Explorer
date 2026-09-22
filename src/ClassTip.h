@@ -21,9 +21,8 @@ public:
 
     bool load(QString fileName);        // Loads user tips
     bool save(QString fileName);        // Saves user tips
-
-public slots:
-    void onShutdown();                  // Called when the app is closing
+    QString getFileName()               // Returns the current tips file name
+        { return m_jsonFile; }
 
 private:
     QMap<net_t, QString> m_tips;        // Map of nets to their tips; key is the net number

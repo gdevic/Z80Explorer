@@ -5,6 +5,7 @@
 #include "DialogEditNets.h"
 #include "DialogEditSchematic.h"
 #include "DialogEditWatchlist.h"
+#include "DialogSaveUserData.h"
 #include "DialogSettings.h"
 #include "DockCommand.h"
 #include "DockImageView.h"
@@ -70,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent, DockLog *logWindow, QJSEngine *sc) :
     restoreState(settings.value("mainWindowState").toByteArray());
 
     // Connect the rest of the menu actions...
+    connect(ui->actionSaveUserData, SIGNAL(triggered()), this, SLOT(onSaveUserData()));
     connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
     connect(ui->actionEditAnnotations, SIGNAL(triggered()), this, SLOT(onEditAnnotations()));
     connect(ui->actionEditNets, SIGNAL(triggered()), this, SLOT(onEditNets()));
@@ -111,6 +113,23 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return event->ignore();
 
     qInfo() << "App shutdown...";
+    ::controller.doRunsim(0);           // The user just agreed to stop it; wind down before writing
+
+    // Persist all user data before the session is torn down. This is the unattended save, so items
+    // that would decline an automatic write get their say. A failure here loses a whole session's
+    // work, so it is worth interrupting the exit for.
+    QStringList failed;
+    for (const ClassController::SaveResult &r : ::controller.save({}, true))
+    {
+        if (r.outcome == ClassController::SaveFailed)
+            failed.append(QString("%1: %2").arg(r.id, r.reason));
+    }
+    if (!failed.isEmpty() &&
+       (QMessageBox::warning(this, "Exit", "Some user data could not be saved:\n\n" + failed.join("\n") +
+        "\n\nExit anyway and lose those changes?",
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No))
+        return event->ignore();
+
     emit ::controller.shutdown();
 
     // Save window configuration after the main application finished executing
@@ -128,6 +147,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::onExit()
 {
     close();
+}
+
+/*
+ * Handle menu item to save user data files mid-session
+ */
+void MainWindow::onSaveUserData()
+{
+    DialogSaveUserData dlg(this);
+    dlg.exec();
 }
 
 /*

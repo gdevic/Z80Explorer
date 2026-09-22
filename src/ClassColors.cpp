@@ -6,21 +6,9 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
-#include <QSettings>
 
 ClassColors::ClassColors(QObject *parent) : QObject(parent)
 {}
-
-void ClassColors::onShutdown()
-{
-    QSettings settings;
-    settings.setValue("colorsFile", m_jsonFile);
-
-    // A merge that wasn't explicitly saved is treated as a transient experiment;
-    // skip the auto-save so the on-disk file stays as the user last committed it.
-    if (!m_inhibitAutoSave)
-        save(m_jsonFile);
-}
 
 /*
  * Updates internal color table (implemented as a hash) based on the colors specifications

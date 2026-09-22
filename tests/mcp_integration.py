@@ -20,7 +20,13 @@ Usage:
     3. python tests/mcp_integration.py
        --port N       server on a non-default port
        --quick        skip the concurrency stress cases
+       --destructive  also run the z80_save cases that write files
        --only SUBSTR  run only tests whose name contains SUBSTR
+
+The suite is non-destructive by default. --destructive lets z80_save rewrite the live user data
+files (resource/user/*.json and resource/chip/netnames.js), which are tracked in git: it persists
+whatever the running app currently holds, so do not use it on an app whose files failed to load,
+and expect a dirty working tree afterwards.
 
 Requires Python 3.9+. Standard library only, deliberately: this must run with no pip install.
 """
@@ -246,6 +252,7 @@ def t_tools_list(c):
         "z80_net_find", "z80_net_info", "z80_net_drivers", "z80_trans_info",
         "z80_equation", "z80_equation_tree", "z80_fanout",
         "z80_watchlist_add", "z80_sample_window", "z80_eval_js",
+        "z80_save",
     }
     missing = required - names
     assert not missing, f"missing tools: {sorted(missing)}"
@@ -615,6 +622,77 @@ def t_unknown_tool(c):
     assert _err(body)["code"] == INVALID_PARAMS, _err(body)
 
 
+def _save_list(c):
+    """The save registry as saveList() reports it: {id: available}. Read-only."""
+    r = c.tool_json("z80_eval_js", {"snippet": "print(JSON.stringify(saveList()))"})
+    return json.loads(r["stdout"])
+
+
+def t_save_list(c):
+    """The registry is discoverable and carries the ids the tool description advertises."""
+    items = _save_list(c)
+    ids = [i["id"] for i in items]
+    assert ids[:4] == ["annotations", "netnames", "colors", "watchlist"], ids
+    assert [i for i in ids if i.startswith("waveform-")] == \
+           ["waveform-1", "waveform-2", "waveform-3", "waveform-4"], ids
+    for i in items:
+        assert set(i) == {"id", "name", "files", "available"}, i
+        # An available item must name what it would write; an unavailable one has nothing to name
+        assert bool(i["files"]) == i["available"], i
+
+
+def t_save_unknown_id(c):
+    """A misspelled id is correctable, so the whole call is refused, naming the valid ids.
+    Nothing is written, even though a valid id was also present."""
+    for args in ({"items": ["bogus"]}, {"items": ["netnames", "bogus"]}):
+        result = c.tool_raw("z80_save", args).get("result", {})
+        assert result.get("isError"), (args, result)
+        text = _first_text(result)
+        assert "annotations" in text and "netnames" in text, text
+
+
+def t_save_bad_items(c):
+    """A malformed 'items' must not fall back to saving everything - this tool rewrites files."""
+    for args in ({"items": "netnames"}, {"items": []}, {"items": [7]}):
+        result = c.tool_raw("z80_save", args).get("result", {})
+        assert result.get("isError"), (args, result)
+
+
+def t_save_all(c):
+    """No arguments saves every available item. DESTRUCTIVE: rewrites the real user data files."""
+    r = c.tool_json("z80_save")
+    assert r["failed"] == [], r
+    ids = {s["id"] for s in r["saved"]} | {s["id"] for s in r["skipped"]}
+    assert {"annotations", "netnames", "colors", "watchlist"} <= ids, r
+    for s in r["saved"]:
+        assert s["files"], s
+    for s in r["skipped"]:
+        assert s["reason"], s
+
+
+def t_save_subset(c):
+    """DESTRUCTIVE: rewrites netnames.js and tips.json."""
+    r = c.tool_json("z80_save", {"items": ["netnames"]})
+    assert r["failed"] == [] and r["skipped"] == [], r
+    assert [s["id"] for s in r["saved"]] == ["netnames"], r
+    # Net names and their comments are two files that must always be written together
+    assert len(r["saved"][0]["files"]) == 2, r
+
+
+def t_save_unavailable_id(c):
+    """A waveform view that is not open is a real state, not a mistake: it is reported per item
+    and must not stop the other items in the same call. DESTRUCTIVE: rewrites watchlist.json."""
+    avail = {i["id"]: i["available"] for i in _save_list(c)}
+    target = next((i for i in ("waveform-4", "waveform-3", "waveform-2", "waveform-1")
+                   if not avail[i]), None)
+    assert target, "all four waveform views are open; close one so this case has something to test"
+
+    r = c.tool_json("z80_save", {"items": ["watchlist", target]})
+    assert [s["id"] for s in r["saved"]] == ["watchlist"], r
+    assert [f["id"] for f in r["failed"]] == [target], r
+    assert "nothing to save yet" in r["failed"][0]["reason"], r
+
+
 # ---- regression cases for fixed bugs -----------------------------------------------------------
 
 def t_sample_window_exact_count(c):
@@ -838,6 +916,8 @@ def main():
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--quick", action="store_true", help="skip the concurrency cases")
+    ap.add_argument("--destructive", action="store_true",
+                    help="also run the z80_save cases that overwrite your real user data files")
     ap.add_argument("--only", help="run only tests whose name contains this substring")
     args = ap.parse_args()
 
@@ -921,6 +1001,15 @@ def main():
     s.run("z80_fanout unknown net errors", lambda: t_fanout_unknown(c))
     s.run("invalid args rejected", lambda: t_invalid_args(c))
     s.run("unknown tool -> -32602", lambda: t_unknown_tool(c))
+
+    s.section("Tools: saving user data")
+    s.run("save registry is discoverable", lambda: t_save_list(c))
+    s.run("z80_save unknown id refused", lambda: t_save_unknown_id(c))
+    s.run("z80_save malformed items refused", lambda: t_save_bad_items(c))
+    if args.destructive:
+        s.run("z80_save every available item", lambda: t_save_all(c))
+        s.run("z80_save a single item", lambda: t_save_subset(c))
+        s.run("z80_save unavailable id reported per item", lambda: t_save_unavailable_id(c))
 
     s.section("Tools: batched query forms")
     s.run("z80_net_info batch", lambda: t_net_info_batch(c))

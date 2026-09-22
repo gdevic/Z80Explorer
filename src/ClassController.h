@@ -15,6 +15,8 @@
 #include "ClassTip.h"
 #include "ClassTrickbox.h"
 #include "ClassWatch.h"
+#include <QVector>
+#include <functional>
 
 class ClassMcpServer;
 class ClassMcpTools;
@@ -30,6 +32,33 @@ public:
     bool init(QJSEngine *);                     // Initialize controller classes and variables
     void stopServers();                         // Tear down long-running background servers (MCP, SOCKET)
     void applyServerSettings();                 // Runtime reconciliation of server enable/port
+
+    // What became of one item. A skip is not a failure: the item decided it had nothing worth
+    // writing, which is how an empty waveform view avoids blanking a good configuration on disk.
+    enum SaveOutcome { SaveWritten, SaveSkipped, SaveFailed };
+
+    // One entry in the save registry. The registry is the single list of what the application can
+    // write to disk; the save dialog, the script API and the MCP tool all read it, so a new kind of
+    // user data becomes savable everywhere by adding one row in init().
+    struct SaveItem
+    {
+        QString id;                             // Stable id used by the dialog, scripts and MCP
+        QString name;                           // Display name
+        std::function<QStringList()> files;     // Current target paths; each class caches its own
+        // Writes the item. `automatic` marks the unattended save on the way out, where an item may
+        // decline what it would write on an explicit request. Null while nothing backs this item.
+        std::function<SaveOutcome(bool automatic, QString &reason)> save;
+    };
+
+    // The outcome of saving one item
+    struct SaveResult
+    {
+        QString id;
+        QStringList files;                      // Paths written; empty unless outcome is SaveWritten
+        SaveOutcome outcome {SaveFailed};
+        QString reason;                         // Why it was skipped or failed; empty when written
+        bool ok() const { return outcome == SaveWritten; }
+    };
 
 public: // API
     inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
@@ -49,6 +78,13 @@ public: // API
     inline ClassTrickbox &getTrickbox()   { return m_trick; }     // Returns a reference to the Trickbox class
     inline ClassMcpTools *getMcpTools()   { return m_mcpTools; }  // Returns the MCP tool registry (nullptr if MCP disabled)
     inline ClassMcpServer*getMcpServer()  { return m_mcpServer; } // Returns the MCP server (nullptr if MCP disabled)
+    // The save registry. User data can be written at any point in a session.
+    inline const QVector<SaveItem> &saveItems() const { return m_saveItems; } // Every item, available or not
+    // Saves the named items, or every available item. `automatic` is set only by the save on the
+    // way out, so an item can tell an unattended write from one the user or an agent asked for.
+    QVector<SaveResult> save(const QStringList &ids = {}, bool automatic = false);
+    void attachSaveItem(const QString &id, std::function<QStringList()> files, std::function<SaveOutcome(bool automatic, QString &reason)> save);
+    void detachSaveItem(const QString &id);       // Returns an item to its unavailable state
 
     inline uint8_t readMem(uint16_t ab)           // Reads from simulated RAM
         { return m_trick.readMem(ab); }
@@ -95,7 +131,6 @@ public: // API
 public slots:
     uint doReset();                         // Runs the chip reset sequence, returns the number of clocks thet reset took
     void doRunsim(uint ticks);              // Runs the simulation for the given number of clocks
-    void save() { emit shutdown(); }        // Saves all modified files
 
 signals:
     void onRunStarting(uint);               // Called by the sim when it is starting the simulation
@@ -122,6 +157,7 @@ private:
     ClassTrickbox m_trick;                  // Global trickbox supporting environment
     ClassMcpTools  *m_mcpTools  {};         // MCP tool registry (lazily created on first MCP-server enable)
     ClassMcpServer *m_mcpServer {};         // MCP HTTP+JSON-RPC transport (lazily created; kept around once allocated)
+    QVector<SaveItem> m_saveItems;          // Save registry, built in init()
     void startSocketServer(quint16 port);   // Start the socket server and wire its commandReceived handler
 };
 

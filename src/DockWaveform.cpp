@@ -91,11 +91,30 @@ DockWaveform::DockWaveform(QWidget *parent, QString sid) : QDockWidget(parent), 
     m_fileViewlist = settings.value("waveform-" + sid, resDir + "/user/waveform-" + sid + ".json").toString();
     load(m_fileViewlist, false);
 
+    // This dock's slot in the save registry is only backed while the dock exists; until the user
+    // opens the view there is no configuration to write, and the save dialog shows the slot greyed
+    m_sid = sid;
+    ::controller.attachSaveItem("waveform-" + m_sid,
+        [this]() { return QStringList { m_fileViewlist }; },
+        [this](bool, QString &reason) -> ClassController::SaveOutcome
+        {
+            // An empty view is nearly always one whose entries load() dropped because the nets they
+            // name no longer exist, so writing it would silently destroy a good configuration
+            if (m_view.isEmpty())
+            {
+                reason = "the view is empty, so the saved configuration is left alone";
+                return ClassController::SaveSkipped;
+            }
+            return save(m_fileViewlist) ? ClassController::SaveWritten : ClassController::SaveFailed;
+        });
+
     rebuildList();
 }
 
 DockWaveform::~DockWaveform()
 {
+    ::controller.detachSaveItem("waveform-" + m_sid);
+
     Q_ASSERT(!m_fileViewlist.isEmpty());
     if (m_view.count()) // Save the configuration only if it is not empty
         save(m_fileViewlist);
@@ -108,6 +127,17 @@ DockWaveform::~DockWaveform()
     delete ui;
 }
 
+/*
+ * Makes fileName the file this window loads from and saves to. Stored per window id so the choice
+ * survives a restart, which is what makes "Save As..." mean what it does everywhere else.
+ */
+void DockWaveform::adoptFile(const QString &fileName)
+{
+    m_fileViewlist = fileName;
+    QSettings settings;
+    settings.setValue("waveform-" + m_sid, fileName);
+}
+
 void DockWaveform::onLoad(bool merge)
 {
     // Prompts the user to select which waveform view configuration file to load
@@ -116,6 +146,8 @@ void DockWaveform::onLoad(bool merge)
     {
         if (!load(fileName, merge))
             QMessageBox::critical(this, "Error", "Selected file is not a valid viewlist file");
+        else if (!merge)
+            adoptFile(fileName);        // A merge is a blend of sources, so it keeps the current file
         rebuildList();
     }
 }
@@ -128,6 +160,8 @@ void DockWaveform::onSaveAs()
     {
         if (!save(fileName))
             QMessageBox::critical(this, "Error", "Unable to save waveform view configuration to " + fileName);
+        else
+            adoptFile(fileName);        // This window belongs to the file the user picked
     }
 }
 

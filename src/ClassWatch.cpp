@@ -16,11 +16,6 @@ ClassWatch::ClassWatch()
     clear();
 }
 
-void ClassWatch::onShutdown()
-{
-    save(m_jsonFile);
-}
-
 /*
  * Handles events related to managing the net names
  */

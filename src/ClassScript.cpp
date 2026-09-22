@@ -2,11 +2,13 @@
 #include <ClassController.h>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QProcess>
+#include <QSettings>
 
 ClassScript::ClassScript(QObject *parent) : QObject(parent)
 {}
@@ -30,6 +32,7 @@ void ClassScript::init(QJSEngine *sc)
     m_engine->globalObject().setProperty("print", ext.property("print"));
     m_engine->globalObject().setProperty("relatch", ext.property("relatch"));
     m_engine->globalObject().setProperty("save", ext.property("save"));
+    m_engine->globalObject().setProperty("saveList", ext.property("saveList"));
     m_engine->globalObject().setProperty("ex", ext.property("ex"));
     m_engine->globalObject().setProperty("execApp", ext.property("execApp"));
     m_engine->globalObject().setProperty("readBit", ext.property("readBit"));
@@ -458,10 +461,74 @@ void ClassScript::deleteNetName(uint net)
 }
 
 /*
- * Checkpoint netnames.js from a running probe script, so a long-running
+ * Writes user data to disk. With no argument every currently available item is saved; naming one
+ * saves just that item. Returns one result object per item asked for, so a script can tell exactly
+ * what was written. The session is untouched: a simulation in progress keeps running.
+ */
+QJSValue ClassScript::save(const QString &id)
+{
+    QStringList ids;
+    if (!id.isEmpty())
+        ids.append(id);
+
+    QJsonArray out;
+    QStringList written, notes;
+    const QVector<ClassController::SaveResult> results = ::controller.save(ids);
+    for (const ClassController::SaveResult &r : results)
+    {
+        QJsonObject o;
+        o["id"] = r.id;
+        o["files"] = QJsonArray::fromStringList(r.files);
+        o["ok"] = r.ok();
+        if (r.outcome == ClassController::SaveWritten)
+            written.append(r.files);
+        else
+        {
+            o["skipped"] = (r.outcome == ClassController::SaveSkipped);
+            o["reason"] = r.reason;
+            notes.append(QString("%1: %2").arg(r.id, r.reason));
+        }
+        out.append(o);
+    }
+
+    // Summarize for the Command dock and the socket clients, which see this through print()
+    QDir resDir(QSettings().value("ResourceDir").toString());
+    QStringList shown;
+    for (const QString &f : std::as_const(written))
+        shown.append(resDir.relativeFilePath(f));
+    if (!shown.isEmpty())
+        emit ::controller.getScript().print(QString("Saved: %1").arg(shown.join(", ")));
+    for (const QString &n : std::as_const(notes))
+        emit ::controller.getScript().print(n);
+
+    return jsonToJSValue(m_engine, QJsonValue(out));
+}
+
+/*
+ * Lists everything save() can write, including the items that are not currently available, so a
+ * script can discover the valid ids instead of having them hardcoded.
+ */
+QJSValue ClassScript::saveList()
+{
+    QJsonArray out;
+    for (const ClassController::SaveItem &item : ::controller.saveItems())
+    {
+        QJsonObject o;
+        o["id"] = item.id;
+        o["name"] = item.name;
+        o["files"] = QJsonArray::fromStringList(item.files ? item.files() : QStringList());
+        o["available"] = bool(item.save);
+        out.append(o);
+    }
+    return jsonToJSValue(m_engine, QJsonValue(out));
+}
+
+/*
+ * Checkpoint the net names, buses and their comments from a running probe script, so a long-running
  * discovery run can persist each find without having to quit the app.
  */
 bool ClassScript::saveNetnames()
 {
-    return ::controller.getNetlist().saveCustomNames();
+    const QVector<ClassController::SaveResult> results = ::controller.save({"netnames"});
+    return !results.isEmpty() && results.first().ok();
 }

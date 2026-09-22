@@ -41,9 +41,8 @@ public:
     void draw(QPainter &painter, const QRect &viewport, qreal scale);
     bool load(QString fileName);        // Loads user annotations
     bool save(QString fileName);        // Saves user annotations
-
-public slots:
-    void onShutdown();                  // Called when the app is closing
+    QString getFileName()               // Returns the current annotations file name
+        { return m_jsonFile; }
 
 private:
     QVector<annotation> m_annot;        // List of annotations

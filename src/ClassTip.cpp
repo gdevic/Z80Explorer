@@ -8,11 +8,6 @@
 ClassTip::ClassTip(QObject *parent) : QObject(parent)
 {}
 
-void ClassTip::onShutdown()
-{
-    save(m_jsonFile);
-}
-
 /*
  * Loads user tips from a file
  */

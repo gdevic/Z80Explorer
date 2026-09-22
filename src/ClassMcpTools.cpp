@@ -434,10 +434,13 @@ static QJsonObject schemaArray(const QJsonObject &items, const QString &desc = {
     if (!desc.isEmpty()) s["description"] = desc;
     return s;
 }
-static QJsonObject schemaObject(const QJsonObject &props, const QJsonArray &required = {})
+static QJsonObject schemaObject(const QJsonObject &props, const QJsonArray &required = {}, bool closed = false)
 {
     QJsonObject s; s["type"] = "object"; s["properties"] = props;
     if (!required.isEmpty()) s["required"] = required;
+    // Closing the object turns a misspelled argument name into a client-side rejection instead of
+    // a call that quietly ignores it. Worth it on a tool that writes files.
+    if (closed) s["additionalProperties"] = false;
     return s;
 }
 // A tool that takes no arguments. Spelling it this way says "accepts only an empty object" rather
@@ -887,8 +890,8 @@ void ClassMcpTools::registerDefaults()
         "Rename a net that already has a name. The existing name is removed "
         "and replaced with the new one. Errors if the net has no existing "
         "name (use z80_eval_js setNetName(...) for first-time naming) or if "
-        "the new name is already taken by another net. Persists on app "
-        "shutdown or via z80_eval_js saveNetnames().",
+        "the new name is already taken by another net. Held in memory until "
+        "written by z80_save.",
         schemaObject({
             {"net",  schemaNetRef("Existing net name or numeric id")},
             {"name", schemaString("New name to assign")},
@@ -899,11 +902,31 @@ void ClassMcpTools::registerDefaults()
     registerTool({
         "z80_delete_net_name",
         "Clear the name of a named net. Errors if the net has no name. "
-        "Persists on app shutdown or via z80_eval_js saveNetnames().",
+        "Held in memory until written by z80_save.",
         schemaObject({
             {"net", schemaNetRef()},
         }, {"net"}),
         [this](const QJsonObject &a, QString &err) { return hndDeleteNetName(a, err); }
+    });
+
+    registerTool({
+        "z80_save",
+        "Write the user data held in memory out to disk, without closing the "
+        "app. Safe to call while a simulation is running, so names and comments "
+        "worked out during a long investigation can be kept without losing the "
+        "state that produced them. With no arguments it saves everything that is "
+        "currently available. Item ids: 'annotations', 'netnames' (net names, "
+        "buses and their comments), 'colors', 'watchlist', and 'waveform-1' "
+        "through 'waveform-4' (only the waveform views currently open). "
+        "Results are split into 'saved', 'skipped' (the item deliberately wrote "
+        "nothing, and says why) and 'failed'. To list the ids with their target "
+        "paths, call z80_eval_js with the snippet "
+        "print(JSON.stringify(saveList())).",
+        schemaObject({
+            {"items", schemaArray(schemaString("Save item id"),
+                                  "Items to save; omit the key entirely to save every available item")},
+        }, {}, /*closed*/ true),
+        [this](const QJsonObject &a, QString &err) { return hndSave(a, err); }
     });
 
     applyToolMetadata();
@@ -950,6 +973,9 @@ void ClassMcpTools::applyToolMetadata()
     // Reads the simulator but may drop a PNG on the filesystem, and the image depends on where in
     // time the simulation currently is, so it is neither purely read-only nor idempotent.
     const ToolHints kRender { false, false, false, true  };  // renders; may write a file
+    // Rewrites the user's data files in full, so it can overwrite hand edits; but repeating the
+    // call with unchanged memory produces the same bytes and no further effect.
+    const ToolHints kSave   { false, true,  true,  true  };  // writes user data; safe to retry
 
     const MetaRow kMeta[] = {
         { "z80_load_hex",       "Load HEX program",        kHost,  false },
@@ -997,6 +1023,9 @@ void ClassMcpTools::applyToolMetadata()
 
         { "z80_rename_net",     "Rename net",              kWrite, true  },
         { "z80_delete_net_name","Delete net name",         kWipe,  true  },
+        // Not reentrant: z80_sample_window swaps the watchlist for its own capture set and holds a
+        // nested event loop, so a save arriving underneath it would persist that scratch list.
+        { "z80_save",           "Save user data",          kSave,  false },
 
         { "z80_eval_js",        "Evaluate JavaScript",     kHost,  false },
     };
@@ -1052,6 +1081,21 @@ void ClassMcpTools::applyToolMetadata()
                               {"name", schemaString("Net name")},
                           }, {"id", "name"}))},
           }, {"total", "matches"}) },
+
+        { "z80_save", schemaObject({
+              {"saved",   schemaArray(schemaObject({
+                              {"id",    schemaString("Save item id")},
+                              {"files", schemaArray(schemaString(), "Paths actually written")},
+                          }, {"id", "files"}), "Items written, one entry each")},
+              {"skipped", schemaArray(schemaObject({
+                              {"id",     schemaString("Save item id")},
+                              {"reason", schemaString("Why the item chose to write nothing")},
+                          }, {"id", "reason"}), "Items that deliberately wrote nothing; not an error")},
+              {"failed",  schemaArray(schemaObject({
+                              {"id",     schemaString("Save item id")},
+                              {"reason", schemaString("Why this item could not be saved")},
+                          }, {"id", "reason"}), "Items that could not be written")},
+          }, {"saved", "skipped", "failed"}) },
     };
 
     for (const SchemaRow &row : kSchemas)
@@ -2454,6 +2498,67 @@ QJsonValue ClassMcpTools::hndDeleteNetName(const QJsonObject &a, QString &)
         r["id"] = int(id);
         r["deleted_name"] = oldName;
         return structuredResult(r);
+    });
+}
+
+/*
+ * Writes the user data files. Any unrecognised id is a mistake the model can correct, so the whole
+ * call is rejected with the list of valid ones rather than silently writing the rest: this tool
+ * rewrites files in full, and a caller that misspelled one id may have meant something else by the
+ * others. An id that is known but has nothing behind it yet, such as a waveform view that is not
+ * open, is a real state of the application and is reported per item under "failed".
+ */
+QJsonValue ClassMcpTools::hndSave(const QJsonObject &a, QString &)
+{
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        QStringList known;
+        for (const ClassController::SaveItem &item : ::controller.saveItems())
+            known.append(item.id);
+
+        // Distinguish "no items key" (save everything) from a malformed or empty one. Defaulting a
+        // bad argument to "save everything" would turn a typo into a full rewrite of every file.
+        QStringList ids;
+        if (a.contains("items"))
+        {
+            const QJsonValue v = a.value("items");
+            if (!v.isArray())
+                return errorResult("'items' must be an array of save item ids. Omit it entirely to save everything.");
+            const QJsonArray items = v.toArray();
+            if (items.isEmpty())
+                return errorResult("'items' is empty, so nothing would be saved. Omit it entirely to save everything.");
+            for (const QJsonValue &e : items)
+            {
+                if (!e.isString())
+                    return errorResult(QString("Every entry of 'items' must be a string. Valid ids are: %1.").arg(known.join(", ")));
+                ids.append(e.toString().trimmed());
+            }
+            QStringList unknown;
+            for (const QString &id : std::as_const(ids))
+            {
+                if (!known.contains(id))
+                    unknown.append(id);
+            }
+            if (!unknown.isEmpty())
+                return errorResult(QString("No such save item: %1. Valid ids are: %2. Omit 'items' to save everything.")
+                                   .arg(unknown.join(", "), known.join(", ")));
+        }
+
+        QJsonArray saved, skipped, failed;
+        const QVector<ClassController::SaveResult> results = ::controller.save(ids);
+        for (const ClassController::SaveResult &r : results)
+        {
+            if (r.outcome == ClassController::SaveWritten)
+                saved.append(QJsonObject{{"id", r.id}, {"files", QJsonArray::fromStringList(r.files)}});
+            else if (r.outcome == ClassController::SaveSkipped)
+                skipped.append(QJsonObject{{"id", r.id}, {"reason", r.reason}});
+            else
+                failed.append(QJsonObject{{"id", r.id}, {"reason", r.reason}});
+        }
+        QJsonObject out;
+        out["saved"] = saved;
+        out["skipped"] = skipped;
+        out["failed"] = failed;
+        return structuredResult(out);
     });
 }
 
