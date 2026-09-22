@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>320</height>
+    <height>260</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,22 +61,34 @@
      <property name="title">
       <string>Command socket server</string>
      </property>
-     <layout class="QFormLayout" name="formSocket">
-      <item row="0" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
        <widget class="QCheckBox" name="checkSocket">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Enable</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item>
        <widget class="QLabel" name="lblSocketPort">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Port:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item>
        <widget class="QSpinBox" name="spinSocketPort">
         <property name="minimum">
          <number>1</number>
@@ -94,22 +106,34 @@
      <property name="title">
       <string>MCP server</string>
      </property>
-     <layout class="QFormLayout" name="formMcp">
-      <item row="0" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
        <widget class="QCheckBox" name="checkMcp">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Enable</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item>
        <widget class="QLabel" name="lblMcpPort">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Port:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item>
        <widget class="QSpinBox" name="spinMcpPort">
         <property name="minimum">
          <number>1</number>
@@ -147,6 +171,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>spinHistory</tabstop>
+  <tabstop>checkSocket</tabstop>
+  <tabstop>spinSocketPort</tabstop>
+  <tabstop>checkMcp</tabstop>
+  <tabstop>spinMcpPort</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
