@@ -83,3 +83,10 @@ CLAUDE.md
 # --------
 *.dll
 #*.exe
+
+# Uncompressed from resource/chip/layermap.qz on first run
+/resource/chip/layermap.bin
+
+# Pull-up data ClassVisual auto-saves at runtime
+/resource/user/pullups.json
+
