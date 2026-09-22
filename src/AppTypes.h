@@ -30,7 +30,7 @@
 
 typedef uint16_t net_t;             // Type of an index into the net array (type of a net id value)
 typedef uint16_t tran_t;            // Type of an index into the transistor array (type of a transistor id value)
-typedef uint8_t  pin_t;             // Type of the pin state (0, 1; or 2 for floating)
+typedef uint8_t  pin_t;             // Pin state: 0, 1, 2 for floating, or 3 for "no sample recorded"
 
 #if USE_PERFORMANCE_SIM
 // There is a certain performance speedup to be gained by correctly sizing (array) values

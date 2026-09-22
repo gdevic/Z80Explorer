@@ -3,6 +3,7 @@
 
 #include "AppTypes.h"
 #include "ClassAnnotate.h"
+#include "ClassRenderer.h"
 #include "ClassVisual.h"
 #include "ClassColors.h"
 #include "ClassScript.h"
@@ -33,6 +34,7 @@ public:
 public: // API
     inline ClassAnnotate &getAnnotation() { return m_annotate; }  // Returns a reference to the annotations class
     inline ClassVisual   &getChip()       { return m_chip; }      // Returns a reference to the chip class
+    inline ClassRenderer &getRenderer()   { return m_renderer; }  // Offscreen die renderer (no widget needed)
     inline ClassColors   &getColors()     { return m_colors; }    // Returns a reference to the colors class
     inline ClassScript   &getScript()     { return m_script; }    // Returns a reference to the script class
     inline ClassServer   &getServer()     { return m_server; }    // Returns a reference to the server class
@@ -106,6 +108,7 @@ signals:
 
 private:
     ClassAnnotate m_annotate;               // Global annotations
+    ClassRenderer m_renderer;               // Offscreen die renderer, used by the MCP render tool
     ClassVisual   m_chip;                   // Global visual chip resource class
     ClassColors   m_colors;                 // Global application colors
     ClassScript   m_script;                 // Global scripting support

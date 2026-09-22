@@ -52,16 +52,32 @@ static const char *kInstructions =
     "interpreting the state you landed in: on timeout the run was cut short and the state is\n"
     "wherever it happened to be. z80_now is the cheapest way to find out where you are.\n"
     "\n"
-    "NETS. Anywhere a net is taken you may pass its name or its numeric id. A net value is 0, 1 or\n"
-    "2, where 2 means floating. Search with z80_net_find rather than guessing a name; an unknown\n"
-    "name is reported as an error that lists near matches.\n"
+    "NETS. Anywhere a net is taken you may pass its name or its numeric id, and the query tools\n"
+    "also take a list to answer in one call. A net value is 0 low, 1 high, 2 floating, or 3 when\n"
+    "no sample was recorded for that half-cycle; a bus read through a net-shaped call reports 4,\n"
+    "and a bus with a floating member reports 4294967295. Search with z80_net_find rather than\n"
+    "guessing a name; an unknown name is reported as an error that lists near matches.\n"
     "\n"
     "TOPOLOGY. z80_net_drivers lists the transistors that pull a net, z80_fanout lists what the net\n"
     "gates, and z80_equation_tree returns the logic tree behind it. These describe the physical\n"
     "circuit and do not change as the simulation runs, so they only need reading once.\n"
     "\n"
+    "BATCHING. z80_net_info, z80_net_drivers and z80_trans_info take a list (`nets`, or `ids`)\n"
+    "in place of the single target and answer up to 256 of them in one call, each row carrying\n"
+    "its own error if it could not be resolved. z80_equation and z80_equation_tree take a list\n"
+    "too, capped at 16 because each one walks the netlist. Characterising a group of nets is one\n"
+    "call, not one call per net.\n"
+    "\n"
+    "THE DIE. z80_die_info describes the image, the coordinate system every bounding box is\n"
+    "expressed in, and the layer names; read it before reasoning about position rather than\n"
+    "inferring the conventions. z80_view_render then draws any region of the die as a PNG you\n"
+    "can look at, with per-net colouring and the overlays the interactive view offers. Seeing\n"
+    "the geometry often settles a question about what connects to what faster than bounding\n"
+    "boxes do.\n"
+    "\n"
     "WAVEFORMS. A net must be on the watchlist before any history exists for it. Add nets with\n"
-    "z80_watchlist_add, then read recorded samples with z80_waveform_window. Always pass an\n"
+    "z80_watchlist_add, then read recorded samples with z80_waveform_window; z80_watchlist_get\n"
+    "reports what is already watched and which half-cycles still have data. Always pass an\n"
     "explicit range: the default spans the whole ring buffer and is large.\n"
     "\n"
     "ESCAPE HATCH. z80_eval_js runs arbitrary JavaScript inside the application and can reach far\n"
@@ -270,26 +286,6 @@ QHttpServerResponse ClassMcpServer::routePost(const QHttpServerRequest &req)
         return bareError(415, InvalidRequest,
                          "Content-Type must be application/json");
 
-    // The header is optional here because the stateless revision carries the authoritative version
-    // in _meta, but when it is present it must name a revision this server speaks.
-    if (h.contains("MCP-Protocol-Version"))
-    {
-        const QByteArray hv = h.combinedValue("MCP-Protocol-Version");
-        if (hv != MCP_PROTOCOL_VERSION)
-        {
-            QJsonObject data;
-            data["supportedVersions"] = QJsonArray{ MCP_PROTOCOL_VERSION };
-            QJsonObject err;
-            err["code"]    = UnsupportedProtocolVersion;
-            err["message"] = QString("Unsupported MCP-Protocol-Version: %1").arg(QString::fromUtf8(hv));
-            err["data"]    = data;
-            QJsonObject rpc;
-            rpc["jsonrpc"] = "2.0";
-            rpc["error"]   = err;
-            return jsonReply(rpc, 400, QString(), QString());
-        }
-    }
-
     QJsonParseError pe;
     const QJsonDocument doc = QJsonDocument::fromJson(req.body(), &pe);
     if (pe.error != QJsonParseError::NoError)
@@ -308,7 +304,14 @@ QHttpServerResponse ClassMcpServer::routePost(const QHttpServerRequest &req)
                            ? request.value("params").toObject().value("name").toString()
                            : QString();
 
+    // The standard request headers mirror body fields so that intermediaries can route without
+    // parsing. They are checked here rather than before the parse because every check compares a
+    // header against the body it is supposed to mirror.
     int http = 200;
+    const QJsonObject headerErr = checkRequestHeaders(h, request, method, http);
+    if (!headerErr.isEmpty())
+        return jsonReply(headerErr, http, method, toolName);
+
     const QJsonObject reply = dispatch(request, http);
     if (reply.isEmpty())
     {
@@ -377,6 +380,121 @@ QJsonObject ClassMcpServer::checkRequestMeta(const QJsonObject &req, const QStri
         httpStatus = 400;
         return makeError(id, InvalidParams,
                          QString("Missing required _meta field \"%1\"").arg(META_CLIENT_CAPABILITIES));
+    }
+    // MissingRequiredClientCapability (-32021) is declared but deliberately never raised: it says
+    // the server needs a capability the client did not offer, and no tool here needs one. The
+    // clientCapabilities field is required to be present, but its contents are never consulted.
+    return {};
+}
+
+QString ClassMcpServer::decodeHeaderValue(const QByteArray &raw)
+{
+    const QByteArray v = raw.trimmed();
+    // The sentinel is exactly "=?base64?" + payload + "?=", so anything shorter than the two
+    // markers together cannot be one.
+    if (v.startsWith("=?base64?") && v.endsWith("?=") && (v.size() > 11))
+    {
+        const auto res = QByteArray::fromBase64Encoding(v.mid(9, v.size() - 11));
+        if (res)
+            return QString::fromUtf8(res.decoded);
+        // Not valid base64 after all; fall through and compare the literal text, which will
+        // mismatch and be reported as such rather than silently succeeding.
+    }
+    return QString::fromUtf8(v);
+}
+
+/*
+ * Validates the headers the transport mirrors from the body: MCP-Protocol-Version, Mcp-Method and
+ * Mcp-Name. The specification makes all three REQUIRED and says a server MUST reject a request that
+ * omits one. This server deliberately accepts an omitted header and logs a warning instead, so that
+ * it interoperates with any client, while still rejecting a header that contradicts the body — the
+ * case the rule exists to guard, where an intermediary routes on the header and the server acts on
+ * the body. tests/mcp_integration.py pins both halves of that behaviour down.
+ */
+QJsonObject ClassMcpServer::checkRequestHeaders(const QHttpHeaders &h, const QJsonObject &req,
+                                                const QString &method, int &httpStatus)
+{
+    // One notice per missing header for the life of the process: the deviation is worth stating
+    // once, not once per request. Handlers run only on the GUI thread, so plain statics are safe.
+    static bool warnedVersion = false;
+    static bool warnedMethod  = false;
+    static bool warnedName    = false;
+
+    const QJsonValue id = req.value("id");
+    const QJsonObject params = req.value("params").toObject();
+
+    if (h.contains("MCP-Protocol-Version"))
+    {
+        const QString hv = decodeHeaderValue(h.combinedValue("MCP-Protocol-Version"));
+        const QString bv = params.value("_meta").toObject().value(META_PROTOCOL_VERSION).toString();
+        // A header that disagrees with the body is a mismatch. A header that agrees (or a body that
+        // declares nothing, as on the _meta-exempt methods) but names a revision this server does
+        // not speak is a version error, which the client can renegotiate from.
+        if (!bv.isEmpty() && (hv != bv))
+        {
+            httpStatus = 400;
+            return makeError(id, HeaderMismatch,
+                             QString("Header mismatch: MCP-Protocol-Version header value \"%1\" does "
+                                     "not match body value \"%2\"").arg(hv, bv));
+        }
+        if (hv != QLatin1String(MCP_PROTOCOL_VERSION))
+        {
+            httpStatus = 400;
+            QJsonObject data;
+            data["supportedVersions"] = QJsonArray{ MCP_PROTOCOL_VERSION };
+            return makeError(id, UnsupportedProtocolVersion,
+                             QString("Unsupported MCP-Protocol-Version: %1").arg(hv), data);
+        }
+    }
+    else if (!warnedVersion)
+    {
+        warnedVersion = true;
+        qWarning() << "MCP: client omits the required MCP-Protocol-Version header; accepted anyway";
+    }
+
+    if (h.contains("Mcp-Method"))
+    {
+        const QString hm = decodeHeaderValue(h.combinedValue("Mcp-Method"));
+        if (hm != method)
+        {
+            httpStatus = 400;
+            return makeError(id, HeaderMismatch,
+                             QString("Header mismatch: Mcp-Method header value \"%1\" does not match "
+                                     "body value \"%2\"").arg(hm, method));
+        }
+    }
+    else if (!warnedMethod)
+    {
+        warnedMethod = true;
+        qWarning() << "MCP: client omits the required Mcp-Method header; accepted anyway";
+    }
+
+    // Mcp-Name mirrors params.name on tools/call and prompts/get, and params.uri on resources/read.
+    const bool named = (method == QLatin1String("tools/call"))
+                    || (method == QLatin1String("prompts/get"))
+                    || (method == QLatin1String("resources/read"));
+    if (named)
+    {
+        const QString bodyName = (method == QLatin1String("resources/read"))
+                               ? params.value("uri").toString()
+                               : params.value("name").toString();
+        if (h.contains("Mcp-Name"))
+        {
+            const QString hn = decodeHeaderValue(h.combinedValue("Mcp-Name"));
+            if (hn != bodyName)
+            {
+                httpStatus = 400;
+                return makeError(id, HeaderMismatch,
+                                 QString("Header mismatch: Mcp-Name header value \"%1\" does not "
+                                         "match body value \"%2\"").arg(hn, bodyName));
+            }
+        }
+        else if (!warnedName)
+        {
+            warnedName = true;
+            qWarning() << "MCP: client omits the required Mcp-Name header on" << method
+                       << "; accepted anyway";
+        }
     }
     return {};
 }
@@ -593,7 +711,7 @@ QJsonObject ClassMcpServer::handleResourcesRead(const QJsonObject &req, int &htt
         return makeError(id, InternalError, "No tool registry bound");
 
     QString err;
-    const QJsonValue result = m_tools->readResource(uri, err);
+    const QJsonValue value = m_tools->readResource(uri, err);
     if (!err.isEmpty())
     {
         // An unreadable URI is a request the model cannot repair by retrying the same way, so it is
@@ -601,6 +719,10 @@ QJsonObject ClassMcpServer::handleResourcesRead(const QJsonObject &req, int &htt
         httpStatus = 400;
         return makeError(id, InvalidParams, err);
     }
+    // resources/read is one of the CacheableResult methods, so it carries the freshness hint too.
+    QJsonObject result = value.toObject();
+    result["ttlMs"]      = TOOLS_LIST_TTL_MS;
+    result["cacheScope"] = "public";
     return makeResult(id, result);
 }
 

@@ -46,6 +46,9 @@ public:
     pin_t at(watch *w, uint hcycle);    // Returns net watch data at the specified cycle position
     uint at(watch *w, uint hcycle, uint &ok); // Returns bus watch data at the specified cycle position
     uint gethstart() { return m_hring_start; } // Returns the absolute hcycle of the start of our buffers
+    uint gethlast() { return m_hcycle_last; }  // One past the last hcycle that has data; at() returns
+                                               // its no-data sentinel from here on, so this is the
+                                               // authoritative exclusive upper bound of a window
 
     int historyDepth() const { return m_historyDepth; } // Current per-net circular-buffer depth (in half-cycles)
     void setHistoryDepth(int depth);    // Stores a new depth; takes effect on the next clear() (= chip reset)

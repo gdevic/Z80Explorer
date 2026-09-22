@@ -3,6 +3,7 @@
 #include "ClassController.h"
 #include "ClassMcpThreading.h"
 #include "ClassNetlist.h"
+#include "ClassRenderer.h"
 #include "ClassScript.h"
 #include "ClassTrickbox.h"
 #include "ClassVisual.h"
@@ -17,11 +18,35 @@
 #include <QJsonDocument>
 #include <QMetaObject>
 #include <QRegularExpression>
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QStandardPaths>
 #include <QStringList>
 #include <QUrl>
 #include <QTimer>
 #include <QWidget>
 #include <climits>
+
+// How many targets one batched query answers. The plain lookups are a handful of array reads each,
+// so the cap is only there to bound the reply. An equation walks the netlist recursively per target,
+// which is orders of magnitude dearer, so that form gets its own much smaller cap.
+// Render limits. The inline cap is deliberately well under a megabyte: an inline image is base64
+// inside the JSON reply and counts against the client's per-call output budget, and the API
+// downscales anything much larger anyway, so past this size a file is the better answer.
+static const int MCP_RENDER_INLINE_MAX = 350000;
+static const int MCP_RENDER_MAX_SIDE   = 4096;
+
+// Where a render lands when it is too large to inline. Not the resource tree and not the repo: the
+// application chdir's into resource/, so anything relative would end up inside the checkout.
+static QString renderOutputDir()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/z80explorer-render";
+}
+
+static const int MCP_BATCH_CAP      = 256;
+static const int MCP_BATCH_CAP_TREE = 16;
 
 ClassMcpTools::ClassMcpTools(QObject *parent)
     : QObject(parent)
@@ -87,6 +112,32 @@ QJsonValue ClassMcpTools::structuredResult(const QJsonValue &jsonPayload)
     QJsonObject item; item["type"] = "text"; item["text"] = QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
     QJsonObject r;
     r["content"]           = QJsonArray{ item };
+    r["structuredContent"] = jsonPayload;
+    r["isError"]           = false;
+    return r;
+}
+
+QJsonValue ClassMcpTools::imageResult(const QByteArray &pngBytes, const QJsonValue &jsonPayload)
+{
+    QJsonDocument doc(jsonPayload.isObject() ? jsonPayload.toObject()
+                                             : QJsonObject{{"value", jsonPayload}});
+    QJsonObject text;
+    text["type"] = "text";
+    text["text"] = QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
+
+    QJsonArray content;
+    if (!pngBytes.isEmpty())
+    {
+        QJsonObject img;
+        img["type"]     = "image";
+        img["data"]     = QString::fromLatin1(pngBytes.toBase64());
+        img["mimeType"] = "image/png";
+        content.append(img);
+    }
+    content.append(text);
+
+    QJsonObject r;
+    r["content"]           = content;
     r["structuredContent"] = jsonPayload;
     r["isError"]           = false;
     return r;
@@ -301,6 +352,19 @@ static QJsonObject schemaInt(const QString &desc = {})
     if (!desc.isEmpty()) s["description"] = desc;
     return s;
 }
+static QJsonObject schemaNumber(const QString &desc = {}, double lo = 0.0, double hi = 0.0)
+{
+    QJsonObject s; s["type"] = "number";
+    if (!desc.isEmpty()) s["description"] = desc;
+    if (hi > lo) { s["minimum"] = lo; s["maximum"] = hi; }
+    return s;
+}
+static QJsonObject schemaColorMap(const QString &desc)
+{
+    QJsonObject s; s["type"] = "object"; s["description"] = desc;
+    s["additionalProperties"] = QJsonObject{{"type", "string"}};
+    return s;
+}
 static QJsonObject schemaBool(const QString &desc = {})
 {
     QJsonObject s; s["type"] = "boolean";
@@ -466,28 +530,35 @@ void ClassMcpTools::registerDefaults()
 
     registerTool({
         "z80_net_info",
-        "Get structural information about a net: name, driving/driven transistors, pullup, bounding box.",
+        "Get structural information about a net: name, driving/driven transistors, pullup, bounding "
+        "box. Pass 'nets' with a list instead of 'net' to answer up to 256 in one call; each row "
+        "then carries its own 'error' if that entry could not be resolved.",
         schemaObject({
-            {"net", schemaNetRef()},
-        }, {"net"}),
+            {"net",  schemaNetRef()},
+            {"nets", schemaArray(schemaNetRef(), "Up to 256 nets, answered in one call")},
+        }),
         [this](const QJsonObject &a, QString &err) { return hndNetInfo(a, err); }
     });
 
     registerTool({
         "z80_trans_info",
-        "Get information about a transistor: gate/source/drain nets, box, current on/off state.",
+        "Get information about a transistor: gate/source/drain nets, box, current on/off state. "
+        "Pass 'ids' with a list instead of 'id' to answer up to 256 in one call.",
         schemaObject({
-            {"id", schemaInt("Transistor id")},
-        }, {"id"}),
+            {"id",  schemaInt("Transistor id")},
+            {"ids", schemaArray(schemaInt(), "Up to 256 transistor ids, answered in one call")},
+        }),
         [this](const QJsonObject &a, QString &err) { return hndTransInfo(a, err); }
     });
 
     registerTool({
         "z80_equation",
-        "Return the logic equation driving a net (optimised expression tree).",
+        "Return the logic equation driving a net, as the raw parse tree flattened to one line. "
+        "Pass 'nets' instead of 'net' to answer several in one call.",
         schemaObject({
-            {"net", schemaNetRef()},
-        }, {"net"}),
+            {"net",  schemaNetRef()},
+            {"nets", schemaArray(schemaNetRef(), "Up to 16 nets; each one is a full tree walk")},
+        }),
         [this](const QJsonObject &a, QString &err) { return hndEquation(a, err); }
     });
 
@@ -630,6 +701,57 @@ void ClassMcpTools::registerDefaults()
     });
 
     registerTool({
+        "z80_die_info",
+        "Describe the die image and the coordinate system every spatial answer uses, plus the layer "
+        "names z80_view_render accepts, the net and transistor draw modes, and the net value "
+        "encoding. Read this once instead of re-deriving the coordinate conventions.",
+        schemaNoArgs(),
+        [this](const QJsonObject &a, QString &err) { return hndDieInfo(a, err); }
+    });
+
+    registerTool({
+        "z80_view_render",
+        "Render a region of the die to a PNG the caller can see. The region is given in die pixels; "
+        "call z80_die_info for the coordinate system and the layer names. Small images come back "
+        "inline as an image block, larger ones are written to a file whose path is returned. "
+        "Overlays mirror the interactive view: active nets, transistors, latches, pull-ups, "
+        "net-name labels and annotations, plus per-net colouring and explicit highlights.",
+        schemaObject({
+            {"x",                schemaInt("Left edge of the region, in die pixels")},
+            {"y",                schemaInt("Top edge of the region, in die pixels")},
+            {"w",                schemaInt("Region width in die pixels")},
+            {"h",                schemaInt("Region height in die pixels")},
+            {"scale",            schemaNumber("Output pixels per die pixel (default 1). Net-name "
+                                              "labels only appear at 1.5 or above.", 0.02, 32.0)},
+            {"out_w",            schemaInt("Output width; an alternative to scale")},
+            {"out_h",            schemaInt("Output height; an alternative to scale")},
+            {"layers",           schemaArray(schemaString(), "Layer names from z80_die_info. The "
+                                             "first is the base, each further one XOR-blends over "
+                                             "it, as the interactive view does. Default "
+                                             "vss.vcc.nets.col")},
+            {"nets",             schemaColorMap("Per-net colour overlay: key is a net name or id, "
+                                                "value a colour such as #ff3c3c")},
+            {"highlight_nets",   schemaArray(schemaNetRef(), "Painted bright yellow over everything")},
+            {"highlight_trans",  schemaArray(schemaInt(), "Transistor ids, painted cyan")},
+            {"highlight_rects",  schemaArray(schemaArray(schemaInt()), "[x,y,w,h] boxes, dashed red")},
+            {"draw_nets",        schemaBool("Overlay active nets in one colour (default true)")},
+            {"net_mode",         schemaInt("0 active, 1 pull-up, 2 gate-less, 3 gate-less no pull-up")},
+            {"net_order",        schemaBool("Reverse the segment paint order (default false)")},
+            {"draw_transistors", schemaBool("Overlay transistor outlines (default false)")},
+            {"transistor_mode",  schemaInt("0 active, 1 single-flip, 2 sticky, 3 all")},
+            {"draw_latches",     schemaBool("Overlay latch boxes and names (default false)")},
+            {"draw_pullups",     schemaBool("Overlay pull-up symbols (default false)")},
+            {"draw_net_names",   schemaBool("Overlay net-name labels; needs scale >= 1.5 (default false)")},
+            {"draw_annotations", schemaBool("Overlay text annotations (default false)")},
+            {"inline_max_bytes", schemaInt("Inline the PNG below this size, otherwise write a file "
+                                           "and return its path")},
+            {"path",             schemaString("Absolute path to write the PNG to; implies a file "
+                                              "rather than an inline image")},
+        }, {"x", "y", "w", "h"}),
+        [this](const QJsonObject &a, QString &err) { return hndViewRender(a, err); }
+    });
+
+    registerTool({
         "z80_watchlist_add",
         "Append the given net names to the waveform watchlist so future "
         "z80_waveform_window calls return full sampled history for them. "
@@ -638,6 +760,15 @@ void ClassMcpTools::registerDefaults()
             {"nets", schemaArray(schemaString(), "Names to append")},
         }, {"nets"}),
         [this](const QJsonObject &a, QString &err) { return hndWatchlistAdd(a, err); }
+    });
+
+    registerTool({
+        "z80_watchlist_get",
+        "Report the current waveform watchlist, the per-net history depth, and the half-cycle range "
+        "that actually has recorded data. Call this before z80_waveform_window to see what an "
+        "earlier session left behind and what range can be served without a capture.",
+        schemaNoArgs(),
+        [this](const QJsonObject &a, QString &err) { return hndWatchlistGet(a, err); }
     });
 
     registerTool({
@@ -663,8 +794,9 @@ void ClassMcpTools::registerDefaults()
         "{root, nodes, truncated, node_count, id, name}. 'truncated' is true "
         "whenever any DotDot node is present (parser hit its depth budget).",
         schemaObject({
-            {"net", schemaNetRef()},
-        }, {"net"}),
+            {"net",  schemaNetRef()},
+            {"nets", schemaArray(schemaNetRef(), "Up to 16 nets; each one is a full tree walk")},
+        }),
         [this](const QJsonObject &a, QString &err) { return hndEquationTree(a, err); }
     });
 
@@ -679,8 +811,9 @@ void ClassMcpTools::registerDefaults()
         "Use this instead of z80_fanout when you want to answer 'what can "
         "drive this net low/high', not 'what does this net gate'.",
         schemaObject({
-            {"net", schemaNetRef()},
-        }, {"net"}),
+            {"net",  schemaNetRef()},
+            {"nets", schemaArray(schemaNetRef(), "Up to 256 nets, answered in one call")},
+        }),
         [this](const QJsonObject &a, QString &err) { return hndNetDrivers(a, err); }
     });
 
@@ -749,6 +882,9 @@ void ClassMcpTools::applyToolMetadata()
     const ToolHints kStep   { false, false, false, false };  // advances time; never idempotent
     const ToolHints kWipe   { false, true,  false, false };  // discards state the user may want
     const ToolHints kHost   { false, true,  false, true  };  // reaches outside the simulator
+    // Reads the simulator but may drop a PNG on the filesystem, and the image depends on where in
+    // time the simulation currently is, so it is neither purely read-only nor idempotent.
+    const ToolHints kRender { false, false, false, true  };  // renders; may write a file
 
     const MetaRow kMeta[] = {
         { "z80_load_hex",       "Load HEX program",        kHost,  false },
@@ -766,8 +902,10 @@ void ClassMcpTools::applyToolMetadata()
         { "z80_net_find",       "Search net names",        kRead,  true  },
         { "z80_net_info",       "Net details",             kRead,  true  },
         { "z80_trans_info",     "Transistor details",      kRead,  true  },
-        { "z80_equation",       "Net logic equation",      kRead,  true  },
-        { "z80_equation_tree",  "Net logic tree",          kRead,  true  },
+        // Not reentrant: getLogicTree() tracks visited nets and transistors, and the terminating-net
+        // list, in file statics, so a second tree walk arriving inside one would corrupt both.
+        { "z80_equation",       "Net logic equation",      kRead,  false },
+        { "z80_equation_tree",  "Net logic tree",          kRead,  false },
         { "z80_net_drivers",    "Net drivers",             kRead,  true  },
         { "z80_fanout",         "Net fanout",              kRead,  true  },
 
@@ -786,7 +924,10 @@ void ClassMcpTools::applyToolMetadata()
         { "z80_view_set",       "Set die view",            kWrite, true  },
         { "z80_view_grab",      "Export die image",        kHost,  false },
 
+        { "z80_die_info",       "Die and layer info",      kRead,  true  },
+        { "z80_view_render",    "Render die region",       kRender, true },
         { "z80_watchlist_add",  "Watch nets",              kWrite, false },
+        { "z80_watchlist_get",  "Read watchlist",          kRead,  true  },
         { "z80_sample_window",  "Capture net samples",     kWipe,  false },
 
         { "z80_rename_net",     "Rename net",              kWrite, true  },
@@ -1148,8 +1289,12 @@ QJsonValue ClassMcpTools::hndWaveformWindow(const QJsonObject &a, QString &err)
         int fromHc = intArg(a, "from_hc", int(ringStart));
         int toHc   = intArg(a, "to_hc",   int(curHc));
         if (fromHc < int(ringStart)) fromHc = int(ringStart);
-        if (toHc   > int(curHc))     toHc   = int(curHc);
         if (toHc   < fromHc)         toHc   = fromHc;
+
+        // from_hc / to_hc are an inclusive range, but getCurrentHCycle() is one past the last
+        // half-cycle that was written. Work in a half-open range clamped to what actually exists,
+        // so a to_hc of "now" does not read an unwritten slot and pick up the no-data sentinel.
+        const uint endHc = qMin(uint(toHc) + 1, curHc);
 
         QJsonObject samples;
         for (const QJsonValue &nv : names)
@@ -1164,15 +1309,15 @@ QJsonValue ClassMcpTools::hndWaveformWindow(const QJsonObject &a, QString &err)
             }
             else
             {
-                for (int hc = fromHc; hc <= toHc; hc++)
-                    arr.append(int(w.at(wp, uint(hc))));
+                for (uint hc = uint(fromHc); hc < endHc; hc++)
+                    arr.append(int(w.at(wp, hc)));
             }
             samples[name] = arr;
         }
 
         QJsonObject r;
         r["from_hc"] = fromHc;
-        r["to_hc"]   = toHc;
+        r["to_hc"]   = (endHc > uint(fromHc)) ? qint64(endHc - 1) : qint64(fromHc);
         r["samples"] = samples;
         return structuredResult(r);
     });
@@ -1209,15 +1354,81 @@ QJsonValue ClassMcpTools::hndNetFind(const QJsonObject &a, QString &err)
     });
 }
 
-QJsonValue ClassMcpTools::hndNetInfo(const QJsonObject &a, QString &)
+/*
+ * Batch plumbing shared by the four query tools. The scalar argument keeps the flat reply it has
+ * always had; the list argument returns one row per target under `results`. Both spellings live
+ * side by side rather than as a scalar-or-array union on one key, so that tools/list documents the
+ * list form explicitly and an existing caller's reply shape never changes.
+ */
+bool ClassMcpTools::batchArgs(const QJsonObject &a, const char *one, const char *many, int cap,
+                              QJsonArray &items, bool &plural, QString &err)
 {
-    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        ClassNetlist &nl = ::controller.getNetlist();
-        QString neterr;
-        net_t id = resolveNetChecked(a.value("net"), neterr);
-        if (id == 0) return errorResult(neterr);
-        QJsonObject r;
-        r["id"]         = int(id);
+    const bool hasOne  = a.contains(QLatin1String(one));
+    const bool hasMany = a.contains(QLatin1String(many));
+    if (hasOne && hasMany)
+    {
+        err = QString("Pass either '%1' or '%2', not both").arg(one, many);
+        return false;
+    }
+    if (!hasOne && !hasMany)
+    {
+        err = QString("Missing argument: pass '%1' for one target or '%2' for a list").arg(one, many);
+        return false;
+    }
+    plural = hasMany;
+    if (hasMany)
+    {
+        items = a.value(QLatin1String(many)).toArray();
+        if (items.isEmpty())
+        {
+            err = QString("'%1' is empty").arg(many);
+            return false;
+        }
+        if (items.size() > cap)
+        {
+            err = QString("'%1' holds %2 entries; this tool answers at most %3 per call")
+                      .arg(many).arg(items.size()).arg(cap);
+            return false;
+        }
+    }
+    else
+        items = QJsonArray{ a.value(QLatin1String(one)) };
+    return true;
+}
+
+QJsonValue ClassMcpTools::batchResult(const QJsonArray &items, bool plural,
+                                      QJsonObject (ClassMcpTools::*build)(const QJsonValue &))
+{
+    if (!plural)
+    {
+        QJsonObject r = (this->*build)(items.at(0));
+        // A scalar call reports a bad target as a tool error, which is what it did before batching.
+        if (r.contains("error") && (r.size() == 1))
+            return errorResult(r.value("error").toString());
+        return structuredResult(r);
+    }
+    QJsonArray results;
+    for (const QJsonValue &v : items)
+        results.append((this->*build)(v));
+    QJsonObject r;
+    r["results"] = results;
+    r["count"]   = results.size();
+    return structuredResult(r);
+}
+
+QJsonObject ClassMcpTools::netInfoObject(const QJsonValue &ref)
+{
+    ClassNetlist &nl = ::controller.getNetlist();
+    QString neterr;
+    net_t id = resolveNetChecked(ref, neterr);
+    if (id == 0)
+    {
+        QJsonObject e;
+        e["error"] = neterr;
+        return e;
+    }
+    QJsonObject r;
+    r["id"]         = int(id);
         r["name"]       = nl.get(id);
         r["info"]       = nl.netInfo(id);
         r["has_pullup"] = nl.isNetPulledUp(id);
@@ -1231,62 +1442,125 @@ QJsonValue ClassMcpTools::hndNetInfo(const QJsonObject &a, QString &)
         r["nets_driving"] = drivers;
         r["nets_driven"]  = driven;
 
-        ClassVisual &cv = ::controller.getChip();
-        const segvdef *sv = cv.getSegment(id);
-        if (sv && !sv->path.isEmpty())
+    ClassVisual &cv = ::controller.getChip();
+    const segvdef *sv = cv.getSegment(id);
+    if (sv && !sv->path.isEmpty())
+    {
+        QRect b = sv->path.boundingRect().toAlignedRect();
+        if (!b.isEmpty())
         {
-            QRect b = sv->path.boundingRect().toAlignedRect();
-            if (!b.isEmpty())
-            {
-                QJsonArray bb;
-                bb.append(b.left()); bb.append(b.top()); bb.append(b.width()); bb.append(b.height());
-                r["bbox"] = bb;
-            }
+            QJsonArray bb;
+            bb.append(b.left()); bb.append(b.top()); bb.append(b.width()); bb.append(b.height());
+            r["bbox"] = bb;
         }
-        return structuredResult(r);
+    }
+    return r;
+}
+
+QJsonObject ClassMcpTools::netDriversObject(const QJsonValue &ref)
+{
+    QString neterr;
+    net_t id = resolveNetChecked(ref, neterr);
+    if (id == 0)
+    {
+        QJsonObject e;
+        e["error"] = neterr;
+        return e;
+    }
+    return ::controller.getNetlist().netDriversJson(id);
+}
+
+QJsonObject ClassMcpTools::transInfoObject(const QJsonValue &ref)
+{
+    const int id = ref.toInt(-1);
+    if ((id <= 0) || (id >= MAX_TRANS))
+    {
+        QJsonObject e;
+        e["error"] = QString("Transistor id %1 is out of range 1..%2").arg(id).arg(MAX_TRANS - 1);
+        return e;
+    }
+    ClassNetlist &nl = ::controller.getNetlist();
+    ClassVisual  &cv = ::controller.getChip();
+    QJsonObject r;
+    r["id"] = id;
+    net_t c1 = 0, c2 = 0;
+    nl.getTnet(tran_t(id), c1, c2);
+    const transvdef *tv = cv.getTrans(tran_t(id));
+    r["gate_net"]   = tv ? int(tv->gatenet) : 0;
+    r["source_net"] = int(c1);
+    r["drain_net"]  = int(c2);
+    r["on"]         = nl.isTransOn(tran_t(id));
+    r["info"]       = nl.transInfo(tran_t(id));
+    if (tv)
+    {
+        QJsonArray box;
+        box.append(tv->box.left()); box.append(tv->box.top());
+        box.append(tv->box.width()); box.append(tv->box.height());
+        r["box"] = box;
+    }
+    return r;
+}
+
+QJsonObject ClassMcpTools::equationObject(const QJsonValue &ref)
+{
+    QString neterr;
+    net_t id = resolveNetChecked(ref, neterr);
+    if (id == 0)
+    {
+        QJsonObject e;
+        e["error"] = neterr;
+        return e;
+    }
+    QJsonObject r;
+    r["id"]   = int(id);
+    r["name"] = ::controller.getNetlist().get(id);
+    r["expr"] = ::controller.getNetlist().equation(id);
+    return r;
+}
+
+QJsonObject ClassMcpTools::equationTreeObject(const QJsonValue &ref)
+{
+    QString neterr;
+    net_t id = resolveNetChecked(ref, neterr);
+    if (id == 0)
+    {
+        QJsonObject e;
+        e["error"] = neterr;
+        return e;
+    }
+    return ::controller.getNetlist().equationTreeJson(id);
+}
+
+QJsonValue ClassMcpTools::hndNetInfo(const QJsonObject &a, QString &err)
+{
+    QJsonArray items;
+    bool plural = false;
+    if (!batchArgs(a, "net", "nets", MCP_BATCH_CAP, items, plural, err)) return {};
+
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        return batchResult(items, plural, &ClassMcpTools::netInfoObject);
     });
 }
 
 QJsonValue ClassMcpTools::hndTransInfo(const QJsonObject &a, QString &err)
 {
-    const int id = intArg(a, "id", -1);
-    if (id < 0) { err = "Missing 'id'"; return {}; }
+    QJsonArray items;
+    bool plural = false;
+    if (!batchArgs(a, "id", "ids", MCP_BATCH_CAP, items, plural, err)) return {};
 
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        ClassNetlist &nl = ::controller.getNetlist();
-        ClassVisual  &cv = ::controller.getChip();
-        QJsonObject r;
-        r["id"] = id;
-        net_t c1 = 0, c2 = 0;
-        nl.getTnet(tran_t(id), c1, c2);
-        const transvdef *tv = cv.getTrans(tran_t(id));
-        r["gate_net"]   = tv ? int(tv->gatenet) : 0;
-        r["source_net"] = int(c1);
-        r["drain_net"]  = int(c2);
-        r["on"]         = nl.isTransOn(tran_t(id));
-        r["info"]       = nl.transInfo(tran_t(id));
-        if (tv)
-        {
-            QJsonArray box;
-            box.append(tv->box.left()); box.append(tv->box.top());
-            box.append(tv->box.width()); box.append(tv->box.height());
-            r["box"] = box;
-        }
-        return structuredResult(r);
+        return batchResult(items, plural, &ClassMcpTools::transInfoObject);
     });
 }
 
-QJsonValue ClassMcpTools::hndEquation(const QJsonObject &a, QString &)
+QJsonValue ClassMcpTools::hndEquation(const QJsonObject &a, QString &err)
 {
+    QJsonArray items;
+    bool plural = false;
+    if (!batchArgs(a, "net", "nets", MCP_BATCH_CAP_TREE, items, plural, err)) return {};
+
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        QString neterr;
-        net_t id = resolveNetChecked(a.value("net"), neterr);
-        if (id == 0) return errorResult(neterr);
-        QJsonObject r;
-        r["id"]   = int(id);
-        r["name"] = ::controller.getNetlist().get(id);
-        r["expr"] = ::controller.getNetlist().equation(id);
-        return structuredResult(r);
+        return batchResult(items, plural, &ClassMcpTools::equationObject);
     });
 }
 
@@ -1576,8 +1850,8 @@ QJsonValue ClassMcpTools::hndFanout(const QJsonObject &a, QString &err)
 {
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
         ClassNetlist &nl = ::controller.getNetlist();
-        net_t id = resolveNet(a.value("net"));
-        if (id == 0) { err = "unknown net"; return QJsonValue{}; }
+        net_t id = resolveNetChecked(a.value("net"), err);
+        if (id == 0) return QJsonValue{};
 
         QVector<tran_t> gated = nl.getGatedTransistors(id);
         QVector<tran_t> connected = nl.getConnectedTransistors(id);
@@ -1650,6 +1924,264 @@ QJsonValue ClassMcpTools::hndWatchlistAdd(const QJsonObject &a, QString &err)
     });
 }
 
+QJsonValue ClassMcpTools::hndDieInfo(const QJsonObject &, QString &)
+{
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        ClassVisual &cv = ::controller.getChip();
+        ClassNetlist &nl = ::controller.getNetlist();
+        const QImage &die0 = cv.getImage(0);
+
+        QJsonObject image;
+        image["width"]  = die0.width();
+        image["height"] = die0.height();
+
+        // The layer key characters are what the interactive view's setLayer()/addLayer() accept
+        static const QString kLayerKeys = QStringLiteral("123456789abcdefghijk");
+        const QStringList names = cv.getImageNames();
+        QJsonArray layers;
+        for (int i = 0; i < names.size(); i++)
+        {
+            QJsonObject e;
+            e["index"]     = i;
+            e["key"]       = (i < kLayerKeys.size()) ? QString(kLayerKeys.at(i)) : QString();
+            e["name"]      = names.at(i);
+            e["paintable"] = ClassRenderer::layerPaintable(cv.getImage(uint(i)));
+            layers.append(e);
+        }
+
+        QJsonObject coords;
+        coords["origin"] = "top-left";
+        coords["x"]      = "increases rightward";
+        coords["y"]      = "increases downward";
+        coords["space"]  = "Every coordinate this server reports or accepts is a die image pixel. "
+                           "z80_net_info bbox, z80_trans_info box, z80_view_set and z80_view_render "
+                           "all use it, as [left, top, width, height] wherever a rect appears.";
+        coords["segdefs_y_flip"] = "segdefs.js and transdefs.js store y inverted; the loader flips "
+                                   "it as y_display = height - 1 - y_raw. layermap.bin is already "
+                                   "top-left origin and is not flipped. Anything read straight out "
+                                   "of those .js files therefore still needs the flip applied.";
+        coords["view_pan"] = "The interactive view pans in normalized [0,1] texture coordinates, "
+                             "but z80_view_set takes die pixels and converts.";
+
+        QJsonArray netModes;
+        for (const char *m : { "active", "pull-up", "gate-less", "gate-less no pull-up" })
+            netModes.append(QString::fromLatin1(m));
+        QJsonArray transModes;
+        for (const char *m : { "active", "single-flip", "sticky", "all" })
+            transModes.append(QString::fromLatin1(m));
+
+        // The pin_t domain, in one place; the tool descriptions point here rather than repeat it
+        QJsonObject values;
+        values["0"] = "logic low";
+        values["1"] = "logic high";
+        values["2"] = "floating (hi-Z): nothing drives the net and it has no pull-up";
+        values["3"] = "no data: nothing was recorded for that half-cycle, or it is outside the "
+                      "range the ring buffer still holds";
+        values["4"] = "the watch is a bus but was read through a net-shaped call";
+        values["4294967295"] = "a bus read where at least one member net is floating";
+
+        QJsonObject counts;
+        counts["nets"]            = int(nl.getNetlistCount());
+        counts["max_nets"]        = MAX_NETS;
+        counts["max_transistors"] = MAX_TRANS;
+        counts["pullups"]         = cv.getPullupCount();
+
+        QJsonObject zoom;
+        zoom["min"] = 0.1;
+        zoom["max"] = 10.0;
+
+        QJsonObject render;
+        render["net_name_min_scale"] = 1.5;
+        render["inline_max_bytes"]   = MCP_RENDER_INLINE_MAX;
+        render["max_output_side"]    = MCP_RENDER_MAX_SIDE;
+        render["output_dir"]         = QDir::toNativeSeparators(renderOutputDir());
+
+        QJsonObject r;
+        r["image"]            = image;
+        r["layers"]           = layers;
+        r["coords"]           = coords;
+        r["net_modes"]        = netModes;
+        r["transistor_modes"] = transModes;
+        r["net_values"]       = values;
+        r["counts"]           = counts;
+        r["zoom"]             = zoom;
+        r["render"]           = render;
+        return structuredResult(r);
+    });
+}
+
+QJsonValue ClassMcpTools::hndViewRender(const QJsonObject &a, QString &err)
+{
+    if (!a.contains("x") || !a.contains("y") || !a.contains("w") || !a.contains("h"))
+    {
+        err = "Missing region: x, y, w and h are all required, in die pixels";
+        return {};
+    }
+    const int x = intArg(a, "x", 0);
+    const int y = intArg(a, "y", 0);
+    const int w = intArg(a, "w", 0);
+    const int h = intArg(a, "h", 0);
+    if ((w < 1) || (h < 1))
+    {
+        err = QString("Region must be at least 1x1 die pixels; got %1x%2").arg(w).arg(h);
+        return {};
+    }
+
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        RenderSpec spec;
+        spec.worldRect = QRectF(x, y, w, h);
+
+        // Output size: an explicit out_w/out_h wins, then scale, then 1:1
+        double scale = a.contains("scale") ? a.value("scale").toDouble(1.0) : 1.0;
+        if (scale <= 0.0) scale = 1.0;
+        int ow = a.contains("out_w") ? intArg(a, "out_w", 0) : int(qRound(w * scale));
+        int oh = a.contains("out_h") ? intArg(a, "out_h", 0) : int(qRound(h * scale));
+        if ((ow < 1) || (oh < 1))
+            return errorResult(QString("Output size must be at least 1x1; got %1x%2").arg(ow).arg(oh));
+        // Clamp rather than refuse: a caller asking for the whole die at 1:1 wants a picture, not an
+        // error, and the metadata reports the size it actually got.
+        const bool clamped = (ow > MCP_RENDER_MAX_SIDE) || (oh > MCP_RENDER_MAX_SIDE);
+        ow = qMin(ow, MCP_RENDER_MAX_SIDE);
+        oh = qMin(oh, MCP_RENDER_MAX_SIDE);
+        spec.outputSize = QSize(ow, oh);
+
+        for (const QJsonValue &v : a.value("layers").toArray())
+        {
+            if (!v.toString().isEmpty())
+                spec.layerNames.append(v.toString());
+        }
+
+        spec.drawNets        = boolArg(a, "draw_nets", true);
+        spec.netMode         = uint(qBound(0, intArg(a, "net_mode", 0), 3));
+        spec.netOrder        = boolArg(a, "net_order", false);
+        spec.drawTransistors = boolArg(a, "draw_transistors", false);
+        spec.transistorMode  = uint(qBound(0, intArg(a, "transistor_mode", 0), 3));
+        spec.drawLatches     = boolArg(a, "draw_latches", false);
+        spec.drawPullups     = boolArg(a, "draw_pullups", false);
+        spec.drawNetNames    = boolArg(a, "draw_net_names", false);
+        spec.drawAnnotations = boolArg(a, "draw_annotations", false);
+
+        for (const QJsonValue &v : a.value("highlight_nets").toArray())
+        {
+            QString neterr;
+            net_t n = resolveNetChecked(v, neterr);
+            if (n == 0) return errorResult(neterr);
+            spec.highlightNets.append(n);
+        }
+        for (const QJsonValue &v : a.value("highlight_trans").toArray())
+        {
+            const int t = v.toInt(0);
+            if ((t <= 0) || (t >= MAX_TRANS))
+                return errorResult(QString("Transistor id %1 is out of range 1..%2")
+                                       .arg(t).arg(MAX_TRANS - 1));
+            spec.highlightTrans.append(tran_t(t));
+        }
+        for (const QJsonValue &v : a.value("highlight_rects").toArray())
+        {
+            const QJsonArray q = v.toArray();
+            if (q.size() != 4)
+                return errorResult("Each entry of highlight_rects must be [x, y, w, h]");
+            spec.highlightRects.append(QRect(q.at(0).toInt(), q.at(1).toInt(),
+                                             q.at(2).toInt(), q.at(3).toInt()));
+        }
+        const QJsonObject colorMap = a.value("nets").toObject();
+        for (auto it = colorMap.constBegin(); it != colorMap.constEnd(); ++it)
+        {
+            // The key is a net name or a numeric id written as text, so a number wins if it parses
+            bool isNum = false;
+            const int asNum = it.key().toInt(&isNum);
+            QString neterr;
+            net_t n = resolveNetChecked(isNum ? QJsonValue(asNum) : QJsonValue(it.key()), neterr);
+            if (n == 0) return errorResult(neterr);
+            const QColor c = QColor::fromString(it.value().toString());
+            if (!c.isValid())
+                return errorResult(QString("'%1' is not a colour I can parse; use #rrggbb")
+                                       .arg(it.value().toString()));
+            spec.netColors.insert(n, c);
+        }
+
+        RenderResult res = ::controller.getRenderer().renderRegion(spec);
+        if (!res.error.isEmpty())
+            return errorResult(res.error);
+
+        const QByteArray png = ClassRenderer::encodePng(res.image);
+
+        QJsonObject meta;
+        meta["width"]  = res.image.width();
+        meta["height"] = res.image.height();
+        QJsonArray world;
+        world.append(int(res.worldRect.left()));  world.append(int(res.worldRect.top()));
+        world.append(int(res.worldRect.width())); world.append(int(res.worldRect.height()));
+        meta["world"]     = world;
+        meta["scale"]     = qreal(res.image.width()) / qMax(1.0, res.worldRect.width());
+        QJsonArray used;
+        for (const QString &l : res.layersUsed)
+            used.append(l);
+        meta["layers"]    = used;
+        meta["png_bytes"] = png.size();
+        if (clamped)
+            meta["clamped_to"] = MCP_RENDER_MAX_SIDE;
+        if (res.pullupsSkipped)
+            meta["note_pullups"] = "Pull-up symbols were suppressed: they hide themselves when the "
+                                   "scale would render them below about five pixels.";
+        if (res.netNamesSkipped)
+            meta["note_net_names"] = "Net-name labels were suppressed: they need a scale of 1.5 or "
+                                     "more.";
+
+        // Delivery. An explicit path, or a PNG past the inline cap, goes to a file: an inline image
+        // is base64 inside the JSON reply, so a large one costs far more context than it is worth.
+        const QString wantPath = strArg(a, "path");
+        const int cap = a.contains("inline_max_bytes")
+                      ? intArg(a, "inline_max_bytes", MCP_RENDER_INLINE_MAX)
+                      : MCP_RENDER_INLINE_MAX;
+        if (wantPath.isEmpty() && (png.size() <= cap))
+        {
+            meta["inline"] = true;
+            return imageResult(png, meta);
+        }
+
+        QString path = wantPath;
+        if (path.isEmpty())
+        {
+            const QString dir = renderOutputDir();
+            if (!QDir().mkpath(dir))
+                return errorResult(QString("Cannot create the render directory %1").arg(dir));
+            path = dir + QString("/render-%1.png")
+                             .arg(QDateTime::currentDateTime().toString("yyyyMMdd-hhmmsszzz"));
+        }
+        // The application sets its working directory to resource/, so a relative path would land
+        // somewhere surprising; resolve it and report what was actually written.
+        path = QFileInfo(path).absoluteFilePath();
+        QFile f(path);
+        if (!f.open(QIODevice::WriteOnly) || (f.write(png) != png.size()))
+            return errorResult(QString("Cannot write %1: %2").arg(path, f.errorString()));
+        f.close();
+
+        meta["inline"] = false;
+        meta["path"]   = QDir::toNativeSeparators(path);
+        return imageResult(QByteArray(), meta);
+    });
+}
+
+QJsonValue ClassMcpTools::hndWatchlistGet(const QJsonObject &, QString &)
+{
+    return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        ClassWatch &w = ::controller.getWatch();
+        const QStringList names = w.getWatchlist();
+        QJsonArray arr;
+        for (const QString &n : names)
+            arr.append(n);
+        QJsonObject r;
+        r["watchlist"]     = arr;
+        r["count"]         = arr.size();
+        r["history_depth"] = w.historyDepth();
+        // The half-open range that holds data. Anything outside it reads as the no-data sentinel.
+        r["hstart"]        = qint64(w.gethstart());
+        r["hlast"]         = qint64(w.gethlast());
+        return structuredResult(r);
+    });
+}
+
 QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
 {
     QJsonArray names = a.value("nets").toArray();
@@ -1668,13 +2200,31 @@ QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
             if (!n.isEmpty() && !merged.contains(n))
                 merged.append(n);
         }
+        // The M/T label is derived from the state latches rather than recorded in halfCycle(): that
+        // loop already pays a name lookup per watched net per half-cycle, and only a caller asking
+        // for a window needs the label. The latches join the watchlist for the duration; they reach
+        // the reply only when the caller listed them itself, since the sample loop walks `names`.
+        static const char *kLatchNets[] = { "m1", "m2", "m3", "m4", "m5", "m6",
+                                            "t1", "t2", "t3", "t4", "t5", "t6" };
+        QStringList latches;
+        for (const char *ln : kLatchNets)
+        {
+            const QString name = QString::fromLatin1(ln);
+            if (!::controller.getNetlist().get(name))
+                continue;               // m6 carries no name today; it was renamed to ixy_d_phase
+            latches.append(name);
+            if (!merged.contains(name))
+                merged.append(name);
+        }
         w.updateWatchlist(merged);
 
         uint hcStart = 0;
         if (doReset)
         {
-            ::controller.doReset();
-            hcStart = 0;
+            // doReset() runs the reset sequence and returns how many half-cycles it burned. Those
+            // half-cycles are sampled too, so the window has to start after them or the caller gets
+            // the reset propagation prepended to the run it asked for.
+            hcStart = ::controller.doReset();
         }
         else
         {
@@ -1699,6 +2249,9 @@ QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
         uint hcEnd = ::controller.getSimZ80().getCurrentHCycle();
         uint ringStart = w.gethstart();
         uint fromHc = qMax(hcStart, ringStart);
+        // getCurrentHCycle() is one past the last half-cycle that was written, so the window is
+        // half-open. Including hcEnd would read an unwritten slot, where ClassWatch::at returns its
+        // no-data sentinel — which is what used to put a trailing 3 on the end of every column.
         uint toHc   = hcEnd;
 
         QJsonObject samples;
@@ -1714,10 +2267,39 @@ QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
             }
             else
             {
-                for (uint hc = fromHc; hc <= toHc; hc++)
+                for (uint hc = fromHc; hc < toHc; hc++)
                     arr.append(int(w.at(wp, hc)));
             }
             samples[name] = arr;
+        }
+
+        // Half-cycle index and M/T label per sample, aligned with the columns above.
+        watch *mWatch[7] = {};
+        watch *tWatch[7] = {};
+        for (const QString &ln : latches)
+        {
+            const int idx = ln.mid(1).toInt();
+            if ((idx < 1) || (idx > 6)) continue;
+            if (ln.startsWith(QLatin1Char('m')))
+                mWatch[idx] = w.find(ln);
+            else
+                tWatch[idx] = w.find(ln);
+        }
+        QJsonArray hcArr, mtArr;
+        for (uint hc = fromHc; hc < toHc; hc++)
+        {
+            hcArr.append(qint64(hc));
+            QChar mc = QLatin1Char('?');
+            QChar tc = QLatin1Char('?');
+            for (int i = 1; i <= 6; i++)
+            {
+                if (mWatch[i] && (w.at(mWatch[i], hc) == 1)) { mc = QLatin1Char('0' + i); break; }
+            }
+            for (int i = 1; i <= 6; i++)
+            {
+                if (tWatch[i] && (w.at(tWatch[i], hc) == 1)) { tc = QLatin1Char('0' + i); break; }
+            }
+            mtArr.append(QString("M%1T%2").arg(mc).arg(tc));
         }
 
         // Restore prior watchlist
@@ -1726,30 +2308,32 @@ QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
         QJsonObject r;
         r["hc_start"] = qint64(fromHc);
         r["hc_end"]   = qint64(toHc);
+        r["hc"]       = hcArr;
+        r["mt"]       = mtArr;
         r["samples"]  = samples;
         return structuredResult(r);
     });
 }
 
-QJsonValue ClassMcpTools::hndEquationTree(const QJsonObject &a, QString &)
+QJsonValue ClassMcpTools::hndEquationTree(const QJsonObject &a, QString &err)
 {
+    QJsonArray items;
+    bool plural = false;
+    if (!batchArgs(a, "net", "nets", MCP_BATCH_CAP_TREE, items, plural, err)) return {};
+
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        QString neterr;
-        net_t id = resolveNetChecked(a.value("net"), neterr);
-        if (id == 0) return errorResult(neterr);
-        QJsonObject r = ::controller.getNetlist().equationTreeJson(id);
-        return structuredResult(r);
+        return batchResult(items, plural, &ClassMcpTools::equationTreeObject);
     });
 }
 
-QJsonValue ClassMcpTools::hndNetDrivers(const QJsonObject &a, QString &)
+QJsonValue ClassMcpTools::hndNetDrivers(const QJsonObject &a, QString &err)
 {
+    QJsonArray items;
+    bool plural = false;
+    if (!batchArgs(a, "net", "nets", MCP_BATCH_CAP, items, plural, err)) return {};
+
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
-        QString neterr;
-        net_t id = resolveNetChecked(a.value("net"), neterr);
-        if (id == 0) return errorResult(neterr);
-        QJsonObject r = ::controller.getNetlist().netDriversJson(id);
-        return structuredResult(r);
+        return batchResult(items, plural, &ClassMcpTools::netDriversObject);
     });
 }
 

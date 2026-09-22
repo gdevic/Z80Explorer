@@ -88,6 +88,9 @@ private slots:
 
 private:
     QVector<transvdef> m_transvdefs;    // Array of transistor visual definitions
+    QVector<int> m_transIndex;          // Transistor id -> index into m_transvdefs, -1 when absent.
+                                        // Transistor ids are sparse up to MAX_TRANS, so this is
+                                        // what keeps getTrans() off a 6,800-entry linear scan.
     bool m_transBaseState[MAX_TRANS];   // Base state of each transistor
     uchar m_transFlipCount[MAX_TRANS];  // Number of times each transistor changed its state
     QVector<segvdef> m_segvdefs;        // List of segment visual definitions, index is the segment net number

@@ -96,6 +96,11 @@ public:
     // Preferred builder: emits the payload as validated structuredContent and, for clients that
     // only render text, the same JSON serialized into a text block.
     static QJsonValue structuredResult(const QJsonValue &jsonPayload);
+
+    // A result carrying a PNG the caller can actually look at, plus the metadata that describes
+    // it. The content array always holds the text block, because a tools/call result is required
+    // to have one; the image block is added only when the PNG is small enough to inline.
+    static QJsonValue imageResult(const QByteArray &pngBytes, const QJsonValue &jsonPayload);
     // A tool execution error. The model sees the text and can correct its arguments from it, so the
     // message should say what was wrong and what to do instead.
     static QJsonValue errorResult(const QString &message);
@@ -111,6 +116,25 @@ private:
     static uint   uintArg(const QJsonObject &a, const QString &key, uint def = 0);
     static bool   boolArg(const QJsonObject &a, const QString &key, bool def = false);
     static QString strArg(const QJsonObject &a, const QString &key, const QString &def = {});
+
+    // Resolves the scalar-or-list argument convention the query tools share: `one` names the single
+    // target, `many` the list form. Exactly one of the two must be present. On success `items` holds
+    // the targets and `plural` says which reply shape the caller asked for. Returns false and sets
+    // err when the arguments are unusable, including a list longer than cap.
+    static bool batchArgs(const QJsonObject &a, const char *one, const char *many, int cap,
+                          QJsonArray &items, bool &plural, QString &err);
+
+    // Per-target builders behind the batched query tools. Each returns the same object the scalar
+    // form of its tool returns, or an object carrying only `error` when the target cannot be
+    // resolved — so one bad entry in a list does not cost the caller the whole batch.
+    QJsonObject netInfoObject(const QJsonValue &ref);
+    QJsonObject netDriversObject(const QJsonValue &ref);
+    QJsonObject transInfoObject(const QJsonValue &ref);
+    QJsonObject equationObject(const QJsonValue &ref);
+    QJsonObject equationTreeObject(const QJsonValue &ref);
+
+    // Wraps a per-target builder in the scalar or list reply shape chosen by batchArgs().
+    QJsonValue batchResult(const QJsonArray &items, bool plural, QJsonObject (ClassMcpTools::*build)(const QJsonValue &));
 
     // Tool handlers — each returns a tool-call result object.
     QJsonValue hndLoadHex     (const QJsonObject &a, QString &err);
@@ -148,17 +172,20 @@ private:
     QJsonValue hndEvalJs      (const QJsonObject &a, QString &err);
 
     // Topology + waveform helpers added for the ALU-flag investigation.
-    QJsonValue hndFanout        (const QJsonObject &a, QString &err);
-    QJsonValue hndWatchlistAdd  (const QJsonObject &a, QString &err);
-    QJsonValue hndSampleWindow  (const QJsonObject &a, QString &err);
+    QJsonValue hndFanout      (const QJsonObject &a, QString &err);
+    QJsonValue hndWatchlistAdd(const QJsonObject &a, QString &err);
+    QJsonValue hndWatchlistGet(const QJsonObject &a, QString &err);
+    QJsonValue hndDieInfo     (const QJsonObject &a, QString &err);
+    QJsonValue hndViewRender  (const QJsonObject &a, QString &err);
+    QJsonValue hndSampleWindow(const QJsonObject &a, QString &err);
 
     // Structured-equation + direct-driver helpers.
-    QJsonValue hndEquationTree  (const QJsonObject &a, QString &err);
-    QJsonValue hndNetDrivers    (const QJsonObject &a, QString &err);
+    QJsonValue hndEquationTree(const QJsonObject &a, QString &err);
+    QJsonValue hndNetDrivers  (const QJsonObject &a, QString &err);
 
     // Net-name management (rename / delete; first-time naming goes through z80_eval_js setNetName).
-    QJsonValue hndRenameNet     (const QJsonObject &a, QString &err);
-    QJsonValue hndDeleteNetName (const QJsonObject &a, QString &err);
+    QJsonValue hndRenameNet   (const QJsonObject &a, QString &err);
+    QJsonValue hndDeleteNetName(const QJsonObject &a, QString &err);
 
     // Resolve a "net" argument that may be either a string name or an integer id.
     net_t resolveNet(const QJsonValue &v) const;

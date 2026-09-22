@@ -18,12 +18,13 @@
 // XXX Maybe we don't need to track visitedNets?
 static QSet<net_t> visitedNets; // Avoid loops by keeping nets that are already visited
 static QSet<tran_t> visitedTrans; // Avoid path duplication by keeping transistors that are already visited
+// The terminating-net list, read once per tree in getLogicTree() rather than per node. Building a
+// QSettings and re-reading the key in the constructor dominated the cost of a tree walk, and the
+// value cannot change mid-walk anyway. Same single-threaded contract as the two sets above.
+static QString termNodes;
 
 Logic::Logic(net_t n, LogicOp op, bool checkVisitedNets, bool first) : op(op), outnet(n)
 {
-    QSettings settings;
-    QString termNodes = settings.value("schematicTermNodes").toString();
-
     name = ::controller.getNetlist().get(n);
     if (name.isEmpty())
         name = QString::number(n);
@@ -201,6 +202,7 @@ Logic *ClassNetlist::getLogicTree(net_t net)
 
     visitedNets.clear();
     visitedTrans.clear();
+    termNodes = settings.value("schematicTermNodes").toString();
 
     auto root = new Logic(net, LogicOp::Net, false, true);
     root->root = true;

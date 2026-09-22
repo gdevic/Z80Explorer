@@ -310,6 +310,15 @@ bool ClassVisual::loadTransdefs(QString dir)
             else
                 qDebug() << "Skipping" << line;
         }
+        // Build the id -> index map now that the vector is final; every later getTrans() is one
+        // indexed read instead of a scan over every definition.
+        m_transIndex.assign(MAX_TRANS, -1);
+        for (int i = 0; i < m_transvdefs.size(); i++)
+        {
+            const tran_t id = m_transvdefs.at(i).id;
+            if (id < MAX_TRANS)
+                m_transIndex[id] = i;
+        }
         qInfo() << "Loaded" << m_transvdefs.count() << "transistor visual definitions";
         return true;
     }
@@ -444,13 +453,11 @@ const segvdef *ClassVisual::getSegment(net_t net)
  */
 const transvdef *ClassVisual::getTrans(tran_t id)
 {
-    if ((id < MAX_TRANS) && id)
+    if ((id < MAX_TRANS) && id && (id < m_transIndex.size()))
     {
-        for (int i = 0; i < m_transvdefs.size(); i++)
-        {
-            if (m_transvdefs.at(i).id == id)
-                return &m_transvdefs.at(i);
-        }
+        const int i = m_transIndex.at(id);
+        if (i >= 0)
+            return &m_transvdefs.at(i);
     }
     return nullptr;
 }

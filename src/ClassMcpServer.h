@@ -1,6 +1,7 @@
 #ifndef CLASSMCPSERVER_H
 #define CLASSMCPSERVER_H
 
+#include <QHttpHeaders>
 #include <QHttpServer>
 #include <QHttpServerRequest>
 #include <QHttpServerResponse>
@@ -72,6 +73,15 @@ private:
     // Validates the per-request `_meta` protocol fields the stateless revision requires. Returns an
     // empty object when the request is acceptable, otherwise the JSON-RPC error to send back.
     QJsonObject checkRequestMeta(const QJsonObject &req, const QString &method, int &httpStatus);
+
+    // Validates the standard request headers the transport mirrors from the body. Returns an empty
+    // object when the request is acceptable, otherwise the JSON-RPC error to send back. Runs after
+    // the body is parsed, because every check here is a header-against-body comparison.
+    QJsonObject checkRequestHeaders(const QHttpHeaders &h, const QJsonObject &req, const QString &method, int &httpStatus);
+
+    // Decodes the `=?base64?...?=` sentinel the transport allows on header values that cannot be
+    // carried as plain ASCII. A value not in that form is returned as-is.
+    static QString decodeHeaderValue(const QByteArray &raw);
 
     static QJsonObject makeError(const QJsonValue &id, int code, const QString &message,
                                  const QJsonValue &data = QJsonValue(QJsonValue::Undefined));
