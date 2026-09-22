@@ -5,15 +5,32 @@ All notable changes to Z80 Explorer are documented in this file. For details, al
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
-### Changed
-- MCP server now speaks protocol revision 2026-07-28 and only that revision. The revision is stateless: there is no initialize handshake, every request carries its own protocol version and client capabilities, and a client discovers the server with `server/discover`. A client that opens with the old handshake is told which revision to use instead of being left guessing.
-
 ### Added
+- Built-in MCP server so LLM clients can drive the simulator: load HEX, run cycles, read nets, sample waveform windows, walk equation trees, trace fanout, control the watchlist, and rename or delete net names
 - MCP results carry `structuredContent`, so a client gets validated JSON instead of parsing it back out of a text block. Five tools declare an `outputSchema` to go with it.
 - Every MCP tool publishes behaviour hints and a display title, so a host can tell the 15 read-only tools apart from the ones that move the simulation or reach outside it.
 - MCP resources for the static chip data: the named-net table, the chip pins, and per-net templates for details, drivers, fanout and logic equation.
 - MCP prompts for the investigations this project repeats: trace a net's drivers, characterise a PLA row, capture an opcode's timing, find the latch behind a signal.
 - MCP argument completion over net names, so a model completes a name instead of guessing it.
+- Settings dialog with runtime-configurable waveform history depth and server enable/port options
+- Filter search box above the net lists in the edit dialogs
+- Drag-and-drop of any customization JSON, several files at once, with CTRL to merge dropped colors
+- Drag-and-drop of .asm sources onto the Sim Monitor, assembled by the bundled zmac
+- Pull-up transistor symbol detection and overlay in the image view
+- test_every_op and test_every_pla_bucket diagnostic programs
+- GitHub Actions release workflow building Windows, macOS and Linux artifacts
+
+### Changed
+- MCP server now speaks protocol revision 2026-07-28 and only that revision. The revision is stateless: there is no initialize handshake, every request carries its own protocol version and client capabilities, and a client discovers the server with `server/discover`. A client that opens with the old handshake is told which revision to use instead of being left guessing.
+
+### Improved
+- resource/ reorganized into purpose-named subfolders: chip/, user/, scripts/, zx/, tests/
+- Waveform: movable divider, persistent horizontal scrollbars, bus value text that follows the visible left edge, and double-click on a watchlist row to edit it
+- Edit Colors: explicit Save button, persistent file path, and refined Enabled toggle behaviour across selected rows
+- Find centers the image view on the located feature and pans to it along an easing curve
+- Wheel zoom behaves the same on Windows and macOS
+- zmac is bundled for macOS and Linux as well as Windows
+- User's Guide brought up to date with the code
 
 ### Fixed
 - `z80_run` missed the completion signal for runs of one or two half-cycles, so single-stepping waited out the full timeout and then reported `timeout`. It now returns as soon as the run ends.
@@ -24,26 +41,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Out-of-range net ids were read straight out of the netlist arrays. Net arguments are now range-checked.
 - The MCP endpoint accepted any `Origin` and any content type, which left the JavaScript escape-hatch tool reachable from a web page through DNS rebinding. Cross-origin requests are refused and a JSON content type is required.
 - `z80_net_read` declared its entries as objects while the handler wanted names or numbers, and the no-argument tools declared a schema that accepted anything.
-
-### Added
-- Built-in MCP server so LLM clients can drive the simulator: load HEX, run cycles, read nets, sample waveform windows, walk equation trees, trace fanout, control the watchlist, and rename or delete net names
-- Settings dialog with runtime-configurable waveform history depth and server enable/port options
-- Filter search box above the net lists in the edit dialogs
-- Drag-and-drop of any customization JSON, several files at once, with CTRL to merge dropped colors
-- Drag-and-drop of .asm sources onto the Sim Monitor, assembled by the bundled zmac
-- Pull-up transistor symbol detection and overlay in the image view
-- test_every_op and test_every_pla_bucket diagnostic programs
-- GitHub Actions release workflow building Windows, macOS and Linux artifacts
-
-### Improved
-- resource/ reorganized into purpose-named subfolders: chip/, user/, scripts/, zx/, tests/
-- Waveform: movable divider, persistent horizontal scrollbars, bus value text that follows the visible left edge, and double-click on a watchlist row to edit it
-- Edit Colors: explicit Save button, persistent file path, and refined Enabled toggle behaviour across selected rows
-- Find centers the image view on the located feature and pans to it along an easing curve
-- Wheel zoom behaves the same on Windows and macOS
-- zmac is bundled for macOS and Linux as well as Windows
-
-### Fixed
 - Black-square holes and per-segment stroke seams in net rendering
 - QWidget warning on clean exit; the servers now stop while qApp is still alive
 
