@@ -38,10 +38,6 @@ Read the [User's Guide](https://gdevic.github.io/Z80Explorer).<br>
 
 Download from the [GitHub releases page](https://github.com/gdevic/Z80Explorer/releases). Builds are available for Windows, macOS, and Linux (glibc 2.35+).
 
-On Linux, you may need the XCB cursor library:
-
-    sudo apt install libxcb-cursor0
-
 ## Building from source
 
 Requires Qt 6.9+ and a C++17 compiler. Either build system works: `Z80Explorer.pro` (qmake) or `CMakeLists.txt` (CMake). The simplest path is to open one of these in Qt Creator and pick the *Release* kit.
