@@ -194,6 +194,10 @@ private:
     net_t resolveNetChecked(const QJsonValue &v, QString &err) const;
     // Up to `limit` existing net names closest to `name`, used to make a rejection recoverable.
     QStringList nearestNetNames(const QString &name, int limit = 5) const;
+    // Resolve one entry of a watch-based tool's `nets` array to the key ClassWatch stores. Returns
+    // an empty string and fills `err` when the entry names nothing, so a typo is reported rather
+    // than silently dropped from the capture.
+    QString resolveWatchKey(const QJsonValue &v, QString &err) const;
     // Resolve the appropriate "current" sim for bit reads (respects USE_AVX2_SIM).
     pin_t readBitByName(const QString &name) const;
     pin_t readBitByNum(net_t n) const;

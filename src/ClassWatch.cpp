@@ -195,6 +195,16 @@ void ClassWatch::updateWatchlist(QStringList list)
     {
         net_t net = Net.get(name);
         const QVector<net_t> &nets = Net.getBus(name);
+        // A net that carries no name is still watchable by its number, the same numeric reference
+        // that ClassScript::readBit() and the MCP tools take. The watch keeps the numeric string as
+        // its name, so it round-trips through the watchlist file and the waveform view unchanged.
+        if ((net == 0) && nets.isEmpty())
+        {
+            bool isNum = false;
+            const uint num = name.toUInt(&isNum);
+            if (isNum && (num > 0) && (num < MAX_NETS))
+                net = net_t(num);
+        }
         watch *w = find(name);
 
         if (net || nets.count()) // The name represents a (valid) net or a bus

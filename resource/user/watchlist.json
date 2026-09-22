@@ -593,7 +593,7 @@
             "net": 650
         },
         {
-            "name": "bus_795",
+            "name": "const66_gen",
             "net": 795
         },
         {
@@ -3439,6 +3439,38 @@
         {
             "name": "zf_carrier_737",
             "net": 737
+        },
+        {
+            "name": "const66_hi",
+            "net": 1859
+        },
+        {
+            "name": "const66_lo",
+            "net": 1911
+        },
+        {
+            "name": "const66_hin",
+            "net": 2064
+        },
+        {
+            "name": "const66_lon",
+            "net": 2084
+        },
+        {
+            "name": "const66_cf",
+            "net": 717
+        },
+        {
+            "name": "daa_hi_ok",
+            "net": 819
+        },
+        {
+            "name": "daa_lo_ok",
+            "net": 762
+        },
+        {
+            "name": "alub_bus",
+            "net": 820
         }
     ]
 }

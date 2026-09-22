@@ -248,6 +248,63 @@ net_t ClassMcpTools::resolveNetChecked(const QJsonValue &v, QString &err) const
     return 0;
 }
 
+/*
+ * ClassWatch keys its entries by string, and resolves a net name, a bus name or a net number. This
+ * turns one `nets` entry into that key: a name passes through, a numeric reference becomes its
+ * canonical decimal string. Anything that names nothing is rejected here, because updateWatchlist()
+ * drops an unresolvable entry without saying so, which would leave the caller a missing column
+ * instead of an error.
+ */
+QString ClassMcpTools::resolveWatchKey(const QJsonValue &v, QString &err) const
+{
+    ClassNetlist &nl = ::controller.getNetlist();
+
+    if (v.isDouble())
+    {
+        const int n = v.toInt(-1);
+        if ((n <= 0) || (n >= int(MAX_NETS)))
+        {
+            err = QString("Net id %1 is out of range; valid ids are 1..%2.").arg(n).arg(MAX_NETS - 1);
+            return {};
+        }
+        return QString::number(n);
+    }
+
+    if (!v.isString())
+    {
+        err = QStringLiteral("A watched net must be given as a string name or an integer id.");
+        return {};
+    }
+
+    QString s = v.toString().trimmed();  // Not const: ClassNetlist::getBus() takes a QString&
+    if (s.isEmpty())
+    {
+        err = QStringLiteral("A watched net name cannot be empty.");
+        return {};
+    }
+    if (nl.get(s) || !nl.getBus(s).isEmpty())
+        return s;                       // An existing net name, or a bus name
+
+    bool isNum = false;
+    const uint num = s.toUInt(&isNum);
+    if (isNum)
+    {
+        if ((num == 0) || (num >= MAX_NETS))
+        {
+            err = QString("Net id %1 is out of range; valid ids are 1..%2.").arg(num).arg(MAX_NETS - 1);
+            return {};
+        }
+        return QString::number(num);
+    }
+
+    const QStringList near = nearestNetNames(s);
+    err = near.isEmpty()
+        ? QString("Unknown net or bus \"%1\". Use z80_net_find to search net names.").arg(s)
+        : QString("Unknown net or bus \"%1\". Did you mean: %2? Use z80_net_find to search.")
+              .arg(s, near.join(QStringLiteral(", ")));
+    return {};
+}
+
 pin_t ClassMcpTools::readBitByName(const QString &name) const
 {
 #if USE_AVX2_SIM
@@ -753,11 +810,16 @@ void ClassMcpTools::registerDefaults()
 
     registerTool({
         "z80_watchlist_add",
-        "Append the given net names to the waveform watchlist so future "
+        "Append the given nets to the waveform watchlist so future "
         "z80_waveform_window calls return full sampled history for them. "
-        "Duplicates are ignored. Does NOT clear existing entries.",
+        "Each entry is a net name, a bus name, or a numeric net id, so a net "
+        "that carries no name can be watched by number. Duplicates are "
+        "ignored. Does NOT clear existing entries. An entry that names "
+        "nothing fails the call and reports the closest existing names. "
+        "The reply splits the outcome into 'added', 'skipped' (already "
+        "present) and 'rejected'.",
         schemaObject({
-            {"nets", schemaArray(schemaString(), "Names to append")},
+            {"nets", schemaArray(schemaNetRef(), "Net names, bus names or numeric ids to append")},
         }, {"nets"}),
         [this](const QJsonObject &a, QString &err) { return hndWatchlistAdd(a, err); }
     });
@@ -775,9 +837,12 @@ void ClassMcpTools::registerDefaults()
         "z80_sample_window",
         "Convenience: add the requested nets to the watchlist, reset the sim, "
         "run N half-cycles, return the sampled table, then restore the prior "
-        "watchlist. Use for single-shot captures without touching config.",
+        "watchlist. Use for single-shot captures without touching config. "
+        "Each entry is a net name, a bus name, or a numeric net id, so a net "
+        "that carries no name can be captured by number. An entry that names "
+        "nothing fails the call and reports the closest existing names.",
         schemaObject({
-            {"nets",       schemaArray(schemaString(), "Net names to capture")},
+            {"nets",       schemaArray(schemaNetRef(), "Net names, bus names or numeric ids to capture")},
             {"halfcycles", schemaInt("Number of half-cycles to run from reset")},
             {"reset",      schemaBool("Reset before running (default true)")},
         }, {"nets", "halfcycles"}),
@@ -1906,19 +1971,31 @@ QJsonValue ClassMcpTools::hndWatchlistAdd(const QJsonObject &a, QString &err)
         QStringList skipped;
         for (const QJsonValue &v : names)
         {
-            const QString n = v.toString();
-            if (n.isEmpty()) continue;
-            if (current.contains(n)) { skipped.append(n); continue; }
-            // The watch stores the name and resolves it at sample time, so we
-            // accept any non-empty string. Callers can grep the returned list
-            // afterwards to confirm it stuck.
-            current.append(n);
-            added.append(n);
+            const QString key = resolveWatchKey(v, err);
+            if (key.isEmpty()) return QJsonValue{};
+            if (current.contains(key)) { skipped.append(key); continue; }
+            current.append(key);
+            added.append(key);
         }
         w.updateWatchlist(current);
+
+        // updateWatchlist() is the authority on what a watch can hold, so the reply reports the list
+        // it produced rather than the list it was handed.
+        const QStringList after = w.getWatchlist();
+        QStringList rejected;
+        for (int i = added.count() - 1; i >= 0; i--)
+        {
+            if (!after.contains(added.at(i)))
+            {
+                rejected.prepend(added.at(i));
+                added.removeAt(i);
+            }
+        }
+
         QJsonObject r;
         r["added"]    = QJsonArray::fromStringList(added);
-        r["skipped"]  = QJsonArray::fromStringList(skipped);
+        r["skipped"]  = QJsonArray::fromStringList(skipped);   // already on the watchlist
+        r["rejected"] = QJsonArray::fromStringList(rejected);  // resolved, but the watch did not take
         r["total"]    = int(w.getWatchlistLen());
         return structuredResult(r);
     });
@@ -2190,20 +2267,30 @@ QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
     if (names.isEmpty() || halfcycles <= 0) { err = "Missing 'nets' or 'halfcycles'"; return {}; }
 
     return ClassMcpThreading::callOnMain([&]() -> QJsonValue {
+        // Resolve every requested net before touching the watchlist, so a name that exists nowhere
+        // fails the whole call with near matches rather than yielding a silently missing column.
+        QStringList keys;
+        for (const QJsonValue &v : names)
+        {
+            const QString key = resolveWatchKey(v, err);
+            if (key.isEmpty()) return QJsonValue{};
+            if (!keys.contains(key))
+                keys.append(key);
+        }
+
         ClassWatch &w = ::controller.getWatch();
         // Save prior watchlist
         QStringList prior = w.getWatchlist();
         QStringList merged = prior;
-        for (const QJsonValue &v : names)
+        for (const QString &key : keys)
         {
-            const QString n = v.toString();
-            if (!n.isEmpty() && !merged.contains(n))
-                merged.append(n);
+            if (!merged.contains(key))
+                merged.append(key);
         }
         // The M/T label is derived from the state latches rather than recorded in halfCycle(): that
         // loop already pays a name lookup per watched net per half-cycle, and only a caller asking
         // for a window needs the label. The latches join the watchlist for the duration; they reach
-        // the reply only when the caller listed them itself, since the sample loop walks `names`.
+        // the reply only when the caller listed them itself, since the sample loop walks `keys`.
         static const char *kLatchNets[] = { "m1", "m2", "m3", "m4", "m5", "m6",
                                             "t1", "t2", "t3", "t4", "t5", "t6" };
         QStringList latches;
@@ -2255,21 +2342,17 @@ QJsonValue ClassMcpTools::hndSampleWindow(const QJsonObject &a, QString &err)
         uint toHc   = hcEnd;
 
         QJsonObject samples;
-        for (const QJsonValue &nv : names)
+        for (const QString &name : keys)
         {
-            const QString name = nv.toString();
-            if (name.isEmpty()) continue;
             watch *wp = w.find(name);
-            QJsonArray arr;
             if (!wp)
             {
-                arr.append(int(readBitByName(name)));
+                err = QString("Net \"%1\" resolved but could not be watched.").arg(name);
+                return QJsonValue{};
             }
-            else
-            {
-                for (uint hc = fromHc; hc < toHc; hc++)
-                    arr.append(int(w.at(wp, hc)));
-            }
+            QJsonArray arr;
+            for (uint hc = fromHc; hc < toHc; hc++)
+                arr.append(int(w.at(wp, hc)));
             samples[name] = arr;
         }
 

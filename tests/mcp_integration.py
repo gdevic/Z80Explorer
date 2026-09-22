@@ -633,6 +633,37 @@ def t_sample_window_exact_count(c):
     assert len(set(r["samples"]["clk"])) == 2, "clk should toggle"
 
 
+def t_sample_window_numeric_nets(c):
+    """A net carrying no name is captured by its number, as a full column.
+
+    ClassWatch resolves a watch key by name, so a numeric reference used to be dropped silently and
+    the column came back as a single current value instead of the window. const66_gen (795) is
+    named now, so this uses a still-unnamed ALU bus control to keep testing the numeric path.
+    """
+    n = 20
+    r = c.tool_json("z80_sample_window", {"nets": [604, "684", "clk"], "halfcycles": n,
+                                          "reset": True}, timeout=60)
+    cols = r["samples"]
+    assert set(cols) == {"604", "684", "clk"}, f"unexpected columns: {sorted(cols)}"
+    for name, col in cols.items():
+        assert len(col) == n, f"{name}: got {len(col)} samples for halfcycles={n}"
+
+
+def t_sample_window_unknown_net(c):
+    """An entry naming nothing fails the call instead of yielding a silently wrong column."""
+    body = c.tool_raw("z80_sample_window", {"nets": ["clk", "no_such_net_xyz"],
+                                            "halfcycles": 4, "reset": True}, timeout=60)
+    res = body.get("result", {})
+    assert res.get("isError") or ("error" in body), f"expected an error, got {body}"
+    text = json.dumps(body)
+    assert "no_such_net_xyz" in text, f"the rejection should name the offending entry: {text}"
+    # An out-of-range number is rejected the same way, rather than being watched as net 0.
+    body = c.tool_raw("z80_sample_window", {"nets": [99999], "halfcycles": 4, "reset": True},
+                      timeout=60)
+    res = body.get("result", {})
+    assert res.get("isError") or ("error" in body), f"expected an error, got {body}"
+
+
 def t_sample_window_hc_and_mt(c):
     r = c.tool_json("z80_sample_window", {"nets": ["clk"], "halfcycles": 12, "reset": True}, timeout=60)
     hc, mt = r["hc"], r["mt"]
@@ -902,6 +933,8 @@ def main():
     s.section("Tools: waveforms and sampling")
     s.run("z80_watchlist_add + z80_watchlist_get", lambda: t_watchlist_add_and_get(c))
     s.run("z80_sample_window exact count, no sentinel", lambda: t_sample_window_exact_count(c))
+    s.run("z80_sample_window numeric (unnamed) nets", lambda: t_sample_window_numeric_nets(c))
+    s.run("z80_sample_window unknown net refused", lambda: t_sample_window_unknown_net(c))
     s.run("z80_sample_window hc + mt arrays", lambda: t_sample_window_hc_and_mt(c))
     s.run("z80_sample_window ixy_d_phase window", lambda: t_sample_window_net_210(c))
     s.run("z80_waveform_window no sentinel", lambda: t_waveform_window_no_sentinel(c))
