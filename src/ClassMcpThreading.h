@@ -8,16 +8,22 @@
 #include <type_traits>
 
 /*
- * ClassMcpThreading — cross-thread marshalling helper.
+ * ClassMcpThreading — main-thread marshalling guard.
  *
- * MCP tool handlers arrive on QHttpServer's handler thread (or any thread
- * the Qt dispatcher uses). Sim state and the Qt graphics stack must only
- * be touched from the main (GUI) thread, where the controller lives.
+ * Sim state and the Qt graphics stack may only be touched from the main
+ * (GUI) thread, where the controller lives.
  *
- * callOnMain() runs the given callable synchronously on the main thread
- * via Qt::BlockingQueuedConnection, returning its result to the caller.
- * If already on the main thread, the callable is invoked directly with
- * no queue round-trip. Works with void and non-void return types.
+ * QHttpServer dispatches its route handlers on the thread it was created
+ * on, and ClassMcpServer is created on the main thread, so MCP handlers
+ * already run there and callOnMain() invokes the callable directly. The
+ * queued branch keeps the invariant true if the server is ever moved to a
+ * worker thread; it is not a claim that handlers arrive from one today.
+ * Works with void and non-void return types.
+ *
+ * Note what the direct path implies: a handler that blocks, or that spins
+ * a nested event loop, does so on the GUI thread. A long tool must bound
+ * its wait, and ClassMcpServer serialises the tools that cannot tolerate
+ * being re-entered from inside such a loop.
  */
 namespace ClassMcpThreading
 {

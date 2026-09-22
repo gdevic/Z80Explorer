@@ -7,26 +7,31 @@
 #include <QJsonValue>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QVector>
 #include <functional>
 
 /*
  * ClassMcpTools — MCP tool registry and dispatcher.
  *
- * Holds a table of ToolDef { name, description, inputSchema, handler }
- * entries. registerDefaults() populates the 26 built-in tools covering
- * execution control, state reads, memory/IO, pin control, breakpoints,
- * spatial queries, rendering, and an eval_js escape hatch.
+ * Holds a table of ToolDef entries carrying a name, description, title,
+ * input and output schemas, behaviour hints and the handler.
+ * registerDefaults() populates the built-in tools covering execution
+ * control, state reads, memory and IO, pin control, breakpoints,
+ * topology queries, waveform capture, and an eval_js escape hatch;
+ * applyToolMetadata() then stamps the per-tool metadata from one table.
  *
  * invoke(name, args, err) dispatches to the matching handler. Each
  * handler marshals to the main thread via ClassMcpThreading::callOnMain()
  * before touching controller state or the Qt graphics stack. Handlers
  * must not throw — they report errors by filling `err` and returning a
- * null QJsonValue.
+ * null QJsonValue, or by returning errorResult() for a failure the model
+ * can correct by retrying with different arguments.
  *
- * Handlers return the MCP tool-call result format:
- *   { "content": [ {"type":"text","text":"..."} ], "isError": false }
- * Helper factories below build these shapes.
+ * Handlers return the MCP tool-call result format. Prefer
+ * structuredResult(), which emits the payload as structuredContent for
+ * the client to validate against outputSchema and, for text-only clients,
+ * the same JSON in a text block.
  */
 class ClassMcpTools : public QObject
 {
@@ -36,29 +41,71 @@ public:
     // Return value is the full tool-call result object (with "content").
     using Handler = std::function<QJsonValue(const QJsonObject &args, QString &err)>;
 
+    // Behaviour hints published with each tool. They tell a client how much damage a call can do,
+    // which is what lets a host auto-approve the pure reads instead of prompting for all of them.
+    struct ToolHints
+    {
+        bool readOnly    {false};       // Does not modify any state
+        bool destructive {false};       // May discard or overwrite state the user cares about
+        bool idempotent  {true};        // Repeating the call with the same arguments changes nothing
+        bool openWorld   {false};       // Reaches outside the simulator (filesystem, processes)
+    };
+
     struct ToolDef
     {
         QString name;
         QString description;
         QJsonObject inputSchema;        // JSON Schema for the arguments
         Handler handler;
+        QString title;                  // Human-readable name for display
+        QJsonObject outputSchema;       // JSON Schema for structuredContent; empty when unstructured
+        ToolHints hints;
+        bool reentrant {true};          // Safe to run while another tool holds a nested event loop
     };
 
     explicit ClassMcpTools(QObject *parent = nullptr);
 
-    void registerDefaults();            // Populate the 26 built-in tools
+    void registerDefaults();            // Populate the built-in tools
     void registerTool(const ToolDef &t);// Add a custom tool (for tests)
 
     QJsonArray toolsList() const;       // For MCP tools/list response
     QJsonValue invoke(const QString &name, const QJsonObject &args, QString &err);
+
+    // Resources. The chip's topology never changes while the app runs, so the bulk of it is better
+    // fetched once as a resource than re-queried through a tool on every question about it.
+    QJsonArray resourcesList() const;
+    QJsonArray resourceTemplatesList() const;
+    QJsonValue readResource(const QString &uri, QString &err);
+
+    // Prompts: the investigations this project repeats, so they do not have to be re-specified.
+    QJsonArray promptsList() const;
+    QJsonValue getPrompt(const QString &name, const QJsonObject &args, QString &err);
+
+    // Argument completion. Net names are the argument a model gets wrong most often, and the spec
+    // scopes completion to prompt arguments and resource-template variables, which is where the
+    // net-name variables live.
+    QJsonObject complete(const QJsonObject &ref, const QString &argName, const QString &value) const;
     int toolCount() const { return m_tools.size(); }
     const QVector<ToolDef> &tools() const { return m_tools; }
+    bool hasTool(const QString &name) const;
+    bool isReentrant(const QString &name) const;
 
     // Result builders (public so tests and custom tools can use them)
     static QJsonValue textResult(const QString &text, bool isError = false);
     static QJsonValue textResult(const QJsonValue &jsonPayload);
+    // Preferred builder: emits the payload as validated structuredContent and, for clients that
+    // only render text, the same JSON serialized into a text block.
+    static QJsonValue structuredResult(const QJsonValue &jsonPayload);
+    // A tool execution error. The model sees the text and can correct its arguments from it, so the
+    // message should say what was wrong and what to do instead.
+    static QJsonValue errorResult(const QString &message);
 
 private:
+    // Stamps title, behaviour hints, re-entrancy and outputSchema onto the tools registered by
+    // registerDefaults(). Kept as a table next to the schemas so the metadata for all tools can be
+    // read and audited in one place instead of being scattered across 30-odd registration blocks.
+    void applyToolMetadata();
+
     // Common argument-parsing helpers
     static int    intArg(const QJsonObject &a, const QString &key, int def = 0);
     static uint   uintArg(const QJsonObject &a, const QString &key, uint def = 0);
@@ -115,6 +162,11 @@ private:
 
     // Resolve a "net" argument that may be either a string name or an integer id.
     net_t resolveNet(const QJsonValue &v) const;
+    // Same, but range-checked, and on failure fills `err` with a message naming the rejected value
+    // and, for a misspelled name, the closest existing names. Returns 0 on failure.
+    net_t resolveNetChecked(const QJsonValue &v, QString &err) const;
+    // Up to `limit` existing net names closest to `name`, used to make a rejection recoverable.
+    QStringList nearestNetNames(const QString &name, int limit = 5) const;
     // Resolve the appropriate "current" sim for bit reads (respects USE_AVX2_SIM).
     pin_t readBitByName(const QString &name) const;
     pin_t readBitByNum(net_t n) const;

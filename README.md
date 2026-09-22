@@ -60,11 +60,13 @@ Pre-assembled HEX files live in `resource/tests/`. Drag any of them onto the run
 
 ## MCP server (drive the simulator from Claude Code)
 
-Z80Explorer ships a built-in [MCP](https://modelcontextprotocol.io) server so an LLM client can drive the simulator: load HEX, run cycles, read nets, sample waveform windows, walk equation trees, and so on.
+Z80Explorer ships a built-in [MCP](https://modelcontextprotocol.io) server so an LLM client can drive the simulator: load HEX, run cycles, read nets, sample waveform windows, walk equation trees, and so on. It speaks MCP revision `2026-07-28`, the stateless revision: there is no initialize handshake, each request carries its own protocol metadata, and a client learns what the server offers from `server/discover`. Tools publish output schemas and behaviour hints, so results arrive as validated structured data and a host can tell the read-only tools apart from the ones that move the simulation.
 
-Enable it in *Edit → Settings…*, tick **Enable MCP server**, and (optionally) change the port from the default `8765`. The server binds to `127.0.0.1` only — the client must run on the same machine, or you need an SSH tunnel. Confirm it's up:
+Enable it in *Edit → Settings…*, tick **Enable MCP server**, and (optionally) change the port from the default `8765`. The server binds to `127.0.0.1` only — the client must run on the same machine, or you need an SSH tunnel. A request carrying a browser `Origin` that is not this server is refused, which is what keeps a web page from reaching the simulator through DNS rebinding. Confirm it's up:
 
     curl http://localhost:8765/mcp/healthz
+
+The reply names the revision the server speaks, which is the quickest way to check a client is talking the same protocol.
 
 Register it with the Claude Code CLI once (stored in `~/.claude.json`, available across all your projects):
 
