@@ -83,6 +83,8 @@ public:
     bool getNetState(net_t i)                   // Returns the net logic state
         { return m_netlist[i].state; }
     pin_t getNetStateEx(net_t n);               // Returns the net extended logic state (including hi-Z)
+    void getNetDynamics(net_t n, bool &state, bool &isHigh, bool &isLow) // Returns the net's state and forced levels
+        { state = m_netlist[n].state; isHigh = m_netlist[n].isHigh; isLow = m_netlist[n].isLow; }
     bool isNetOrphan(net_t n)                   // Returns true when a net does not connect to any transistor at all
         { return !m_netlist[n].gates.count() && !m_netlist[n].c1c2s.count(); }
     bool isNetPulledUp(net_t n)

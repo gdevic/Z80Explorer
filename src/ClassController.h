@@ -110,6 +110,13 @@ public: // API
 #else
         { return m_simz80.isTransOn(t); }
 #endif
+    // Returns a net's state and its forced high / low levels from the simulator that runs, for the same reason
+    void getNetDynamics(net_t n, bool &state, bool &isHigh, bool &isLow)
+#if USE_AVX2_SIM
+        { m_simz80avx2.getNetDynamics(n, state, isHigh, isLow); }
+#else
+        { m_simz80.getNetDynamics(n, state, isHigh, isLow); }
+#endif
     bool isSimRunning()                           // Returns true is the simulation is currently running
 #if USE_AVX2_SIM
         { return m_simz80avx2.isRunning(); }

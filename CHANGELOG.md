@@ -40,6 +40,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - User's Guide brought up to date with the code
 
 ### Fixed
+- The state, is-high and is-low values in net information text (the `info` field of `z80_net_info`, the script `n()` command and the die-view net tooltip) came from the original simulator, which does not run when the AVX2 simulator does. They now come from the simulator that runs.
 - Transistor on/off state read the original simulator, which does not run when the AVX2 simulator does, so `z80_trans_read`, `z80_trans_info`, the `on` field of `z80_net_drivers`, the die-view transistor tooltip and the flip counters reported every transistor as off. They now read the simulator that runs.
 - `z80_run` missed the completion signal for runs of one or two half-cycles, so single-stepping waited out the full timeout and then reported `timeout`. It now returns as soon as the run ends.
 - `z80_run` with `timeout_ms` of zero started no timer and could block the application indefinitely. The timeout is now clamped.

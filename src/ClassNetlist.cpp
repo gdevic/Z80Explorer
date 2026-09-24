@@ -592,12 +592,15 @@ const QString ClassNetlist::netInfo(net_t net)
             gates.append("...");
         }
 
+        // The dynamic values come from the simulator that runs, which is not this one when the AVX2 one is built
+        bool state, isHigh, isLow;
+        ::controller.getNetDynamics(net, state, isHigh, isLow);
         QString s = ::controller.getNetlist().get(net);
         if (!s.isEmpty())
             s = s % ":";
         s = s % QString("%1: pulled-up:%2").arg(net).arg(m_netlist[net].hasPullup)
               % QString("\nstate:%1 can-float:%2 is-high:%3 is-low:%4")
-               .arg(m_netlist[net].state).arg(m_netlist[net].floats).arg(m_netlist[net].isHigh).arg(m_netlist[net].isLow)
+               .arg(state).arg(m_netlist[net].floats).arg(isHigh).arg(isLow)
               % "\nsource/drain (t):"
               % c1c2s.join(",")
               % "\nto-gates (t):"

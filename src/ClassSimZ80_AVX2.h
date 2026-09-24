@@ -61,6 +61,8 @@ public:
     uint getNetlistCount() { return MAX_NETS; }
     bool getNetState(net_t i) { return m_netlist[i].state; }
     bool isTransOn(tran_t t) { return (t < MAX_TRANS) && m_transOn[t]; }
+    void getNetDynamics(net_t n, bool &state, bool &isHigh, bool &isLow)
+        { state = m_netlist[n].state; isHigh = m_netlist[n].isHigh; isLow = m_netlist[n].isLow; }
     bool isNetOrphan(net_t n) { return m_netlist[n].gatesCount == 0 && m_netlist[n].c1c2sCount == 0; }
     bool isNetPulledUp(net_t n) { return m_netlist[n].hasPullup; }
     bool isNetGateless(net_t n) { return m_netlist[n].gatesCount == 0; }
