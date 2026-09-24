@@ -9,8 +9,20 @@
             "tip": "Inverted /NMI after first input inverter"
         },
         {
+            "net": 53,
+            "tip": "High when /WAIT is asserted"
+        },
+        {
+            "net": 54,
+            "tip": "Buffered /WAIT; low when /WAIT is asserted"
+        },
+        {
             "net": 56,
             "tip": "NMI_PENDING SR-latch Qbar (complement of nmi_pending_q)"
+        },
+        {
+            "net": 57,
+            "tip": "NMI sampler master: follows NMI_PENDING while clk=0, holds while clk=1"
         },
         {
             "net": 59,
@@ -21,8 +33,48 @@
             "tip": "Buffered /NMI after second input inverter"
         },
         {
+            "net": 67,
+            "tip": "NMI sampler master, complement of nmi_samp_m"
+        },
+        {
             "net": 68,
             "tip": "NMI_PENDING SR-latch Q (captures NMI edge until committed)"
+        },
+        {
+            "net": 70,
+            "tip": "NMI sampler slave, complement of nmi_samp_s"
+        },
+        {
+            "net": 73,
+            "tip": "NMI sampler slave, loaded from the master while clk=1; high = NMI sampled"
+        },
+        {
+            "net": 79,
+            "tip": "Next instruction is an ordinary fetch: no NMI, no INT, no halt"
+        },
+        {
+            "net": 80,
+            "tip": "Follows the /INT pin polarity; low when /INT is asserted"
+        },
+        {
+            "net": 94,
+            "tip": "INT sampler master: NOT int_in while clk=0, held from the rising edge"
+        },
+        {
+            "net": 97,
+            "tip": "HALT decoded and no interrupt taken; sets the HALT latch at m_cycle_start"
+        },
+        {
+            "net": 106,
+            "tip": "NMI sampled at the last rising clk edge; committed into NMI_ACCEPT by m_cycle_start"
+        },
+        {
+            "net": 108,
+            "tip": "NOT halt_q_n; drives _halt and inhibits decode while halted"
+        },
+        {
+            "net": 114,
+            "tip": "INT request NOR(nmi_sampled, int_mask_s, int_samp_s_n): /INT sampled, enabled, no NMI"
         },
         {
             "net": 116,
@@ -30,31 +82,103 @@
         },
         {
             "net": 122,
-            "tip": "Pulse that clocks the NMI_ACCEPT latch at the start of each M cycle"
+            "tip": "Instruction-boundary strobe at M1T1 clk 0; commits NMI_ACCEPT, the INT accept latch and the HALT latch"
         },
         {
             "net": 135,
             "tip": "NMI Acknowledge"
         },
         {
+            "net": 141,
+            "tip": "T-state advance request; drops in I/O T2 to insert the automatic TW"
+        },
+        {
+            "net": 143,
+            "tip": "HALT latch; high = halted"
+        },
+        {
             "net": 148,
             "tip": "NMI_ACCEPT commit latch Qbar (complement of nmi_accept_q)"
+        },
+        {
+            "net": 149,
+            "tip": "INT accept latch, complement of int_accept"
+        },
+        {
+            "net": 150,
+            "tip": "INT accept latch, loaded from int_take by m_cycle_start; high = acknowledge"
+        },
+        {
+            "net": 152,
+            "tip": "Last T of the last M-cycle of a non-prefix instruction; feeds m_cycle_start"
         },
         {
             "net": 167,
             "tip": "Sets T2 on the next CLK low"
         },
         {
+            "net": 180,
+            "tip": "IM n write strobe for IMFA/IMFB at the next instruction's M1T2 clk 0"
+        },
+        {
+            "net": 181,
+            "tip": "IFF1 dynamic master node"
+        },
+        {
+            "net": 183,
+            "tip": "RETN/RETI strobe copying IFF2 into IFF1"
+        },
+        {
+            "net": 184,
+            "tip": "Complement of last_m (Ken's LAST_M_CYCLE/)"
+        },
+        {
+            "net": 188,
+            "tip": "INT acknowledge: clears IFF1/IFF2 and HALT, inhibits decode in IM1/IM2"
+        },
+        {
+            "net": 190,
+            "tip": "IXY_D latch set request, sampled at M2T2"
+        },
+        {
             "net": 193,
             "tip": "IX/IY+CB"
+        },
+        {
+            "net": 194,
+            "tip": "BRANCH_NOT_TAKEN: a conditional or repeat instruction stops in this M-cycle"
+        },
+        {
+            "net": 206,
+            "tip": "IFF2 dynamic master node"
+        },
+        {
+            "net": 207,
+            "tip": "EI/DI IFF write strobe at the next instruction's M1T2 clk 0"
         },
         {
             "net": 210,
             "tip": "Selects (ix+d) addressing"
         },
         {
+            "net": 220,
+            "tip": "Displacement add in progress (jr, djnz, block I/O, IX+d); holds the IXY_D request"
+        },
+        {
             "net": 227,
             "tip": "rst, bit 3 at bottom"
+        },
+        {
+            "net": 228,
+            "tip": "Pseudo PLA row: RST p and the NMI, IM0, IM1 acknowledge sequences"
+        },
+        {
+            "net": 231,
+            "tip": "NOR(pla97, NOT iff1 master): IFF1 set and no EI/DI being decoded"
+        },
+        {
+            "net": 233,
+            "tip": "SINGLE_M: the decoded instruction ends after M1"
         },
         {
             "net": 237,
@@ -99,6 +223,10 @@
         {
             "net": 269,
             "tip": "CB"
+        },
+        {
+            "net": 270,
+            "tip": "Pseudo PLA row: the IM2 acknowledge sequence"
         },
         {
             "net": 271,
@@ -457,12 +585,76 @@
             "tip": "ldi/ldir/ldd/lddr"
         },
         {
+            "net": 551,
+            "tip": "Drives the flag latches onto UBUS for the F write"
+        },
+        {
+            "net": 575,
+            "tip": "Loads the flag latches from F on UBUS at M1T4 clk 0"
+        },
+        {
+            "net": 604,
+            "tip": "Loads alua from ALUBUS (A at every M1T4 clk 0)"
+        },
+        {
             "net": 617,
             "tip": "Increments R register using 16-bit inc/dec"
         },
         {
+            "net": 646,
+            "tip": "Drives the ALU result onto ALUBUS (alulat on bits 0..3, aluout on 4..7)"
+        },
+        {
+            "net": 683,
+            "tip": "Active-low overflow: XNOR of the carries into and out of ALU bit 3 (bit 7 in the high pass)"
+        },
+        {
+            "net": 747,
+            "tip": "ALU low-nibble pass select"
+        },
+        {
             "net": 754,
             "tip": "Carry Flag state"
+        },
+        {
+            "net": 818,
+            "tip": "ALU result is zero (Z source)"
+        },
+        {
+            "net": 825,
+            "tip": "ALU logic function OR/XOR/SET: kills the carry chain"
+        },
+        {
+            "net": 826,
+            "tip": "ALU logic function AND/BIT/RES: forces the carry nodes"
+        },
+        {
+            "net": 828,
+            "tip": "ALU logic function OR/SET: one pass per bit"
+        },
+        {
+            "net": 831,
+            "tip": "ALU high-nibble pass select"
+        },
+        {
+            "net": 1066,
+            "tip": "NOT int_in; high when /INT is asserted"
+        },
+        {
+            "net": 1073,
+            "tip": "High when /INT is asserted (first input inverter)"
+        },
+        {
+            "net": 1079,
+            "tip": "INT sampler slave, loaded while clk=1; high = /INT sampled low"
+        },
+        {
+            "net": 1092,
+            "tip": "INT sampler master, complement of int_samp_m"
+        },
+        {
+            "net": 1095,
+            "tip": "INT sampler slave; low = /INT sampled low"
         },
         {
             "net": 1101,
@@ -473,24 +665,76 @@
             "tip": "Sets T6 on the next CLK low"
         },
         {
+            "net": 1110,
+            "tip": "NOT int_take; clears the INT accept latch at m_cycle_start"
+        },
+        {
             "net": 1111,
             "tip": "Sets T1 on the next CLK low"
+        },
+        {
+            "net": 1122,
+            "tip": "int_mask held from the clk=1 half; input of int_take"
+        },
+        {
+            "net": 1126,
+            "tip": "HALT latch, complement of halt_q"
         },
         {
             "net": 1143,
             "tip": "Sets T3 on the next CLK low"
         },
         {
+            "net": 1161,
+            "tip": "WAIT latch; 0 = insert TW, sampled at the falling edge ending T2 or TW clk 1"
+        },
+        {
+            "net": 1165,
+            "tip": "NAND(wait_in, wait_t_advance); high sets a TW request into wait_ff while clk=1"
+        },
+        {
+            "net": 1166,
+            "tip": "NOT int_enable: INT mask closed"
+        },
+        {
+            "net": 1167,
+            "tip": "Holds pla_ed_cb high so no base-table PLA row decodes (acknowledge, HALT)"
+        },
+        {
             "net": 1171,
             "tip": "NMI_ACCEPT commit latch Q (HIGH = NMI acknowledged, drives nmi_ack)"
+        },
+        {
+            "net": 1180,
+            "tip": "imfa AND imfb: selects the IM 2 acknowledge sequence"
         },
         {
             "net": 1190,
             "tip": "Sets T5 on the next CLK low"
         },
         {
+            "net": 1278,
+            "tip": "Inverted IFF2 node; gates the extra pulldown t4049 on pla83"
+        },
+        {
+            "net": 1281,
+            "tip": "Active-low w148: skip from M1 or M2 straight to M4"
+        },
+        {
             "net": 1315,
             "tip": "Sets T4 on the next CLK low"
+        },
+        {
+            "net": 1460,
+            "tip": "P/V mux select: overflow (_alu_ovf) instead of parity"
+        },
+        {
+            "net": 1587,
+            "tip": "F write pending: the next M1T4 clk 0 writes F instead of reading it"
+        },
+        {
+            "net": 1760,
+            "tip": "NOT ixy_d_phase; blocks cf_set_n during the displacement add"
         },
         {
             "net": 1809,
@@ -499,6 +743,18 @@
         {
             "net": 1864,
             "tip": "Working HF input latch (active-low); sampled from UBUS[4] via gate 684; read by DAA"
+        },
+        {
+            "net": 3049,
+            "tip": "Series-stack node between the pla98 pulldown and the m2 pass (t1 & m2 & pla98)"
+        },
+        {
+            "net": 3058,
+            "tip": "Series-stack node between the pla39 pulldown and the m1 pass (t1 & m1 & pla39)"
+        },
+        {
+            "net": 3356,
+            "tip": "P/V mux output, loaded into pv_carrier_647"
         }
     ]
 }

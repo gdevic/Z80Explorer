@@ -18,6 +18,9 @@ _abusc: 954,
 _abusd: 957,
 _abuse: 1003,
 _abusf: 1004,
+_alu_ovf: 683, // Active-low overflow: XNOR of the carries into and out of ALU bit 3 (bit 7 in the high pass)
+_iff2: 1278, // Inverted IFF2 node; gates the extra pulldown t4049 on pla83
+_last_m: 184, // Complement of last_m (Ken's LAST_M_CYCLE/)
 _last_t: 110,
 _regbit0: 708,
 _regbit1: 715,
@@ -35,6 +38,7 @@ _regbit12: 949,
 _regbit13: 959,
 _regbit14: 980,
 _regbit15: 985,
+_w148: 1281, // Active-low w148: skip from M1 or M2 straight to M4
 _wr_ab: 680,
 abus_is_one: 691,
 abus0: 1776,
@@ -70,11 +74,18 @@ aincdecd: 964,
 aincdece: 979,
 aincdecf: 994,
 alu_a: 793,
+alu_and: 826, // ALU logic function AND/BIT/RES: forces the carry nodes
 alu_b: 735,
 alu_c: 643,
+alu_hi_sel: 831, // ALU high-nibble pass select
+alu_lo_sel: 747, // ALU low-nibble pass select
+alu_or: 828, // ALU logic function OR/SET: one pass per bit
+alu_orxor: 825, // ALU logic function OR/XOR/SET: kills the carry chain
+alu_res_oe: 646, // Drives the ALU result onto ALUBUS (alulat on bits 0..3, aluout on 4..7)
+alu_zero: 818, // ALU result is zero (Z source)
+alua_ld: 604, // Loads alua from ALUBUS (A at every M1T4 clk 0)
 alub_bus: 820,
-bus_551: 551,
-bus_575: 575,
+branch_not_taken: 194, // BRANCH_NOT_TAKEN: a conditional or repeat instruction stops in this M-cycle
 bus_650: 650,
 cell_f0: 1854,
 cf_isolate_n: 711,
@@ -128,29 +139,61 @@ ctl_tri_ab: 627,
 daa_hi_ok: 819,
 daa_lo_ok: 762,
 db_precharge: 1507,
+decode_inhibit: 1167, // Holds pla_ed_cb high so no base-table PLA row decodes (acknowledge, HALT)
+disp_add: 220, // Displacement add in progress (jr, djnz, block I/O, IX+d); holds the IXY_D request
+disp_req: 190, // IXY_D latch set request, sampled at M2T2
 en_ir: 1800,
 en_pc: 1799,
+f_wr_pend: 1587, // F write pending: the next M1T4 clk 0 writes F instead of reading it
+fetch_normal: 79, // Next instruction is an ordinary fetch: no NMI, no INT, no halt
 flag_cf: 754, // Carry Flag state
+flags_to_ubus: 551, // Drives the flag latches onto UBUS for the F write
 force_ubus0_hi: 1838,
 force_ubus0_lo: 1855,
+halt_enter: 97, // HALT decoded and no interrupt taken; sets the HALT latch at m_cycle_start
+halt_q: 143, // HALT latch; high = halted
+halt_q_n: 1126, // HALT latch, complement of halt_q
+halted: 108, // NOT halt_q_n; drives _halt and inhibits decode while halted
 hf_carrier_1858: 1858,
 hf_inA: 767,
 hf_inB: 827,
-hf_mid: 683,
 hf_slaveA: 1811,
 hf_slaveB: 699,
+iff_restore: 183, // RETN/RETI strobe copying IFF2 into IFF1
+iff_wr: 207, // EI/DI IFF write strobe at the next instruction's M1T2 clk 0
 iff1: 1210,
+iff1_master: 181, // IFF1 dynamic master node
 iff2: 1239,
+iff2_master: 206, // IFF2 dynamic master node
+im2_sel: 1180, // imfa AND imfb: selects the IM 2 acknowledge sequence
+imf_wr: 180, // IM n write strobe for IMFA/IMFB at the next instruction's M1T2 clk 0
 imfa: 1215,
 imfb: 1268,
+insn_end: 152, // Last T of the last M-cycle of a non-prefix instruction; feeds m_cycle_start
+int_accept: 150, // INT accept latch, loaded from int_take by m_cycle_start; high = acknowledge
+int_accept_n: 149, // INT accept latch, complement of int_accept
+int_ack: 188, // INT acknowledge: clears IFF1/IFF2 and HALT, inhibits decode in IM1/IM2
+int_asserted: 1066, // NOT int_in; high when /INT is asserted
+int_enable: 231, // NOR(pla97, NOT iff1 master): IFF1 set and no EI/DI being decoded
+int_in: 80, // Follows the /INT pin polarity; low when /INT is asserted
+int_in_n: 1073, // High when /INT is asserted (first input inverter)
+int_mask: 1166, // NOT int_enable: INT mask closed
+int_mask_s: 1122, // int_mask held from the clk=1 half; input of int_take
 int_reset: 95,
+int_samp_m: 94, // INT sampler master: NOT int_in while clk=0, held from the rising edge
+int_samp_m_n: 1092, // INT sampler master, complement of int_samp_m
+int_samp_s: 1079, // INT sampler slave, loaded while clk=1; high = /INT sampled low
+int_samp_s_n: 1095, // INT sampler slave; low = /INT sampled low
+int_take: 114, // INT request NOR(nmi_sampled, int_mask_s, int_samp_s_n): /INT sampled, enabled, no NMI
+int_take_n: 1110, // NOT int_take; clears the INT accept latch at m_cycle_start
 ixy_d_phase: 210, // Selects (ix+d) addressing
+ixy_d_phase_n: 1760, // NOT ixy_d_phase; blocks cf_set_n during the displacement add
 last_m: 101,
 last_t: 215,
 latch_cb: 1255,
 latch_ed: 1259,
 latch_ixiy: 1254,
-m_cycle_start: 122, // Pulse that clocks the NMI_ACCEPT latch at the start of each M cycle
+m_cycle_start: 122, // Instruction-boundary strobe at M1T1 clk 0; commits NMI_ACCEPT, the INT accept latch and the HALT latch
 n_carrier_1789: 1789,
 n726: 726,
 n794: 794,
@@ -170,6 +213,11 @@ nmi_in_n: 52, // Inverted /NMI after first input inverter
 nmi_pending_q: 68, // NMI_PENDING SR-latch Q (captures NMI edge until committed)
 nmi_pending_qbar: 56, // NMI_PENDING SR-latch Qbar (complement of nmi_pending_q)
 nmi_q1: 1101, // NMI_Q1 clk-gated D-flop dynamic storage node
+nmi_samp_m: 57, // NMI sampler master: follows NMI_PENDING while clk=0, holds while clk=1
+nmi_samp_m_n: 67, // NMI sampler master, complement of nmi_samp_m
+nmi_samp_s: 73, // NMI sampler slave, loaded from the master while clk=1; high = NMI sampled
+nmi_samp_s_n: 70, // NMI sampler slave, complement of nmi_samp_s
+nmi_sampled: 106, // NMI sampled at the last rising clk edge; committed into NMI_ACCEPT by m_cycle_start
 pla_ab: 192,
 pla_cb: 263,
 pla_ed: 265,
@@ -179,9 +227,11 @@ pla_ir4n: 1446,
 pla22b: 1294,
 pla22c: 1253,
 pla22d: 193, // IX/IY+CB
-pla39b: 3058,
-pla98b: 3049,
+pla39_m1_stk: 3058, // Series-stack node between the pla39 pulldown and the m1 pass (t1 & m1 & pla39)
+pla98_m2_stk: 3049, // Series-stack node between the pla98 pulldown and the m2 pass (t1 & m2 & pla98)
 pv_carrier_647: 647,
+pv_sel_ovf: 1460, // P/V mux select: overflow (_alu_ovf) instead of parity
+pv_src: 3356, // P/V mux output, loaded into pv_carrier_647
 px10n: 1355,
 px61n: 1424,
 px62n: 1623,
@@ -294,6 +344,8 @@ reg_sel_ix: 661,
 reg_sel_iy: 658,
 reg_sel_sp: 657,
 reg_sel_wz: 654,
+seq_im2: 270, // Pseudo PLA row: the IM2 acknowledge sequence
+seq_rst: 228, // Pseudo PLA row: RST p and the NMI, IM0, IM1 acknowledge sequences
 set_cf_path: 764,
 set_nf_path: 757,
 set_pv_path: 686,
@@ -301,6 +353,13 @@ set_sf_path: 768,
 set_t1: 162,
 set_zf_path: 515,
 sf_carrier_729: 729,
+single_m: 233, // SINGLE_M: the decoded instruction ends after M1
+ubus_to_flags: 575, // Loads the flag latches from F on UBUS at M1T4 clk 0
+wait_ff: 1161, // WAIT latch; 0 = insert TW, sampled at the falling edge ending T2 or TW clk 1
+wait_gate_in: 1165, // NAND(wait_in, wait_t_advance); high sets a TW request into wait_ff while clk=1
+wait_in: 54, // Buffered /WAIT; low when /WAIT is asserted
+wait_in_n: 53, // High when /WAIT is asserted
+wait_t_advance: 141, // T-state advance request; drops in I/O T2 to insert the automatic TW
 work_cf_n: 1809, // Working CF input latch (active-low); sampled from UBUS[0] via gate 684; read by ADC/SBC/RLA/RRA/DAA
 work_hf_n: 1864, // Working HF input latch (active-low); sampled from UBUS[4] via gate 684; read by DAA
 wr_ab: 393,

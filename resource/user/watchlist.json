@@ -581,11 +581,11 @@
             "net": 816
         },
         {
-            "name": "bus_551",
+            "name": "flags_to_ubus",
             "net": 551
         },
         {
-            "name": "bus_575",
+            "name": "ubus_to_flags",
             "net": 575
         },
         {
@@ -953,7 +953,7 @@
             "net": 827
         },
         {
-            "name": "hf_mid",
+            "name": "_alu_ovf",
             "net": 683
         },
         {
@@ -1429,7 +1429,7 @@
             "net": 296
         },
         {
-            "name": "pla39b",
+            "name": "pla39_m1_stk",
             "net": 3058
         },
         {
@@ -1693,7 +1693,7 @@
             "net": 355
         },
         {
-            "name": "pla98b",
+            "name": "pla98_m2_stk",
             "net": 3049
         },
         {
@@ -3471,6 +3471,242 @@
         {
             "name": "alub_bus",
             "net": 820
+        },
+        {
+            "name": "wait_in_n",
+            "net": 53
+        },
+        {
+            "name": "wait_in",
+            "net": 54
+        },
+        {
+            "name": "nmi_samp_m",
+            "net": 57
+        },
+        {
+            "name": "nmi_samp_m_n",
+            "net": 67
+        },
+        {
+            "name": "nmi_samp_s_n",
+            "net": 70
+        },
+        {
+            "name": "nmi_samp_s",
+            "net": 73
+        },
+        {
+            "name": "fetch_normal",
+            "net": 79
+        },
+        {
+            "name": "int_in",
+            "net": 80
+        },
+        {
+            "name": "int_samp_m",
+            "net": 94
+        },
+        {
+            "name": "halt_enter",
+            "net": 97
+        },
+        {
+            "name": "nmi_sampled",
+            "net": 106
+        },
+        {
+            "name": "halted",
+            "net": 108
+        },
+        {
+            "name": "int_take",
+            "net": 114
+        },
+        {
+            "name": "wait_t_advance",
+            "net": 141
+        },
+        {
+            "name": "halt_q",
+            "net": 143
+        },
+        {
+            "name": "int_accept_n",
+            "net": 149
+        },
+        {
+            "name": "int_accept",
+            "net": 150
+        },
+        {
+            "name": "insn_end",
+            "net": 152
+        },
+        {
+            "name": "imf_wr",
+            "net": 180
+        },
+        {
+            "name": "iff1_master",
+            "net": 181
+        },
+        {
+            "name": "iff_restore",
+            "net": 183
+        },
+        {
+            "name": "_last_m",
+            "net": 184
+        },
+        {
+            "name": "int_ack",
+            "net": 188
+        },
+        {
+            "name": "disp_req",
+            "net": 190
+        },
+        {
+            "name": "branch_not_taken",
+            "net": 194
+        },
+        {
+            "name": "iff2_master",
+            "net": 206
+        },
+        {
+            "name": "iff_wr",
+            "net": 207
+        },
+        {
+            "name": "disp_add",
+            "net": 220
+        },
+        {
+            "name": "seq_rst",
+            "net": 228
+        },
+        {
+            "name": "int_enable",
+            "net": 231
+        },
+        {
+            "name": "single_m",
+            "net": 233
+        },
+        {
+            "name": "seq_im2",
+            "net": 270
+        },
+        {
+            "name": "alua_ld",
+            "net": 604
+        },
+        {
+            "name": "alu_res_oe",
+            "net": 646
+        },
+        {
+            "name": "alu_lo_sel",
+            "net": 747
+        },
+        {
+            "name": "alu_zero",
+            "net": 818
+        },
+        {
+            "name": "alu_orxor",
+            "net": 825
+        },
+        {
+            "name": "alu_and",
+            "net": 826
+        },
+        {
+            "name": "alu_or",
+            "net": 828
+        },
+        {
+            "name": "alu_hi_sel",
+            "net": 831
+        },
+        {
+            "name": "int_asserted",
+            "net": 1066
+        },
+        {
+            "name": "int_in_n",
+            "net": 1073
+        },
+        {
+            "name": "int_samp_s",
+            "net": 1079
+        },
+        {
+            "name": "int_samp_m_n",
+            "net": 1092
+        },
+        {
+            "name": "int_samp_s_n",
+            "net": 1095
+        },
+        {
+            "name": "int_take_n",
+            "net": 1110
+        },
+        {
+            "name": "int_mask_s",
+            "net": 1122
+        },
+        {
+            "name": "halt_q_n",
+            "net": 1126
+        },
+        {
+            "name": "wait_ff",
+            "net": 1161
+        },
+        {
+            "name": "wait_gate_in",
+            "net": 1165
+        },
+        {
+            "name": "int_mask",
+            "net": 1166
+        },
+        {
+            "name": "decode_inhibit",
+            "net": 1167
+        },
+        {
+            "name": "im2_sel",
+            "net": 1180
+        },
+        {
+            "name": "_iff2",
+            "net": 1278
+        },
+        {
+            "name": "_w148",
+            "net": 1281
+        },
+        {
+            "name": "pv_sel_ovf",
+            "net": 1460
+        },
+        {
+            "name": "f_wr_pend",
+            "net": 1587
+        },
+        {
+            "name": "ixy_d_phase_n",
+            "net": 1760
+        },
+        {
+            "name": "pv_src",
+            "net": 3356
         }
     ]
 }
