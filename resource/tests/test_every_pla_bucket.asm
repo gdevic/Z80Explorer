@@ -3,7 +3,7 @@
 ;
 ; Executes one instruction from every PLA decoder bucket of the Z80, so the
 ; simulator exercises every decode row at least once in a single run. Bucket
-; numbering matches P:\Z80\How-Z80-Ticks\data\timing_map.json:
+; numbering matches How-Z80-Ticks data/timing_map.json:
 ;   B1..B80   base buckets (unprefixed + CB + ED)
 ;   B101..B126 IX buckets (DD + DDCB, plus undocumented IXh group)
 ; 106 buckets total. Trailing comments tag the bucket each opcode belongs to.

@@ -1,6 +1,6 @@
 # TODO: Z80Explorer app improvements
 
-Worklist for the app itself, collected from the 2026-09 verification rounds: what the agents hit, the "Proposed MCP / script API" sections of `Z80Explorer-notes/audit_2026_09/reports/`, and a read of the current source. Defects already triaged live in `BUGS.md`; the MCP items already done or declined live in `docs/dev/mcp_wishlist.md`. Priority is P1 (blocks or distorts research), P2 (costs a lot of time), P3 (convenience).
+Worklist for the app itself, collected from the 2026-09 verification rounds: what the agents hit, the "Proposed MCP / script API" sections of `How-Z80-Ticks/archive/audit_2026_09/reports/`, and a read of the current source. Defects already triaged live in `BUGS.md`. Priority is P1 (blocks or distorts research), P2 (costs a lot of time), P3 (convenience).
 
 ## 1. User data files: one treatment for all of them
 
@@ -66,7 +66,7 @@ Two published results (IFF2 after NMI at EI, and X/Y after SCF/CCF) were decided
 ### 3.3 Capture in one call (P2)
 
 - **`z80_capture({mem, nets, buses?, halfcycles, pins?})`**: writes the program, resets, runs, and returns one string per net (`"0101zz..."`) plus hex per named byte group (`reg_a`, ALUBUS, VBUS, register pairs, with `Z` for floating members), the M/T label and the opcode fetched at each M1. This replaces the `z80_eval_js` preload plus `z80_sample_window` pattern, whose per-sample JSON arrays are large and hard to read.
-- **Event and diff forms**: return only the half-cycles where an event net is high or a state net changes (`z80_trace_events`, `z80_sample_diff` in `Z80Explorer-notes/audit_2026_09/reports/flags-decode.md`).
+- **Event and diff forms**: return only the half-cycles where an event net is high or a state net changes (`z80_trace_events`, `z80_sample_diff` in `How-Z80-Ticks/archive/audit_2026_09/reports/flags-decode.md`).
 - **`z80_run_program`**: final registers, including the physical EX/EXX swap state and a memory range, for the result column of a capture.
 - **`z80_insn_map({hc_from, hc_to})`**: split a capture into instructions and M-cycles, with prefixes merged.
 - **`z80_changed_nets({hc})`**: every net of the 3,597 that changed between hc-1 and hc, to find latches that load in a given half-cycle without guessing candidates. Needs a whole-chip state snapshot per half-cycle, or a re-run to that point.
@@ -82,7 +82,7 @@ Two published results (IFF2 after NMI at EI, and X/Y after SCF/CCF) were decided
 
 ## 4. Physical layout API (P1)
 
-The layer bitmaps and `layermap.bin` are all loaded in the app, but a render is the only way to see them. The agents rebuilt geometry offline from PNGs, which is slow and imprecise (`iff2-fight_wl.py`, `iff2-fight_loads.py` in `Z80Explorer-notes/audit_2026_09/scripts/`).
+The layer bitmaps and `layermap.bin` are all loaded in the app, but a render is the only way to see them. The agents rebuilt geometry offline from PNGs, which is slow and imprecise (`iff2-fight_wl.py`, `iff2-fight_loads.py` in `How-Z80-Ticks/archive/audit_2026_09/scripts/`).
 
 - **`z80_probe({x, y})`**: what is at a die pixel on each layer: net, transistor, via or buried contact. It is the MCP form of clicking on the die.
 - **`z80_trans_geometry({ids})`**: box, gate area, W, L, W/L, orientation, source and drain edge lengths per net, and whether the gate is bent; computed from diffusion AND poly inside the box. Script `transGeom(id)`.
@@ -99,4 +99,4 @@ The switch-level model has no device strength, so a fight or a charge-sharing me
 
 ## 6. Working with several agents (P2)
 
-- **A simulator lease in the server.** Agents shared one simulator through the `sim_lock.ps1` / `sim_unlock.ps1` scripts (archived in `Z80Explorer-notes/audit_2026_09/`). A `z80_lease({owner, ttl_s})` / `z80_release` pair in the MCP server, with state-changing tools refusing a caller without the lease, would replace them and survive a crashed agent through the timeout.
+- **A simulator lease in the server.** Agents shared one simulator through the `sim_lock.ps1` / `sim_unlock.ps1` scripts (archived in `How-Z80-Ticks/archive/audit_2026_09/`). A `z80_lease({owner, ttl_s})` / `z80_release` pair in the MCP server, with state-changing tools refusing a caller without the lease, would replace them and survive a crashed agent through the timeout.

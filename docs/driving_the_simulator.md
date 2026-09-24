@@ -20,7 +20,7 @@ Tool behaviour worth knowing before relying on it:
 
 When several clients share one simulator, serialise every stateful call (memory writes, reset, run, sample, pin, an eval that runs) behind one lock; topology queries are stateless and need no lock.
 
-`tests/mcp_integration.py` is the conformance and regression suite, stdlib only; three of its cases run only with `--destructive`, which lets `z80_save` rewrite the live user data files. Run it against a live app after touching anything in the MCP layer. `docs/dev/mcp_wishlist.md` records what was fixed, what was declined, and what is still open; `TODO.md` holds the proposed tools.
+`tests/mcp_integration.py` is the conformance and regression suite, stdlib only; three of its cases run only with `--destructive`, which lets `z80_save` rewrite the live user data files. Run it against a live app after touching anything in the MCP layer. `TODO.md` holds the proposed tools.
 
 ## Raw TCP command socket, port 12345
 
