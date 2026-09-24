@@ -49,7 +49,7 @@ void ClassVisual::onRunStopped()
     // Count the number of times each transistor has changed its state from the base (initial) state
     for (uint i = 0; i < MAX_TRANS; i++)
     {
-        bool state = ::controller.getNetlist().isTransOn(i);
+        bool state = ::controller.isTransOn(i);
         bool oldState = (uchar(m_transBaseState[i]) ^ m_transFlipCount[i]) & 1;
         if (state != oldState)
             m_transFlipCount[i] = (m_transFlipCount[i] + 1) & 0x7F; // Prevents the overflow
@@ -64,7 +64,7 @@ void ClassVisual::armTransFlipCount()
 {
     memset(m_transFlipCount, 0, sizeof(m_transFlipCount));
     for (uint i = 0; i < MAX_TRANS; i++)
-        m_transBaseState[i] = ::controller.getNetlist().isTransOn(i);
+        m_transBaseState[i] = ::controller.isTransOn(i);
     qInfo() << "Transistor flip counter reset";
 }
 

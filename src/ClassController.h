@@ -104,6 +104,12 @@ public: // API
 #else
         { m_simz80.readState(state); }
 #endif
+    bool isTransOn(tran_t t)                      // Returns true if a transistor is ON
+#if USE_AVX2_SIM
+        { return m_simz80avx2.isTransOn(t); }
+#else
+        { return m_simz80.isTransOn(t); }
+#endif
     bool isSimRunning()                           // Returns true is the simulation is currently running
 #if USE_AVX2_SIM
         { return m_simz80avx2.isRunning(); }

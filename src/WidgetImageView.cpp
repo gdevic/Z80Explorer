@@ -454,7 +454,7 @@ void WidgetImageView::updateInfoArea(QPoint pt)
         if (trans)
         {
             transInfo = ::controller.getNetlist().transInfo(trans);
-            if (::controller.getNetlist().isTransOn(trans))
+            if (::controller.isTransOn(trans))
                 netNames.insert(0, QString("<b>t%1</b>").arg(trans));
             else
                 netNames.insert(0, QString("t%1").arg(trans));

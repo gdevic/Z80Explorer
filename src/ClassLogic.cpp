@@ -355,7 +355,7 @@ QJsonObject ClassNetlist::netDriversJson(net_t net)
         e["other_net"]  = int(other);
         e["other_name"] = get(other);
         e["kind"]       = kind;
-        e["on"]         = isTransOn(t);
+        e["on"]         = ::controller.isTransOn(t);
         drivers.append(e);
     }
     result["drivers"]       = drivers;

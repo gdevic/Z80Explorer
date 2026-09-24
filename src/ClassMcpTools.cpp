@@ -1378,7 +1378,7 @@ QJsonValue ClassMcpTools::hndTransRead(const QJsonObject &a, QString &err)
             e["gate"]   = int(nl.getTransGate(t));
             e["source"] = int(c1);
             e["drain"]  = int(c2);
-            e["on"]     = nl.isTransOn(t);
+            e["on"]     = ::controller.isTransOn(t);
             out.append(e);
         }
         QJsonObject r; r["results"] = out;
@@ -1598,7 +1598,7 @@ QJsonObject ClassMcpTools::transInfoObject(const QJsonValue &ref)
     r["gate_net"]   = tv ? int(tv->gatenet) : 0;
     r["source_net"] = int(c1);
     r["drain_net"]  = int(c2);
-    r["on"]         = nl.isTransOn(tran_t(id));
+    r["on"]         = ::controller.isTransOn(tran_t(id));
     r["info"]       = nl.transInfo(tran_t(id));
     if (tv)
     {
@@ -1974,7 +1974,7 @@ QJsonValue ClassMcpTools::hndFanout(const QJsonObject &a, QString &err)
             e["id"]     = int(t);
             e["c1"]     = int(c1);
             e["c2"]     = int(c2);
-            e["on"]     = nl.isTransOn(t);
+            e["on"]     = ::controller.isTransOn(t);
             gArr.append(e);
         }
 
@@ -1988,7 +1988,7 @@ QJsonValue ClassMcpTools::hndFanout(const QJsonObject &a, QString &err)
             e["gate"]   = int(nl.getTransGate(t));
             e["c1"]     = int(c1);
             e["c2"]     = int(c2);
-            e["on"]     = nl.isTransOn(t);
+            e["on"]     = ::controller.isTransOn(t);
             cArr.append(e);
         }
 

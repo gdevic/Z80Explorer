@@ -40,6 +40,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - User's Guide brought up to date with the code
 
 ### Fixed
+- Transistor on/off state read the original simulator, which does not run when the AVX2 simulator does, so `z80_trans_read`, `z80_trans_info`, the `on` field of `z80_net_drivers`, the die-view transistor tooltip and the flip counters reported every transistor as off. They now read the simulator that runs.
 - `z80_run` missed the completion signal for runs of one or two half-cycles, so single-stepping waited out the full timeout and then reported `timeout`. It now returns as soon as the run ends.
 - `z80_run` with `timeout_ms` of zero started no timer and could block the application indefinitely. The timeout is now clamped.
 - `z80_run` returned success after a timeout while leaving the simulation running, so every value it reported, and every later read, came from a netlist still being rewritten. It now halts the chip first.

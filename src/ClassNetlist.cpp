@@ -619,7 +619,7 @@ const QString ClassNetlist::transInfo(tran_t t)
             return (val == 1) ? "GND" :
                    (val == 2) ? "VCC" :
                    (val == 3) ? "CLK" : QString::number(val); };
-        return QString("gate:%2 c1:%3 c2:%4 %5").arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(toStr(m_transdefs[t].c2)).arg(m_transdefs[t].on ? "ON" : "OFF");
+        return QString("gate:%2 c1:%3 c2:%4 %5").arg(m_transdefs[t].gate).arg(m_transdefs[t].c1).arg(toStr(m_transdefs[t].c2)).arg(::controller.isTransOn(t) ? "ON" : "OFF");
     }
     return QString("Invalid transistor number");
 }
