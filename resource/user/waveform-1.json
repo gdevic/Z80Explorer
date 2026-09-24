@@ -9,13 +9,13 @@
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "AB",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "170,255,127,255",
             "format": 0,
-            "name": "DB",
+            "name": "n1942",
             "net": 0
         },
         {
@@ -33,7 +33,7 @@
         {
             "color": "0,255,0,255",
             "format": 5,
-            "name": "INSTR",
+            "name": "n1942",
             "net": 0
         },
         {
@@ -105,139 +105,139 @@
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "ALUBUS",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REGBIT",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "DBUS",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "UBUS",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "VBUS",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_A",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_F",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_AF",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_BC",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_DE",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_HL",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_IX",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_IY",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,171,0,255",
             "format": 0,
-            "name": "REG_A'",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,171,0,255",
             "format": 0,
-            "name": "REG_F'",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,171,0,255",
             "format": 0,
-            "name": "REG_AF'",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,171,0,255",
             "format": 0,
-            "name": "REG_BC'",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,171,0,255",
             "format": 0,
-            "name": "REG_DE'",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,171,0,255",
             "format": 0,
-            "name": "REG_HL'",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_SP",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_WZ",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_IR",
+            "name": "n1942",
             "net": 0
         },
         {
             "color": "0,255,0,255",
             "format": 0,
-            "name": "REG_PC",
+            "name": "n1942",
             "net": 0
         }
     ]

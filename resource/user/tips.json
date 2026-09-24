@@ -638,7 +638,7 @@
         },
         {
             "net": 457,
-            "tip": "Active-low enable of the half-by-half register pair writes (M2 byte at M3T1, M4 byte at M5T1)"
+            "tip": "Active-low enable of the half-by-half register pair transfers: writes of the M2/M4 bytes at M3T1/M5T1, reads of the high half at M4T1 and low half at M5T1 for stack writes"
         },
         {
             "net": 458,
@@ -653,8 +653,16 @@
             "tip": "IR bit 5 masked to 0 for JR cc, for the condition flag and shift fill selects"
         },
         {
+            "net": 466,
+            "tip": "Index prefix latched and HL memory operand: the IX+d instructions"
+        },
+        {
             "net": 483,
             "tip": "High when M2 reads an operand byte at PC"
+        },
+        {
+            "net": 488,
+            "tip": "NOT _pair_xfer: enables the half-by-half pair writes and the stack-write reads"
         },
         {
             "net": 496,
@@ -663,6 +671,14 @@
         {
             "net": 500,
             "tip": "Active-low S, Z and P/V flag carrier load term"
+        },
+        {
+            "net": 502,
+            "tip": "BC was 1 before the decrement (abus_is_one sample)"
+        },
+        {
+            "net": 504,
+            "tip": "Low for the PC-handling slots of CALL/RST, DJNZ/JR, IM2 ack and block repeat M4T4"
         },
         {
             "net": 505,
@@ -685,6 +701,26 @@
             "tip": "Active-low IR[5:4] pair select term: LD rr,nn, INC/DEC rr, LD (rr),A, LD A,(rr), EX (SP),HL"
         },
         {
+            "net": 511,
+            "tip": "Active-low: M2T2 and M3T3 of an IX+d memory instruction"
+        },
+        {
+            "net": 521,
+            "tip": "DD/FD prefix strobe that loads IR bit 5 into the IX/IY prefix select"
+        },
+        {
+            "net": 523,
+            "tip": "Active-low low-half register read term for the M5T1 stack write (r_u)"
+        },
+        {
+            "net": 531,
+            "tip": "Index-register request: HL request under px1474, or the IX+d M2T2/M3T3 term"
+        },
+        {
+            "net": 532,
+            "tip": "Low-byte write terms in M2..M4 (LD rr,nn, POP, interrupt)"
+        },
+        {
             "net": 536,
             "tip": "SP select, from _regsel_sp"
         },
@@ -701,6 +737,14 @@
             "tip": "Drives the complement of the alua latch onto ALUBUS"
         },
         {
+            "net": 558,
+            "tip": "Flag slot: M1T3 F write when f_wr_pend, F read otherwise; M4T2 re-read for IX+d and CB-memory ops"
+        },
+        {
+            "net": 564,
+            "tip": "BC pair request"
+        },
+        {
             "net": 567,
             "tip": "Active-low select and read enable term for the register named by the r field"
         },
@@ -713,8 +757,48 @@
             "tip": "Loads the flag latches from F on UBUS at M1T4 clk 0"
         },
         {
+            "net": 579,
+            "tip": "Active-low SP request: sel_sp, or sel_rr with pair field 11"
+        },
+        {
+            "net": 580,
+            "tip": "_sel_sp_req sampled while clk is high"
+        },
+        {
+            "net": 581,
+            "tip": "Active-low logical HL request: sel_hl, or a field select decoding to H/L/HL"
+        },
+        {
+            "net": 584,
+            "tip": "Active-low AF pair request"
+        },
+        {
+            "net": 585,
+            "tip": "M1T2 register-field write slot, or M1T4 of LD I,A / LD R,A"
+        },
+        {
+            "net": 591,
+            "tip": "IX/IY prefix select: high after DD, low after FD, loaded at M1T3 clk 0 of the prefix"
+        },
+        {
             "net": 592,
             "tip": "IR[5:4] register pair select: OR of _regsel_rr_510 and _regsel_rr_1541"
+        },
+        {
+            "net": 593,
+            "tip": "Logical HL request not diverted to IX/IY: NOR(_hl_req, px1474)"
+        },
+        {
+            "net": 599,
+            "tip": "Active-low WZ select, NOT sel_wz_req; reg_sel_wz = NOR(clk, this)"
+        },
+        {
+            "net": 601,
+            "tip": "Active-low logical DE select, before the EX DE,HL swap"
+        },
+        {
+            "net": 602,
+            "tip": "Copy of _sel_sp_s; reg_sel_sp = NOR(clk, this)"
         },
         {
             "net": 603,
@@ -725,16 +809,112 @@
             "tip": "Loads alua from ALUBUS (A at every M1T4 clk 0)"
         },
         {
+            "net": 612,
+            "tip": "First clk 0 after M1T4, and M4T4 of IX+d and CB-memory rotates: the flag latch initialisation slot"
+        },
+        {
+            "net": 616,
+            "tip": "Active-low logical HL select, before the EX DE,HL swap"
+        },
+        {
             "net": 617,
             "tip": "Increments R register using 16-bit inc/dec"
+        },
+        {
+            "net": 623,
+            "tip": "Active-low request behind pvz_preset"
+        },
+        {
+            "net": 630,
+            "tip": "Index-register select request; with ixiy_is_ix picks IX or IY"
+        },
+        {
+            "net": 635,
+            "tip": "NOT C from the C latch; into the H latch (ADC/SBC) and the shifter fill (RL/RR)"
+        },
+        {
+            "net": 636,
+            "tip": "Loads the P/V latch with parity; again at M4T5 clk 0 of a repeating block I/O iteration"
+        },
+        {
+            "net": 637,
+            "tip": "Presets P/V = 1 and Z = 1 at the first clk 0 after M1T4 for the px415 rows"
         },
         {
             "net": 646,
             "tip": "Drives the ALU result onto ALUBUS (alulat on bits 0..3, aluout on 4..7)"
         },
         {
+            "net": 647,
+            "tip": "P/V latch node, NOT P/V"
+        },
+        {
             "net": 683,
             "tip": "Active-low overflow: XNOR of the carries into and out of ALU bit 3 (bit 7 in the high pass)"
+        },
+        {
+            "net": 684,
+            "tip": "Clk-low sample strobe after T1/T3/T5: ALUBUS into the RRD/RLD staging nodes, UBUS into work_cf_n / work_hf_n"
+        },
+        {
+            "net": 696,
+            "tip": "N latch node, NOT N; loaded by nf_load, ubus_to_flags and 1592"
+        },
+        {
+            "net": 697,
+            "tip": "H latch dynamic node, NOT H; loaded by hf_clr, hf_set, hf_ld_cf, hf_ld_nib"
+        },
+        {
+            "net": 698,
+            "tip": "NOT alu_cy_lo; source of hf_ld_nib"
+        },
+        {
+            "net": 699,
+            "tip": "NOT alu_cy3_out"
+        },
+        {
+            "net": 700,
+            "tip": "Parity of the ALU result, high for an odd number of set bits"
+        },
+        {
+            "net": 701,
+            "tip": "Z latch node, NOT Z; preset by pvz_preset, loaded by szpv_load and ubus_to_flags"
+        },
+        {
+            "net": 711,
+            "tip": "H latch output, true H: the carry into the high nibble"
+        },
+        {
+            "net": 712,
+            "tip": "Loads S, Z and P/V from the ALU at M1T3 clk 0 (and block-instruction slots), gated by px415n"
+        },
+        {
+            "net": 726,
+            "tip": "C latch node, NOT C"
+        },
+        {
+            "net": 727,
+            "tip": "NOT alu_cy_out; source of cf_ld_alu"
+        },
+        {
+            "net": 728,
+            "tip": "Carry (add) or borrow (subtract) out of core bit 3: XNOR of NOT alu_cy3_out and NOT cf_set_n"
+        },
+        {
+            "net": 729,
+            "tip": "S latch node, NOT S; loaded by ubus_to_flags and szpv_load"
+        },
+        {
+            "net": 736,
+            "tip": "Sets C = 1 when DAA corrects the high nibble"
+        },
+        {
+            "net": 737,
+            "tip": "NOT zf_latch; drives set_zf_path and refreshes zf_latch_n through the clk pass t7862"
+        },
+        {
+            "net": 740,
+            "tip": "RRD/RLD nibble load into alub and alua at M3T3 clk 0 and M4T1 clk 0"
         },
         {
             "net": 747,
@@ -742,11 +922,39 @@
         },
         {
             "net": 754,
-            "tip": "Carry Flag state"
+            "tip": "Carry into bit 0 of the ALU core: XNOR(cf_set_n, hf_latch) = N XOR H; not storage"
         },
         {
             "net": 756,
             "tip": "Active-low ALU operand B clear; clears every alub bit through alub_and38 and alub_clr38"
+        },
+        {
+            "net": 758,
+            "tip": "NOT set_cf_path"
+        },
+        {
+            "net": 759,
+            "tip": "NOT alu_zero; loaded into zf_latch_n by szpv_load"
+        },
+        {
+            "net": 761,
+            "tip": "NOT ubus3; bit-3 low-byte write-source drive"
+        },
+        {
+            "net": 765,
+            "tip": "H (true): H output pull-down on 3406 and the C = NOT H source of cf_ld_nh"
+        },
+        {
+            "net": 766,
+            "tip": "XNOR internal node of alu_cin, pulled low by hf_latch"
+        },
+        {
+            "net": 767,
+            "tip": "Carry into ALU core bit 3"
+        },
+        {
+            "net": 801,
+            "tip": "NOT ubus5; bit-5 low-byte write-source drive"
         },
         {
             "net": 818,
@@ -769,6 +977,10 @@
             "tip": "ALU logic function AND/BIT/RES: forces the carry nodes"
         },
         {
+            "net": 827,
+            "tip": "Carry out of ALU core bit 3"
+        },
+        {
             "net": 828,
             "tip": "ALU logic function OR/SET: one pass per bit"
         },
@@ -779,6 +991,10 @@
         {
             "net": 832,
             "tip": "Presets all alua bits high at M1T5 clk 0 of NMI, RST and the IM1 acknowledge"
+        },
+        {
+            "net": 869,
+            "tip": "ALU core bit 0 operand A input"
         },
         {
             "net": 1066,
@@ -897,6 +1113,10 @@
             "tip": "pla83 (LD A,I / LD A,R and IFF2) held from the clk=1 half"
         },
         {
+            "net": 1417,
+            "tip": "NAND(m2_addr_reload, px432): block instructions, EX (SP),HL/IX and IM2 ack step the M2 address at M2T2"
+        },
+        {
             "net": 1419,
             "tip": "NOT pla83_s"
         },
@@ -906,7 +1126,7 @@
         },
         {
             "net": 1425,
-            "tip": "Low for EX (SP),HL and the IM2 acknowledge: the address latch keeps its M2 value"
+            "tip": "Low for EX (SP),HL and the IM2 acknowledge: M3 uses the M2 address plus or minus one (no reload at the end of M2)"
         },
         {
             "net": 1460,
@@ -926,7 +1146,7 @@
         },
         {
             "net": 1534,
-            "tip": "Active-low alub readback term: M1T4 of LD I,A / LD R,A and M3T1 of most M3 cycles"
+            "tip": "Active-low alub readback term: M1T4 of LD I,A / LD R,A; M3T1 of every M3 but IM2 (feeds the first RRD/RLD nibble transfer)"
         },
         {
             "net": 1541,
@@ -957,40 +1177,260 @@
             "tip": "Active-low PUSH/POP pair select term (AF in place of SP)"
         },
         {
+            "net": 1558,
+            "tip": "Active-low high-half register read term for the M4T1 stack write (r_v)"
+        },
+        {
+            "net": 1574,
+            "tip": "Logical DE request: _regsel_de, or a field select decoding to D/E/DE"
+        },
+        {
+            "net": 1575,
+            "tip": "NOT nf_sub_class; passed into nf_latch_n by nf_load"
+        },
+        {
+            "net": 1578,
+            "tip": "No other pair request pending and no I/R select: WZ is the default pair"
+        },
+        {
             "net": 1579,
             "tip": "HL (IX/IY) select: OR of _regsel_hl_506 and _regsel_hl_507"
+        },
+        {
+            "net": 1583,
+            "tip": "Some pair request other than WZ is active; sampled into sel_other_s"
+        },
+        {
+            "net": 1586,
+            "tip": "High-byte write terms (M1T2 A write-back, M3/M5 16-bit loads)"
         },
         {
             "net": 1587,
             "tip": "F write pending: the next M1T4 clk 0 writes F instead of reading it"
         },
         {
+            "net": 1592,
+            "tip": "Loads UBUS[7] into the N latch (block I/O: N = bit 7 of the byte)"
+        },
+        {
+            "net": 1598,
+            "tip": "sel_other sampled while clk is high"
+        },
+        {
+            "net": 1630,
+            "tip": "Selected register field is C, E or L"
+        },
+        {
+            "net": 1631,
+            "tip": "ixy_req sampled while clk is high"
+        },
+        {
+            "net": 1637,
+            "tip": "A field-decoded select (sel_rr, _regsel_qq or _regsel_r) is active"
+        },
+        {
+            "net": 1641,
+            "tip": "Storage node of the IX/IY prefix select"
+        },
+        {
+            "net": 1642,
+            "tip": "Active-low high-byte register write request"
+        },
+        {
+            "net": 1644,
+            "tip": "Register pair field is 11 (SP)"
+        },
+        {
+            "net": 1647,
+            "tip": "Register field is 10x (H, L, HL)"
+        },
+        {
+            "net": 1648,
+            "tip": "Active-low low-byte register write request"
+        },
+        {
+            "net": 1665,
+            "tip": "de_req sampled while clk is high"
+        },
+        {
+            "net": 1686,
+            "tip": "hl_req sampled while clk is high"
+        },
+        {
             "net": 1693,
             "tip": "Active-low alub clear term: M4T2 of RRD/RLD, M3T3 of the displacement add"
+        },
+        {
+            "net": 1694,
+            "tip": "Active-low request behind szpv_load"
+        },
+        {
+            "net": 1706,
+            "tip": "Active-low physical HL-column request: _sel_hl_log, or _sel_de_log when ex_dehl_combined"
+        },
+        {
+            "net": 1707,
+            "tip": "Active-low physical DE-column request: _sel_de_log, or _sel_hl_log when ex_dehl_combined"
+        },
+        {
+            "net": 1709,
+            "tip": "NOT ex_dehl_combined, gate of the _sel_de_log to _sel_de_col pass"
+        },
+        {
+            "net": 1711,
+            "tip": "NOT ixiy_is_ix"
+        },
+        {
+            "net": 1712,
+            "tip": "NOT _sel_hl_col; with reg_sel_exx / reg_sel_exx' selects HL or HL'"
+        },
+        {
+            "net": 1713,
+            "tip": "NOT ex_dehl_combined, gate of the _sel_hl_log to _sel_hl_col pass"
+        },
+        {
+            "net": 1714,
+            "tip": "NOT _sel_de_col; with reg_sel_exx / reg_sel_exx' selects DE or DE'"
+        },
+        {
+            "net": 1732,
+            "tip": "C, clocked copy of the C latch"
+        },
+        {
+            "net": 1752,
+            "tip": "IR4 and not IR5: RL / RR / RLA / RRA; routes old_cf_n into the shifter fill"
+        },
+        {
+            "net": 1755,
+            "tip": "H latch <- 1 (carry-in 1) for px421: INC/DEC, BIT, CPL, AND, DJNZ, INI/OUTI"
+        },
+        {
+            "net": 1757,
+            "tip": "Loads BC != 0 into the P/V latch for the LDI and CPI families"
+        },
+        {
+            "net": 1758,
+            "tip": "H latch <- old C: ADC, SBC, ADC/SBC HL, CCF, the 16-bit high byte, the displacement high byte"
         },
         {
             "net": 1760,
             "tip": "NOT ixy_d_phase; blocks cf_set_n during the displacement add"
         },
         {
+            "net": 1761,
+            "tip": "Enables N into the ALU (nf_q_n); low forces nf_q_n high"
+        },
+        {
+            "net": 1763,
+            "tip": "C latch load from the adder carry/borrow: next M1T3, M4T4 of 16-bit adds, M3T3 of the displacement add"
+        },
+        {
             "net": 1775,
             "tip": "Enables alub_and38 from M4T2 clk 1 to M4T3 clk 0 of RST and the IM1 acknowledge (not NMI)"
+        },
+        {
+            "net": 1778,
+            "tip": "N (true), buffered from nf_latch_n"
+        },
+        {
+            "net": 1782,
+            "tip": "NOT C sampled from old_cf_n_m while clk is high"
+        },
+        {
+            "net": 1787,
+            "tip": "H latch <- 0 (carry-in 0) at the first clk 0 after M1T4, instructions outside px421 / px423"
+        },
+        {
+            "net": 1789,
+            "tip": "NAND(nf_to_alu_en, nf_latch): NOT N while nf_to_alu_en is high"
+        },
+        {
+            "net": 1793,
+            "tip": "H latch <- low-nibble carry at the end of the low-nibble pass"
+        },
+        {
+            "net": 1794,
+            "tip": "C latch load of NOT H at the next M1T3 clk 0 (AND, CCF, SCF)"
         },
         {
             "net": 1802,
             "tip": "Active-low N flag load request, suppressed in DAA; clocked into nf_load"
         },
         {
+            "net": 1805,
+            "tip": "P/V mux select: parity"
+        },
+        {
+            "net": 1807,
+            "tip": "Low-nibble carry out, sampled from 3377 while clk is high"
+        },
+        {
             "net": 1809,
-            "tip": "Working CF input latch (active-low); sampled from UBUS[0] via gate 684; read by ADC/SBC/RLA/RRA/DAA"
+            "tip": "Working CF shadow (active low), sampled from UBUS[0] by gate 684; read only by the DAA mask chain (t4103)"
+        },
+        {
+            "net": 1811,
+            "tip": "NOT alu_cy3_in"
         },
         {
             "net": 1812,
             "tip": "Loads the subtract class into the N flag node 696 at the next M1T1 clk 0"
         },
         {
+            "net": 1839,
+            "tip": "NOT zf_latch_n: Z"
+        },
+        {
+            "net": 1858,
+            "tip": "NOT hf_latch; refreshes hf_latch_n through the clk pass t7885"
+        },
+        {
             "net": 1864,
             "tip": "Working HF input latch (active-low); sampled from UBUS[4] via gate 684; read by DAA"
+        },
+        {
+            "net": 1930,
+            "tip": "C latch load of the rotator bit (pla70 / pla71)"
+        },
+        {
+            "net": 1942,
+            "tip": "Rotator carry: UBUS[0] (alu_b, right) or UBUS[7] (alu_c, left)"
+        },
+        {
+            "net": 1944,
+            "tip": "NOT aluout3; S source loaded by szpv_load"
+        },
+        {
+            "net": 1959,
+            "tip": "NOT set_sf_path; refreshes sf_latch_n through the clk pass t8497"
+        },
+        {
+            "net": 1987,
+            "tip": "Bit-3 register read driver, pull-down half: NOR(_regbit3, r_u)"
+        },
+        {
+            "net": 1991,
+            "tip": "NOT ubus3_n; bit-3 low-byte write-source drive"
+        },
+        {
+            "net": 2010,
+            "tip": "Bit-3 register read driver, pull-up half: NOR(r_u, force_ubus3_lo)"
+        },
+        {
+            "net": 2011,
+            "tip": "XNOR internal node of alu_cin, pulled low by cf_set_n"
+        },
+        {
+            "net": 2083,
+            "tip": "Bit-5 register read driver, pull-down half: NOR(_regbit5, r_u)"
+        },
+        {
+            "net": 2087,
+            "tip": "NOT ubus5_n; bit-5 low-byte write-source drive"
+        },
+        {
+            "net": 2108,
+            "tip": "Bit-5 register read driver, pull-up half: NOR(r_u, force_ubus5_lo)"
         },
         {
             "net": 3049,

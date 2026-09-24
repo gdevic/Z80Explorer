@@ -141,7 +141,7 @@
             "net": 27
         },
         {
-            "name": "_REGBIT",
+            "name": "n1942",
             "net": 0
         },
         {
@@ -601,35 +601,35 @@
             "net": 1854
         },
         {
-            "name": "cf_isolate_n",
+            "name": "hf_latch",
             "net": 711
         },
         {
-            "name": "cf_master_n",
+            "name": "alu_cin_xa",
             "net": 2011
         },
         {
-            "name": "cf_pass_gate",
+            "name": "alu_cin_xb",
             "net": 766
         },
         {
-            "name": "cf_release",
+            "name": "hf_latch_n",
             "net": 697
         },
         {
-            "name": "cf_sel_1763",
+            "name": "cf_ld_alu",
             "net": 1763
         },
         {
-            "name": "cf_sel_1794",
+            "name": "cf_ld_nh",
             "net": 1794
         },
         {
-            "name": "cf_sel_1930",
+            "name": "cf_ld_rot",
             "net": 1930
         },
         {
-            "name": "cf_sel_736",
+            "name": "cf_set_daa",
             "net": 736
         },
         {
@@ -641,11 +641,11 @@
             "net": 1943
         },
         {
-            "name": "cf_src_727",
+            "name": "alu_cy_out_n",
             "net": 727
         },
         {
-            "name": "cf_src_765",
+            "name": "set_hf_path",
             "net": 765
         },
         {
@@ -929,7 +929,7 @@
             "net": 629
         },
         {
-            "name": "flag_cf",
+            "name": "alu_cin",
             "net": 754
         },
         {
@@ -941,15 +941,15 @@
             "net": 1855
         },
         {
-            "name": "hf_carrier_1858",
+            "name": "hf_refresh",
             "net": 1858
         },
         {
-            "name": "hf_inA",
+            "name": "alu_cy3_in",
             "net": 767
         },
         {
-            "name": "hf_inB",
+            "name": "alu_cy3_out",
             "net": 827
         },
         {
@@ -957,11 +957,11 @@
             "net": 683
         },
         {
-            "name": "hf_slaveA",
+            "name": "alu_cy3_in_n",
             "net": 1811
         },
         {
-            "name": "hf_slaveB",
+            "name": "alu_cy3_out_n",
             "net": 699
         },
         {
@@ -1081,11 +1081,11 @@
             "net": 209
         },
         {
-            "name": "n_carrier_1789",
+            "name": "nf_q_n",
             "net": 1789
         },
         {
-            "name": "n1942",
+            "name": "cf_rot_src",
             "net": 1942
         },
         {
@@ -1109,7 +1109,7 @@
             "net": 3414
         },
         {
-            "name": "n726",
+            "name": "cf_latch_n",
             "net": 726
         },
         {
@@ -1697,7 +1697,7 @@
             "net": 3049
         },
         {
-            "name": "pv_carrier_647",
+            "name": "pv_latch_n",
             "net": 647
         },
         {
@@ -3289,7 +3289,7 @@
             "net": 515
         },
         {
-            "name": "sf_carrier_729",
+            "name": "sf_latch_n",
             "net": 729
         },
         {
@@ -3421,23 +3421,23 @@
             "net": 3412
         },
         {
-            "name": "x_force_hi_2010",
+            "name": "force_ubus3_hi",
             "net": 2010
         },
         {
-            "name": "x_force_lo_1987",
+            "name": "force_ubus3_lo",
             "net": 1987
         },
         {
-            "name": "y_force_hi_2108",
+            "name": "force_ubus5_hi",
             "net": 2108
         },
         {
-            "name": "y_force_lo_2083",
+            "name": "force_ubus5_lo",
             "net": 2083
         },
         {
-            "name": "zf_carrier_737",
+            "name": "zf_refresh",
             "net": 737
         },
         {
@@ -3943,6 +3943,346 @@
         {
             "name": "pv_iff2",
             "net": 1423
+        },
+        {
+            "name": "hf_clr",
+            "net": 1787
+        },
+        {
+            "name": "hf_set",
+            "net": 1755
+        },
+        {
+            "name": "hf_ld_cf",
+            "net": 1758
+        },
+        {
+            "name": "hf_ld_nib",
+            "net": 1793
+        },
+        {
+            "name": "alu_cy_lo",
+            "net": 1807
+        },
+        {
+            "name": "alu_cy_lo_n",
+            "net": 698
+        },
+        {
+            "name": "alu_cy_out",
+            "net": 728
+        },
+        {
+            "name": "old_cf_n",
+            "net": 635
+        },
+        {
+            "name": "old_cf",
+            "net": 1732
+        },
+        {
+            "name": "old_cf_n_s",
+            "net": 1782
+        },
+        {
+            "name": "old_cf_n_m",
+            "net": 758
+        },
+        {
+            "name": "rot_thru_c",
+            "net": 1752
+        },
+        {
+            "name": "zf_latch_n",
+            "net": 701
+        },
+        {
+            "name": "zf_latch",
+            "net": 1839
+        },
+        {
+            "name": "sf_refresh",
+            "net": 1959
+        },
+        {
+            "name": "pvz_preset",
+            "net": 637
+        },
+        {
+            "name": "szpv_load",
+            "net": 712
+        },
+        {
+            "name": "_pvz_preset",
+            "net": 623
+        },
+        {
+            "name": "_szpv_load",
+            "net": 1694
+        },
+        {
+            "name": "flag_init_slot",
+            "net": 612
+        },
+        {
+            "name": "ubus3_n",
+            "net": 761
+        },
+        {
+            "name": "ubus3_nn",
+            "net": 1991
+        },
+        {
+            "name": "ubus5_n",
+            "net": 801
+        },
+        {
+            "name": "ubus5_nn",
+            "net": 2087
+        },
+        {
+            "name": "alu_zero_n",
+            "net": 759
+        },
+        {
+            "name": "nf_latch_n",
+            "net": 696
+        },
+        {
+            "name": "nf_latch",
+            "net": 1778
+        },
+        {
+            "name": "nf_add",
+            "net": 1575
+        },
+        {
+            "name": "nf_ld_ubus7",
+            "net": 1592
+        },
+        {
+            "name": "nf_to_alu_en",
+            "net": 1761
+        },
+        {
+            "name": "pv_sel_par",
+            "net": 1805
+        },
+        {
+            "name": "parity_odd",
+            "net": 700
+        },
+        {
+            "name": "pv_load_part",
+            "net": 636
+        },
+        {
+            "name": "pv_load_bc",
+            "net": 1757
+        },
+        {
+            "name": "bc_was_one",
+            "net": 502
+        },
+        {
+            "name": "aluout3_n",
+            "net": 1944
+        },
+        {
+            "name": "_rl_wr_req",
+            "net": 1648
+        },
+        {
+            "name": "_rh_wr_req",
+            "net": 1642
+        },
+        {
+            "name": "rfield_wr",
+            "net": 585
+        },
+        {
+            "name": "rfield_lo",
+            "net": 1630
+        },
+        {
+            "name": "flag_slot",
+            "net": 558
+        },
+        {
+            "name": "rl_wr_mcyc",
+            "net": 532
+        },
+        {
+            "name": "rh_wr_mcyc",
+            "net": 1586
+        },
+        {
+            "name": "_sel_af",
+            "net": 584
+        },
+        {
+            "name": "sel_bc",
+            "net": 564
+        },
+        {
+            "name": "alu_core_a0",
+            "net": 869
+        },
+        {
+            "name": "_sel_wz_q",
+            "net": 599
+        },
+        {
+            "name": "sel_wz_req",
+            "net": 1578
+        },
+        {
+            "name": "sel_other",
+            "net": 1583
+        },
+        {
+            "name": "sel_other_s",
+            "net": 1598
+        },
+        {
+            "name": "_wz_inhibit",
+            "net": 504
+        },
+        {
+            "name": "_sel_sp_req",
+            "net": 579
+        },
+        {
+            "name": "_sel_sp_s",
+            "net": 580
+        },
+        {
+            "name": "_sel_sp_q",
+            "net": 602
+        },
+        {
+            "name": "rr_is_sp",
+            "net": 1644
+        },
+        {
+            "name": "fld_is_hl",
+            "net": 1647
+        },
+        {
+            "name": "sel_fld",
+            "net": 1637
+        },
+        {
+            "name": "_hl_req",
+            "net": 581
+        },
+        {
+            "name": "hl_req",
+            "net": 593
+        },
+        {
+            "name": "hl_req_s",
+            "net": 1686
+        },
+        {
+            "name": "_sel_hl_log",
+            "net": 616
+        },
+        {
+            "name": "de_req",
+            "net": 1574
+        },
+        {
+            "name": "de_req_s",
+            "net": 1665
+        },
+        {
+            "name": "_sel_de_log",
+            "net": 601
+        },
+        {
+            "name": "_sel_hl_col",
+            "net": 1706
+        },
+        {
+            "name": "_sel_de_col",
+            "net": 1707
+        },
+        {
+            "name": "sel_hl_col",
+            "net": 1712
+        },
+        {
+            "name": "sel_de_col",
+            "net": 1714
+        },
+        {
+            "name": "_ex_dehl_a",
+            "net": 1713
+        },
+        {
+            "name": "_ex_dehl_b",
+            "net": 1709
+        },
+        {
+            "name": "ixy_req",
+            "net": 531
+        },
+        {
+            "name": "ixy_req_s",
+            "net": 1631
+        },
+        {
+            "name": "sel_ixy",
+            "net": 630
+        },
+        {
+            "name": "_ixy_d_sel",
+            "net": 511
+        },
+        {
+            "name": "ixy_mem_op",
+            "net": 466
+        },
+        {
+            "name": "ixiy_is_ix",
+            "net": 591
+        },
+        {
+            "name": "ixiy_is_iy",
+            "net": 1711
+        },
+        {
+            "name": "_ixiy_latch",
+            "net": 1641
+        },
+        {
+            "name": "ixiy_ld",
+            "net": 521
+        },
+        {
+            "name": "alu_sample",
+            "net": 684
+        },
+        {
+            "name": "rxd_nibble_ld",
+            "net": 740
+        },
+        {
+            "name": "m2_step_req",
+            "net": 1417
+        },
+        {
+            "name": "_rd_hi_req",
+            "net": 1558
+        },
+        {
+            "name": "_rd_lo_req",
+            "net": 523
+        },
+        {
+            "name": "pair_xfer",
+            "net": 488
         }
     ]
 }
