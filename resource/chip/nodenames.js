@@ -453,7 +453,7 @@ pla18: 320, // ldi/ldir/ldd/lddr
 pla19: 364, // cpi/cpir/cpd/cpdr
 pla20: 325, // outx/otxr
 pla21: 324, // inx/inxr
-pla22: 308, // CB prefix w/o IX/IY
+pla22: 308, // CB byte while IX/IY is latched (DDCB/FDCB); same gates as pla49
 pla23: 289, // push/pop
 pla24: 339, // call nn
 pla25: 313, // rlca/rla/rrca/rra

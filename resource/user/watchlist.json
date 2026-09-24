@@ -1865,7 +1865,7 @@
             "net": 1485
         },
         {
-            "name": "px405",
+            "name": "_alua_zero",
             "net": 405
         },
         {
@@ -1893,7 +1893,7 @@
             "net": 1486
         },
         {
-            "name": "px416",
+            "name": "_m3_nobus",
             "net": 416
         },
         {
@@ -2017,7 +2017,7 @@
             "net": 439
         },
         {
-            "name": "px441",
+            "name": "_hl_sel_m1t4",
             "net": 441
         },
         {
@@ -3707,6 +3707,242 @@
         {
             "name": "pv_src",
             "net": 3356
+        },
+        {
+            "name": "_aincdec_hold_req",
+            "net": 399
+        },
+        {
+            "name": "aincdec_hold",
+            "net": 406
+        },
+        {
+            "name": "aincdec_dec",
+            "net": 436
+        },
+        {
+            "name": "aincdec_dec_m1",
+            "net": 410
+        },
+        {
+            "name": "nf_sub_class",
+            "net": 460
+        },
+        {
+            "name": "_nf_load",
+            "net": 1802
+        },
+        {
+            "name": "nf_load",
+            "net": 1812
+        },
+        {
+            "name": "_alub_out_rst",
+            "net": 1520
+        },
+        {
+            "name": "_alub_out_ld_ir",
+            "net": 1534
+        },
+        {
+            "name": "_alua_out_req",
+            "net": 496
+        },
+        {
+            "name": "alua_to_alubus_pre",
+            "net": 1542
+        },
+        {
+            "name": "alua_to_alubus",
+            "net": 552
+        },
+        {
+            "name": "alub_to_alubus",
+            "net": 574
+        },
+        {
+            "name": "_alubus_to_vbus",
+            "net": 603
+        },
+        {
+            "name": "_alu_lo_done",
+            "net": 1526
+        },
+        {
+            "name": "_flag_szp_ld",
+            "net": 500
+        },
+        {
+            "name": "_regsel_sp",
+            "net": 1552
+        },
+        {
+            "name": "_regsel_rr_510",
+            "net": 510
+        },
+        {
+            "name": "_regsel_rr_1541",
+            "net": 1541
+        },
+        {
+            "name": "sel_rr",
+            "net": 592
+        },
+        {
+            "name": "_regsel_qq",
+            "net": 1557
+        },
+        {
+            "name": "_regsel_hl_506",
+            "net": 506
+        },
+        {
+            "name": "_regsel_hl_507",
+            "net": 507
+        },
+        {
+            "name": "sel_hl",
+            "net": 1579
+        },
+        {
+            "name": "sel_sp",
+            "net": 536
+        },
+        {
+            "name": "_regsel_bc",
+            "net": 508
+        },
+        {
+            "name": "_regsel_de",
+            "net": 1553
+        },
+        {
+            "name": "_regsel_a",
+            "net": 505
+        },
+        {
+            "name": "_regsel_r",
+            "net": 567
+        },
+        {
+            "name": "_regsel_ir",
+            "net": 1556
+        },
+        {
+            "name": "_ir_xfer",
+            "net": 537
+        },
+        {
+            "name": "_alub_clr_1693",
+            "net": 1693
+        },
+        {
+            "name": "_alub_clr",
+            "net": 756
+        },
+        {
+            "name": "alub_and38",
+            "net": 821
+        },
+        {
+            "name": "alub_clr38",
+            "net": 822
+        },
+        {
+            "name": "alub_mask_en",
+            "net": 1775
+        },
+        {
+            "name": "alua_preset",
+            "net": 832
+        },
+        {
+            "name": "im1_ack",
+            "net": 229
+        },
+        {
+            "name": "_int_ack_im01",
+            "net": 1260
+        },
+        {
+            "name": "rst_not_nmi",
+            "net": 310
+        },
+        {
+            "name": "im1_m1t5",
+            "net": 1545
+        },
+        {
+            "name": "_im1_m1t5",
+            "net": 1524
+        },
+        {
+            "name": "pv_bc_sel",
+            "net": 458
+        },
+        {
+            "name": "m2_pc_operand",
+            "net": 483
+        },
+        {
+            "name": "reg_fld_src",
+            "net": 450
+        },
+        {
+            "name": "_pair_xfer",
+            "net": 457
+        },
+        {
+            "name": "cc_ir5",
+            "net": 462
+        },
+        {
+            "name": "m2_addr_reload",
+            "net": 1425
+        },
+        {
+            "name": "m3_dec_req",
+            "net": 394
+        },
+        {
+            "name": "_iff1",
+            "net": 191
+        },
+        {
+            "name": "_iff_wr_req",
+            "net": 1283
+        },
+        {
+            "name": "_iff_wr_req_s",
+            "net": 1269
+        },
+        {
+            "name": "_iff_restore_req",
+            "net": 1224
+        },
+        {
+            "name": "_iff_restore_req_s",
+            "net": 1227
+        },
+        {
+            "name": "insn_end_s",
+            "net": 1138
+        },
+        {
+            "name": "_insn_end_s",
+            "net": 121
+        },
+        {
+            "name": "pla83_s",
+            "net": 1416
+        },
+        {
+            "name": "_pla83_s",
+            "net": 1419
+        },
+        {
+            "name": "pv_iff2",
+            "net": 1423
         }
     ]
 }

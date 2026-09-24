@@ -18,10 +18,34 @@ _abusc: 954,
 _abusd: 957,
 _abuse: 1003,
 _abusf: 1004,
+_aincdec_hold_req: 399, // Active-low incrementer hold request: LD SP,HL at M1T4, EX (SP),HL at M5T3
+_alu_lo_done: 1526, // Active-low end of the low-nibble ALU pass; switches alu_lo_sel to the high nibble
 _alu_ovf: 683, // Active-low overflow: XNOR of the carries into and out of ALU bit 3 (bit 7 in the high pass)
+_alua_out_req: 496, // Active-low alua readback term: M2T1 of IN/OUT (n),A, M5T3 of RST and acknowledges, M3T2 of IM2
+_alua_zero: 405, // Active-low: clears ALU operand A to 00h after the operand load (NEG, CPL, LD, IN r,(C), rotates, RST)
+_alub_clr: 756, // Active-low ALU operand B clear; clears every alub bit through alub_and38 and alub_clr38
+_alub_clr_1693: 1693, // Active-low alub clear term: M4T2 of RRD/RLD, M3T3 of the displacement add
+_alub_out_ld_ir: 1534, // Active-low alub readback term: M1T4 of LD I,A / LD R,A and M3T1 of most M3 cycles
+_alub_out_rst: 1520, // Active-low alub readback term: M4T3 of RST and the NMI/IM0/IM1 acknowledges, M3T3 of IM2, RRD/RLD
+_alubus_to_vbus: 603, // Active-low enable of the ALUBUS to VBUS drivers used by ALU result write-backs
+_flag_szp_ld: 500, // Active-low S, Z and P/V flag carrier load term
+_hl_sel_m1t4: 441, // Active-low: selects HL (IX/IY) at the clk 0 after M1T4
+_iff_restore_req: 1224, // Active-low NAND(t2, m1, pla46): RETN/RETI restore request, sampled into _iff_restore_req_s
+_iff_restore_req_s: 1227, // _iff_restore_req held from the clk=1 half; iff_restore fires at M1T3 clk 0 after RETN/RETI
+_iff_wr_req: 1283, // Active-low NAND(t1, m1, pla97): EI/DI write request, sampled into _iff_wr_req_s
+_iff_wr_req_s: 1269, // _iff_wr_req held from the clk=1 half; iff_wr = NOR(this, clk) fires at the next M1T2 clk 0
+_iff1: 191, // NOT IFF1 master 181; int_enable and the iff1 buffer read IFF1 through it
 _iff2: 1278, // Inverted IFF2 node; gates the extra pulldown t4049 on pla83
+_im1_m1t5: 1524, // Complement of im1_m1t5; input of alua_to_alubus
+_insn_end_s: 121, // NOT insn_end_s; m_cycle_start = NOR(this, clk)
+_int_ack_im01: 1260, // Active-low: interrupt acknowledge in IM 0 or IM 1
+_ir_xfer: 537, // Active-low I/R transfer request for LD I,A / LD A,I / LD R,A / LD A,R at M1T5 clk 0
 _last_m: 184, // Complement of last_m (Ken's LAST_M_CYCLE/)
 _last_t: 110,
+_m3_nobus: 416, // Active-low: M3 is an internal cycle with no bus access
+_nf_load: 1802, // Active-low N flag load request, suppressed in DAA; clocked into nf_load
+_pair_xfer: 457, // Active-low enable of the half-by-half register pair writes (M2 byte at M3T1, M4 byte at M5T1)
+_pla83_s: 1419, // NOT pla83_s
 _regbit0: 708,
 _regbit1: 715,
 _regbit2: 745,
@@ -38,6 +62,17 @@ _regbit12: 949,
 _regbit13: 959,
 _regbit14: 980,
 _regbit15: 985,
+_regsel_a: 505, // Active-low AF select term: ALU result to A, rotates, accumulator transfers
+_regsel_bc: 508, // Active-low BC select term: DJNZ, INI/OUTI, IN/OUT (C), block instruction BC decrement
+_regsel_de: 1553, // Active-low DE select term: M2T3 and M3T2 of LDI/LDD/LDIR/LDDR
+_regsel_hl_506: 506, // Active-low HL select term: 16-bit adds, RRD/RLD, block instruction HL update
+_regsel_hl_507: 507, // Active-low HL select term: M1T4 of HL memory operands and 16-bit adds, LD r,n, INI/OUTI
+_regsel_ir: 1556, // Active-low I/R select term: LD I,A / LD A,I / LD R,A / LD A,R and the IM2 acknowledge
+_regsel_qq: 1557, // Active-low PUSH/POP pair select term (AF in place of SP)
+_regsel_r: 567, // Active-low select and read enable term for the register named by the r field
+_regsel_rr_510: 510, // Active-low IR[5:4] pair select term: LD rr,nn, INC/DEC rr, LD (rr),A, LD A,(rr), EX (SP),HL
+_regsel_rr_1541: 1541, // Active-low IR[5:4] pair select term: EX (SP),HL, 16-bit adds, LD (nn),rr and LD rr,(nn)
+_regsel_sp: 1552, // Active-low SP select term: T2 of stack M-cycles, M1T5 of stack instructions and LD SP,HL
 _w148: 1281, // Active-low w148: skip from M1 or M2 straight to M4
 _wr_ab: 680,
 abus_is_one: 691,
@@ -57,6 +92,9 @@ abusc: 2449,
 abusd: 2534,
 abuse: 2572,
 abusf: 2660,
+aincdec_dec: 436, // Incrementer decrement select
+aincdec_dec_m1: 410, // High for DEC rr, PUSH, RST and the acknowledges; its M1T4 term selects decrement for M1T5
+aincdec_hold: 406, // Incrementer hold: the 16-bit value passes without +1 (also in every HALT fetch)
 aincdec0: 707,
 aincdec1: 722,
 aincdec2: 744,
@@ -84,9 +122,17 @@ alu_orxor: 825, // ALU logic function OR/XOR/SET: kills the carry chain
 alu_res_oe: 646, // Drives the ALU result onto ALUBUS (alulat on bits 0..3, aluout on 4..7)
 alu_zero: 818, // ALU result is zero (Z source)
 alua_ld: 604, // Loads alua from ALUBUS (A at every M1T4 clk 0)
+alua_preset: 832, // Presets all alua bits high at M1T5 clk 0 of NMI, RST and the IM1 acknowledge
+alua_to_alubus: 552, // Drives the complement of the alua latch onto ALUBUS
+alua_to_alubus_pre: 1542, // Unclocked OR of the alua readback terms; sampled into alua_to_alubus
+alub_and38: 821, // Clears alub bits 0..2 and 6..7 (alub AND 38h); with alub_clr38 clears all bits
 alub_bus: 820,
+alub_clr38: 822, // Clears alub bits 3..5; with alub_and38 clears all bits
+alub_mask_en: 1775, // Enables alub_and38 from M4T2 clk 1 to M4T3 clk 0 of RST and the IM1 acknowledge (not NMI)
+alub_to_alubus: 574, // Drives the alub latch onto ALUBUS
 branch_not_taken: 194, // BRANCH_NOT_TAKEN: a conditional or repeat instruction stops in this M-cycle
 bus_650: 650,
+cc_ir5: 462, // IR bit 5 masked to 0 for JR cc, for the condition flag and shift fill selects
 cell_f0: 1854,
 cf_isolate_n: 711,
 cf_master_n: 2011,
@@ -165,11 +211,14 @@ iff1: 1210,
 iff1_master: 181, // IFF1 dynamic master node
 iff2: 1239,
 iff2_master: 206, // IFF2 dynamic master node
+im1_ack: 229, // IM 1 acknowledge in progress: int_ack, imfa and not imfb, decode inhibited
+im1_m1t5: 1545, // M1T5 of the IM 1 acknowledge; turns alu_a off
 im2_sel: 1180, // imfa AND imfb: selects the IM 2 acknowledge sequence
 imf_wr: 180, // IM n write strobe for IMFA/IMFB at the next instruction's M1T2 clk 0
 imfa: 1215,
 imfb: 1268,
 insn_end: 152, // Last T of the last M-cycle of a non-prefix instruction; feeds m_cycle_start
+insn_end_s: 1138, // insn_end held from the clk=1 half
 int_accept: 150, // INT accept latch, loaded from int_take by m_cycle_start; high = acknowledge
 int_accept_n: 149, // INT accept latch, complement of int_accept
 int_ack: 188, // INT acknowledge: clears IFF1/IFF2 and HALT, inhibits decode in IM1/IM2
@@ -194,6 +243,9 @@ latch_cb: 1255,
 latch_ed: 1259,
 latch_ixiy: 1254,
 m_cycle_start: 122, // Instruction-boundary strobe at M1T1 clk 0; commits NMI_ACCEPT, the INT accept latch and the HALT latch
+m2_addr_reload: 1425, // Low for EX (SP),HL and the IM2 acknowledge: the address latch keeps its M2 value
+m2_pc_operand: 483, // High when M2 reads an operand byte at PC
+m3_dec_req: 394, // M3T3 decrement request: SP before a CALL push, BC in LDI/CPI
 n_carrier_1789: 1789,
 n726: 726,
 n794: 794,
@@ -203,6 +255,8 @@ n3405: 3405,
 n3406: 3406,
 n3410: 3410,
 n3414: 3414,
+nf_load: 1812, // Loads the subtract class into the N flag node 696 at the next M1T1 clk 0
+nf_sub_class: 460, // Subtract class (SUB, SBC, CP, NEG, DEC, CPL, DJNZ, CPI/INI/OUTI); the N flag source
 nmi_accept_q: 1171, // NMI_ACCEPT commit latch Q (HIGH = NMI acknowledged, drives nmi_ack)
 nmi_accept_qbar: 148, // NMI_ACCEPT commit latch Qbar (complement of nmi_accept_q)
 nmi_ack: 135, // NMI Acknowledge
@@ -228,8 +282,11 @@ pla22b: 1294,
 pla22c: 1253,
 pla22d: 193, // IX/IY+CB
 pla39_m1_stk: 3058, // Series-stack node between the pla39 pulldown and the m1 pass (t1 & m1 & pla39)
+pla83_s: 1416, // pla83 (LD A,I / LD A,R and IFF2) held from the clk=1 half
 pla98_m2_stk: 3049, // Series-stack node between the pla98 pulldown and the m2 pass (t1 & m2 & pla98)
+pv_bc_sel: 458, // LDI and CPI families: selects BC != 0 as P/V at M3T5 clk 0
 pv_carrier_647: 647,
+pv_iff2: 1423, // Buffered pla83_s; pulls _alu_ovf low so P/V takes IFF2 for LD A,I / LD A,R
 pv_sel_ovf: 1460, // P/V mux select: overflow (_alu_ovf) instead of parity
 pv_src: 3356, // P/V mux output, loaded into pv_carrier_647
 px10n: 1355,
@@ -264,14 +321,12 @@ px403: 403,
 px403n: 1456,
 px404: 404,
 px404n: 1485,
-px405: 405,
 px409: 409,
 px409n: 1457,
 px411: 411,
 px413: 413,
 px415: 415,
 px415n: 1486,
-px416: 416,
 px417: 417,
 px417n: 1463,
 px420: 420,
@@ -302,7 +357,6 @@ px435n: 1489,
 px437: 437,
 px438: 438,
 px439: 439,
-px441: 441,
 px442: 442,
 px442n: 464,
 px443: 443,
@@ -330,6 +384,7 @@ px1474: 1474,
 px1490: 1490,
 px1494: 1494,
 px3039: 3039,
+reg_fld_src: 450, // Register field select: IR[2:0] when high, IR[5:3] when low
 reg_sel_af: 677,
 reg_sel_af': 674,
 reg_sel_bc: 673,
@@ -344,6 +399,10 @@ reg_sel_ix: 661,
 reg_sel_iy: 658,
 reg_sel_sp: 657,
 reg_sel_wz: 654,
+rst_not_nmi: 310, // seq_rst and not the NMI acknowledge
+sel_hl: 1579, // HL (IX/IY) select: OR of _regsel_hl_506 and _regsel_hl_507
+sel_rr: 592, // IR[5:4] register pair select: OR of _regsel_rr_510 and _regsel_rr_1541
+sel_sp: 536, // SP select, from _regsel_sp
 seq_im2: 270, // Pseudo PLA row: the IM2 acknowledge sequence
 seq_rst: 228, // Pseudo PLA row: RST p and the NMI, IM0, IM1 acknowledge sequences
 set_cf_path: 764,

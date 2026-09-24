@@ -81,6 +81,10 @@
             "tip": "D input of the NMI_Q1 clk-gated D-flop"
         },
         {
+            "net": 121,
+            "tip": "NOT insn_end_s; m_cycle_start = NOR(this, clk)"
+        },
+        {
             "net": 122,
             "tip": "Instruction-boundary strobe at M1T1 clk 0; commits NMI_ACCEPT, the INT accept latch and the HALT latch"
         },
@@ -141,6 +145,10 @@
             "tip": "IXY_D latch set request, sampled at M2T2"
         },
         {
+            "net": 191,
+            "tip": "NOT IFF1 master 181; int_enable and the iff1 buffer read IFF1 through it"
+        },
+        {
             "net": 193,
             "tip": "IX/IY+CB"
         },
@@ -171,6 +179,10 @@
         {
             "net": 228,
             "tip": "Pseudo PLA row: RST p and the NMI, IM0, IM1 acknowledge sequences"
+        },
+        {
+            "net": 229,
+            "tip": "IM 1 acknowledge in progress: int_ack, imfa and not imfb, decode inhibited"
         },
         {
             "net": 231,
@@ -385,6 +397,10 @@
             "tip": "ld r,*"
         },
         {
+            "net": 310,
+            "tip": "seq_rst and not the NMI acknowledge"
+        },
+        {
             "net": 311,
             "tip": "add/sub/and/or/xor/cmp a,imm"
         },
@@ -585,12 +601,124 @@
             "tip": "ldi/ldir/ldd/lddr"
         },
         {
+            "net": 394,
+            "tip": "M3T3 decrement request: SP before a CALL push, BC in LDI/CPI"
+        },
+        {
+            "net": 399,
+            "tip": "Active-low incrementer hold request: LD SP,HL at M1T4, EX (SP),HL at M5T3"
+        },
+        {
+            "net": 405,
+            "tip": "Active-low: clears ALU operand A to 00h after the operand load (NEG, CPL, LD, IN r,(C), rotates, RST)"
+        },
+        {
+            "net": 406,
+            "tip": "Incrementer hold: the 16-bit value passes without +1 (also in every HALT fetch)"
+        },
+        {
+            "net": 410,
+            "tip": "High for DEC rr, PUSH, RST and the acknowledges; its M1T4 term selects decrement for M1T5"
+        },
+        {
+            "net": 416,
+            "tip": "Active-low: M3 is an internal cycle with no bus access"
+        },
+        {
+            "net": 436,
+            "tip": "Incrementer decrement select"
+        },
+        {
+            "net": 441,
+            "tip": "Active-low: selects HL (IX/IY) at the clk 0 after M1T4"
+        },
+        {
+            "net": 450,
+            "tip": "Register field select: IR[2:0] when high, IR[5:3] when low"
+        },
+        {
+            "net": 457,
+            "tip": "Active-low enable of the half-by-half register pair writes (M2 byte at M3T1, M4 byte at M5T1)"
+        },
+        {
+            "net": 458,
+            "tip": "LDI and CPI families: selects BC != 0 as P/V at M3T5 clk 0"
+        },
+        {
+            "net": 460,
+            "tip": "Subtract class (SUB, SBC, CP, NEG, DEC, CPL, DJNZ, CPI/INI/OUTI); the N flag source"
+        },
+        {
+            "net": 462,
+            "tip": "IR bit 5 masked to 0 for JR cc, for the condition flag and shift fill selects"
+        },
+        {
+            "net": 483,
+            "tip": "High when M2 reads an operand byte at PC"
+        },
+        {
+            "net": 496,
+            "tip": "Active-low alua readback term: M2T1 of IN/OUT (n),A, M5T3 of RST and acknowledges, M3T2 of IM2"
+        },
+        {
+            "net": 500,
+            "tip": "Active-low S, Z and P/V flag carrier load term"
+        },
+        {
+            "net": 505,
+            "tip": "Active-low AF select term: ALU result to A, rotates, accumulator transfers"
+        },
+        {
+            "net": 506,
+            "tip": "Active-low HL select term: 16-bit adds, RRD/RLD, block instruction HL update"
+        },
+        {
+            "net": 507,
+            "tip": "Active-low HL select term: M1T4 of HL memory operands and 16-bit adds, LD r,n, INI/OUTI"
+        },
+        {
+            "net": 508,
+            "tip": "Active-low BC select term: DJNZ, INI/OUTI, IN/OUT (C), block instruction BC decrement"
+        },
+        {
+            "net": 510,
+            "tip": "Active-low IR[5:4] pair select term: LD rr,nn, INC/DEC rr, LD (rr),A, LD A,(rr), EX (SP),HL"
+        },
+        {
+            "net": 536,
+            "tip": "SP select, from _regsel_sp"
+        },
+        {
+            "net": 537,
+            "tip": "Active-low I/R transfer request for LD I,A / LD A,I / LD R,A / LD A,R at M1T5 clk 0"
+        },
+        {
             "net": 551,
             "tip": "Drives the flag latches onto UBUS for the F write"
         },
         {
+            "net": 552,
+            "tip": "Drives the complement of the alua latch onto ALUBUS"
+        },
+        {
+            "net": 567,
+            "tip": "Active-low select and read enable term for the register named by the r field"
+        },
+        {
+            "net": 574,
+            "tip": "Drives the alub latch onto ALUBUS"
+        },
+        {
             "net": 575,
             "tip": "Loads the flag latches from F on UBUS at M1T4 clk 0"
+        },
+        {
+            "net": 592,
+            "tip": "IR[5:4] register pair select: OR of _regsel_rr_510 and _regsel_rr_1541"
+        },
+        {
+            "net": 603,
+            "tip": "Active-low enable of the ALUBUS to VBUS drivers used by ALU result write-backs"
         },
         {
             "net": 604,
@@ -617,8 +745,20 @@
             "tip": "Carry Flag state"
         },
         {
+            "net": 756,
+            "tip": "Active-low ALU operand B clear; clears every alub bit through alub_and38 and alub_clr38"
+        },
+        {
             "net": 818,
             "tip": "ALU result is zero (Z source)"
+        },
+        {
+            "net": 821,
+            "tip": "Clears alub bits 0..2 and 6..7 (alub AND 38h); with alub_clr38 clears all bits"
+        },
+        {
+            "net": 822,
+            "tip": "Clears alub bits 3..5; with alub_and38 clears all bits"
         },
         {
             "net": 825,
@@ -635,6 +775,10 @@
         {
             "net": 831,
             "tip": "ALU high-nibble pass select"
+        },
+        {
+            "net": 832,
+            "tip": "Presets all alua bits high at M1T5 clk 0 of NMI, RST and the IM1 acknowledge"
         },
         {
             "net": 1066,
@@ -681,6 +825,10 @@
             "tip": "HALT latch, complement of halt_q"
         },
         {
+            "net": 1138,
+            "tip": "insn_end held from the clk=1 half"
+        },
+        {
             "net": 1143,
             "tip": "Sets T3 on the next CLK low"
         },
@@ -713,6 +861,22 @@
             "tip": "Sets T5 on the next CLK low"
         },
         {
+            "net": 1224,
+            "tip": "Active-low NAND(t2, m1, pla46): RETN/RETI restore request, sampled into _iff_restore_req_s"
+        },
+        {
+            "net": 1227,
+            "tip": "_iff_restore_req held from the clk=1 half; iff_restore fires at M1T3 clk 0 after RETN/RETI"
+        },
+        {
+            "net": 1260,
+            "tip": "Active-low: interrupt acknowledge in IM 0 or IM 1"
+        },
+        {
+            "net": 1269,
+            "tip": "_iff_wr_req held from the clk=1 half; iff_wr = NOR(this, clk) fires at the next M1T2 clk 0"
+        },
+        {
             "net": 1278,
             "tip": "Inverted IFF2 node; gates the extra pulldown t4049 on pla83"
         },
@@ -721,24 +885,108 @@
             "tip": "Active-low w148: skip from M1 or M2 straight to M4"
         },
         {
+            "net": 1283,
+            "tip": "Active-low NAND(t1, m1, pla97): EI/DI write request, sampled into _iff_wr_req_s"
+        },
+        {
             "net": 1315,
             "tip": "Sets T4 on the next CLK low"
+        },
+        {
+            "net": 1416,
+            "tip": "pla83 (LD A,I / LD A,R and IFF2) held from the clk=1 half"
+        },
+        {
+            "net": 1419,
+            "tip": "NOT pla83_s"
+        },
+        {
+            "net": 1423,
+            "tip": "Buffered pla83_s; pulls _alu_ovf low so P/V takes IFF2 for LD A,I / LD A,R"
+        },
+        {
+            "net": 1425,
+            "tip": "Low for EX (SP),HL and the IM2 acknowledge: the address latch keeps its M2 value"
         },
         {
             "net": 1460,
             "tip": "P/V mux select: overflow (_alu_ovf) instead of parity"
         },
         {
+            "net": 1520,
+            "tip": "Active-low alub readback term: M4T3 of RST and the NMI/IM0/IM1 acknowledges, M3T3 of IM2, RRD/RLD"
+        },
+        {
+            "net": 1524,
+            "tip": "Complement of im1_m1t5; input of alua_to_alubus"
+        },
+        {
+            "net": 1526,
+            "tip": "Active-low end of the low-nibble ALU pass; switches alu_lo_sel to the high nibble"
+        },
+        {
+            "net": 1534,
+            "tip": "Active-low alub readback term: M1T4 of LD I,A / LD R,A and M3T1 of most M3 cycles"
+        },
+        {
+            "net": 1541,
+            "tip": "Active-low IR[5:4] pair select term: EX (SP),HL, 16-bit adds, LD (nn),rr and LD rr,(nn)"
+        },
+        {
+            "net": 1542,
+            "tip": "Unclocked OR of the alua readback terms; sampled into alua_to_alubus"
+        },
+        {
+            "net": 1545,
+            "tip": "M1T5 of the IM 1 acknowledge; turns alu_a off"
+        },
+        {
+            "net": 1552,
+            "tip": "Active-low SP select term: T2 of stack M-cycles, M1T5 of stack instructions and LD SP,HL"
+        },
+        {
+            "net": 1553,
+            "tip": "Active-low DE select term: M2T3 and M3T2 of LDI/LDD/LDIR/LDDR"
+        },
+        {
+            "net": 1556,
+            "tip": "Active-low I/R select term: LD I,A / LD A,I / LD R,A / LD A,R and the IM2 acknowledge"
+        },
+        {
+            "net": 1557,
+            "tip": "Active-low PUSH/POP pair select term (AF in place of SP)"
+        },
+        {
+            "net": 1579,
+            "tip": "HL (IX/IY) select: OR of _regsel_hl_506 and _regsel_hl_507"
+        },
+        {
             "net": 1587,
             "tip": "F write pending: the next M1T4 clk 0 writes F instead of reading it"
+        },
+        {
+            "net": 1693,
+            "tip": "Active-low alub clear term: M4T2 of RRD/RLD, M3T3 of the displacement add"
         },
         {
             "net": 1760,
             "tip": "NOT ixy_d_phase; blocks cf_set_n during the displacement add"
         },
         {
+            "net": 1775,
+            "tip": "Enables alub_and38 from M4T2 clk 1 to M4T3 clk 0 of RST and the IM1 acknowledge (not NMI)"
+        },
+        {
+            "net": 1802,
+            "tip": "Active-low N flag load request, suppressed in DAA; clocked into nf_load"
+        },
+        {
             "net": 1809,
             "tip": "Working CF input latch (active-low); sampled from UBUS[0] via gate 684; read by ADC/SBC/RLA/RRA/DAA"
+        },
+        {
+            "net": 1812,
+            "tip": "Loads the subtract class into the N flag node 696 at the next M1T1 clk 0"
         },
         {
             "net": 1864,
