@@ -18,6 +18,7 @@ The MCP tools couple tightly to the global `ClassController`, so isolating them 
 | `--host H` | server on a non-default address |
 | `--quick` | skip the three concurrency cases |
 | `--only SUBSTR` | run only tests whose name contains SUBSTR |
+| `--destructive` | also run the `z80_save` cases, which rewrite the live user data files |
 
 Standard library only, deliberately: no `pip install` stands between a checkout and a verified server.
 

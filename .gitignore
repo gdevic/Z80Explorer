@@ -39,7 +39,7 @@ zout
 # cmake generated files
 CMakeLists.txt.user*
 
-# local-only project notes (see CLAUDE.md "Local notes directory")
+# local-only guidance for Claude Code
 CLAUDE.md
 
 # qtcreator generated build folder
@@ -90,3 +90,5 @@ CLAUDE.md
 # Pull-up data ClassVisual auto-saves at runtime
 /resource/user/pullups.json
 
+# build-mcp.bat output folder
+/build-mcp

@@ -1,6 +1,6 @@
 # TODO: Z80Explorer app improvements
 
-Worklist for the app itself, collected from the 2026-09 verification rounds: what the agents hit, the "Proposed MCP / script API" sections of `Z80Explorer-notes/audit_2026_09/reports/`, and a read of the current source. Defects already triaged live in `Z80Explorer-notes/BUGS.md`; the MCP items already done or declined live in `Z80Explorer-notes/docs/mcp_wishlist.md`. Priority is P1 (blocks or distorts research), P2 (costs a lot of time), P3 (convenience).
+Worklist for the app itself, collected from the 2026-09 verification rounds: what the agents hit, the "Proposed MCP / script API" sections of `Z80Explorer-notes/audit_2026_09/reports/`, and a read of the current source. Defects already triaged live in `BUGS.md`; the MCP items already done or declined live in `docs/dev/mcp_wishlist.md`. Priority is P1 (blocks or distorts research), P2 (costs a lot of time), P3 (convenience).
 
 ## 1. User data files: one treatment for all of them
 
@@ -46,7 +46,7 @@ Dropping a JSON onto the die view (`WidgetImageView::dropEvent`) makes that file
 - **16-bit half-cycle arguments.** `stopAt`, `setAt` and `setAtPC` take `quint16` because the trickbox block is Z80-addressable. From a script or MCP call, a half-cycle above 65535 is truncated. Check the comparison against `curCycle` and either take 32-bit values in the host API or reject out-of-range ones.
 - **Naming calls return nothing.** `setNetName`, `renameNet` and `deleteNetName` return `void`; a refusal (for example `renameNet` on an unnamed net) goes only to the log, so from a script it looks like nothing happened. Return `{ok, error}`, or merge them into one `nameNet(net, name, comment)` that names, renames or clears.
 - **Two half-cycle numberings.** The JS tracer's `mon.getHCycle()` read before `run(1)` is the MCP canonical number plus one, so every report had to convert. Use one numbering everywhere, and name it in `z80_die_info`.
-- **Reset does not clear every latch.** The EX DE,HL and EXX swap latches survive `reset()`, so a capture depends on what ran before. Add a cold reset that sets every dynamic node and latch to a defined state, as a power-on would.
+- **Reset does not clear every latch.** F and the register-select flip-flops (`ex_af`, `reg_sel_exx`, `ex_dehl_combined`) survive `reset()`, so a capture depends on what ran before. Add a cold reset that sets every dynamic node and latch to a defined state, as a power-on would.
 
 ## 3. Capture and analysis tools (from the agent proposals)
 
@@ -77,6 +77,7 @@ Two published results (IFF2 after NMI at EI, and X/Y after SCF/CCF) were decided
 - **`z80_gate_classify({nets})`**: inverter, NOR, NAND, pass-XNOR, clocked refresh latch, superbuffer or dynamic node, with inputs and polarity. Recognising the two XNORs and the refresh loops in the flag logic took several `z80_net_drivers` rounds each. This is the C++ form of the classifier the wishlist lists as open.
 - **`z80_equation` with `depth` and `stop_at_named`**: full expansions ran to tens of kilobytes.
 - **`z80_pulldown_terms({nets})`**: product terms through series nodes.
+- **`z80_equation` labels a push-pull stage as a clock gate when no clock is involved.** The clocked push/pull detection in `ClassLogic.cpp` (the block that builds `LogicOp::ClkGate`) matches a net without a pull-up that has two pull-downs and one device to VCC whose gate net has a pull-up and two pull-downs, and never checks that one of the two pull-downs is gated by `clk`. Net 110 `_last_t` (pull-downs gated by `last_t` and `int_reset`) prints as `CLKGATE`. Require `clk` on one pull-down.
 - **`z80_px_rows({net})`**: the PLA rows behind a `px*` net and whether they are ORed or NORed.
 
 ## 4. Physical layout API (P1)
@@ -99,10 +100,3 @@ The switch-level model has no device strength, so a fight or a charge-sharing me
 ## 6. Working with several agents (P2)
 
 - **A simulator lease in the server.** Agents shared one simulator through the `sim_lock.ps1` / `sim_unlock.ps1` scripts (archived in `Z80Explorer-notes/audit_2026_09/`). A `z80_lease({owner, ttl_s})` / `z80_release` pair in the MCP server, with state-changing tools refusing a caller without the lease, would replace them and survive a crashed agent through the timeout.
-- **Snapshot and restore.** `z80_snapshot()` / `z80_restore(id)` of the whole chip state, so an agent can return to a known point without re-running from reset.
-
-## 7. Open items carried from `Z80Explorer-notes/docs/mcp_wishlist.md`
-
-- `z80_view_grab` finds only the central pane.
-- The topology classifier (covered by 3.4).
-- The schematic dialog has not been opened since `LogicOp::PullUp` was added.
